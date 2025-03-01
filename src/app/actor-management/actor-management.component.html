@@ -1,0 +1,105 @@
+<div class="container-fluid">
+    <h2 class="mb-4">Actor Management</h2>
+  
+    <!-- Add Actor Button -->
+    <button class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#actorModal" (click)="resetForm()">
+      Add New Actor
+    </button>
+  
+    <!-- Actors Table -->
+    <div class="table-responsive">
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th>Photo</th>
+            <th>Name</th>
+            <th>Date of Birth</th>
+            <th>Biography</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let actor of actors">
+            <td>
+              <img [src]="actor.photo" alt="Actor photo" class="img-thumbnail" style="width: 50px; height: 50px;">
+            </td>
+            <td>{{actor.name}}</td>
+            <td>{{actor.dateOfBirth | date:'dd/MM/yyyy'}}</td>
+            <td>{{actor.biography}}</td>
+            <td>{{actor.status === 1 ? 'Active' : 'Inactive'}}</td>
+            <td>
+              <button class="btn btn-sm btn-primary me-2" data-bs-toggle="modal" data-bs-target="#actorModal" (click)="editActor(actor)">
+                Edit
+              </button>
+              <button class="btn btn-sm btn-danger" (click)="deleteActor(actor.id)">
+                Delete
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  
+    <!-- Pagination -->
+    <nav aria-label="Page navigation">
+      <ul class="pagination justify-content-center">
+        <li class="page-item" [class.disabled]="currentPage === 1">
+          <a class="page-link" (click)="onPageChange(currentPage - 1)">Previous</a>
+        </li>
+        <li class="page-item" [class.disabled]="currentPage * recordPerPage >= totalRecords">
+          <a class="page-link" (click)="onPageChange(currentPage + 1)">Next</a>
+        </li>
+      </ul>
+    </nav>
+  
+    <!-- Actor Modal -->
+    <div class="modal fade" id="actorModal" tabindex="-1" aria-labelledby="actorModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="actorModalLabel">{{isEditing ? 'Edit Actor' : 'Add New Actor'}}</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <form [formGroup]="actorForm" (ngSubmit)="onSubmit()">
+              <div class="mb-3">
+                <label for="name" class="form-label">Name</label>
+                <input type="text" class="form-control" id="name" formControlName="name">
+              </div>
+  
+              <div class="mb-3">
+                <label for="dateOfBirth" class="form-label">Date of Birth</label>
+                <input type="date" class="form-control" id="dateOfBirth" formControlName="dateOfBirth">
+              </div>
+  
+              <div class="mb-3">
+                <label for="biography" class="form-label">Biography</label>
+                <textarea class="form-control" id="biography" rows="3" formControlName="biography"></textarea>
+              </div>
+  
+              <div class="mb-3">
+                <label for="photo" class="form-label">Photo</label>
+                <input type="file" class="form-control" id="photo" (change)="onFileSelect($event)" accept="image/*">
+              </div>
+  
+              <div class="mb-3">
+                <label for="status" class="form-label">Status</label>
+                <select class="form-select" id="status" formControlName="status">
+                  <option value="1">Active</option>
+                  <option value="0">Inactive</option>
+                </select>
+              </div>
+  
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="submit" class="btn btn-primary" [disabled]="!actorForm.valid">
+                  {{isEditing ? 'Update' : 'Create'}}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>

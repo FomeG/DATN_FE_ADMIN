@@ -1,15 +1,20 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { MovieService } from '../services/movie.service';
-import { ActorService } from '../services/actor.service';
+import { ActorService, Actor } from '../services/actor.service';
+
 import Swal from 'sweetalert2';
+
+
+declare var $: any; // Để sử dụng jQuery với Dropify
+
 
 @Component({
   selector: 'app-edit-movie',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterModule],
+  imports: [CommonModule, ReactiveFormsModule, RouterModule, FormsModule],
   templateUrl: './edit-movie.component.html'
 })
 export class EditMovieComponent implements OnInit {
@@ -17,10 +22,20 @@ export class EditMovieComponent implements OnInit {
   movieId: string = '';
   isLoading = false;
   actors: any[] = [];
+  filteredActors: Actor[] = [];
   selectedActors: any[] = [];
   selectedThumbnail: File | null = null;
   selectedTrailer: File | null = null;
-  
+
+  searchTerm: string = '';
+  showDropdown: boolean = false;
+
+
+
+
+
+
+
   constructor(
     private fb: FormBuilder,
     private route: ActivatedRoute,
@@ -52,37 +67,58 @@ export class EditMovieComponent implements OnInit {
   onFileSelect(event: any, type: string) {
     const file = event.target.files[0];
     if (file) {
-      if (type === 'thumbnail') {
-        this.selectedThumbnail = file;
-      } else if (type === 'trailer') {
-        this.selectedTrailer = file;
+      switch (type) {
+        case 'thumbnail':
+          this.selectedThumbnail = file;
+          break;
+        case 'trailer':
+          this.selectedTrailer = file;
+          break;
       }
     }
   }
+
+
+
+
+
+
+
+
+
+
+  // Sửa lại phương thức loadMovieDetails()
   loadMovieDetails() {
-    this.movieService.getMovieById(this.movieId).subscribe({
-      next: (response) => {
-        if (response.responseCode === 200) {
-          this.movieForm.patchValue({
-            movieName: response.data.movieName,
-            description: response.data.description,
-            duration: response.data.duration,
-            releaseDate: response.data.releaseDate,
-            status: response.data.status,
-            listActorID: response.data.listdienvien?.map((actor: any) => actor.id) || []
-          });
-          // Set selected actors
-          this.selectedActors = response.data.listdienvien || [];
+    if (this.movieId) {
+      this.movieService.getMovieById(this.movieId).subscribe({
+        next: (response) => {
+          if (response.data) {
+            const movieData = response.data;
+            this.movieForm.patchValue({
+              movieName: movieData.movieName,
+              description: movieData.description,
+              duration: movieData.duration,
+              releaseDate: movieData.releaseDate.split('T')[0],
+              status: movieData.status
+            });
+
+            // Cập nhật danh sách diễn viên từ listdienvien
+            this.selectedActors = movieData.listdienvien.map((dv: { id: number; name: string; photo: string }) => ({
+              id: dv.id,
+              name: dv.name,
+              photo: dv.photo
+            }));
+          }
+        },
+        error: (error) => {
+          console.error('Error loading movie details:', error);
         }
-      },
-      error: (error) => {
-        Swal.fire('Lỗi!', 'Không thể tải thông tin phim.', 'error');
-      }
-    });
+      });
+    }
   }
 
   loadActors() {
-    this.actorService.getActors(1,99999).subscribe({
+    this.actorService.getActors(1, 99999).subscribe({
       next: (response) => {
         if (response.responseCode === 200) {
           this.actors = response.data;
@@ -90,6 +126,46 @@ export class EditMovieComponent implements OnInit {
       }
     });
   }
+
+
+
+
+  removeActor(actor: Actor) {
+    this.selectedActors = this.selectedActors.filter(a => a.id !== actor.id);
+    this.updateFormActorIds();
+  }
+
+
+  private updateFormActorIds() {
+    const actorIds = this.selectedActors.map(actor => actor.id);
+    this.movieForm.patchValue({ listActorID: actorIds });
+  }
+
+
+
+  selectActor(actor: Actor) {
+    if (!this.selectedActors.some(selected => selected.id === actor.id)) {
+      this.selectedActors.push(actor);
+      this.searchTerm = '';
+      this.showDropdown = false;
+      this.updateFormActorIds();
+    }
+  }
+
+  filterActors() {
+    if (!this.searchTerm) {
+      this.filteredActors = this.actors.filter(actor =>
+        !this.selectedActors.some(selected => selected.id === actor.id)
+      );
+    } else {
+      this.filteredActors = this.actors.filter(actor =>
+        actor.name.toLowerCase().includes(this.searchTerm.toLowerCase()) &&
+        !this.selectedActors.some(selected => selected.id === actor.id)
+      );
+    }
+  }
+
+
 
   onSubmit() {
     if (this.movieForm.valid) {
@@ -117,6 +193,27 @@ export class EditMovieComponent implements OnInit {
           Swal.fire('Lỗi!', 'Có lỗi xảy ra khi cập nhật phim:' + error.message, 'error');
         }
       });
+    }
+  }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  @HostListener('document:click', ['$event'])
+  onClickOutside(event: Event) {
+    if (!(event.target as HTMLElement).closest('.actor-search-container')) {
+      this.showDropdown = false;
     }
   }
 }

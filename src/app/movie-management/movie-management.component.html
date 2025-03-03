@@ -1,4 +1,6 @@
 <div class="container-fluid">
+
+  <h2 class="mb-4">Movie Management</h2>
   <!-- Thêm nút này vào vị trí phù hợp trong giao diện -->
   <button class="btn-lg btn-primary mb-4" style="border-radius: 15px" data-bs-toggle="modal"
     data-bs-target="#addMovieModal">
@@ -21,7 +23,7 @@
                   <th>Mô tả</th>
                   <th>Thời lượng (phút)</th>
                   <th>Ngày phát hành</th>
-                  <th>Trạng thái</th>
+                  <!-- <th>Trạng thái</th> -->
                   <th>Thao tác</th>
                 </tr>
               </thead>
@@ -39,18 +41,20 @@
                   <td>{{movie.description}}</td>
                   <td>{{movie.duration}}</td>
                   <td>{{movie.releaseDate | date:'dd/MM/yyyy'}}</td>
-                  <td>
+                  <!-- <td>
                     <span class="badge" [ngClass]="{'bg-success': movie.status === 1, 'bg-danger': movie.status === 0}">
                       {{movie.status === 1 ? 'Đang chiếu' : 'Ngừng chiếu'}}
                     </span>
-                  </td>
+                  </td> -->
+
+                  
                   <td>
-                    <button type="button" class="btn btn-outline-primary btn-sm btn-rounded">Chi tiết</button>
-                    <button class="btn btn-outline-primary btn-sm btn-rounded ms-2"
-                      (click)="onEditMovie(movie.id)">Sửa</button>
-                    <button class="btn btn-outline-primary btn-sm btn-rounded ms-2"
-                      (click)="onDeleteMovie(movie.id)">Xóa</button>
+                    <button type="button" class="btn btn-outline-primary btn-rounded">Chi tiết</button>
+                    <button class="btn btn-outline-warning btn-rounded" (click)="onEditMovie(movie.id)">Sửa</button>
+                    <button class="btn btn-outline-danger btn-rounded" (click)="onDeleteMovie(movie.id)">Xóa</button>
                   </td>
+
+
                 </tr>
               </tbody>
             </table>

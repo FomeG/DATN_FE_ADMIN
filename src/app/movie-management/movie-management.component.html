@@ -1,10 +1,17 @@
 <div class="container-fluid">
-  <!-- Thêm nút này vào vị trí phù hợp trong giao diện -->
-  <button class="btn-lg btn-primary mb-4" style="border-radius: 15px" data-bs-toggle="modal"
-    data-bs-target="#addMovieModal">
-    <i class="fas fa-plus"></i> Thêm phim mới
-  </button>
 
+  <h2 class="mb-4">Movie Management</h2>
+  <div class="d-flex">
+
+    <button class="btn-lg btn-primary mb-4" style="border-radius: 15px" data-bs-toggle="modal"
+      data-bs-target="#addMovieModal">
+      <i class="fas fa-plus"></i> Thêm phim mới
+    </button>
+
+    <input type="text" class="form-control rounded" placeholder="Tìm kiếm phim"
+      style="width: 70%; height: 55px;  margin-left: auto" />
+
+  </div>
 
   <div class="row">
     <div class="col-12">
@@ -14,14 +21,14 @@
         </div>
         <div class="card-body">
           <div class="table-responsive">
-            <table class="table table-bordered table-hover">
+            <table class="table table-bordered table-hover"style="border-top: 1px solid #2c2e33;">
               <thead>
                 <tr>
                   <th>Tên phim</th>
                   <th>Mô tả</th>
                   <th>Thời lượng (phút)</th>
                   <th>Ngày phát hành</th>
-                  <th>Trạng thái</th>
+                  <!-- <th>Trạng thái</th> -->
                   <th>Thao tác</th>
                 </tr>
               </thead>
@@ -33,24 +40,26 @@
                         alt="Movie Thumbnail" />
                       <div class="ms-3">
                         <p class="fw-bold mb-1">{{movie.movieName}}</p>
-                      </div>
+                      </div>  
                     </div>
                   </td>
                   <td>{{movie.description}}</td>
                   <td>{{movie.duration}}</td>
                   <td>{{movie.releaseDate | date:'dd/MM/yyyy'}}</td>
-                  <td>
+                  <!-- <td>
                     <span class="badge" [ngClass]="{'bg-success': movie.status === 1, 'bg-danger': movie.status === 0}">
                       {{movie.status === 1 ? 'Đang chiếu' : 'Ngừng chiếu'}}
                     </span>
-                  </td>
+                  </td> -->
+
+
                   <td>
-                    <button type="button" class="btn btn-outline-primary btn-sm btn-rounded">Chi tiết</button>
-                    <button class="btn btn-outline-primary btn-sm btn-rounded ms-2"
-                      (click)="onEditMovie(movie.id)">Sửa</button>
-                    <button class="btn btn-outline-primary btn-sm btn-rounded ms-2"
-                      (click)="onDeleteMovie(movie.id)">Xóa</button>
+                    <button type="button" class="btn btn-outline-primary btn-rounded">Chi tiết</button>
+                    <button class="btn btn-outline-warning btn-rounded" (click)="onEditMovie(movie.id)">Sửa</button>
+                    <button class="btn btn-outline-danger btn-rounded" (click)="onDeleteMovie(movie.id)">Xóa</button>
                   </td>
+
+
                 </tr>
               </tbody>
             </table>

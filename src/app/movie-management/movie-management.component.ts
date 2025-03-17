@@ -66,8 +66,7 @@ export class MovieManagementComponent implements OnInit {
 
   onDeleteMovie(movieId: string) {
     Swal.fire({
-      title: 'Bạn có chắc chắn xoá phim?',
-      text: "Bạn không thể hoàn tác hành động này!",
+      text: "Bạn không thể hoàn tác sau khi xoá!",
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#3085d6',

@@ -1,0 +1,73 @@
+<div class="container-fluid">
+  <h2 class="mb-4">Log Management</h2>
+
+  <div class="row">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-header">
+          <h4 class="card-title">Danh sách Log</h4>
+        </div>
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table table-bordered" style="border-top: 1px solid #2c2e33;">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Action</th>
+                  <th>TableName</th>
+                  <th>Before Change</th>
+                  <th>After Change</th>
+                </tr>
+              </thead>
+              <tbody>
+                <!-- Lặp qua từng log -->
+                <tr *ngFor="let log of logs">
+                  <td>{{ log.Id }}</td>
+                  <td>{{ log.Action }}</td>
+                  <td>{{ log.TableName }}</td>
+
+                  <!-- Cột BeforeChange -->
+                  <td>
+                    <div *ngIf="log.parsedBeforeChange && log.parsedBeforeChange.length > 0; else noBefore">
+                      <!-- Giả sử JSON là mảng các object -->
+                      <div *ngFor="let item of log.parsedBeforeChange">
+                        <div *ngFor="let key of getKeys(item)">
+                          <strong>{{ key }}:</strong> {{ item[key] }}
+                        </div>
+                        <hr />
+                      </div>
+                    </div>
+                    <!-- Nếu không có dữ liệu -->
+                    <ng-template #noBefore>
+                      Không có BeforeChange
+                    </ng-template>
+                  </td>
+                  <!-- Cột AfterChange -->
+                  <td>
+                    <div *ngIf="log.parsedAfterChange && log.parsedAfterChange.length > 0; else noAfter">
+                      <div *ngFor="let item of log.parsedAfterChange">
+                        <div *ngFor="let key of getKeys(item)">
+                          <strong>{{ key }}:</strong> {{ item[key] }}
+                        </div>
+                        <hr />
+                      </div>
+                    </div>
+                    <ng-template #noAfter>
+                      Không có AfterChange
+                    </ng-template>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+
+
+          </div>
+        </div>
+      </div>
+
+
+
+
+    </div>
+  </div>
+</div>

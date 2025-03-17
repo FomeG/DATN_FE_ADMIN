@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { ActorService, Actor } from '../services/actor.service';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-actor-management',
@@ -20,6 +21,10 @@ export class ActorManagementComponent implements OnInit {
   selectedActor: Actor | null = null;
   selectedFile: File | null = null;
   isEditing = false;
+
+
+  totalPages = 0;
+  pages: number[] = [];
 
   constructor(
     private actorService: ActorService,
@@ -44,6 +49,7 @@ export class ActorManagementComponent implements OnInit {
         next: (res) => {
           this.actors = res.data;
           this.totalRecords = res.totalRecord;
+          this.calculateTotalPages();
         },
         error: (error) => {
           console.error('Error loading actors:', error);
@@ -56,6 +62,32 @@ export class ActorManagementComponent implements OnInit {
       this.selectedFile = event.target.files[0];
     }
   }
+
+
+
+  calculateTotalPages() {
+    this.totalPages = Math.ceil(this.totalRecords / this.recordPerPage);
+    this.pages = Array.from({ length: this.totalPages }, (_, i) => i + 1);
+  }
+
+  onPageChange(page: number) {
+    if (page !== this.currentPage && page >= 1 && page <= this.totalPages) {
+      this.currentPage = page;
+      this.loadActors();
+    }
+  }
+
+  // onPageChange(page: number) {
+  //   if (page >= 1 && (page - 1) * this.recordPerPage < this.totalRecords) {
+  //     this.currentPage = page;
+  //     this.loadActors();
+  //   }
+  // }
+
+
+
+
+
 
   onSubmit() {
     if (this.actorForm.valid) {
@@ -107,19 +139,64 @@ export class ActorManagementComponent implements OnInit {
     });
   }
 
-  deleteActor(id: string) {
-    if (confirm('Are you sure you want to delete this actor?')) {
-      this.actorService.deleteActor(id)
-        .subscribe({
-          next: () => {
-            this.loadActors();
+  // deleteActor(id: string) {
+  //   if (confirm('Are you sure you want to delete this actor?')) {
+  //     this.actorService.deleteActor(id)
+  //       .subscribe({
+  //         next: () => {
+  //           this.loadActors();
+  //         },
+  //         error: (error) => {
+  //           console.error('Error deleting actor:', error);
+  //         }
+  //       });
+  //   }
+  // }
+
+
+  deleteActor(actorID: string) {
+    Swal.fire({
+      text: "Bạn không thể hoàn tác sau khi xoá!",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Xoá',
+      cancelButtonText: 'Hủy'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.actorService.deleteActor(actorID).subscribe({
+          next: (response) => {
+            if (response.responseCode === 200) {
+              Swal.fire(
+                'Đã xóa!',
+                'Diễn viên đã được xóa thành công.',
+                'success'
+              );
+              this.loadActors();
+            } else {
+              Swal.fire(
+                'Lỗi!',
+                response.message || 'Có lỗi xảy ra khi xóa diễn viên.',
+                'error'
+              );
+            }
           },
           error: (error) => {
-            console.error('Error deleting actor:', error);
+            Swal.fire(
+              'Lỗi!',
+              'Có lỗi xảy ra khi diễn viên.' + error.message,
+              'error'
+            );
           }
         });
-    }
+      }
+    });
   }
+
+
+
+
 
   resetForm() {
     this.actorForm.reset();
@@ -129,10 +206,4 @@ export class ActorManagementComponent implements OnInit {
     this.actorForm.patchValue({ status: 1 });
   }
 
-  onPageChange(page: number) {
-    if (page >= 1 && (page - 1) * this.recordPerPage < this.totalRecords) {
-      this.currentPage = page;
-      this.loadActors();
-    }
-  }
 }

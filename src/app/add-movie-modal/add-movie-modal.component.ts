@@ -1,9 +1,12 @@
 import { Component, OnInit, Output, EventEmitter, HostListener } from '@angular/core';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { MovieService } from '../services/movie.service';
 import { ActorService, Actor } from '../services/actor.service';
-import { FormsModule } from '@angular/forms';
+import Swal from 'sweetalert2'; // Thêm import này
+
+
+
 
 declare var $: any; // Để sử dụng jQuery với Dropify
 
@@ -181,25 +184,60 @@ export class AddMovieModalComponent implements OnInit {
 
       this.movieService.createMovie(formData).subscribe({
         next: (response) => {
-          if (response.responseCode === 200) {
-            this.movieForm.reset();
-            this.selectedThumbnail = null;
-            this.selectedBanner = null;
-            this.selectedTrailer = null;
-            this.movieAdded.emit();
-            this.closeModal();
+          if (response.responseCode === 1) {
+            // Hiển thị SweetAlert2 khi thành công
+            Swal.fire({
+              icon: 'success',
+              title: 'Thành công!',
+              text: 'Thêm phim mới thành công',
+              confirmButtonText: 'OK',
+              customClass: {
+                confirmButton: 'btn btn-success',
+              }
+            }).then((result) => {
+              if (result.isConfirmed) {
+                // Đóng modal
+                const modalElement = document.getElementById('addMovieModal');
+                if (modalElement) {
+                  modalElement.click(); // Trigger click để đóng modal
+                }
+                // Emit event để refresh danh sách
+                this.movieAdded.emit();
+                // Reset form
+                this.closeModal();
+              }
+            });
           } else {
-            this.errorMessage = response.message || 'Có lỗi xảy ra khi thêm phim';
+            // Hiển thị lỗi với SweetAlert2
+            Swal.fire({
+              icon: 'error',
+              title: 'Lỗi!',
+              text: response.message || 'Thêm phim thất bại',
+              confirmButtonText: 'Đóng',
+              customClass: {
+                confirmButton: 'btn btn-danger',
+              }
+            });
           }
         },
         error: (error) => {
           console.error('Error creating movie:', error);
-          this.errorMessage = 'Có lỗi xảy ra khi thêm phim';
+          Swal.fire({
+            icon: 'error',
+            title: 'Lỗi!',
+            text: 'Có lỗi xảy ra khi thêm phim',
+            confirmButtonText: 'Đóng',
+            customClass: {
+              confirmButton: 'btn btn-danger',
+            }
+          });
         },
         complete: () => {
           this.isLoading = false;
         }
       });
+    } else {
+      this.errorMessage = 'Vui lòng điền đầy đủ thông tin bắt buộc';
     }
   }
 }

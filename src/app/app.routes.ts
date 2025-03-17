@@ -8,17 +8,32 @@ import { MembershipManagementComponent } from './membership-management/membershi
 import { RoomManagementComponent } from './room/room-management/room-management.component';
 import { PricingRuleComponent } from './pricing-rule/pricing-rule.component';
 
+import { LogManagementComponent } from './log-management/log-management.component';
+import { LoginComponent } from './login/login.component';
+import { authGuard } from './auth/auth.guard';
+
 export const routes: Routes = [
-  { path: 'movies', component: MovieManagementComponent },
-  { path: '', redirectTo: 'movies', pathMatch: 'full' },
-  { path: 'movies/edit/:id', component: EditMovieComponent },
-  { path: 'employees', component: EmpManagementComponent },
-  { path: 'actors', component: ActorManagementComponent },
-  { path: 'showtimes', component: ShowtimeManagementComponent },
-  { path: 'memberships', component: MembershipManagementComponent },
-  { path: 'rooms', component: RoomManagementComponent },
+  // Public routes
+  { path: 'login', component: LoginComponent },
+
+  // Protected routes
   {
-    path: 'pricing-rules',
-    component: PricingRuleComponent
+    path: '',
+    canActivate: [authGuard],
+    children: [
+      { path: '', redirectTo: 'movies', pathMatch: 'full' }, // Default route when authenticated
+      { path: 'movies', component: MovieManagementComponent },
+      { path: 'movies/edit/:id', component: EditMovieComponent },
+      { path: 'employees', component: EmpManagementComponent },
+      { path: 'actors', component: ActorManagementComponent },
+      { path: 'showtimes', component: ShowtimeManagementComponent },
+      { path: 'memberships', component: MembershipManagementComponent },
+      { path: 'log', component: LogManagementComponent },
+      { path: 'rooms', component: RoomManagementComponent },
+      { path: 'pricing-rules', component: PricingRuleComponent },
+    ]
   },
+
+  // Wildcard route for 404
+  { path: '**', redirectTo: '' }
 ];

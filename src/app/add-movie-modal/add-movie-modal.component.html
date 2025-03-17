@@ -65,25 +65,17 @@
               <input type="text" class="form-control" [(ngModel)]="searchTerm" [ngModelOptions]="{standalone: true}"
                 (input)="filterActors()" (focus)="showDropdown = true" placeholder="Tìm kiếm diễn viên...">
             </div>
-
+          
             <!-- Dropdown list -->
             <div class="actor-dropdown shadow" *ngIf="showDropdown && filteredActors.length > 0">
               <div class="list-group">
-                <button type="button" *ngFor="let actor of filteredActors"
-                  class="list-group-item list-group-item-action" (click)="selectActor(actor)">
+                <button type="button" *ngFor="let actor of filteredActors" class="list-group-item list-group-item-action"
+                  (click)="selectActor(actor)">
                   {{actor.name}}
                 </button>
               </div>
             </div>
           </div>
-
-
-
-
-
-
-
-
 
 
 
@@ -115,8 +107,8 @@
 
 
           <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
-            <button type="submit" class="btn btn-primary" [disabled]="!movieForm.valid || isLoading">
+            <button type="button" class="btn btn-lg rounded btn-outline-danger" data-bs-dismiss="modal">Đóng</button>
+            <button type="submit" class="btn btn-lg btn-primary">
               <span *ngIf="isLoading" class="spinner-border spinner-border-sm mr-1"></span>
               Thêm phim
             </button>

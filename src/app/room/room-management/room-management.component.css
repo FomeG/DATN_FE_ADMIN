@@ -1,0 +1,48 @@
+/* Thêm shadow cho card */
+.card {
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}
+
+/* Thêm padding cho card-body */
+.card-body {
+  padding: 1.5rem;
+}
+
+/* Thêm hover effect cho button */
+.btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}
+
+/* Thêm hover effect cho table row */
+.table-hover tbody tr:hover {
+  background-color: #f8f9fa;
+  transform: translateY(-2px);
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}
+
+/* Thêm animation cho pagination */
+.page-link {
+  transition: all 0.3s ease;
+}
+
+.page-link:hover {
+  background-color: #f8f9fa;
+  transform: translateY(-2px);
+}
+
+.page-item.active .page-link {
+  background-color: #007bff;
+  border-color: #007bff;
+}
+
+/* Thêm gradient background cho button primary */
+.btn-primary {
+  background-image: linear-gradient(to right, #007bff, #0056b3);
+  color: #fff;
+  border: none;
+}
+
+.btn-primary:hover {
+  background-image: linear-gradient(to right, #0056b3, #004a8f);
+}

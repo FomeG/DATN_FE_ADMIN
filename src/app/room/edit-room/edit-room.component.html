@@ -1,0 +1,269 @@
+<!-- Modal Sửa Phòng -->
+<div #editRoomModal class="modal fade" id="EditRoom" tabindex="-1" aria-labelledby="EditRoomModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+
+            <!-- Header -->
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="EditRoomModalLabel">Chỉnh sửa phòng</h5>
+                <button type="button" class="close text-white" data-bs-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+            <!-- Body -->
+            <div class="modal-body">
+                <div class="row">
+
+                    <!-- Cột trái: hiển thị ghế -->
+                    <div class="col-8 border border-dark rounded p-3">
+                        <div class="screen bg-dark text-white text-center py-2 mb-3">MÀN HÌNH</div>
+
+                        <div class="seat-container" style="max-height: 500px; overflow-y: auto;">
+                            <div *ngFor="let row of seatRows" class="seat-row">
+                                <div *ngFor="let seat of row" class="seat" [class.clicked]="seat.isClicked"
+                                    [class.disabled]="seat.status === 2" [attr.id]="seat.id" (click)="selectSeat(seat)">
+                                    <svg class="seat-icon" viewBox="0 0 100 100">
+                                        <!-- Định nghĩa gradient và hình dạng ghế -->
+                                        <defs>
+                                            <linearGradient id="seatGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                                <stop offset="0%" style="stop-color:#000000;stop-opacity:1" />
+                                                <stop offset="100%" style="stop-color:#8B0000;stop-opacity:1" />
+                                            </linearGradient>
+                                            <linearGradient id="clickedGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                                <stop offset="0%" style="stop-color:#8B0000;stop-opacity:1" />
+                                                <stop offset="100%" style="stop-color:#FF0000;stop-opacity:1" />
+                                            </linearGradient>
+                                        </defs>
+
+                                        <!-- Ghế đôi -->
+                                        <ng-container *ngIf="seat.isDouble; else singleSeat">
+                                            <rect x="10" y="5" width="80" height="35" rx="10" ry="10"
+                                                [attr.fill]="seat.isClicked ? 'url(#clickedGradient)' : 'url(#seatGradient)'" />
+                                            <rect x="5" y="40" width="90" height="20" rx="10" ry="10"
+                                                [attr.fill]="seat.isClicked ? 'url(#clickedGradient)' : 'url(#seatGradient)'" />
+                                            <rect x="25" y="60" width="10" height="20"
+                                                [attr.fill]="seat.isClicked ? 'url(#clickedGradient)' : 'url(#seatGradient)'" />
+                                            <rect x="65" y="60" width="10" height="20"
+                                                [attr.fill]="seat.isClicked ? 'url(#clickedGradient)' : 'url(#seatGradient)'" />
+                                        </ng-container>
+
+                                        <!-- Ghế đơn -->
+                                        <ng-template #singleSeat>
+                                            <rect x="20" y="5" width="60" height="35" rx="10" ry="10"
+                                                [attr.fill]="seat.isClicked ? 'url(#clickedGradient)' : 'url(#seatGradient)'" />
+                                            <rect x="15" y="40" width="70" height="20" rx="10" ry="10"
+                                                [attr.fill]="seat.isClicked ? 'url(#clickedGradient)' : 'url(#seatGradient)'" />
+                                            <rect x="30" y="60" width="10" height="20"
+                                                [attr.fill]="seat.isClicked ? 'url(#clickedGradient)' : 'url(#seatGradient)'" />
+                                            <rect x="60" y="60" width="10" height="20"
+                                                [attr.fill]="seat.isClicked ? 'url(#clickedGradient)' : 'url(#seatGradient)'" />
+                                        </ng-template>
+
+                                        <!-- Biểu tượng ngôi sao cho ghế VIP -->
+                                        <svg *ngIf="isVipSeat(seat)" class="star-icon" viewBox="0 0 24 24" x="45" y="15"
+                                            width="20" height="20">
+                                            <path
+                                                d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                                        </svg>
+
+                                        <svg *ngIf="seat.status === 1" class="seat-unavailable-mark"
+                                            viewBox="0 0 100 100">
+                                            <line x1="20" y1="20" x2="80" y2="80" />
+                                            <line x1="80" y1="20" x2="20" y2="80" />
+                                        </svg>
+                                    </svg>
+                                    <span *ngIf="seat.status != 2" class="seat-name">
+                                        {{ seat.seatName }}
+                                    </span>
+                                    <span *ngIf="seat.status === 2" class="badge bg-secondary">(None)</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Cột phải: form chỉnh sửa ghế -->
+                    <div class="col-4 border border-dark rounded p-3 d-flex flex-column">
+                        <h4 class="mb-3 text-primary">Sửa ghế</h4>
+
+                        <!-- Thông báo số lượng ghế đang được chọn -->
+                        <p *ngIf="selectedSeats.length > 0" class="text-primary">
+                            Đang chọn {{ selectedSeats.length }} ghế.
+                        </p>
+                        <p *ngIf="selectedSeats.length === 0" class="text-muted">
+                            Chọn một hoặc nhiều ghế để chỉnh sửa.
+                        </p>
+
+                        <!-- Form chỉnh sửa ghế -->
+                        <div class="flex-grow-1">
+                            <!-- Tên ghế -->
+                            <div class="form-group">
+                                <label class="font-weight-bold">Tên ghế</label>
+                                <p class="form-control-static">
+                                    {{ selectedSeat ? selectedSeat.seatName : 'Chưa chọn ghế' }}
+                                </p>
+                            </div>
+
+                            <!-- Loại ghế -->
+                            <div class="form-group">
+                                <label class="form-label">Loại ghế</label>
+                                <div class="d-flex align-items-center gap-2">
+                                    <select class="form-select" [ngModel]="selectedSeat?.seatTypeId"
+                                        (ngModelChange)="updateSelectedSeat('seatTypeId', $event)">
+                                        <option *ngFor="let t of seatTypes" [value]="t.id" [disabled]="t.isDoubleType">
+                                            {{ t.seatTypeName }}
+                                        </option>
+                                    </select>
+                                    <!-- Biểu tượng dấu cộng -->
+                                    <button class="btn btn-outline-light" (click)="openAddSeatTypeModal()">
+                                        <i class="fas fa-plus"></i> <!-- Icon dấu cộng -->
+                                    </button>
+                                    <!-- Biểu tượng răng cưa -->
+                                    <button class="btn btn-outline-light" (click)="openSeatTypeDetailModal()">
+                                        <i class="fas fa-cog"></i> <!-- Icon răng cưa -->
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Modal thêm mới loại ghế -->
+                            <div #addSeatTypeModal class="modal fade" id="addSeatTypeModal" tabindex="-1"
+                                aria-labelledby="addSeatTypeModalLabel" aria-hidden="true">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="addSeatTypeModalLabel">Thêm mới loại ghế</h5>
+                                            <button type="button" class="close" data-bs-dismiss="modal"
+                                                aria-label="Close">
+                                                <span aria-hidden="true">&times;</span>
+                                            </button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <form (ngSubmit)="createSeatType()">
+                                                <div class="form-group">
+                                                    <label class="form-label">Tên loại ghế</label>
+                                                    <input type="text" class="custom-input"
+                                                        [(ngModel)]="newSeatType.seatTypeName" name="seatTypeName"
+                                                        required>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label class="form-label">Hệ số nhân</label>
+                                                    <input type="number" class="custom-input"
+                                                        [(ngModel)]="newSeatType.multiplier" name="multiplier" required>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="custom-btn custom-btn-secondary"
+                                                        data-bs-dismiss="modal">Đóng</button>
+                                                    <button type="submit"
+                                                        class="custom-btn custom-btn-primary">Thêm</button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Modal chi tiết loại ghế -->
+                            <div #seatTypeDetailModal class="modal fade" id="seatTypeDetailModal" tabindex="-1"
+                                aria-labelledby="seatTypeDetailModalLabel" aria-hidden="true">
+                                <div class="modal-dialog modal-lg">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="seatTypeDetailModalLabel">Chi tiết loại ghế</h5>
+                                            <button type="button" class="close" data-bs-dismiss="modal"
+                                                aria-label="Close">
+                                                <span aria-hidden="true">&times;</span>
+                                            </button>
+                                        </div>
+                                        <!-- Trong phần modal chi tiết loại ghế -->
+                                        <div class="modal-body">
+                                            <div class="row">
+                                                <!-- Danh sách loại ghế -->
+                                                <div class="col-6">
+                                                    <h5>Danh sách loại ghế</h5>
+                                                    <ul class="list-group">
+                                                        <li *ngFor="let seatType of seatTypes"
+                                                            class="list-group-item d-flex justify-content-between align-items-center"
+                                                            [class.active]="seatType.id === selectedSeatType.id"
+                                                            (click)="onSelectSeatType(seatType)">
+                                                            {{ seatType.seatTypeName }}
+                                                            <button *ngIf="!seatType.isDoubleType"
+                                                                class="btn btn-danger btn-sm"
+                                                                (click)="deleteSeatType(seatType.id)">
+                                                                <i class="fas fa-trash"></i>
+                                                            </button>
+                                                        </li>
+                                                    </ul>
+                                                </div>
+
+                                                <!-- Form cập nhật hệ số nhân -->
+                                                <div class="col-6">
+                                                    <h5>Cập nhật hệ số nhân</h5>
+                                                    <form (ngSubmit)="updateSeatTypeMultiplier()">
+                                                        <div class="form-group">
+                                                            <label class="form-label">Hệ số nhân</label>
+                                                            <input type="number" class="custom-input"
+                                                                [(ngModel)]="selectedSeatType.multiplier"
+                                                                name="multiplier" required>
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <button type="submit" class="custom-btn custom-btn-primary"
+                                                                [disabled]="!selectedSeatType.id">
+                                                                Cập nhật
+                                                            </button>
+                                                        </div>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Trạng thái -->
+                            <div class="form-group">
+                                <label class="form-label">Trạng thái</label>
+                                <select class="form-select" [ngModel]="selectedSeat?.status"
+                                    (ngModelChange)="updateSelectedSeat('status', $event)">
+                                    <option *ngFor="let s of seatStatuses" [value]="s.value">{{ s.label }}</option>
+                                </select>
+                            </div>
+
+                            <!-- Giá ghế -->
+                            <div class="form-group">
+                                <label class="font-weight-bold">Giá ghế</label>
+                                <p class="form-control-plaintext">
+                                    {{ selectedSeat ? (selectedSeat.seatPrice | currency:'VND') : 'Chưa chọn ghế' }}
+                                    <span *ngIf="selectedSeat?.isDouble">(Tổng giá ghế đôi)</span>
+                                </p>
+                            </div>
+
+                            <!-- Ghế đôi -->
+                            <div class="form-group">
+                                <label class="font-weight-bold">Ghế đôi</label>
+                                <div *ngIf="selectedSeat?.isDouble; else notDouble">
+                                    <button class="btn btn-danger w-100 mb-2" (click)="unsetupPairSeats()">Hủy setup ghế
+                                        đôi</button>
+                                </div>
+                                <ng-template #notDouble>
+                                    <button class="btn btn-success w-100 mb-2" (click)="setupPairSeats()">Setup ghế
+                                        đôi</button>
+                                </ng-template>
+                            </div>
+                        </div>
+
+                        <!-- Nút cập nhật -->
+                        <button class="btn btn-primary w-100 mt-auto" (click)="updateSeat()">
+                            Cập nhật ghế
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+            </div>
+        </div>
+    </div>
+</div>

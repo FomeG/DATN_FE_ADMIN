@@ -1,0 +1,170 @@
+<!-- Form Section -->
+<div class="card mb-4">
+  <div class="card-header">
+    <h5 class="mb-0">{{ isEditing ? 'Edit Pricing Rule' : 'Create New Pricing Rule' }}</h5>
+  </div>
+  <div class="card-body">
+    <form [formGroup]="ruleForm" (ngSubmit)="onSubmit()">
+      <div class="row">
+        <!-- Rule Name -->
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Rule Name</label>
+          <input type="text" class="form-control" formControlName="ruleName" [readonly]="isEditing">
+        </div>
+
+        <!-- Multiplier -->
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Multiplier</label>
+          <input type="number" class="form-control" formControlName="multiplier">
+        </div>
+
+        <!-- Time Range -->
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Start Time</label>
+          <input type="time" class="form-control" formControlName="startTime" [readonly]="isEditing">
+        </div>
+
+        <div class="col-md-6 mb-3">
+          <label class="form-label">End Time</label>
+          <input type="time" class="form-control" formControlName="endTime" [readonly]="isEditing">
+        </div>
+
+        <!-- Date Range -->
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Start Date</label>
+          <input type="date" class="form-control" formControlName="startDate" [readonly]="isEditing">
+        </div>
+
+        <div class="col-md-6 mb-3">
+          <label class="form-label">End Date</label>
+          <input type="date" class="form-control" formControlName="endDate" [readonly]="isEditing">
+        </div>
+
+        <!-- Specific Date -->
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Specific Date</label>
+          <input type="date" class="form-control" formControlName="date" [readonly]="isEditing">
+        </div>
+
+        <!-- Special Day/Month -->
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Special Day</label>
+          <input type="number" class="form-control" formControlName="specialDay" [readonly]="isEditing">
+        </div>
+
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Special Month</label>
+          <input type="number" class="form-control" formControlName="specialMonth" [readonly]="isEditing">
+        </div>
+
+        <!-- Day of Week -->
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Day of Week</label>
+          <select class="form-select" formControlName="dayOfWeek" [disabled]="isEditing">
+            <option [ngValue]="null">Select day</option>
+            <option [ngValue]="0">Sunday</option>
+            <option [ngValue]="1">Monday</option>
+            <option [ngValue]="2">Tuesday</option>
+            <option [ngValue]="3">Wednesday</option>
+            <option [ngValue]="4">Thursday</option>
+            <option [ngValue]="5">Friday</option>
+            <option [ngValue]="6">Saturday</option>
+          </select>
+        </div>
+
+        <!-- Is Discount -->
+        <div class="col-md-6 mb-3">
+          <div class="form-check mt-4">
+            <input type="checkbox" class="form-check-input" formControlName="isDiscount" [disabled]="isEditing">
+            <label class="form-check-label">Is Discount</label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Form Buttons -->
+      <div class="d-flex gap-2">
+        <button type="submit" class="btn btn-primary" [disabled]="!ruleForm.valid">
+          {{ isEditing ? 'Update' : 'Create' }}
+        </button>
+        <button type="button" class="btn btn-secondary" (click)="resetForm()">
+          Cancel
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Table Section -->
+<div class="card">
+  <div class="card-header">
+    <h5 class="mb-0">Pricing Rules</h5>
+  </div>
+  <div class="card-body">
+    <div class="table-responsive">
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th>Rule Name</th>
+            <th>Multiplier</th>
+            <th>Time Range</th>
+            <th>Date Range</th>
+            <th>Special Conditions</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let rule of rules">
+            <td>{{ rule.ruleName }}</td>
+            <td>{{ rule.multiplier }}</td>
+            <td>
+              <ng-container *ngIf="rule.startTime && rule.endTime">
+                {{ rule.startTime }} - {{ rule.endTime }}
+              </ng-container>
+            </td>
+            <td>
+              <ng-container *ngIf="rule.startDate && rule.endDate">
+                {{ rule.startDate | date }} - {{ rule.endDate | date }}
+              </ng-container>
+            </td>
+            <td>
+              <div *ngIf="rule.specialDay">Special Day: {{ rule.specialDay }}</div>
+              <div *ngIf="rule.specialMonth">Special Month: {{ rule.specialMonth }}</div>
+              <div *ngIf="rule.dayOfWeek !== null">Day of Week: {{ ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][rule.dayOfWeek] }}</div>
+              <div *ngIf="rule.isDiscount">Discount Rule</div>
+            </td>
+            <td>
+              <div class="d-flex gap-2">
+                <button class="btn btn-sm btn-primary" (click)="editRule(rule)">
+                  Edit
+                </button>
+                <button class="btn btn-sm btn-danger" (click)="deleteRule(rule.pricingRuleId)">
+                  Delete
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    <div class="d-flex justify-content-between align-items-center mt-3">
+      <div>
+        Total Records: {{ totalRecords }}
+      </div>
+      <nav>
+        <ul class="pagination mb-0">
+          <li class="page-item" [class.disabled]="currentPage === 1">
+            <a class="page-link" (click)="onPageChange(currentPage - 1)">Previous</a>
+          </li>
+          <li class="page-item">
+            <span class="page-link">Page {{ currentPage }}</span>
+          </li>
+          <li class="page-item" [class.disabled]="currentPage * recordPerPage >= totalRecords">
+            <a class="page-link" (click)="onPageChange(currentPage + 1)">Next</a>
+          </li>
+        </ul>
+      </nav>
+    </div>
+  </div>
+</div> 

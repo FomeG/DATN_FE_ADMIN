@@ -5,6 +5,9 @@ import { EmpManagementComponent } from './emp-management/emp-management.componen
 import { ActorManagementComponent } from './actor-management/actor-management.component';
 import { ShowtimeManagementComponent } from './showtime-management/showtime-management.component';
 import { MembershipManagementComponent } from './membership-management/membership-management.component';
+import { RoomManagementComponent } from './room/room-management/room-management.component';
+import { PricingRuleComponent } from './pricing-rule/pricing-rule.component';
+
 import { LogManagementComponent } from './log-management/log-management.component';
 import { LoginComponent } from './login/login.component';
 import { authGuard } from './auth/auth.guard';
@@ -25,7 +28,12 @@ export const routes: Routes = [
       { path: 'actors', component: ActorManagementComponent },
       { path: 'showtimes', component: ShowtimeManagementComponent },
       { path: 'memberships', component: MembershipManagementComponent },
-      { path: 'log', component: LogManagementComponent }
+      { path: 'log', component: LogManagementComponent },
+      { path: 'rooms', component: RoomManagementComponent },
+      {
+        path: 'pricing-rules',
+        component: PricingRuleComponent
+      },
     ]
   },
 

@@ -10,6 +10,8 @@ export interface Showtime {
   startTime: Date;
   endTime: Date;
   status: number;
+  movieName: string;
+  roomName: string;
 }
 
 export interface ShowtimeResponse {

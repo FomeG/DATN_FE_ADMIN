@@ -8,3 +8,72 @@
 @import '../assets/vendors/select2-bootstrap-theme/select2-bootstrap.min.css';
 @import '../assets/vendors/owl-carousel-2/owl.carousel.min.css';
 @import '../assets/vendors/owl-carousel-2/owl.theme.default.min.css';
+
+
+
+
+/* Custom styles cho login page */
+body.auth.login-bg {
+    height: 100vh;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+}
+
+.container-scroller {
+    height: 100vh;
+}
+
+.auth .login-bg {
+    background: url("../assets/images/auth/Login_bg.jpg") no-repeat center center;
+    background-size: cover;
+}
+
+.auth .auth-form-transparent {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.form-control {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.form-control:focus {
+    background-color: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.3);
+    color: #ffffff;
+}
+
+.auth label {
+    color: #ffffff;
+}
+
+.auth .btn-primary {
+    width: 100%;
+    height: 50px;
+}
+
+.auth .forgot-pass {
+    color: #ffffff;
+    text-decoration: none;
+}
+
+.auth .forgot-pass:hover {
+    color: #007bff;
+}
+
+.auth .sign-up {
+    color: #ffffff;
+    margin-top: 30px;
+    text-align: center;
+}
+
+.auth .sign-up a {
+    color: #007bff;
+    text-decoration: none;
+}
+
+.auth .sign-up a:hover {
+    text-decoration: underline;
+}

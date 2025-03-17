@@ -23,7 +23,8 @@
             "assets": [
               {
                 "glob": "**/*",
-                "input": "public"
+                "input": "src/app/log-management",
+                "output": "/app/log-management"
               }
             ],
             "styles": [

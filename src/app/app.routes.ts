@@ -15,10 +15,10 @@ import { authGuard } from './auth/auth.guard';
 export const routes: Routes = [
   // Public routes
   { path: 'login', component: LoginComponent },
-  
+
   // Protected routes
-  { 
-    path: '', 
+  {
+    path: '',
     canActivate: [authGuard],
     children: [
       { path: '', redirectTo: 'movies', pathMatch: 'full' }, // Default route when authenticated
@@ -30,10 +30,7 @@ export const routes: Routes = [
       { path: 'memberships', component: MembershipManagementComponent },
       { path: 'log', component: LogManagementComponent },
       { path: 'rooms', component: RoomManagementComponent },
-      {
-        path: 'pricing-rules',
-        component: PricingRuleComponent
-      },
+      { path: 'pricing-rules', component: PricingRuleComponent },
     ]
   },
 

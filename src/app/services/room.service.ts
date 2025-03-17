@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
+import { NumberSymbol } from '@angular/common';
 
 export interface Room {
     id: string;
@@ -10,14 +11,16 @@ export interface Room {
     totalColNumber: number;
     totalRowNumber: number;
     totalSeats: number;
-    roomCapacity: number;
+    seatPrice: bigint;
+    isdeleted: boolean
     status: number;
 }
 
+
 export interface RoomResponse {
-    data: Room[];
-    message: string;
     responseCode: number;
+    message: string;
+    data: Room[];
     totalRecord: number;
 }
 
@@ -29,13 +32,22 @@ export class RoomService {
 
     constructor(private http: HttpClient) { }
 
-    getRooms(): Observable<RoomResponse> {
-        return this.http.get<RoomResponse>(`${this.apiUrl}Room/GetListRooms`);
+    getRooms(currentPage: number, recordPerPage: Number): Observable<RoomResponse> {
+        return this.http.get<RoomResponse>(`${this.apiUrl}Room/GetAllRoom?currentPage=${currentPage}&recordPerPage=${recordPerPage}`);
     }
 
+    deleteRoom(id: string): Observable<any> {
+        return this.http.post(`${this.apiUrl}Room/DeleteRoom?RoomId=${id}`, {});
+    }
 
-
-
-
+    createRoom(room: {
+        cinemaId: string;
+        name: string;
+        totalColNumber: number;
+        totalRowNumber: number;
+        seatPrice: number;
+    }): Observable<any> {
+        return this.http.post(`${this.apiUrl}Room/CreateRoom`, room);
+    }
 
 }

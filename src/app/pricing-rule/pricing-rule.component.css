@@ -1,0 +1,41 @@
+.page-link {
+  cursor: pointer;
+}
+
+.page-link:hover {
+  background-color: #e9ecef;
+}
+
+.table th {
+  white-space: nowrap;
+}
+
+.form-label {
+  font-weight: 500;
+}
+
+.card {
+  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+}
+
+.card-header {
+  background-color: #f8f9fa;
+}
+
+.btn-sm {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.875rem;
+}
+
+.table-responsive {
+  margin: 0 -1.25rem;
+  padding: 0 1.25rem;
+  overflow-x: auto;
+}
+
+@media (max-width: 768px) {
+  .table-responsive {
+    margin: 0 -1rem;
+    padding: 0 1rem;
+  }
+} 

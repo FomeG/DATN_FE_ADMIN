@@ -21,15 +21,21 @@
             ],
             "tsConfig": "tsconfig.app.json",
             "assets": [
+              "src/favicon.ico",
               {
                 "glob": "**/*",
-                "input": "public"
+                "input": "assets",
+                "output": "/assets"
               }
             ],
             "styles": [
+              "node_modules/dropify/dist/css/dropify.min.css",
               "src/styles.css"
             ],
-            "scripts": []
+            "scripts": [
+              "node_modules/jquery/dist/jquery.min.js",
+              "node_modules/dropify/dist/js/dropify.min.js"
+            ]
           },
           "configurations": {
             "production": {
@@ -79,15 +85,21 @@
             ],
             "tsConfig": "tsconfig.spec.json",
             "assets": [
+              "src/favicon.ico",
               {
                 "glob": "**/*",
-                "input": "public"
+                "input": "assets",
+                "output": "/assets"
               }
             ],
             "styles": [
+              "node_modules/dropify/dist/css/dropify.min.css",
               "src/styles.css"
             ],
-            "scripts": []
+            "scripts": [
+              "node_modules/jquery/dist/jquery.min.js",
+              "node_modules/dropify/dist/js/dropify.min.js"
+            ]
           }
         }
       }

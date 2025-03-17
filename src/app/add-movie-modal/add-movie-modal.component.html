@@ -56,28 +56,21 @@
             <div class="selected-actors mb-2">
               <span *ngFor="let actor of selectedActors" class="badge bg-primary me-2 mb-2">
                 {{actor.name}}
-                <button type="button" class="btn-close btn-close-white ms-2" 
-                        (click)="removeActor(actor)" style="font-size: 0.5rem;">
+                <button type="button" class="btn-close btn-close-white ms-2" (click)="removeActor(actor)"
+                  style="font-size: 0.5rem;">
                 </button>
               </span>
             </div>
             <div class="input-group">
-              <input type="text" 
-                     class="form-control" 
-                     [(ngModel)]="searchTerm"
-                     [ngModelOptions]="{standalone: true}"
-                     (input)="filterActors()"
-                     (focus)="showDropdown = true"
-                     placeholder="Tìm kiếm diễn viên...">
+              <input type="text" class="form-control" [(ngModel)]="searchTerm" [ngModelOptions]="{standalone: true}"
+                (input)="filterActors()" (focus)="showDropdown = true" placeholder="Tìm kiếm diễn viên...">
             </div>
-            
+
             <!-- Dropdown list -->
             <div class="actor-dropdown shadow" *ngIf="showDropdown && filteredActors.length > 0">
               <div class="list-group">
-                <button type="button" 
-                        *ngFor="let actor of filteredActors"
-                        class="list-group-item list-group-item-action"
-                        (click)="selectActor(actor)">
+                <button type="button" *ngFor="let actor of filteredActors"
+                  class="list-group-item list-group-item-action" (click)="selectActor(actor)">
                   {{actor.name}}
                 </button>
               </div>
@@ -93,7 +86,7 @@
 
 
 
-          
+
           <div class="form-group">
             <label for="thumbnail">Ảnh thumbnail</label>
             <input type="file" class="form-control-file" id="thumbnail" (change)="onFileSelect($event, 'thumbnail')"
@@ -119,7 +112,7 @@
 
 
 
-          
+
 
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>

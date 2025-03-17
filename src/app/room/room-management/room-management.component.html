@@ -1,0 +1,70 @@
+<div class="container-fluid">
+    <!-- Nút thêm phòng mới -->
+    <button class="btn-lg btn-primary mb-4" style="border-radius: 15px" data-bs-toggle="modal"
+        data-bs-target="#addRoom">
+        <i class="fas fa-plus"></i> Thêm phòng mới
+    </button>
+
+    <!-- Bảng danh sách phòng -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="card-title">Danh sách phòng</h4>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Tên phòng</th>
+                                    <th>Tổng số ghế</th>
+                                    <th>Giá ghế</th>
+                                    <th>Trạng thái</th>
+                                    <th>Thao tác</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <ng-container *ngFor="let room of rooms">
+                                    <tr *ngIf="!room.isdeleted">
+                                        <td>{{ room.name }}</td>
+                                        <td>{{ room.totalSeats }}</td>
+                                        <td>{{ room.seatPrice }}</td>
+                                        <td>{{ room.status }}</td>
+                                        <td>
+                                            <button class="btn btn-outline-primary btn-sm "
+                                                (click)="onEditRoom(room.id, room.totalSeats)">Sửa</button>
+                                            <button class="btn btn-outline-danger btn-sm "
+                                                (click)="onDeleteRoom(room.id)">Xóa</button>
+                                        </td>
+                                    </tr>
+                                </ng-container>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Phân trang nếu cần -->
+                    <nav *ngIf="totalPages > 1">
+                        <ul class="pagination justify-content-center">
+                            <li class="page-item" [class.disabled]="currentPage === 1">
+                                <a class="page-link" (click)="onPageChange(currentPage - 1)">Previous</a>
+                            </li>
+                            <li class="page-item" *ngFor="let page of pages" [class.active]="page === currentPage">
+                                <a class="page-link" (click)="onPageChange(page)">{{ page }}</a>
+                            </li>
+                            <li class="page-item" [class.disabled]="currentPage === totalPages">
+                                <a class="page-link" (click)="onPageChange(currentPage + 1)">Next</a>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Nhúng component sửa phòng (modal) -->
+    <app-edit-room></app-edit-room>
+
+    <!-- Nhúng component thêm phòng nếu cần -->
+    <app-add-room (movieAdded)="onRoomAdded()"></app-add-room>
+</div>

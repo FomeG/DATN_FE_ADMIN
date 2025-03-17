@@ -87,7 +87,7 @@ export class ShowtimeManagementComponent implements OnInit {
   }
 
   loadRooms() {
-    this.roomService.getRooms().subscribe({
+    this.roomService.getRooms(1,10).subscribe({
       next: (response) => {
         this.rooms = response.data;
       },

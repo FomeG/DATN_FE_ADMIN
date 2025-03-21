@@ -64,7 +64,6 @@ export class LoginComponent {
   forgotPassword() {
     // Implement forgot password functionality
     console.log('Forgot password clicked');
-    // You could navigate to a password reset page
     // this.router.navigate(['/reset-password']);
   }
 

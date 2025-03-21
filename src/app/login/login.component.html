@@ -1,41 +1,38 @@
-<div class="container-scroller">
-  <div class="container-fluid page-body-wrapper full-page-wrapper">
-    <div class="row w-100 m-0">
-      <div class="content-wrapper full-page-wrapper d-flex align-items-center auth login-bg">
-        <div class="card col-lg-4 mx-auto">
-          <div class="card-body px-5 py-5">
-            <h3 class="card-title text-left mb-3">Login</h3>
-            <form (ngSubmit)="onSubmit()" #loginForm="ngForm">
-              <div class="form-group">
-                <label>Username or email *</label>
-                <input type="text" class="form-control p_input" name="username" [(ngModel)]="username" required>
-              </div>
-              <div class="form-group">
-                <label>Password *</label>
-                <input type="password" class="form-control p_input" name="password" [(ngModel)]="password" required>
-              </div>
-              <div class="form-group d-flex align-items-center justify-content-between">
-                <div class="form-check">
-                  <label class="form-check-label">
-                    <input type="checkbox" class="form-check-input" name="rememberMe" [(ngModel)]="rememberMe">
-                    Remember me
-                  </label>
-                </div>
-                <!-- <a href="javascript:void(0)" class="forgot-pass" (click)="forgotPassword()">Forgot password</a> -->
-              </div>
-              <div class="text-center">
-                <button type="submit" class="btn btn-primary btn-block enter-btn" [disabled]="!loginForm.valid">
-                  Login
-                </button>
-              </div>
-
-            </form>
-          </div>
-        </div>
-      </div>
-      <!-- content-wrapper ends -->
+<div class="login-container">
+  <div class="login-card">
+    <div class="login-header">
+      <h3 class="login-title">Đăng nhập</h3>
     </div>
-    <!-- row ends -->
+
+    <div class="login-body">
+      <div *ngIf="errorMessage" class="alert alert-danger">
+        {{ errorMessage }}
+      </div>
+
+      <form (ngSubmit)="onSubmit()" #loginForm="ngForm">
+        <div class="form-group">
+          <label for="username">Sử dụng đăng nhập hoặc email:</label>
+          <input type="text" id="username" class="form-control" name="username" [(ngModel)]="username" required
+            autocomplete="username">
+        </div>
+
+        <div class="form-group">
+          <label for="password">Mật khẩu:</label>
+          <input type="password" id="password" class="form-control" name="password" [(ngModel)]="password" required
+            autocomplete="current-password">
+        </div>
+
+        <div class="form-group d-flex justify-content-between align-items-center">
+          <p>___________________________________</p>
+        </div>
+
+        <div class="form-group">
+          <button type="submit" class="btn btn-primary btn-block" [disabled]="!loginForm.valid || isLoading">
+            <span *ngIf="isLoading" class="spinner-border spinner-border-sm mr-1"></span>
+            Login
+          </button>
+        </div>
+      </form>
+    </div>
   </div>
-  <!-- page-body-wrapper ends -->
 </div>

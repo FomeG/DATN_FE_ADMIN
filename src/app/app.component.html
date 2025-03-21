@@ -1,7 +1,13 @@
 <div class="container-scroller">
-  <!-- Only show navbar, sidebar, and footer if logged in -->
-  <ng-container *ngIf="authService.isLoggedIn(); else loginContent">
-
+  <!-- For login page, show only the router outlet with login-specific styling -->
+  <ng-container *ngIf="isLoginPage; else appContent">
+    <div class="auth-page-container">
+      <router-outlet></router-outlet>
+    </div>
+  </ng-container>
+  
+  <!-- For authenticated pages, show the full app layout -->
+  <ng-template #appContent>
     <!-- Navbar -->
     <app-navbar></app-navbar>
 
@@ -13,7 +19,6 @@
       <!-- Main Panel -->
       <div class="main-panel">
         <div class="content-wrapper">
-          <!-- Router outlet sẽ render các component con ở đây -->
           <router-outlet></router-outlet>
         </div>
 
@@ -21,15 +26,5 @@
         <app-footer></app-footer>
       </div>
     </div>
-
-  </ng-container>
-
-
-  <ng-template #loginContent>
-    <div class="auth login-bg">
-      <router-outlet></router-outlet>
-    </div>
   </ng-template>
-
-
 </div>

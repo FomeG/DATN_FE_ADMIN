@@ -1,18 +1,16 @@
 import { inject } from '@angular/core';
-import { Router } from '@angular/router';
+import { CanActivateFn, Router } from '@angular/router';
 import { AuthService } from './auth.service';
 
-export const authGuard = () => {
+export const authGuard: CanActivateFn = (route, state) => {
   const authService = inject(AuthService);
   const router = inject(Router);
-  return true;
-
-
   
   if (authService.isLoggedIn()) {
     return true;
   }
-
-  // Redirect to the login page
-  return router.parseUrl('/login');
+  
+  // Redirect to the login page with the return url
+  router.navigate(['/login'], { queryParams: { returnUrl: state.url } });
+  return false;
 };

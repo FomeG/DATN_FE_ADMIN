@@ -1,33 +1,405 @@
-.table img {
-  object-fit: cover;
+/* Styling cho trang Movie Management - Corona Dark Theme */
+
+/* Card styles */
+.card {
+  background-color: #191c24;
+  border: none;
+  border-radius: 10px;
+  margin-bottom: 30px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+  transition: transform 0.3s ease-in-out;
+}
+
+/* .card:hover {
+  transform: translateY(-5px);
+} */
+
+.card-header {
+  background-color: #191c24;
+  border-bottom: 1px solid #2c2e33;
+  padding: 15px 20px;
+  border-radius: 10px 10px 0 0;
+}
+
+.card-title {
+  color: #ffffff;
+  font-weight: 500;
+  margin-bottom: 0;
+  font-size: 1.25rem;
+  display: flex;
+  align-items: center;
+  transition: color 0.3s ease;
+}
+
+.card-title::before {
+  content: "";
+  display: inline-block;
+  width: 5px;
+  height: 25px;
+  background: linear-gradient(to bottom, #0090e7, #0077b5);
+  margin-right: 15px;
+  border-radius: 3px;
+}
+
+.card-body {
+  padding: 25px;
+}
+
+/* Table styling */
+.table {
+  color: #ffffff;
+  margin-bottom: 0;
+}
+
+.table thead th {
+  border-top: none;
+  border-bottom: 1px solid #2c2e33;
+  font-weight: 500;
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  padding: 15px 12px;
+  color: #6c7293;
+  letter-spacing: 0.5px;
+}
+
+.table tbody tr:hover {
+  background-color: rgba(146, 146, 146, 0.05);
 }
 
 .table td {
   vertical-align: middle;
+  padding: 15px 12px;
+  border-top: 1px solid #2c2e33;
+  transition: all 0.2s ease, color 0.3s ease;
 }
 
+.table tr:hover td {
+  color: #ffffff !important;
+}
+
+.table img {
+  width: 70px;
+  height: 100px;
+  object-fit: cover;
+  border-radius: 5px;
+  transition: transform 0.3s ease;
+}
+
+.table img:hover {
+  transform: scale(1.1);
+}
+
+/* Badge styling */
 .badge {
   padding: 0.5em 1em;
-}
-
-.btn-rounded {
+  font-weight: 400;
   border-radius: 20px;
+  font-size: 0.75rem;
+  transition: color 0.3s ease, background-color 0.3s ease;
 }
 
-
-.pagination {
-  margin-top: 20px;
-  margin-bottom: 20px;
+.badge:hover {
+  color: #ffffff !important;
 }
 
-.page-link {
-  cursor: pointer;
+.bg-success {
+  background: linear-gradient(to right, #00d25b, #00ba53) !important;
 }
 
-.table {
-  margin-top: 20px;
+.bg-danger {
+  background: linear-gradient(to right, #fc424a, #f54a53) !important;
+}
+
+/* Button styling */
+.btn {
+  transition: color 0.3s ease, background-color 0.3s ease, transform 0.3s ease;
+  font-weight: 500;
+  border-radius: 6px;
+}
+
+.btn:hover {
+  color: #ffffff !important;
 }
 
 .btn-primary {
-  margin-bottom: 20px;
+  background: linear-gradient(to right, #0090e7, #0077b5);
+  border: none;
+  padding: 12px 20px;
+  margin-bottom: 25px;
+}
+
+.btn-primary:hover {
+  background: linear-gradient(to right, #0077b5, #005f92);
+  box-shadow: 0 8px 15px rgba(0, 144, 231, 0.3);
+  transform: translateY(-2px);
+}
+
+.btn-primary i {
+  margin-right: 10px;
+}
+
+.btn-outline-primary,
+.btn-outline-warning,
+.btn-outline-danger {
+  border-width: 2px;
+  padding: 6px 14px;
+  margin-right: 8px;
+}
+
+.btn-outline-primary {
+  color: #0090e7;
+  border-color: #0090e7;
+}
+
+.btn-outline-warning {
+  color: #ffab00;
+  border-color: #ffab00;
+}
+
+.btn-outline-danger {
+  color: #fc424a;
+  border-color: #fc424a;
+}
+
+.btn-outline-primary:hover {
+  background-color: #0090e7;
+  box-shadow: 0 5px 15px rgba(0, 144, 231, 0.3);
+}
+
+.btn-outline-warning:hover {
+  background-color: #ffab00;
+  box-shadow: 0 5px 15px rgba(255, 171, 0, 0.3);
+}
+
+.btn-outline-danger:hover {
+  background-color: #fc424a;
+  box-shadow: 0 5px 15px rgba(252, 66, 74, 0.3);
+}
+
+/* Search input styling */
+.form-control {
+  background-color: #2A3038;
+  border-color: #2c2e33;
+  color: #ffffff;
+  border-radius: 6px;
+  padding: 0.875rem 1.375rem;
+  font-size: 0.875rem;
+  transition: all 0.3s ease;
+}
+
+.form-control:focus {
+  border-color: #0090e7;
+  background-color: #2A3038;
+  box-shadow: 0 0 0 0.2rem rgba(0, 144, 231, 0.25);
+}
+
+/* Pagination styling */
+.pagination {
+  margin-top: 30px;
+  justify-content: center;
+}
+
+.page-item.active .page-link {
+  background: linear-gradient(to right, #0090e7, #0077b5);
+  border-color: #0090e7;
+}
+
+.page-link {
+  background-color: #2A3038;
+  border-color: #2c2e33;
+  color: #ffffff;
+  margin: 0 5px;
+  border-radius: 5px;
+  transition: color 0.3s ease, background-color 0.3s ease, transform 0.3s ease;
+}
+
+.page-link:hover {
+  background-color: #0090e7;
+  border-color: #0077b5;
+  color: #ffffff !important;
+  transform: translateY(-2px);
+}
+
+.page-item:first-child .page-link,
+.page-item:last-child .page-link {
+  border-radius: 5px;
+}
+
+/* Cải tiến header và action buttons */
+.container-fluid h2 {
+  color: #ffffff;
+  font-weight: 500;
+  margin-bottom: 25px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #2c2e33;
+}
+
+.d-flex {
+  margin-bottom: 25px;
+}
+
+/* Animation cho table rows */
+/* @keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.table tbody tr {
+  animation: fadeIn 0.5s ease-out forwards;
+  opacity: 0;
+} */
+
+/* .table tbody tr:nth-child(1) { animation-delay: 0.1s; }
+.table tbody tr:nth-child(2) { animation-delay: 0.2s; }
+.table tbody tr:nth-child(3) { animation-delay: 0.3s; }
+.table tbody tr:nth-child(4) { animation-delay: 0.4s; }
+.table tbody tr:nth-child(5) { animation-delay: 0.5s; }
+.table tbody tr:nth-child(6) { animation-delay: 0.6s; }
+.table tbody tr:nth-child(7) { animation-delay: 0.7s; }
+.table tbody tr:nth-child(8) { animation-delay: 0.8s; }
+.table tbody tr:nth-child(9) { animation-delay: 0.9s; }
+.table tbody tr:nth-child(10) { animation-delay: 1s; } */
+
+/* Links và text khác */
+a,
+.nav-link,
+.sidebar .nav .nav-item .nav-link,
+.breadcrumb-item {
+  transition: color 0.3s ease;
+}
+
+a:hover,
+.nav-link:hover,
+.sidebar .nav .nav-item .nav-link:hover,
+.breadcrumb-item:hover {
+  color: #ffffff !important;
+}
+
+/* Dropdown items */
+.dropdown-item {
+  transition: color 0.3s ease, background-color 0.3s ease;
+}
+
+.dropdown-item:hover {
+  color: #ffffff !important;
+  background-color: rgba(0, 144, 231, 0.1);
+}
+
+/* Card titles và headers */
+.card-title,
+.card-header h4,
+.card-header h5 {
+  transition: color 0.3s ease;
+}
+
+.card:hover .card-title,
+.card:hover .card-header h4,
+.card:hover .card-header h5 {
+  color: #ffffff !important;
+}
+
+/* Labels */
+label {
+  transition: color 0.3s ease;
+}
+
+label:hover {
+  color: #ffffff !important;
+}
+
+/* Breadcrumb */
+.breadcrumb-item a {
+  transition: color 0.3s ease;
+}
+
+.breadcrumb-item a:hover {
+  color: #ffffff !important;
+  text-decoration: none;
+}
+
+/* Menu items in sidebar */
+.sidebar .nav .nav-item .nav-link {
+  transition: color 0.3s ease;
+}
+
+.sidebar .nav .nav-item:hover .nav-link {
+  color: #ffffff !important;
+}
+
+
+
+
+/* Cố định chiều rộng các cột trong bảng */
+.table {
+  table-layout: fixed;
+  /* Quan trọng: đây là thuộc tính giúp cố định chiều rộng cột */
+  width: 100%;
+}
+
+/* Đặt chiều rộng cố định cho từng cột */
+.table th:nth-child(1),
+.table td:nth-child(1) {
+  width: 80px;
+  /* Cột hình ảnh */
+}
+
+.table th:nth-child(2),
+.table td:nth-child(2) {
+  width: 20%;
+  /* Cột tên phim */
+}
+
+.table th:nth-child(3),
+.table td:nth-child(3) {
+  width: 35%;
+  /* Cột mô tả */
+  /* Xử lý text quá dài */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.table th:nth-child(4),
+.table td:nth-child(4) {
+  width: 10%;
+  /* Cột thời lượng */
+}
+
+.table th:nth-child(5),
+.table td:nth-child(5) {
+  width: 15%;
+  /* Cột ngày phát hành */
+}
+
+.table th:nth-child(6),
+.table td:nth-child(6) {
+  width: 20%;
+  /* Cột thao tác */
+}
+
+/* Đảm bảo nội dung trong ô không bị tràn */
+.table td {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Cho phép hiển thị đầy đủ nội dung khi hover vào ô có text bị cắt */
+.table td.has-tooltip {
+  position: relative;
+}
+
+.table td.has-tooltip:hover::after {
+  content: attr(data-full-text);
+  position: absolute;
+  left: 0;
+  top: 100%;
+  z-index: 1000;
+  background-color: #191c24;
+  border: 1px solid #2c2e33;
+  padding: 10px;
+  border-radius: 5px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  width: max-content;
+  max-width: 350px;
+  white-space: normal;
 }

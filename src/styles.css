@@ -77,3 +77,89 @@ body.auth.login-bg {
 .auth .sign-up a:hover {
     text-decoration: underline;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* Sửa lỗi logo SweetAlert2 bị lệch */
+.swal2-icon {
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    margin: 1.35em auto 1.875em !important;
+}
+
+.swal2-icon.swal2-success .swal2-success-ring {
+    position: absolute !important;
+    width: 100% !important;
+    height: 100% !important;
+}
+
+.swal2-icon.swal2-error [class^=swal2-x-mark-line] {
+    display: block !important;
+    position: absolute !important;
+}
+
+
+/* Đặt màu đen cho title của SweetAlert */
+.swal2-title {
+    color: #151515 !important;
+}
+
+.swal2-html-container {
+    color: #262626 !important;
+}

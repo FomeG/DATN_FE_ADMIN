@@ -1,12 +1,11 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterOutlet } from '@angular/router';
+import { RouterOutlet, Router, NavigationEnd } from '@angular/router';
 import { HeaderComponent } from './shared/Components/Header/header.component';
 import { FooterComponent } from './shared/Components/Footer/footer.component';
 import { NavbarComponent } from './shared/Components/Navbar/Navbar.component';
 import { AuthService } from './auth/auth.service';
-import { Router } from '@angular/router';
-import { Observable } from 'rxjs';
+import { Observable, filter } from 'rxjs';
 import { User } from './model/user.model';
 
 @Component({
@@ -25,17 +24,30 @@ import { User } from './model/user.model';
 export class AppComponent {
   title = 'test';
   currentUser$: Observable<User | null>;
+  isLoginPage: boolean = false;
 
   constructor(
     public authService: AuthService,
     private router: Router
   ) {
-    // Khởi tạo currentUser$ trong constructor
     this.currentUser$ = this.authService.currentUser$;
     
-    // Subscribe để theo dõi thay đổi của user
-    this.currentUser$.subscribe(user => {
-      console.log('Current user:', user);
-    });
+    // Check current route on navigation
+    this.router.events
+      .pipe(filter(event => event instanceof NavigationEnd))
+      .subscribe((event: any) => {
+        this.isLoginPage = event.url.includes('/login');
+        
+        // If user is not logged in and not on login page or payment page, redirect to login
+        if (!this.authService.isLoggedIn() && 
+            !this.isLoginPage && 
+            !this.isPaymentRoute()) {
+          this.router.navigate(['/login']);
+        }
+      });
+  }
+
+  isPaymentRoute(): boolean {
+    return this.router.url.includes('payment-callback');
   }
 }

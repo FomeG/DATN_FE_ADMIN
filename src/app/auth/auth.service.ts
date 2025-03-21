@@ -15,15 +15,12 @@ export class AuthService {
   private refreshTokenKey = 'refresh_token';
   private userKey = 'current_user';
 
-
-  // BehaviorSubject để theo dõi user hiện tại
   private currentUserSubject = new BehaviorSubject<User | null>(null);
   currentUser$ = this.currentUserSubject.asObservable();
 
 
 
   constructor(private http: HttpClient) {
-    // Khôi phục user từ localStorage nếu có
     const savedUser = localStorage.getItem(this.userKey);
     if (savedUser) {
       this.currentUserSubject.next(JSON.parse(savedUser));
@@ -32,7 +29,7 @@ export class AuthService {
 
   login(username: string, password: string): Observable<LoginResponse> {
     const loginData: LoginRequest = {
-      useName: username,
+      userName: username,
       passWord: password
     };
 
@@ -65,11 +62,20 @@ export class AuthService {
   }
 
   getCurrentUser(): User | null {
-    return this.currentUserSubject.value;
+    const userString = localStorage.getItem(this.userKey);
+    if (userString) {
+      return JSON.parse(userString) as User;
+    }
+    return null;
   }
 
   isLoggedIn(): boolean {
-    return !!localStorage.getItem(this.tokenKey);
+    const token = this.getToken();
+    // Basic check for token existence
+    return !!token;
+    
+    // If you want a more sophisticated check that also validates token expiration:
+    // return !!token && !this.isTokenExpired(token);
   }
 
   getToken(): string | null {
@@ -85,4 +91,14 @@ export class AuthService {
   //   const userString = localStorage.getItem(this.userKey);
   //   return userString ? JSON.parse(userString) : null;
   // }
+
+
+  private isTokenExpired(token: string): boolean {
+    try {
+      const decoded = JSON.parse(atob(token.split('.')[1]));
+      return decoded.exp < Date.now() / 1000;
+    } catch (err) {
+      return true; // If there's an error decoding, consider the token invalid
+    }
+  }
 }

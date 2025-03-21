@@ -7,21 +7,31 @@ import { ShowtimeManagementComponent } from './showtime-management/showtime-mana
 import { MembershipManagementComponent } from './membership-management/membership-management.component';
 import { RoomManagementComponent } from './room/room-management/room-management.component';
 import { PricingRuleComponent } from './pricing-rule/pricing-rule.component';
-
 import { LogManagementComponent } from './log-management/log-management.component';
 import { LoginComponent } from './login/login.component';
 import { authGuard } from './auth/auth.guard';
+import { PaymentCallbackComponent } from './VNPAY/payment-callback/payment-callback.component';
+import { PaymentLayoutComponent } from './VNPAY/payment-layout/payment-layout.component';
 
 export const routes: Routes = [
-  // Public routes
+  // Public routes that don't require authentication
   { path: 'login', component: LoginComponent },
-
-  // Protected routes
+  
+  // Special routes like payment callback
+  {
+    path: 'payment-callback',
+    component: PaymentLayoutComponent,
+    children: [
+      { path: '', component: PaymentCallbackComponent }
+    ]
+  },
+  
+  // Protected routes - all grouped under a parent with the auth guard
   {
     path: '',
     canActivate: [authGuard],
     children: [
-      { path: '', redirectTo: 'movies', pathMatch: 'full' }, // Default route when authenticated
+      { path: '', redirectTo: 'movies', pathMatch: 'full' },
       { path: 'movies', component: MovieManagementComponent },
       { path: 'movies/edit/:id', component: EditMovieComponent },
       { path: 'employees', component: EmpManagementComponent },
@@ -30,10 +40,13 @@ export const routes: Routes = [
       { path: 'memberships', component: MembershipManagementComponent },
       { path: 'log', component: LogManagementComponent },
       { path: 'rooms', component: RoomManagementComponent },
-      { path: 'pricing-rules', component: PricingRuleComponent },
+      { path: 'pricing-rules', component: PricingRuleComponent }
     ]
   },
-
-  // Wildcard route for 404
-  { path: '**', redirectTo: '' }
+  
+  // Wildcard route - redirect to login if not logged in, otherwise to default page
+  { 
+    path: '**', 
+    redirectTo: '' 
+  }
 ];

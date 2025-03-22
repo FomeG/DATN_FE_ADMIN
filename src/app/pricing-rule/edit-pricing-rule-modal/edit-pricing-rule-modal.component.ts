@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { PricingRuleService, PricingRule } from '../../services/pricing-rule.service';
 import Swal from 'sweetalert2';
+import { Modal } from 'bootstrap';
 
 @Component({
   selector: 'app-edit-pricing-rule-modal',
@@ -99,7 +100,8 @@ import Swal from 'sweetalert2';
 export class EditPricingRuleModalComponent {
   @Input() rule: PricingRule | null = null;
   @Output() ruleUpdated = new EventEmitter<void>();
-
+  @Output() modalClosed = new EventEmitter<void>();
+  private modalInstance?: Modal;
   ruleForm: FormGroup;
 
   constructor(
@@ -129,6 +131,7 @@ export class EditPricingRuleModalComponent {
           if (response.responseCode === 200) {
             Swal.fire('Success', 'Rule updated successfully', 'success');
             this.ruleUpdated.emit();
+            this.closeModal();
             // Close modal
             const modal = document.getElementById('editPricingRuleModal');
             if (modal) {
@@ -146,6 +149,12 @@ export class EditPricingRuleModalComponent {
           Swal.fire('Error', 'Failed to update rule', 'error');
         }
       });
+    }
+  }
+  closeModal() {
+    if (this.modalInstance) {
+      this.modalInstance.hide();
+      this.modalClosed.emit(); // Phát sự kiện khi đóng modal
     }
   }
 } 

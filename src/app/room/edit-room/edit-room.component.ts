@@ -6,6 +6,7 @@ import { Modal } from 'bootstrap';
 import { Observable, concat } from 'rxjs';
 import { Observer } from 'rxjs'; // Để khai báo kiểu cho 'observer'
 import { error } from 'jquery';
+import Swal from 'sweetalert2';
 
 export interface SeatInfo {
   id: string;
@@ -20,6 +21,7 @@ export interface SeatInfo {
   isDouble?: boolean;
   isMerged?: boolean;
   isClicked?: boolean;
+  originalPrice?: number;
 }
 @Component({
   selector: 'app-edit-room',
@@ -63,7 +65,8 @@ export class EditRoomComponent implements OnInit {
         this.markDoubleSeatType(); // Đánh dấu loại ghế đôi sau khi lấy dữ liệu
       },
       error: (error) => {
-        console.error('Lỗi khi lấy danh sách loại ghế:', error);
+        Swal.fire('Error', "Lỗi khi tải danh sách loại ghế", 'error');
+
       }
     });
   }
@@ -72,16 +75,35 @@ export class EditRoomComponent implements OnInit {
   fetchSeats(roomId: string, totalSeats: number): void {
     this.seatService.getSeatsByRoom(roomId, 1000).subscribe({
       next: (response) => {
-        this.seats = response.data;
+        // Lưu dữ liệu ghế gốc từ API
+        this.seats = response.data.map(seat => ({
+          ...seat,
+          // Lưu giá gốc để sử dụng sau này
+          originalPrice: seat.seatPrice
+        }));
 
-
+        // Sắp xếp ghế theo hàng và cột
         this.seats.sort((a, b) => a.rowNumber - b.rowNumber || a.colNumber - b.colNumber);
+        
+        // Áp dụng tính giá mới cho tất cả các ghế đơn
+        this.seats.forEach(seat => {
+          if (!seat.isDouble && !seat.isMerged) {
+            // Tìm loại ghế tương ứng để lấy multiplier
+            const seatType = this.seatTypes.find(type => type.id === seat.seatTypeId);
+            if (seatType) {
+              // Cộng thêm hệ số nhân vào giá ghế
+              seat.seatPrice = seat.originalPrice! + seatType.multiplier;
+            }
+          }
+        });
+        
         this.groupSeatsByRow(this.seats);
         this.mergePairSeats();
-
-
       },
-      error: (error) => console.error('Lỗi khi lấy danh sách ghế:', error)
+      error: (error) => {
+        console.error('Lỗi khi lấy danh sách ghế:', error);
+        Swal.fire('Lỗi', 'Không thể tải danh sách ghế, vui lòng thử lại sau.', 'error');
+      }
     });
   }
 
@@ -131,7 +153,8 @@ export class EditRoomComponent implements OnInit {
 
   async updateSeat() {
     if (this.selectedSeats.length === 0) {
-      alert('Vui lòng chọn ít nhất một ghế để cập nhật.');
+      Swal.fire('Warning', "Chọn ít nhất một ghế để cập nhập", 'warning');
+
       return;
     }
 
@@ -163,10 +186,11 @@ export class EditRoomComponent implements OnInit {
       // Sau khi tất cả các yêu cầu hoàn thành, gọi lại API để lấy dữ liệu mới nhất
       this.fetchSeats(this.selectedRoomId, 1000);
       this.selectedSeats = [];
-      alert("Cập nhật ghế thành công");
+
+      Swal.fire('success', "Sửa ghế thành công", 'success');
+
     } catch (error) {
-      console.error('Lỗi khi cập nhật ghế:', error);
-      alert('Có lỗi xảy ra khi cập nhật ghế. Vui lòng thử lại.');
+      Swal.fire('error', "Có lỗi xảy ra khi cập nhật ghếg", 'error');
     }
   }
 
@@ -200,6 +224,12 @@ export class EditRoomComponent implements OnInit {
     }
 
     this.selectedSeat = seat.isClicked ? { ...seat } : null;
+    
+    // Nếu không phải ghế đôi, tính lại giá ghế dựa trên multiplier của loại ghế
+    if (this.selectedSeat && !this.selectedSeat.isDouble) {
+      this.calculateSeatPrice(this.selectedSeat);
+    }
+    
     console.log(this.selectedSeats);
 
   }
@@ -216,14 +246,39 @@ export class EditRoomComponent implements OnInit {
         if (pairSeat) {
           this.selectedSeat.seatPrice -= pairSeat.seatPrice;
         }
+      } else if (field === 'seatTypeId') {
+        // Khi thay đổi loại ghế, tính lại giá ghế
+        (this.selectedSeat as any)[field] = value;
+        this.calculateSeatPrice(this.selectedSeat);
+        return;
       }
+      
       (this.selectedSeat as any)[field] = value;
+    }
+  }
+  
+  // Phương thức tính giá ghế dựa trên loại ghế
+  calculateSeatPrice(seat: SeatInfo): void {
+    if (!seat || seat.isDouble) return;
+    
+    // Tìm loại ghế tương ứng để lấy multiplier
+    const seatType = this.seatTypes.find(type => type.id === seat.seatTypeId);
+    
+    if (seatType && seat.originalPrice !== undefined) {
+      // Tính giá ghế = giá cơ bản + hệ số nhân
+      seat.seatPrice = seat.originalPrice! + seatType.multiplier;
+    } else if (seatType) {
+      // Nếu không có originalPrice, sử dụng giá hiện tại
+      const originalSeat = this.seats.find(s => s.id === seat.id);
+      if (originalSeat) {
+        seat.seatPrice = originalSeat.seatPrice + seatType.multiplier;
+      }
     }
   }
 
   setupPairSeats() {
     if (this.selectedSeats.length !== 2) {
-      alert('Vui lòng chọn đúng 2 ghế để setup ghế đôi.');
+      Swal.fire('Lỗi', "Vui lòng chọn đúng 2 ghế để setup ghế đôi.", 'error');
       return;
     }
 
@@ -231,12 +286,12 @@ export class EditRoomComponent implements OnInit {
     const seat2 = this.selectedSeats[1];
 
     if (seat1.isDouble || seat2.isDouble) {
-      alert('Một trong hai ghế đã được setup ghế đôi.');
+      Swal.fire('Lỗi', "Một trong hai ghế đã được setup ghế đôi.", 'error');
       return;
     }
 
     if (seat1.rowNumber !== seat2.rowNumber || Math.abs(seat1.colNumber - seat2.colNumber) !== 1) {
-      alert('Hai ghế phải liền kề nhau và cùng hàng.');
+      Swal.fire('Lỗi', 'Hai ghế phải liền kề nhau và cùng hàng.', 'error');
       return;
     }
 
@@ -248,19 +303,19 @@ export class EditRoomComponent implements OnInit {
 
     this.seatService.setupPairSeats(body).subscribe({
       next: (response) => {
-        alert('Setup ghế đôi thành công.');
+        Swal.fire('Thành công', 'Setup ghế đôi thành công.', 'success');
         this.fetchSeats(this.selectedRoomId, this.selectedTotalSeats);
         this.selectedSeats = [];
       },
       error: (error) => {
-        alert('Lỗi khi setup ghế đôi: ' + error.message);
+        Swal.fire('Lỗi', 'Lỗi khi setup ghế đôi: ' + error.message, 'error');
       }
     });
   }
 
   unsetupPairSeats() {
     if (this.selectedSeats.length !== 2) {
-      alert('Vui lòng chọn một ghế đôi để hủy setup.');
+      Swal.fire('Lỗi', 'Vui lòng chọn một ghế đôi để hủy setup.', 'error');
       return;
     }
 
@@ -270,19 +325,19 @@ export class EditRoomComponent implements OnInit {
 
     this.seatService.unsetupPairSeats(seat1Id, seat2Id).subscribe({
       next: (response) => {
-        alert('Hủy setup ghế đôi thành công.');
+        Swal.fire('Thành công', 'Hủy setup ghế đôi thành công.', 'success');
         this.fetchSeats(this.selectedRoomId, 1000);
         this.selectedSeats = [];
       },
       error: (error) => {
-        alert('Lỗi khi hủy setup ghế đôi: ' + error.message);
+        Swal.fire('Lỗi', 'Lỗi khi hủy setup ghế đôi: ' + error.message, 'error');
       }
     });
   }
 
   validateSelectedSeats(selectedSeats: SeatInfo[]): boolean {
     if (selectedSeats.length !== 2) {
-      alert('Vui lòng chọn đúng 2 ghế.');
+      Swal.fire('Lỗi', 'Vui lòng chọn đúng 2 ghế.', 'error');
       return false;
     }
 
@@ -290,12 +345,12 @@ export class EditRoomComponent implements OnInit {
     const seat2 = selectedSeats[1];
 
     if (seat1.rowNumber !== seat2.rowNumber) {
-      alert('Hai ghế phải cùng hàng.');
+      Swal.fire('Lỗi', 'Hai ghế phải cùng hàng.', 'error');
       return false;
     }
 
     if (Math.abs(seat1.colNumber - seat2.colNumber) !== 1) {
-      alert('Hai ghế phải liền kề nhau.');
+      Swal.fire('Lỗi', 'Hai ghế phải liền kề nhau.', 'error');
       return false;
     }
 
@@ -315,49 +370,62 @@ export class EditRoomComponent implements OnInit {
   createSeatType() {
     this.seatService.createSeatType(this.newSeatType).subscribe({
       next: (response) => {
-        alert('Thêm mới loại ghế thành công.');
+        Swal.fire('Thành công', 'Thêm mới loại ghế thành công.', 'success');
         this.fetchSeatTypes();
         const modal = Modal.getInstance(this.addSeatTypeModal.nativeElement);
         modal?.hide();
       },
       error: (error) => {
-        alert('Lỗi khi thêm mới loại ghế: ' + error.message);
+        Swal.fire('Lỗi', 'Lỗi khi thêm mới loại ghế: ' + error.message, 'error');
       }
     });
   }
 
   deleteSeatType(id: string) {
-    this.seatService.deleteSeatType(id).subscribe({
-      next: (response) => {
-        alert('Xóa loại ghế thành công.');
-        this.fetchSeatTypes();
-      },
-      error: (error) => {
-        alert('Lỗi khi xóa loại ghế: ' + error.message);
+    Swal.fire({
+      title: 'Xác nhận xóa?',
+      text: 'Bạn có chắc chắn muốn xóa loại ghế này?',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Xóa',
+      cancelButtonText: 'Hủy'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.seatService.deleteSeatType(id).subscribe({
+          next: (response) => {
+            Swal.fire('Thành công', 'Xóa loại ghế thành công.', 'success');
+            this.fetchSeatTypes();
+          },
+          error: (error) => {
+            Swal.fire('Lỗi', 'Lỗi khi xóa loại ghế: ' + error.message, 'error');
+          }
+        });
       }
     });
   }
 
   updateSeatTypeMultiplier() {
     if (!this.selectedSeatType.id) {
-        alert('Vui lòng chọn một loại ghế trước khi cập nhật');
-        return;
+      Swal.fire('Lỗi', 'Vui lòng chọn một loại ghế trước khi cập nhật', 'error');
+      return;
     }
 
     this.seatService.updateSeatTypeMultiplier(
-        this.selectedSeatType.id, 
-        this.selectedSeatType.multiplier
+      this.selectedSeatType.id,
+      this.selectedSeatType.multiplier
     ).subscribe({
-        next: (response) => {
-            alert('Cập nhật hệ số nhân thành công.');
-            this.fetchSeatTypes(); // Load lại danh sách
-            this.selectedSeatType = { id: '', multiplier: 0 }; // Reset selection
-        },
-        error: (error) => {
-            alert('Lỗi khi cập nhật hệ số nhân: ' + error.message);
-        }
+      next: (response) => {
+        Swal.fire('Thành công', 'Cập nhật hệ số nhân thành công.', 'success');
+        this.fetchSeatTypes(); // Load lại danh sách
+        this.selectedSeatType = { id: '', multiplier: 0 }; // Reset selection
+      },
+      error: (error) => {
+        Swal.fire('Lỗi', 'Lỗi khi cập nhật hệ số nhân: ' + error.message, 'error');
+      }
     });
-}
+  }
 
   markDoubleSeatType() {
     const doubleSeatTypeName = 'Ghế Đôi'; // Tên loại ghế đôi
@@ -365,6 +433,12 @@ export class EditRoomComponent implements OnInit {
       ...seatType,
       isDoubleType: seatType.seatTypeName === doubleSeatTypeName // Đánh dấu loại ghế đôi
     }));
+  }
+
+  // Phương thức để lấy hệ số nhân của loại ghế theo id
+  getSeatTypeMultiplier(seatTypeId: string): number {
+    const seatType = this.seatTypes.find(type => type.id === seatTypeId);
+    return seatType ? seatType.multiplier : 0;
   }
 
   isVipSeat(seat: SeatInfo): boolean {

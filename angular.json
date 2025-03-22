@@ -22,16 +22,22 @@
             "tsConfig": "tsconfig.app.json",
             "assets": [
               "src/favicon.ico",
+              "src/assets",
               {
                 "glob": "**/*",
-                "input": "assets",
-                "output": "/assets"
+                "input": "./node_modules/leaflet/dist/images/",
+                "output": "./assets/leaflet/"
               }
             ],
             "styles": [
-              "src/styles.css"
+              "src/styles.css",
+              "./node_modules/leaflet/dist/leaflet.css",
+              "node_modules/dropify/dist/css/dropify.min.css"
             ],
-            "scripts": []
+            "scripts": [
+              "node_modules/jquery/dist/jquery.min.js",
+              "node_modules/dropify/dist/js/dropify.min.js"
+            ]
           },
           "configurations": {
             "production": {

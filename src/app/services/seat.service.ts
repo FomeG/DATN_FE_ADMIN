@@ -67,7 +67,7 @@ export class SeatService {
 
   // Lấy danh sách loại ghế
   getAllSeatTypes(currentPage: number, recordPerPage: number): Observable<SeatTypeResponse> {
-    const url = `${this.apiUrl}SeatType/GetAllSeatType?currentPage=${currentPage}&recordPerPage=${recordPerPage}`;
+    const url = `${this.apiUrl}SeatType/GetListSeatType?currentPage=${currentPage}&recordPerPage=${recordPerPage}`;
     return this.http.get<SeatTypeResponse>(url);
   }
 
@@ -94,7 +94,7 @@ export class SeatService {
 
   // Cập nhật hệ số nhân của loại ghế
   updateSeatTypeMultiplier(id: string, multiplier: number): Observable<any> {
-    const url = `${this.apiUrl}SeatType/UpdateSeatTypeMultiplier`;
+    const url = `${this.apiUrl}SeatType/UpdateSeatType`;
     const body = { id, multiplier };
     return this.http.post(url, body);
   }

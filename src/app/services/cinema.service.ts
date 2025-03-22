@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
+import { map } from 'rxjs/operators';
 
 export interface Cinema {
   cinemasId: string;
@@ -11,12 +12,42 @@ export interface Cinema {
   totalRooms: number;
   status: number;
   createdDate: Date;
+  isdeleted: boolean;
+  latitude?: number;
+  longitude?: number;
+}
+
+export interface CreateCinemaRequest {
+  name: string;
+  address: string;
+  phoneNumber: string;
+  totalRooms: number;
+  status: number;
+  createdDate: Date;
+  latitude?: number;
+  longitude?: number;
+}
+
+export interface UpdateCinemaRequest {
+  name: string;
+  address: string;
+  phoneNumber: string;
+  totalRooms: number;
+  status: number;
+  createdDate: Date;
+  latitude?: number;
+  longitude?: number;
 }
 
 export interface CinemaResponse {
-  data: Cinema[];
-  message: string;
   responseCode: number;
+  message: string;
+  data: Cinema[];
+  totalRecord: number;
+}
+
+export interface CommonPagination<T> {
+  data: T[];
   totalRecord: number;
 }
 
@@ -29,26 +60,46 @@ export class CinemaService {
   constructor(private http: HttpClient) { }
 
   getCinemas(currentPage: number, recordPerPage: number): Observable<CinemaResponse> {
-    return this.http.get<CinemaResponse>(`${this.apiUrl}Cinemas/GetListCinemas?currentPage=${currentPage}&recordPerPage=${recordPerPage}`);
+    return this.http.get<CinemaResponse>(`${this.apiUrl}Cinemas/GetListCinemas?currentPage=${currentPage}&recordPerPage=${recordPerPage}`).pipe(
+      map(response => {
+        // Lọc ra các cinema chưa bị xóa
+        const nonDeletedCinemas = response.data.filter(cinema => !cinema.isdeleted);
+        return {
+          ...response,
+          data: nonDeletedCinemas,
+          totalRecord: nonDeletedCinemas.length
+        };
+      })
+    );
   }
 
   getCinemasByName(name: string, currentPage: number, recordPerPage: number): Observable<CinemaResponse> {
-    return this.http.get<CinemaResponse>(`${this.apiUrl}Cinemas/GetListCinemasByName?nameCinemas=${name}&currentPage=${currentPage}&recordPerPage=${recordPerPage}`);
+    return this.http.get<CinemaResponse>(`${this.apiUrl}Cinemas/GetListCinemasByName?nameCinemas=${name}&currentPage=${currentPage}&recordPerPage=${recordPerPage}`).pipe(
+      map(response => {
+        // Lọc ra các cinema chưa bị xóa
+        const nonDeletedCinemas = response.data.filter(cinema => !cinema.isdeleted);
+        return {
+          ...response,
+          data: nonDeletedCinemas,
+          totalRecord: nonDeletedCinemas.length
+        };
+      })
+    );
   }
 
-  createCinema(cinemaData: any): Observable<any> {
-    return this.http.post(`${this.apiUrl}Cinemas/CreateCinemas`, cinemaData);
+  getCinemaById(id: string): Observable<CinemaResponse> {
+    return this.http.get<CinemaResponse>(`${this.apiUrl}Cinemas/GetCinemaById?IdCinemasReq=${id}`);
   }
 
-  updateCinema(id: string, cinemaData: any): Observable<any> {
-    return this.http.post(`${this.apiUrl}Cinemas/UpdateCinemas?IdCinemasReq=${id}`, cinemaData);
+  createCinema(cinemaData: CreateCinemaRequest): Observable<CinemaResponse> {
+    return this.http.post<CinemaResponse>(`${this.apiUrl}Cinemas/CreateCinemas`, cinemaData);
   }
 
-  updateCinemaAddress(id: string, newAddress: string): Observable<any> {
-    return this.http.post(`${this.apiUrl}Cinemas/UpdateCinemasAddress?IdCinemasReq=${id}&newAddress=${newAddress}`, {});
+  updateCinema(id: string, cinemaData: UpdateCinemaRequest): Observable<CinemaResponse> {
+    return this.http.post<CinemaResponse>(`${this.apiUrl}Cinemas/UpdateCinemas?IdCinemasReq=${id}`, cinemaData);
   }
 
-  getCinemaById(id: string): Observable<any> {
-    return this.http.get(`${this.apiUrl}Cinemas/GetCinemaById?IdCinemasReq=${id}`);
+  deleteCinema(id: string): Observable<CinemaResponse> {
+    return this.http.post<CinemaResponse>(`${this.apiUrl}Cinemas/DeleteCinema?id=${id}`, {});
   }
-}
+} 

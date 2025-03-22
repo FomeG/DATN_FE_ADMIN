@@ -1,10 +1,19 @@
 <nav class="sidebar sidebar-offcanvas" id="sidebar">
     <div class="sidebar-brand-wrapper d-none d-lg-flex align-items-center justify-content-center fixed-top">
-        <a class="sidebar-brand brand-logo" href="index.html"><img src="../../../../../assets/images/logo.svg"
-                alt="logo" /></a>
-        <a class="sidebar-brand brand-logo-mini" href="index.html"><img src="../../../../../assets/images/logo-mini.svg"
-                alt="logo" /></a>
+        <a class="sidebar-brand brand-logo" href="javascript:void(0);">
+            <img src="assets/images/logo.svg" (error)="handleLogoError($event)" alt="Cinema Admin" />
+        </a>
+        <a class="sidebar-brand brand-logo-mini" href="javascript:void(0);">
+            <img src="assets/images/logo-mini.svg" (error)="handleMiniLogoError($event)" alt="CA" />
+        </a>
     </div>
+    <!-- Nút toggle sidebar ở cạnh phải của navbar -->
+    <div class="sidebar-toggle-wrapper">
+        <button class="sidebar-toggle-btn" (click)="toggleSidebar()">
+            <i class="toggle-icon" [innerHTML]="sidebarOpen ? '&lt;' : '&gt;'"></i>
+        </button>
+    </div>
+    
     <ul class="nav">
         <li class="nav-item profile">
             <div class="profile-desc">
@@ -88,7 +97,7 @@
 
 
         <li class="nav-item menu-items">
-            <a class="nav-link" href="movies">
+            <a class="nav-link" routerLink="/movies">
                 <span class="menu-icon">
                     <i class="mdi mdi-movie"></i>
                 </span>
@@ -98,7 +107,7 @@
 
 
         <li class="nav-item menu-items">
-            <a class="nav-link" href="actors">
+            <a class="nav-link" routerLink="/actors">
                 <span class="menu-icon">
                     <i class="mdi mdi-account-star"></i>
                 </span>
@@ -109,7 +118,7 @@
 
 
         <li class="nav-item menu-items">
-            <a class="nav-link" href="showtimes">
+            <a class="nav-link" routerLink="/showtimes">
                 <span class="menu-icon">
                     <i class="mdi mdi-clock"></i>
                 </span>
@@ -120,7 +129,7 @@
 
 
         <li class="nav-item menu-items">
-            <a class="nav-link" href="cinemas">
+            <a class="nav-link" routerLink="/cinemas">
                 <span class="menu-icon">
                     <i class="mdi mdi-theater"></i>
                 </span>
@@ -132,7 +141,7 @@
 
 
         <li class="nav-item menu-items">
-            <a class="nav-link" href="memberships">
+            <a class="nav-link" routerLink="/memberships">
                 <span class="menu-icon">
                     <i class="mdi mdi-account-card-details"></i>
                 </span>
@@ -141,7 +150,7 @@
         </li>
 
         <li class="nav-item menu-items">
-            <a class="nav-link" href="rooms">
+            <a class="nav-link" routerLink="/rooms">
                 <span class="menu-icon">
                     <i class="mdi mdi-seat"></i>
                 </span>
@@ -150,7 +159,7 @@
         </li>
 
         <li class="nav-item menu-items">
-            <a class="nav-link" href="pricing-rules">
+            <a class="nav-link" routerLink="/pricing-rules">
                 <span class="menu-icon">
                     <i class="mdi mdi-currency-usd"></i>
                 </span>
@@ -176,7 +185,7 @@
             </div>
         </li>
         <li class="nav-item menu-items">
-            <a class="nav-link" href="log">
+            <a class="nav-link" routerLink="/log">
                 <span class="menu-icon">
                     <i class="mdi mdi-playlist-play"></i>
                 </span>
@@ -234,9 +243,6 @@
                 <span class="menu-title">Documentation</span>
             </a>
         </li>
-
-
-
 
     </ul>
 </nav>

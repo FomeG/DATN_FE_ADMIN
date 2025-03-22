@@ -13,7 +13,7 @@
 
             <!-- Body -->
             <div class="modal-body">
-                <form [formGroup]="roomForm" (ngSubmit)="onSubmit()">
+                <form [formGroup]="roomForm" (ngSubmit)="createRoom()">
                     <!-- Thông báo lỗi chung -->
                     <!-- Hiển thị lỗi chỉ khi có lỗi trong quá trình gửi form -->
                     <div *ngIf="errorMessage && isFormSubmitted" class="alert alert-danger">
@@ -78,7 +78,7 @@
 
                     <div class="modal-footer">
                         <!-- Nút Đóng modal -->
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                        <button #closeBtn type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
                         <button type="submit" class="btn btn-primary"  >
                             <span *ngIf="isLoading" class="spinner-border spinner-border-sm mr-1"></span>
                             

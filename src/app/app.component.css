@@ -2,6 +2,8 @@
     height: 100vh;
     overflow: hidden;
     position: relative;
+    width: 100vw;
+    max-width: 100%;
 }
 
 .page-body-wrapper {
@@ -9,6 +11,8 @@
     position: relative;
     display: flex;
     flex-direction: row;
+    width: 100%;
+    padding-top: 70px;
 }
 
 .main-panel {
@@ -17,6 +21,7 @@
     display: flex;
     flex-direction: column;
     position: relative;
+    width: calc(100% - 260px); /* Điều chỉnh theo chiều rộng của sidebar */
 }
 
 .content-wrapper {
@@ -24,6 +29,7 @@
     overflow-y: auto;
     padding: 20px;
     background: #080a0e;
+    width: 100%;
 }
 
 /* Đảm bảo footer luôn ở dưới cùng */
@@ -80,12 +86,6 @@ app-footer {
     background-size: cover;
     overflow: auto;
 }
-
-
-
-
-
-
 
 /* Payment Layout Styles */
 .payment-layout {
@@ -153,5 +153,9 @@ app-footer {
 
     .payment-content {
         padding: 20px;
+    }
+    
+    .main-panel {
+        width: 100%;
     }
 }

@@ -112,7 +112,7 @@
                                     <select class="form-select" [ngModel]="selectedSeat?.seatTypeId"
                                         (ngModelChange)="updateSelectedSeat('seatTypeId', $event)">
                                         <option *ngFor="let t of seatTypes" [value]="t.id" [disabled]="t.isDoubleType">
-                                            {{ t.seatTypeName }}
+                                            {{ t.seatTypeName }} ({{ t.multiplier | currency:'VND' }})
                                         </option>
                                     </select>
                                     <!-- Biểu tượng dấu cộng -->
@@ -124,6 +124,9 @@
                                         <i class="fas fa-cog"></i> <!-- Icon răng cưa -->
                                     </button>
                                 </div>
+                                <small class="text-muted mt-1" *ngIf="selectedSeat">
+                                    Hệ số nhân: {{ getSeatTypeMultiplier(selectedSeat.seatTypeId) | currency:'VND' }}
+                                </small>
                             </div>
 
                             <!-- Modal thêm mới loại ghế -->
@@ -232,10 +235,33 @@
                             <!-- Giá ghế -->
                             <div class="form-group">
                                 <label class="font-weight-bold">Giá ghế</label>
-                                <p class="form-control-plaintext">
-                                    {{ selectedSeat ? (selectedSeat.seatPrice | currency:'VND') : 'Chưa chọn ghế' }}
-                                    <span *ngIf="selectedSeat?.isDouble">(Tổng giá ghế đôi)</span>
-                                </p>
+                                <div *ngIf="selectedSeat" class="mt-2">
+                                    <!-- Ghế đôi hiển thị tổng giá -->
+                                    <div *ngIf="selectedSeat.isDouble" class="price-info">
+                                        <span class="fw-bold fs-5 text-dark">{{ selectedSeat.seatPrice | currency:'VND' }}</span>
+                                        <span class="text-muted ms-2">(Tổng giá ghế đôi)</span>
+                                    </div>
+                                    
+                                    <!-- Ghế thường hiển thị chi tiết tính giá -->
+                                    <div *ngIf="!selectedSeat.isDouble" class="price-info">
+                                        <div class="price-breakdown">
+                                            <div class="d-flex justify-content-between mb-1">
+                                                <span>Giá cơ bản:</span>
+                                                <span class="text-dark">{{ selectedSeat.originalPrice | currency:'VND' }}</span>
+                                            </div>
+                                            <div class="d-flex justify-content-between mb-1">
+                                                <span>Hệ số nhân:</span>
+                                                <span class="text-dark">+ {{ getSeatTypeMultiplier(selectedSeat.seatTypeId) | currency:'VND' }}</span>
+                                            </div>
+                                            <hr class="my-1">
+                                            <div class="d-flex justify-content-between fw-bold">
+                                                <span>Giá cuối:</span>
+                                                <span class="text-dark">{{ selectedSeat.seatPrice | currency:'VND' }}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <p *ngIf="!selectedSeat" class="form-control-plaintext">Chưa chọn ghế</p>
                             </div>
 
                             <!-- Ghế đôi -->

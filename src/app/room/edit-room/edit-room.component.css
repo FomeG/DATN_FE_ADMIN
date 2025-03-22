@@ -565,3 +565,22 @@ h4.text-primary {
 .list-group-item.active:hover {
     background-color: #0069d9;
 }
+
+.price-info {
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    padding: 12px;
+    background-color: #f8f9fa;
+}
+
+.price-breakdown {
+    font-size: 0.9rem;
+}
+
+.price-breakdown hr {
+    border-color: #ced4da;
+}
+
+.price-breakdown .fw-bold {
+    font-size: 1.05rem;
+}

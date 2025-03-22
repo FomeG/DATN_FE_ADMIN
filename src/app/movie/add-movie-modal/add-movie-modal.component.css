@@ -3,89 +3,193 @@
 }
 
 .form-group {
-  margin-bottom: 1rem;
+  margin-bottom: 1.25rem;
 }
 
-.select2 {
-  width: 100%;
+.modal-content {
+  background-color: #191c24;
+  border: none;
+  border-radius: 12px;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
 }
 
-.alert {
-  margin-bottom: 1rem;
+.modal-header {
+  border-bottom: 1px solid #2c2e33;
+  padding: 1.25rem 1.5rem;
+  background-color: #191c24;
+  border-radius: 12px 12px 0 0;
+}
+
+.modal-body {
+  padding: 1.5rem;
+}
+
+.modal-footer {
+  border-top: 1px solid #2c2e33;
+  padding: 1.25rem 1.5rem;
+  background-color: #191c24;
+  border-radius: 0 0 12px 12px;
 }
 
 .text-danger {
   font-size: 0.875rem;
   margin-top: 0.25rem;
+  color: #fc424a !important;
 }
 
-.modal-footer {
-  border-top: 1px solid #dee2e6;
-  padding-top: 1rem;
-}
-
-
-.actor-dropdown {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  right: 0;
-  z-index: 1000;
-  max-height: 200px;
-  overflow-y: auto;
-  background: white;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.selected-actors {
-  min-height: 38px;
-  padding: 5px;
-  border: 1px solid #ced4da;
-  border-radius: 4px;
-  margin-bottom: 10px;
-}
-
-.badge {
-  display: inline-flex;
-  align-items: center;
-  padding: 0.5em 0.7em;
-  font-size: 0.875em;
-}
-
-.badge .btn-close {
-  padding: 0.5em;
-  margin-left: 0.5em;
-}
-
-.list-group-item {
-  cursor: pointer;
-}
-
-.list-group-item:hover {
-  background-color: #f8f9fa;
-}
-
-
-/* Thêm vào CSS hiện có */
-
-.genre-dropdown {
+/* Actor and Genre dropdown styling */
+.actor-dropdown, .genre-dropdown {
   position: absolute;
   width: 100%;
   max-height: 200px;
   overflow-y: auto;
   z-index: 1050;
-  background-color: #fff;
-  border-radius: 4px;
-  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+  background-color: #191c24;
+  border-radius: 8px;
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.3);
+  border: 1px solid #2c2e33;
+  margin-top: 4px;
 }
 
-.genre-dropdown .list-group-item {
-  padding: 0.5rem 1rem;
+.actor-dropdown .list-group-item, .genre-dropdown .list-group-item {
+  padding: 0.75rem 1rem;
   cursor: pointer;
+  background-color: #191c24;
+  color: #ffffff;
+  border: none;
+  border-bottom: 1px solid #2c2e33;
+  transition: all 0.3s ease;
 }
 
-.genre-dropdown .list-group-item:hover {
-  background-color: #f8f9fa;
+.actor-dropdown .list-group-item:last-child, .genre-dropdown .list-group-item:last-child {
+  border-bottom: none;
+}
+
+.actor-dropdown .list-group-item:hover, .genre-dropdown .list-group-item:hover {
+  background-color: #0090e7;
+  color: #ffffff;
+  transform: translateY(-2px);
+}
+
+.selected-actors, .selected-genres {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  min-height: 38px;
+  margin-bottom: 12px;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  border-radius: 20px;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.badge.bg-primary {
+  background: linear-gradient(to right, #0090e7, #0077b5) !important;
+}
+
+.badge.bg-info {
+  background: linear-gradient(to right, #00c8ff, #00a3cc) !important;
+}
+
+.badge .btn-close {
+  padding: 0.25rem;
+  margin-left: 0.5rem;
+  font-size: 0.7rem;
+  opacity: 0.7;
+  transition: opacity 0.3s ease;
+}
+
+.badge .btn-close:hover {
+  opacity: 1;
+}
+
+/* Scrollbar styling for dropdowns */
+.actor-dropdown::-webkit-scrollbar, .genre-dropdown::-webkit-scrollbar {
+  width: 6px;
+}
+
+.actor-dropdown::-webkit-scrollbar-track, .genre-dropdown::-webkit-scrollbar-track {
+  background: #2c2e33;
+  border-radius: 4px;
+}
+
+.actor-dropdown::-webkit-scrollbar-thumb, .genre-dropdown::-webkit-scrollbar-thumb {
+  background: #0090e7;
+  border-radius: 4px;
+}
+
+.actor-dropdown::-webkit-scrollbar-thumb:hover, .genre-dropdown::-webkit-scrollbar-thumb:hover {
+  background: #0077b5;
+}
+
+/* Form styling */
+.form-control, .form-select {
+  background-color: #2A3038;
+  border-color: #2c2e33;
+  color: #ffffff;
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  transition: all 0.3s ease;
+}
+
+.form-control:focus, .form-select:focus {
+  border-color: #0090e7;
+  box-shadow: 0 0 0 0.2rem rgba(0, 144, 231, 0.25);
+  background-color: #2A3038;
+}
+
+/* Buttons styling */
+.btn {
+  font-weight: 500;
+  border-radius: 8px;
+  padding: 0.75rem 1.5rem;
+  transition: all 0.3s ease;
+}
+
+.btn-primary {
+  background: linear-gradient(to right, #0090e7, #0077b5);
+  border: none;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: linear-gradient(to right, #0077b5, #005f92);
+  box-shadow: 0 8px 15px rgba(0, 144, 231, 0.3);
+  transform: translateY(-2px);
+}
+
+.btn-secondary {
+  background-color: #6c7293;
+  border: none;
+}
+
+.btn-secondary:hover {
+  background-color: #5a6075;
+  box-shadow: 0 8px 15px rgba(108, 114, 147, 0.3);
+  transform: translateY(-2px);
+}
+
+/* File inputs */
+.dropify-wrapper {
+  background-color: #2A3038;
+  border-color: #2c2e33;
+  border-radius: 8px;
+}
+
+.dropify-wrapper:hover {
+  background-color: #262b36;
+}
+
+.dropify-wrapper .dropify-message p {
+  color: #ffffff;
+}
+
+.dropify-wrapper .dropify-preview {
+  background-color: #191c24;
 }

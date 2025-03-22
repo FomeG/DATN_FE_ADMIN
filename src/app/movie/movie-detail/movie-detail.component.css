@@ -320,13 +320,72 @@
 
 
 
+/* Thêm vào file CSS hiện tại */
+
 .genre-tag {
   display: inline-block;
-  background-color: rgba(0, 123, 255, 0.1);
-  color: #007bff;
-  padding: 2px 8px;
-  border-radius: 12px;
-  margin-right: 5px;
-  margin-bottom: 5px;
+  background: linear-gradient(to right, rgba(0, 144, 231, 0.1), rgba(0, 119, 181, 0.1));
+  color: #0090e7;
+  padding: 6px 14px;
+  border-radius: 20px;
+  margin-right: 8px;
+  margin-bottom: 8px;
   font-size: 0.9rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  border: 1px solid rgba(0, 144, 231, 0.2);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
+
+.genre-tag:hover {
+  background: linear-gradient(to right, rgba(0, 144, 231, 0.2), rgba(0, 119, 181, 0.2));
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Thêm vào phần info-item hiện tại */
+.info-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 12px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.info-label {
+  min-width: 120px;
+  color: #6c7293;
+  display: flex;
+  align-items: center;
+}
+
+.info-value {
+  flex: 1;
+  color: #fff;
+  font-weight: 500;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+/* Animation cho genre tags */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.genre-tag {
+  animation: fadeInUp 0.4s ease forwards;
+}
+
+.genre-tag:nth-child(1) { animation-delay: 0.1s; }
+.genre-tag:nth-child(2) { animation-delay: 0.2s; }
+.genre-tag:nth-child(3) { animation-delay: 0.3s; }
+.genre-tag:nth-child(4) { animation-delay: 0.4s; }
+.genre-tag:nth-child(5) { animation-delay: 0.5s; }
+.genre-tag:nth-child(6) { animation-delay: 0.6s; }

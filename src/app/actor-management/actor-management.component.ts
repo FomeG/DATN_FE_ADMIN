@@ -21,14 +21,20 @@ export class ActorManagementComponent implements OnInit {
   currentPage = 1;
   recordPerPage = 10;
   totalRecords = 0;
-  actorForm: FormGroup;
-  selectedActor: Actor | null = null;
-  selectedFile: File | null = null;
-  isEditing = false;
-
-
   totalPages = 0;
   pages: number[] = [];
+  selectedPhoto: File | null = null;
+  searchTerm: string = '';
+
+  // Sorting properties
+  sortColumn: string = '';
+  sortDirection: 'asc' | 'desc' = 'asc';
+
+  // All actors cache for client-side operations
+  allActors: Actor[] = [];
+
+  // Math helper for template
+  Math = Math;
 
   constructor(
     private fb: FormBuilder,
@@ -48,26 +54,38 @@ export class ActorManagementComponent implements OnInit {
   }
 
   loadActors() {
-    this.actorService.getActors(this.currentPage, this.recordPerPage)
-      .subscribe({
-        next: (res) => {
-          this.actors = res.data;
-          this.totalRecords = res.totalRecord;
-          this.calculateTotalPages();
-        },
-        error: (error) => {
-          console.error('Error loading actors:', error);
+    this.actorService.getActors(this.currentPage, this.recordPerPage).subscribe({
+      next: (response) => {
+        this.actors = response.data;
+        this.filteredActors = [...this.actors];
+        this.totalRecords = response.totalRecord;
+        this.calculateTotalPages();
+
+        // If we haven't cached all actors yet, load them all
+        if (this.allActors.length === 0) {
+          this.loadAllActors();
         }
-      });
+      },
+      error: (error) => {
+        console.error('Error loading actors:', error);
+        Swal.fire('Lỗi!', 'Có lỗi xảy ra khi tải danh sách diễn viên.', 'error');
+      }
+    });
   }
 
-  onFileSelect(event: any) {
-    if (event.target.files.length > 0) {
-      this.selectedPhoto = event.target.files[0];
-    }
+  // Load all actors for client-side operations
+  loadAllActors() {
+    // We'll use a large enough page size to get all actors in one request
+    this.actorService.getActors(1, 1000).subscribe({
+      next: (response) => {
+        this.allActors = response.data;
+        this.applyFilters();
+      },
+      error: (error) => {
+        console.error('Error loading all actors:', error);
+      }
+    });
   }
-
-
 
   calculateTotalPages() {
     this.totalPages = Math.ceil(this.totalRecords / this.recordPerPage);
@@ -77,21 +95,134 @@ export class ActorManagementComponent implements OnInit {
   onPageChange(page: number) {
     if (page !== this.currentPage && page >= 1 && page <= this.totalPages) {
       this.currentPage = page;
+      
+      if (this.searchTerm || this.sortColumn) {
+        // If filtering or sorting, use client-side pagination
+        this.applyFilters();
+      } else {
+        // Otherwise use server pagination
+        this.loadActors();
+      }
+    }
+  }
+
+  // Sort function
+  sort(column: string) {
+    if (this.sortColumn === column) {
+      // Toggle sort direction
+      this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
+    } else {
+      this.sortColumn = column;
+      this.sortDirection = 'asc';
+    }
+    
+    this.applyFilters();
+  }
+  
+  // Search function
+  search() {
+    this.currentPage = 1; // Reset to first page
+    this.applyFilters();
+  }
+  
+  // Combined filter, sort and paginate
+  applyFilters() {
+    // 1. Filter by search term
+    let result = [...this.allActors];
+    
+    if (this.searchTerm) {
+      const term = this.searchTerm.toLowerCase();
+      result = result.filter(actor => 
+        actor.name.toLowerCase().includes(term) || 
+        actor.biography.toLowerCase().includes(term)
+      );
+    }
+    
+    // 2. Sort if needed
+    if (this.sortColumn) {
+      result.sort((a: any, b: any) => {
+        let valueA = a[this.sortColumn];
+        let valueB = b[this.sortColumn];
+        
+        // Handle dates
+        if (this.sortColumn === 'dateOfBirth') {
+          valueA = new Date(valueA).getTime();
+          valueB = new Date(valueB).getTime();
+        }
+        
+        // Handle string comparison
+        if (typeof valueA === 'string') {
+          valueA = valueA.toLowerCase();
+          valueB = valueB.toLowerCase();
+        }
+        
+        // Compare values based on sort direction
+        if (valueA < valueB) {
+          return this.sortDirection === 'asc' ? -1 : 1;
+        }
+        if (valueA > valueB) {
+          return this.sortDirection === 'asc' ? 1 : -1;
+        }
+        return 0;
+      });
+    }
+    
+    // 3. Update total records for pagination
+    this.totalRecords = result.length;
+    this.calculateTotalPages();
+    
+    // 4. Apply pagination
+    const startIndex = (this.currentPage - 1) * this.recordPerPage;
+    this.filteredActors = result.slice(startIndex, startIndex + this.recordPerPage);
+  }
+  
+  // Helper method to get column sort icon
+  getSortIcon(column: string): string {
+    if (this.sortColumn !== column) {
+      return 'fa-sort'; // Default icon
+    }
+    return this.sortDirection === 'asc' ? 'fa-sort-up' : 'fa-sort-down';
+  }
+
+  // Records per page change handler
+  onRecordsPerPageChange() {
+    this.currentPage = 1; // Reset to first page
+    
+    if (this.searchTerm || this.sortColumn) {
+      // If filtering or sorting, update client-side pagination
+      this.applyFilters();
+    } else {
+      // Otherwise refresh from server
       this.loadActors();
     }
   }
 
-  // onPageChange(page: number) {
-  //   if (page >= 1 && (page - 1) * this.recordPerPage < this.totalRecords) {
-  //     this.currentPage = page;
-  //     this.loadActors();
-  //   }
-  // }
+  // Form handling methods
+  resetForm() {
+    this.isEditing = false;
+    this.editActorId = '';
+    this.selectedPhoto = null;
+    this.actorForm.reset({
+      status: 1
+    });
+  }
 
+  editActor(actor: Actor) {
+    this.isEditing = true;
+    this.editActorId = actor.id;
+    this.actorForm.patchValue({
+      name: actor.name,
+      dateOfBirth: this.datePipe.transform(actor.dateOfBirth, 'yyyy-MM-dd'),
+      biography: actor.biography,
+      status: actor.status
+    });
+  }
 
-
-
-
+  onFileSelect(event: any) {
+    if (event.target.files.length > 0) {
+      this.selectedPhoto = event.target.files[0];
+    }
+  }
 
   onSubmit() {
     if (this.actorForm.valid) {
@@ -143,32 +274,6 @@ export class ActorManagementComponent implements OnInit {
     }
   }
 
-  editActor(actor: Actor) {
-    this.isEditing = true;
-    this.selectedActor = actor;
-    this.actorForm.patchValue({
-      name: actor.name,
-      dateOfBirth: new Date(actor.dateOfBirth).toISOString().split('T')[0],
-      biography: actor.biography,
-      status: actor.status
-    });
-  }
-
-  // deleteActor(id: string) {
-  //   if (confirm('Are you sure you want to delete this actor?')) {
-  //     this.actorService.deleteActor(id)
-  //       .subscribe({
-  //         next: () => {
-  //           this.loadActors();
-  //         },
-  //         error: (error) => {
-  //           console.error('Error deleting actor:', error);
-  //         }
-  //       });
-  //   }
-  // }
-
-
   deleteActor(actorID: string) {
     Swal.fire({
       text: "Bạn không thể hoàn tác sau khi xoá!",
@@ -189,6 +294,7 @@ export class ActorManagementComponent implements OnInit {
                 'success'
               );
               this.loadActors();
+              this.loadAllActors(); // Refresh cache
             } else {
               Swal.fire(
                 'Lỗi!',
@@ -200,7 +306,7 @@ export class ActorManagementComponent implements OnInit {
           error: (error) => {
             Swal.fire(
               'Lỗi!',
-              'Có lỗi xảy ra khi diễn viên.' + error.message,
+              'Có lỗi xảy ra khi xóa diễn viên.' + error.message,
               'error'
             );
           }
@@ -208,17 +314,4 @@ export class ActorManagementComponent implements OnInit {
       }
     });
   }
-
-
-
-
-
-  resetForm() {
-    this.actorForm.reset();
-    this.selectedActor = null;
-    this.isEditing = false;
-    this.selectedFile = null;
-    this.actorForm.patchValue({ status: 1 });
-  }
-
 }

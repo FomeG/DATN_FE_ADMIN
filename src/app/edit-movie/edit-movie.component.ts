@@ -6,15 +6,9 @@ import { MovieService } from '../services/movie.service';
 import { ActorService, Actor } from '../services/actor.service';
 import { GenreService, Genre } from '../services/genre.service';
 
-import { ActorService, Actor } from '../services/actor.service';
-
 import Swal from 'sweetalert2';
 
 declare var $: any; // Để sử dụng jQuery với Dropify
-
-
-declare var $: any; // Để sử dụng jQuery với Dropify
-
 
 @Component({
   selector: 'app-edit-movie',
@@ -22,8 +16,6 @@ declare var $: any; // Để sử dụng jQuery với Dropify
   imports: [CommonModule, ReactiveFormsModule, RouterModule, FormsModule],
   templateUrl: './edit-movie.component.html',
   styleUrls: ['./edit-movie.component.css']
-  imports: [CommonModule, ReactiveFormsModule, RouterModule, FormsModule],
-  templateUrl: './edit-movie.component.html'
 })
 export class EditMovieComponent implements OnInit {
   movieForm: FormGroup;
@@ -44,16 +36,6 @@ export class EditMovieComponent implements OnInit {
 
   searchTerm: string = '';
   showDropdown: boolean = false;
-
-
-  searchTerm: string = '';
-  showDropdown: boolean = false;
-
-
-
-
-
-
 
   constructor(
     private fb: FormBuilder,
@@ -166,17 +148,6 @@ export class EditMovieComponent implements OnInit {
   }
 
   // Sửa lại phương thức loadMovieDetails()
-
-
-
-
-
-
-
-
-
-
-  // Sửa lại phương thức loadMovieDetails()
   loadMovieDetails() {
     if (this.movieId) {
       this.movieService.getMovieById(this.movieId).subscribe({
@@ -210,32 +181,6 @@ export class EditMovieComponent implements OnInit {
             
             // Update listGenreID control
             this.updateFormGenreIds();
-          }
-        },
-        error: (error) => {
-          console.error('Error loading movie details:', error);
-        }
-      });
-    }
-    if (this.movieId) {
-      this.movieService.getMovieById(this.movieId).subscribe({
-        next: (response) => {
-          if (response.data) {
-            const movieData = response.data;
-            this.movieForm.patchValue({
-              movieName: movieData.movieName,
-              description: movieData.description,
-              duration: movieData.duration,
-              releaseDate: movieData.releaseDate.split('T')[0],
-              status: movieData.status
-            });
-
-            // Cập nhật danh sách diễn viên từ listdienvien
-            this.selectedActors = movieData.listdienvien.map((dv: { id: number; name: string; photo: string }) => ({
-              id: dv.id,
-              name: dv.name,
-              photo: dv.photo
-            }));
           }
         },
         error: (error) => {
@@ -309,46 +254,6 @@ export class EditMovieComponent implements OnInit {
     this.router.navigate(['/movies']);
   }
 
-
-
-
-  removeActor(actor: Actor) {
-    this.selectedActors = this.selectedActors.filter(a => a.id !== actor.id);
-    this.updateFormActorIds();
-  }
-
-
-  private updateFormActorIds() {
-    const actorIds = this.selectedActors.map(actor => actor.id);
-    this.movieForm.patchValue({ listActorID: actorIds });
-  }
-
-
-
-  selectActor(actor: Actor) {
-    if (!this.selectedActors.some(selected => selected.id === actor.id)) {
-      this.selectedActors.push(actor);
-      this.searchTerm = '';
-      this.showDropdown = false;
-      this.updateFormActorIds();
-    }
-  }
-
-  filterActors() {
-    if (!this.searchTerm) {
-      this.filteredActors = this.actors.filter(actor =>
-        !this.selectedActors.some(selected => selected.id === actor.id)
-      );
-    } else {
-      this.filteredActors = this.actors.filter(actor =>
-        actor.name.toLowerCase().includes(this.searchTerm.toLowerCase()) &&
-        !this.selectedActors.some(selected => selected.id === actor.id)
-      );
-    }
-  }
-
-
-
   onSubmit() {
     if (this.movieForm.valid) {
       this.isLoading = true;
@@ -409,25 +314,4 @@ export class EditMovieComponent implements OnInit {
   }
 
   
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  @HostListener('document:click', ['$event'])
-  onClickOutside(event: Event) {
-    if (!(event.target as HTMLElement).closest('.actor-search-container')) {
-      this.showDropdown = false;
-    }
-  }
 }

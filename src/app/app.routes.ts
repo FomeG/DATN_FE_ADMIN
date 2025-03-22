@@ -16,10 +16,6 @@ import { PaymentLayoutComponent } from './VNPAY/payment-layout/payment-layout.co
 import { VoucherManagementComponent } from './voucher/voucher-management/voucher-management.component';
 import { VoucherUsageManagementComponent } from './voucher/voucher-usage-management/voucher-usage-management.component';
 
-import { LogManagementComponent } from './log-management/log-management.component';
-import { LoginComponent } from './login/login.component';
-import { authGuard } from './auth/auth.guard';
-
 export const routes: Routes = [
   // Public routes that don't require authentication
   { path: 'login', component: LoginComponent },

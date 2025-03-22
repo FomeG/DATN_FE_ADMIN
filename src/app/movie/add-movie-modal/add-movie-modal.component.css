@@ -66,3 +66,26 @@
 .list-group-item:hover {
   background-color: #f8f9fa;
 }
+
+
+/* Thêm vào CSS hiện có */
+
+.genre-dropdown {
+  position: absolute;
+  width: 100%;
+  max-height: 200px;
+  overflow-y: auto;
+  z-index: 1050;
+  background-color: #fff;
+  border-radius: 4px;
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}
+
+.genre-dropdown .list-group-item {
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+}
+
+.genre-dropdown .list-group-item:hover {
+  background-color: #f8f9fa;
+}

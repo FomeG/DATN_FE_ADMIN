@@ -66,6 +66,18 @@
                   {{ movie.status === 1 ? 'Đang chiếu' : 'Ngừng chiếu' }}
                 </div>
               </div>
+
+
+              <div class="info-item" *ngIf="movie.genres && movie.genres.length > 0">
+                <div class="info-label"><i class="mdi mdi-tag-multiple-outline"></i> Thể loại</div>
+                <div class="info-value">
+                  <span *ngFor="let genre of movie.genres; let last = last" class="genre-tag">
+                    {{genre.genreName}}{{last ? '' : ', '}}
+                  </span>
+                </div>
+              </div>
+
+              
             </div>
           </div>
 

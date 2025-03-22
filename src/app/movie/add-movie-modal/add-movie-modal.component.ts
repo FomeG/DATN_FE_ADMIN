@@ -3,13 +3,10 @@ import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } 
 import { CommonModule } from '@angular/common';
 import { MovieService } from '../../services/movie.service';
 import { ActorService, Actor } from '../../services/actor.service';
+import { GenreService, Genre } from '../../services/genre.service';
 import Swal from 'sweetalert2'; // Thêm import này
 
-
-
-
 declare var $: any; // Để sử dụng jQuery với Dropify
-
 
 @Component({
   selector: 'app-add-movie-modal',
@@ -18,8 +15,6 @@ declare var $: any; // Để sử dụng jQuery với Dropify
   templateUrl: './add-movie-modal.component.html',
   styleUrls: ['./add-movie-modal.component.css']
 })
-
-
 export class AddMovieModalComponent implements OnInit {
   @Output() movieAdded = new EventEmitter<void>();
 
@@ -29,6 +24,11 @@ export class AddMovieModalComponent implements OnInit {
   selectedActors: Actor[] = [];
   searchTerm: string = '';
   showDropdown: boolean = false;
+  genres: Genre[] = [];
+  filteredGenres: Genre[] = [];
+  selectedGenres: Genre[] = [];
+  genreSearchTerm: string = '';
+  showGenreDropdown: boolean = false;
 
   selectedThumbnail: File | null = null;
   selectedBanner: File | null = null;
@@ -39,7 +39,8 @@ export class AddMovieModalComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private movieService: MovieService,
-    private actorService: ActorService
+    private actorService: ActorService,
+    private genreService: GenreService
   ) {
     this.movieForm = this.fb.group({
       movieName: ['', Validators.required],
@@ -47,14 +48,68 @@ export class AddMovieModalComponent implements OnInit {
       duration: ['', [Validators.required, Validators.min(1)]],
       releaseDate: ['', Validators.required],
       status: [1],
-      listActorID: [[]]
+      listActorID: [[]],
+      listGenreID: [[]]
     });
   }
 
   ngOnInit() {
+    this.initForm();
     this.loadActors();
+    this.loadGenres();
   }
 
+  loadGenres() {
+    this.genreService.getGenres(1, 1000).subscribe({
+      next: (response) => {
+        if (response.responseCode === 200) {
+          this.genres = response.data;
+          this.filteredGenres = this.genres.filter(genre =>
+            !this.selectedGenres.some(selected => selected.id === genre.id)
+          );
+        }
+      },
+      error: (error) => {
+        console.error('Error loading genres:', error);
+        this.errorMessage = 'Không thể tải danh sách thể loại';
+      }
+    });
+  }
+
+  filterGenres() {
+    if (!this.genreSearchTerm.trim()) {
+      this.filteredGenres = this.genres.filter(genre =>
+        !this.selectedGenres.some(selected => selected.id === genre.id)
+      );
+    } else {
+      this.filteredGenres = this.genres.filter(genre =>
+        genre.genreName.toLowerCase().includes(this.genreSearchTerm.toLowerCase()) &&
+        !this.selectedGenres.some(selected => selected.id === genre.id)
+      );
+    }
+    this.showGenreDropdown = true;
+  }
+
+  selectGenre(genre: Genre) {
+    if (!this.selectedGenres.some(selected => selected.id === genre.id)) {
+      this.selectedGenres.push(genre);
+      this.genreSearchTerm = '';
+      this.showGenreDropdown = false;
+      this.updateFormGenreIds();
+    }
+  }
+
+  removeGenre(genre: Genre) {
+    this.selectedGenres = this.selectedGenres.filter(g => g.id !== genre.id);
+    this.updateFormGenreIds();
+  }
+
+  private updateFormGenreIds() {
+    const genreIds = this.selectedGenres.map(genre => genre.id);
+    this.movieForm.patchValue({
+      listGenreID: genreIds
+    });
+  }
 
   ngAfterViewInit() {
     // Khởi tạo Dropify
@@ -68,14 +123,14 @@ export class AddMovieModalComponent implements OnInit {
     });
   }
 
-
   loadActors() {
     this.actorService.getActors(1, 99999).subscribe({
       next: (response) => {
         if (response.responseCode === 200) {
           this.actors = response.data;
-          this.filteredActors = [...this.actors];
-          // console.log('Loaded actors:', this.actors);
+          this.filteredActors = this.actors.filter(actor =>
+            !this.selectedActors.some(selected => selected.id === actor.id)
+          );
         }
       },
       error: (error) => {
@@ -105,11 +160,13 @@ export class AddMovieModalComponent implements OnInit {
   @HostListener('document:click', ['$event'])
   onClickOutside(event: Event) {
     const element = event.target as HTMLElement;
-    if (!element.closest('.actor-dropdown') && !element.closest('input')) {
+    if (!element.closest('.actor-dropdown') && !element.closest('.genre-dropdown') && 
+        !element.closest('input[placeholder="Tìm kiếm diễn viên..."]') && 
+        !element.closest('input[placeholder="Tìm kiếm thể loại..."]')) {
       this.showDropdown = false;
+      this.showGenreDropdown = false;
     }
   }
-
 
   selectActor(actor: Actor) {
     if (!this.selectedActors.some(selected => selected.id === actor.id)) {
@@ -119,7 +176,6 @@ export class AddMovieModalComponent implements OnInit {
       this.updateFormActorIds();
     }
   }
-
 
   removeActor(actor: Actor) {
     this.selectedActors = this.selectedActors.filter(a => a.id !== actor.id);
@@ -160,26 +216,41 @@ export class AddMovieModalComponent implements OnInit {
     if (this.movieForm.valid) {
       this.isLoading = true;
       this.errorMessage = '';
+      
       const formData = new FormData();
-
-      Object.keys(this.movieForm.value).forEach(key => {
-        if (key === 'listActorID') {
-          this.movieForm.value[key].forEach((id: string) => {
-            formData.append('listActorID', id);
-          });
-        } else {
-          formData.append(key, this.movieForm.value[key]);
-        }
-      });
-
+      
+      // Add form fields
+      formData.append('movieName', this.movieForm.value.movieName);
+      formData.append('description', this.movieForm.value.description);
+      formData.append('duration', this.movieForm.value.duration);
+      formData.append('releaseDate', this.movieForm.value.releaseDate);
+      formData.append('status', this.movieForm.value.status);
+      
+      // Add files if selected
       if (this.selectedThumbnail) {
         formData.append('thumbnail', this.selectedThumbnail);
       }
+      
       if (this.selectedBanner) {
         formData.append('banner', this.selectedBanner);
       }
+      
       if (this.selectedTrailer) {
         formData.append('trailer', this.selectedTrailer);
+      }
+      
+      // Add actor IDs
+      if (this.selectedActors && this.selectedActors.length > 0) {
+        this.selectedActors.forEach(actor => {
+          formData.append('listActorID', actor.id);
+        });
+      }
+      
+      // Add genre IDs
+      if (this.selectedGenres && this.selectedGenres.length > 0) {
+        this.selectedGenres.forEach(genre => {
+          formData.append('listGenreID', genre.id);
+        });
       }
 
       this.movieService.createMovie(formData).subscribe({
@@ -239,5 +310,18 @@ export class AddMovieModalComponent implements OnInit {
     } else {
       this.errorMessage = 'Vui lòng điền đầy đủ thông tin bắt buộc';
     }
+  }
+
+  // Cập nhật initForm để thêm listGenreID
+  private initForm() {
+    this.movieForm = this.fb.group({
+      movieName: ['', Validators.required],
+      description: ['', Validators.required],
+      duration: [90, [Validators.required, Validators.min(1)]],
+      releaseDate: ['', Validators.required],
+      status: [1],
+      listActorID: [[]],
+      listGenreID: [[]]
+    });
   }
 }

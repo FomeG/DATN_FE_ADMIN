@@ -53,4 +53,10 @@ export class MovieService {
   getMovies(currentPage: number, recordPerPage: number): Observable<any> {
     return this.http.get<any>(`${this.apiUrl}Movie/GetMovieList?currentPage=${currentPage}&recordPerPage=${recordPerPage}`);
   }
+
+
+
+  getMovieGenres(movieId: string): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/api/Movie/GetMovieGenres?id=${movieId}`);
+  }
 }

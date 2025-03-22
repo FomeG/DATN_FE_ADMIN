@@ -1,107 +1,114 @@
 <div class="container-fluid">
   <h2 class="mb-4">Actor Management</h2>
 
-  <div class="d-flex mb-4">
-    <button class="btn-lg btn-primary" style="border-radius: 15px" data-bs-toggle="modal" data-bs-target="#actorModal"
-      (click)="resetForm()">
-      <i class="fas fa-plus"></i> Thêm diễn viên
-    </button>
+  <button class="btn-lg btn-primary mb-4" style="border-radius: 15px" data-bs-toggle="modal"
+    data-bs-target="#actorModal" (click)="resetForm()">
+    <i class="fas fa-plus"></i> Thêm diễn viên
+  </button>
 
-    <input type="text" class="form-control" placeholder="Tìm kiếm diễn viên..." [(ngModel)]="searchTerm"
-      (keyup.enter)="search()" style="width: 70%; height: 55px;  margin-left: auto">
-    <button class="btn btn-primary mb-4" type="button" (click)="search()">
-      <i class="fas fa-search"></i>
-    </button>
-  </div>
 
+  <!-- Actors Table -->
   <div class="row">
     <div class="col-12">
       <div class="card">
         <div class="card-header">
-          <div class="d-flex justify-content-between align-items-center">
-            <h4 class="card-title mb-0">Danh sách diễn viên</h4>
-
-            <!-- Dropdown số bản ghi mỗi trang -->
-            <div>
-              <select [(ngModel)]="recordPerPage" (change)="onRecordsPerPageChange()"
-                class="form-select form-select-sm">
-                <option [value]="10">10 bản ghi</option>
-                <option [value]="20">20 bản ghi</option>
-                <option [value]="50">50 bản ghi</option>
-                <option [value]="100">100 bản ghi</option>
-              </select>
-            </div>
-          </div>
+          <h4 class="card-title">Danh sách diễn viên</h4>
         </div>
         <div class="card-body">
           <div class="table-responsive">
             <table class="table table-bordered table-hover" style="border-top: 1px solid #2c2e33;">
               <thead>
                 <tr>
-                  <th>Ảnh</th>
-                  <th (click)="sort('name')" style="cursor: pointer">
-                    Tên diễn viên <i class="fas" [ngClass]="getSortIcon('name')"></i>
-                  </th>
-                  <th (click)="sort('dateOfBirth')" style="cursor: pointer">
-                    Ngày sinh <i class="fas" [ngClass]="getSortIcon('dateOfBirth')"></i>
-                  </th>
-                  <th (click)="sort('biography')" style="cursor: pointer">
-                    Tiểu sử <i class="fas" [ngClass]="getSortIcon('biography')"></i>
-                  </th>
-                  <th>Thao tác</th>
+                  <th>Photo</th>
+                  <th>Name</th>
+                  <th>Date of Birth</th>
+                  <th>Biography</th>
+                  <!-- <th>Status</th> -->
+                  <th>Actions</th>
                 </tr>
               </thead>
               <tbody>
-                <tr *ngFor="let actor of filteredActors">
+                <tr *ngFor="let actor of actors">
                   <td>
                     <img [src]="actor.photo" alt="Actor photo" class="img-thumbnail" style="width: 50px; height: 50px;">
                   </td>
                   <td>{{actor.name}}</td>
                   <td>{{actor.dateOfBirth | date:'dd/MM/yyyy'}}</td>
-                  <td>{{actor.biography.length > 100 ? (actor.biography | slice:0:100) + '...' : actor.biography}}</td>
+                  <td>{{actor.biography}}</td>
+                  <!-- <td>{{actor.status === 1 ? 'Active' : 'Inactive'}}</td> -->
+                  <!-- <td>
+                    <button class="btn btn-sm btn-primary me-2" data-bs-toggle="modal" data-bs-target="#actorModal"
+                      (click)="editActor(actor)">
+                      Edit
+                    </button>
+                    <button class="btn btn-sm btn-danger" (click)="deleteActor(actor.id)">
+                      Delete
+                    </button>
+                  </td> -->
+
+
                   <td>
                     <button type="button" class="btn btn-outline-primary btn-rounded">Chi tiết</button>
                     <button class="btn btn-outline-warning btn-rounded" data-bs-toggle="modal"
                       data-bs-target="#actorModal" (click)="editActor(actor)">Sửa</button>
+
                     <button class="btn btn-outline-danger btn-rounded" (click)="deleteActor(actor.id)">Xóa</button>
                   </td>
-                </tr>
-                <tr *ngIf="filteredActors.length === 0">
-                  <td colspan="5" class="text-center">Không tìm thấy diễn viên nào</td>
+
+
                 </tr>
               </tbody>
             </table>
           </div>
-
-          <!-- Pagination -->
-          <nav aria-label="Page navigation" *ngIf="totalRecords > recordPerPage">
-            <ul class="pagination justify-content-center">
-              <li class="page-item" [class.disabled]="currentPage === 1">
-                <a class="page-link" (click)="onPageChange(currentPage - 1)">Trước</a>
-              </li>
-              <li class="page-item" *ngFor="let page of pages" [class.active]="page === currentPage">
-                <a class="page-link" (click)="onPageChange(page)">{{ page }}</a>
-              </li>
-              <li class="page-item" [class.disabled]="currentPage === totalPages">
-                <a class="page-link" (click)="onPageChange(currentPage + 1)">Sau</a>
-              </li>
-            </ul>
-          </nav>
-
-          <!-- Page info -->
-          <div class="text-center mt-2" *ngIf="totalRecords > 0">
-            <small>Hiển thị {{ (currentPage - 1) * recordPerPage + 1 }} đến
-              {{ Math.min(currentPage * recordPerPage, totalRecords) }} của {{ totalRecords }} diễn viên</small>
-          </div>
         </div>
+
+
+        <!-- Pagination -->
+        <nav aria-label="Page navigation">
+          <ul class="pagination justify-content-center">
+
+            <!-- Previous button -->
+            <li class="page-item" [class.disabled]="currentPage === 1">
+              <a class="page-link" (click)="onPageChange(currentPage - 1)">Previous</a>
+            </li>
+
+
+            <!-- Page numbers -->
+            <li class="page-item" *ngFor="let page of pages" [class.active]="page === currentPage">
+              <a class="page-link" href="javascript:void(0)" (click)="onPageChange(page)">
+                {{page}}
+              </a>
+            </li>
+
+
+
+            <!-- Next button -->
+            <li class="page-item" [class.disabled]="currentPage * recordPerPage >= totalRecords">
+              <a class="page-link" (click)="onPageChange(currentPage + 1)">Next</a>
+            </li>
+
+
+
+          </ul>
+        </nav>
+
+
+
+
+
+
+
+
+
+
       </div>
     </div>
   </div>
 
+
+
   <!-- Actor Modal -->
   <div class="modal fade" id="actorModal" tabindex="-1" aria-labelledby="actorModalLabel" aria-hidden="true">
-
-
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">

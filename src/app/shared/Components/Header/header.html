@@ -124,8 +124,7 @@
               <h5 class="mb-0 font-weight-normal">
                 {{ (currentUser$ | async)?.displayName }}
               </h5>
-              <!-- <span>{{ (currentUser$ | async)?.roles?.[0] ?? '' }}</span> -->
-              <!-- <span>{{ (currentUser$ | async)?.roles?.[0] ?? 'Ko quyền (test)' }}</span> -->
+              <span>{{ (currentUser$ | async)?.roles?.[0] ?? '' }}</span>
             </div>
 
 
@@ -142,23 +141,20 @@
           </div>
         </a>
         <div class="dropdown-menu dropdown-menu-right navbar-dropdown preview-list" aria-labelledby="profileDropdown">
-
-          <a class="dropdown-item preview-item" (click)="openChangePasswordModal()">
+          <h6 class="p-3 mb-0">Profile</h6>
+          <div class="dropdown-divider"></div>
+          <a class="dropdown-item preview-item">
             <div class="preview-thumbnail">
               <div class="preview-icon bg-dark rounded-circle">
-                <i class="mdi mdi-onepassword text-info"></i>
+                <i class="mdi mdi-settings text-success"></i>
               </div>
             </div>
             <div class="preview-item-content">
-              <p class="preview-subject mb-1">Change Password</p>
+              <p class="preview-subject mb-1">Settings</p>
             </div>
           </a>
-
-
           <div class="dropdown-divider"></div>
-
-
-          <a class="dropdown-item preview-item" (click)="logout()">
+          <a class="dropdown-item preview-item">
             <div class="preview-thumbnail">
               <div class="preview-icon bg-dark rounded-circle">
                 <i class="mdi mdi-logout text-danger"></i>
@@ -168,23 +164,8 @@
               <p class="preview-subject mb-1">Log out</p>
             </div>
           </a>
-
-
           <div class="dropdown-divider"></div>
-
-
-          <a class="dropdown-item preview-item" (click)="test()">
-            <div class="preview-thumbnail">
-              <div class="preview-icon bg-dark rounded-circle">
-                <i class="mdi mdi-logout text-danger"></i>
-              </div>
-            </div>
-            <div class="preview-item-content">
-              <p class="preview-subject mb-1">TEST NV</p>
-            </div>
-          </a>
-
-          
+          <p class="p-3 mb-0 text-center">Advanced settings</p>
         </div>
       </li>
     </ul>
@@ -194,10 +175,3 @@
     </button>
   </div>
 </nav>
-
-
-
-
-
-<!-- Thêm đoạn này ở cuối file, sau thẻ </nav> -->
-<app-change-password-modal></app-change-password-modal>

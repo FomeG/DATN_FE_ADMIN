@@ -1,8 +1,8 @@
 import { Component, OnInit, Output, EventEmitter, HostListener } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { MovieService } from '../services/movie.service';
-import { ActorService, Actor } from '../services/actor.service';
+import { MovieService } from '../../services/movie.service';
+import { ActorService, Actor } from '../../services/actor.service';
 import Swal from 'sweetalert2'; // Thêm import này
 
 

@@ -1,82 +1,148 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { FormsModule } from '@angular/forms';
 
 interface Log {
-  Id: number;
-  Action: string;
-  TableName: string;
-  RecordId: string;
-  BeforeChange: string;
-  AfterChange: string;
-  ChangeDateTime: string;
-  parsedBeforeChange?: any[];
-  parsedAfterChange?: any[];
+  id: number;
+  userId?: string;
+  action: string;
+  tableName: string;
+  recordId: string;
+  beforeChange: string;
+  afterChange: string;
+  changeDateTime: string;
+  parsedBeforeChange?: any;
+  parsedAfterChange?: any;
+}
+
+interface ApiResponse {
+  responseCode: number;
+  message: string;
+  data: Log[];
+  totalRecord: number;
 }
 
 @Component({
   selector: 'app-log-management',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, HttpClientModule, FormsModule],
   templateUrl: './log-management.component.html',
   styleUrl: './log-management.component.css'
 })
 export class LogManagementComponent implements OnInit {
   logs: Log[] = [];
-
-  sampleData: Log[] = [
-    {
-      "Id": 1,
-      "Action": "INSERT",
-      "TableName": "Rooms",
-      "RecordId": "BF1EAF7A-25D4-4F07-AFC6-B1A290B08BCC",
-      "BeforeChange": "{}",
-      "AfterChange": "[{\"Id\":\"BF1EAF7A-25D4-4F07-AFC6-B1A290B08BCC\",\"CinemaId\":\"E2131050-D219-4523-B480-2F517D8BAFD0\",\"Name\":\"Phòng A\",\"Status\":1,\"TotalColNumber\":11,\"TotalRowNumber\":11,\"SeatPrice\":11}]",
-      "ChangeDateTime": "2025-02-17T09:10:00",
-    },
-    {
-      "Id": 2,
-      "Action": "UPDATE",
-      "TableName": "Rooms",
-      "RecordId": "BF1EAF7A-25D4-4F07-AFC6-B1A290B08BCC",
-      "BeforeChange": "[{\"Id\":\"BF1EAF7A-25D4-4F07-AFC6-B1A290B08BCC\",\"CinemaId\":\"E2131050-D219-4523-B480-2F517D8BAFD0\",\"Name\":\"Phòng A\",\"Status\":1,\"TotalColNumber\":11,\"TotalRowNumber\":11,\"SeatPrice\":11}]",
-      "AfterChange": "[{\"Id\":\"BF1EAF7A-25D4-4F07-AFC6-B1A290B08BCC\",\"CinemaId\":\"E2131050-D219-4523-B480-2F517D8BAFD0\",\"Name\":\"Phòng B\",\"Status\":1,\"TotalColNumber\":11,\"TotalRowNumber\":11,\"SeatPrice\":11}]",
-      "ChangeDateTime": "2025-02-17T09:12:00",
-    },
-    {
-      "Id": 3,
-      "Action": "DELETE",
-      "TableName": "Rooms",
-      "RecordId": "BF1EAF7A-25D4-4F07-AFC6-B1A290B08BCC",
-      "BeforeChange": "[{\"Id\":\"BF1EAF7A-25D4-4F07-AFC6-B1A290B08BCC\",\"CinemaId\":\"E2131050-D219-4523-B480-2F517D8BAFD0\",\"Name\":\"Phòng B\",\"Status\":1,\"TotalColNumber\":11,\"TotalRowNumber\":11,\"SeatPrice\":11}]",
-      "AfterChange": "{}",
-      "ChangeDateTime": "2025-02-17T09:15:00",
-    }
-  ];
+  currentPage: number = 1;
+  recordPerPage: number = 10;
+  totalRecords: number = 0;
+  pages: number[] = [];
+  loading: boolean = false;
+  error: string | null = null;
+  Math = Math; // Make Math available in the template
 
   constructor(private http: HttpClient) {}
 
   ngOnInit(): void {
-    // Sử dụng dữ liệu mẫu thay vì HTTP request
-    this.logs = this.sampleData.map(log => ({
-      ...log,
-      parsedBeforeChange: this.parseJsonString(log.BeforeChange),
-      parsedAfterChange: this.parseJsonString(log.AfterChange)
-    }));
-    
+    this.loadLogs();
   }
 
-  parseJsonString(jsonString: string): any[] {
-    try {
-      const parsed = JSON.parse(jsonString);
-      return Array.isArray(parsed) ? parsed : (parsed && Object.keys(parsed).length > 0 ? [parsed] : []);
-    } catch (e) {
-      console.error('Error parsing JSON:', e);
-      return [];
-    }
+  loadLogs(): void {
+    this.loading = true;
+    this.error = null;
+    
+    this.http.get<ApiResponse>(`https://localhost:7263/api/Log/GetLogs?currentPage=${this.currentPage}&recordPerPage=${this.recordPerPage}`)
+      .subscribe({
+        next: (response) => {
+          this.logs = response.data.map(log => {
+            // Try to parse JSON strings
+            let parsedBefore = null;
+            let parsedAfter = null;
+            
+            try {
+              if (log.beforeChange) {
+                parsedBefore = JSON.parse(log.beforeChange);
+              }
+            } catch (e) {
+              console.warn('Could not parse beforeChange JSON:', e);
+            }
+            
+            try {
+              if (log.afterChange) {
+                parsedAfter = JSON.parse(log.afterChange);
+              }
+            } catch (e) {
+              console.warn('Could not parse afterChange JSON:', e);
+            }
+            
+            return {
+              ...log,
+              parsedBeforeChange: parsedBefore,
+              parsedAfterChange: parsedAfter,
+              // Format date for better display if needed
+              changeDateTime: new Date(log.changeDateTime).toLocaleString()
+            };
+          });
+          
+          this.totalRecords = response.totalRecord;
+          this.calculatePages();
+          this.loading = false;
+        },
+        error: (error) => {
+          console.error('Error fetching logs:', error);
+          this.error = 'Failed to load logs. Please try again later.';
+          this.loading = false;
+        }
+      });
   }
 
   getKeys(obj: any): string[] {
-    return obj ? Object.keys(obj) : [];
+    if (!obj || typeof obj !== 'object') return [];
+    return Object.keys(obj);
+  }
+
+  calculatePages(): void {
+    const totalPages = Math.ceil(this.totalRecords / this.recordPerPage);
+    this.pages = [];
+    
+    // Calculate the range of pages to show
+    let startPage = Math.max(1, this.currentPage - 2);
+    let endPage = Math.min(totalPages, startPage + 4);
+    
+    // Adjust if we're near the end
+    if (endPage - startPage < 4) {
+      startPage = Math.max(1, endPage - 4);
+    }
+    
+    for (let i = startPage; i <= endPage; i++) {
+      this.pages.push(i);
+    }
+  }
+
+  onPageChange(page: number): void {
+    if (page < 1 || page > Math.ceil(this.totalRecords / this.recordPerPage) || page === this.currentPage) {
+      return;
+    }
+    
+    this.currentPage = page;
+    this.loadLogs();
+  }
+
+  // Helper function to format JSON for display
+  formatJson(jsonStr: string): string {
+    try {
+      return JSON.stringify(JSON.parse(jsonStr), null, 2);
+    } catch (e) {
+      return jsonStr || 'N/A';
+    }
+  }
+
+  // Check if a value is an array
+  isArray(value: any): boolean {
+    return Array.isArray(value);
+  }
+
+  // Check if a value is an object
+  isObject(value: any): boolean {
+    return value !== null && typeof value === 'object' && !Array.isArray(value);
   }
 }

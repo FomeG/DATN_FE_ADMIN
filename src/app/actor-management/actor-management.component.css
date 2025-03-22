@@ -10,10 +10,6 @@
   transition: transform 0.3s ease-in-out;
 }
 
-/* .card:hover {
-  transform: translateY(-5px);
-} */
-
 .card-header {
   background-color: #191c24;
   border-bottom: 1px solid #2c2e33;
@@ -45,10 +41,12 @@
   padding: 25px;
 }
 
-/* Table styling */
+/* ======== TABLE STYLING ======== */
 .table {
-  color: #ffffff;
+  width: 100%;
   margin-bottom: 0;
+  color: #ffffff;
+  table-layout: auto;
 }
 
 .table thead th {
@@ -60,21 +58,30 @@
   padding: 15px 12px;
   color: #6c7293;
   letter-spacing: 0.5px;
+  vertical-align: middle;
 }
 
 .table tbody tr:hover {
   background-color: rgba(146, 146, 146, 0.05);
 }
 
+.table tr:hover td {
+  color: #ffffff !important;
+}
+
 .table td {
   vertical-align: middle;
   padding: 15px 12px;
   border-top: 1px solid #2c2e33;
-  transition: all 0.2s ease, color 0.3s ease;
+  white-space: normal;
+  word-wrap: break-word;
 }
 
-.table tr:hover td {
-  color: #ffffff !important;
+/* Column-specific styles */
+/* Thumbnail column */
+.table td:first-child {
+  width: 100px;
+  text-align: center;
 }
 
 .table img {
@@ -87,6 +94,62 @@
 
 .table img:hover {
   transform: scale(1.1);
+}
+
+/* Movie name column */
+.table td:nth-child(2) {
+  width: 15%;
+  font-weight: 500;
+}
+
+/* Description column */
+.table td:nth-child(3) {
+  width: 40%;
+  max-height: 120px;
+  overflow-y: auto;
+  white-space: normal;
+  word-break: normal;
+}
+
+/* Duration column */
+.table td:nth-child(4) {
+  width: 10%;
+  text-align: center;
+}
+
+/* Release date column */
+.table td:nth-child(5) {
+  width: 15%;
+}
+
+/* Actions column */
+.table td:last-child {
+  width: 20%;
+  text-align: center;
+}
+
+/* Custom scrollbar for description column */
+.table td:nth-child(3)::-webkit-scrollbar {
+  width: 5px;
+}
+
+.table td:nth-child(3)::-webkit-scrollbar-track {
+  background: #2c2e33;
+}
+
+.table td:nth-child(3)::-webkit-scrollbar-thumb {
+  background: #0090e7;
+  border-radius: 3px;
+}
+
+/* Description text styling */
+.description-text {
+  max-height: 120px;
+  overflow-y: auto;
+  text-overflow: clip;
+  white-space: normal;
+  word-break: normal;
+  line-height: 1.5;
 }
 
 /* Badge styling */
@@ -225,7 +288,7 @@
   border-radius: 5px;
 }
 
-/* Cải tiến header và action buttons */
+/* Header styling */
 .container-fluid h2 {
   color: #ffffff;
   font-weight: 500;
@@ -238,29 +301,7 @@
   margin-bottom: 25px;
 }
 
-/* Animation cho table rows */
-/* @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-.table tbody tr {
-  animation: fadeIn 0.5s ease-out forwards;
-  opacity: 0;
-} */
-
-/* .table tbody tr:nth-child(1) { animation-delay: 0.1s; }
-.table tbody tr:nth-child(2) { animation-delay: 0.2s; }
-.table tbody tr:nth-child(3) { animation-delay: 0.3s; }
-.table tbody tr:nth-child(4) { animation-delay: 0.4s; }
-.table tbody tr:nth-child(5) { animation-delay: 0.5s; }
-.table tbody tr:nth-child(6) { animation-delay: 0.6s; }
-.table tbody tr:nth-child(7) { animation-delay: 0.7s; }
-.table tbody tr:nth-child(8) { animation-delay: 0.8s; }
-.table tbody tr:nth-child(9) { animation-delay: 0.9s; }
-.table tbody tr:nth-child(10) { animation-delay: 1s; } */
-
-/* Links và text khác */
+/* Links and other text */
 a,
 .nav-link,
 .sidebar .nav .nav-item .nav-link,
@@ -285,7 +326,7 @@ a:hover,
   background-color: rgba(0, 144, 231, 0.1);
 }
 
-/* Card titles và headers */
+/* Card titles and headers */
 .card-title,
 .card-header h4,
 .card-header h5 {
@@ -326,74 +367,128 @@ label:hover {
   color: #ffffff !important;
 }
 
+/* Responsive adjustments */
+@media (max-width: 992px) {
+  .table td:nth-child(2) {
+    width: 20%;
+  }
+  
+  .table td:nth-child(3) {
+    width: 35%;
+  }
+}
 
-/* Cố định chiều rộng các cột trong bảng */
-.table {
-  table-layout: fixed;
-  /* Quan trọng: đây là thuộc tính giúp cố định chiều rộng cột */
-  width: 100%;
+@media (max-width: 768px) {
+  .table {
+    display: block;
+    overflow-x: auto;
+  }
+  
+  .table td, .table th {
+    white-space: normal;
+  }
+  
+  .table td:nth-child(3) {
+    max-width: 250px;
+  }
+  
+  .description-text {
+    max-height: 80px;
+  }
 }
 
 
-/* Đảm bảo nội dung trong ô không bị tràn */
-.table td {
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
 
-/* Cho phép hiển thị đầy đủ nội dung khi hover vào ô có text bị cắt */
-.table td.has-tooltip {
-  position: relative;
-}
+  /* Pagination styling - Matched with movie management */
+  .pagination {
+    margin-top: 30px;
+    justify-content: center;
+  }
+  
+  .page-item {
+    margin: 0 3px;
+  }
+  
+  .page-item.active .page-link {
+    background: linear-gradient(to right, #0090e7, #0077b5);
+    border-color: #0090e7;
+    box-shadow: 0 2px 5px rgba(0, 144, 231, 0.3);
+  }
+  
+  .page-link {
+    background-color: #2A3038;
+    border-color: #2c2e33;
+    color: #ffffff;
+    padding: 0.5rem 0.75rem;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+    min-width: 38px;
+    text-align: center;
+  }
+  
+  .page-link:hover {
+    background-color: #0090e7;
+    border-color: #0077b5;
+    color: #ffffff !important;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 10px rgba(0, 144, 231, 0.2);
+  }
+  
+  .page-item.disabled .page-link {
+    background-color: #1e2227;
+    border-color: #2c2e33;
+    color: #6c7293;
+    cursor: not-allowed;
+  }
 
-.table td.has-tooltip:hover::after {
-  content: attr(data-full-text);
-  position: absolute;
-  left: 0;
-  top: 100%;
-  z-index: 1000;
-  background-color: #191c24;
+
+  .filter-card .form-control,
+.filter-card .form-select {
+  background-color: #2A3038;
   border: 1px solid #2c2e33;
-  padding: 10px;
-  border-radius: 5px;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-  width: max-content;
-  max-width: 350px;
-  white-space: normal;
+  color: #ffffff;
+  padding: 10px 15px;
+  border-radius: 6px;
+  transition: all 0.3s ease;
+}
+
+.filter-card .form-control:focus,
+.filter-card .form-select:focus {
+  border-color: #0090e7;
+  box-shadow: 0 0 0 0.2rem rgba(0, 144, 231, 0.25);
 }
 
 
 
-/* Điều chỉnh chiều rộng cột cho actor table */
-.table th:nth-child(1),
-.table td:nth-child(1) {
-  width: 100px;
-  /* Cột hình ảnh */
+/* Dropdown records per page styling */
+.form-select {
+  padding: 0.5rem 2.25rem 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 400;
+  line-height: 1.5;
+  color: #ffffff;
+  background-color: #2A3038;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23ffffff' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  background-size: 16px 12px;
+  border: 1px solid #2c2e33;
+  border-radius: 6px;
+  transition: all 0.3s ease;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
 }
 
-.table th:nth-child(2),
-.table td:nth-child(2) {
-  width: 20%;
-  /* Cột tên */
+
+
+.form-select:focus {
+  border-color: #0090e7;
+  outline: 0;
+  box-shadow: 0 0 0 0.2rem rgba(0, 144, 231, 0.25);
 }
 
-.table th:nth-child(3),
-.table td:nth-child(3) {
-  width: 15%;
-  /* Cột ngày sinh */
-}
-
-.table th:nth-child(4),
-.table td:nth-child(4) {
-  width: 40%;
-  /* Cột tiểu sử */
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.table th:nth-child(5),
-.table td:nth-child(5) {
-  width: 15%;
-  /* Cột thao tác */
+.form-select option {
+  background-color: #2A3038;
+  color: #ffffff;
 }

@@ -37,7 +37,7 @@ export class EmployeeService {
   }
 
   createEmployee(employeeData: any): Observable<any> {
-    return this.http.post(`${this.apiUrl}Employee/CreateEmployee`, employeeData);
+    return this.http.post<any>(`${this.apiUrl}Employee/AddEmployee`, employeeData);
   }
 
   deleteEmployee(id: string): Observable<any> {

@@ -1,0 +1,151 @@
+<div class="row">
+  <div class="col-12 grid-margin stretch-card">
+    <div class="card">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <div>
+            <h4 class="card-title mb-0">Thống kê giờ cao điểm</h4>
+            <p class="card-description">
+              Phân tích thời gian cao điểm theo số lượng vé bán ra
+            </p>
+          </div>
+          
+          <!-- Filter & Export Buttons -->
+          <div class="d-flex align-items-center">
+            <!-- Time Range Filter -->
+            <div class="btn-group mr-3" role="group">
+              <button type="button" class="btn btn-sm" [ngClass]="timeRangeFilter === 'today' ? 'btn-primary' : 'btn-outline-primary'" 
+                (click)="applyTimeRange('today')">Hôm nay</button>
+              <button type="button" class="btn btn-sm" [ngClass]="timeRangeFilter === 'thisWeek' ? 'btn-primary' : 'btn-outline-primary'" 
+                (click)="applyTimeRange('thisWeek')">Tuần này</button>
+              <button type="button" class="btn btn-sm" [ngClass]="timeRangeFilter === 'thisMonth' ? 'btn-primary' : 'btn-outline-primary'" 
+                (click)="applyTimeRange('thisMonth')">Tháng này</button>
+              <button type="button" class="btn btn-sm" [ngClass]="timeRangeFilter === 'thisYear' ? 'btn-primary' : 'btn-outline-primary'" 
+                (click)="applyTimeRange('thisYear')">Năm nay</button>
+            </div>
+            
+            <!-- Export Button -->
+            <div class="dropdown">
+              <button class="btn btn-sm btn-success dropdown-toggle" type="button" id="exportDropdown" data-toggle="dropdown" aria-expanded="false">
+                <i class="mdi mdi-file-excel mr-1"></i>Xuất Excel
+              </button>
+              <div class="dropdown-menu dropdown-menu-right" aria-labelledby="exportDropdown">
+                <a class="dropdown-item" href="javascript:void(0)" (click)="exportToExcel('all')">Xuất báo cáo đầy đủ</a>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Loading and Error States -->
+        <div *ngIf="isLoading" class="text-center py-5">
+          <div class="spinner-border text-primary" role="status">
+            <span class="sr-only">Đang tải...</span>
+          </div>
+          <p class="mt-2">Đang tải dữ liệu thống kê...</p>
+        </div>
+        
+        <div *ngIf="apiError && !isLoading" class="alert alert-warning">
+          <i class="mdi mdi-alert-circle-outline mr-2"></i>
+          Không thể tải dữ liệu từ máy chủ. Đang hiển thị dữ liệu mẫu.
+        </div>
+        
+        <!-- Statistics Summary -->
+        <div *ngIf="!isLoading" class="row mt-2 mb-4">
+          <div class="col-md-3">
+            <div class="border rounded p-3 h-100">
+              <h6 class="text-muted mb-2">Tổng số vé</h6>
+              <h3 class="mb-0">{{ totalTickets | number }}</h3>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="border rounded p-3 h-100">
+              <h6 class="text-muted mb-2">Giờ cao điểm</h6>
+              <h3 class="mb-0">{{ formatHour(peakHour) }}</h3>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="border rounded p-3 h-100">
+              <h6 class="text-muted mb-2">Số vé cao nhất</h6>
+              <h3 class="mb-0 text-danger">{{ maxTickets | number }}</h3>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="border rounded p-3 h-100">
+              <h6 class="text-muted mb-2">Tỷ lệ cao nhất</h6>
+              <h3 class="mb-0 text-success">{{ calculatePercentage(maxTickets, totalTickets) }}</h3>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bar Chart -->
+        <div *ngIf="!isLoading" class="chart-container mb-4">
+          <div class="card">
+            <div class="card-body">
+              <div id="barChart">
+                <apx-chart
+                  [series]="barChartOptions.series!"
+                  [chart]="barChartOptions.chart!"
+                  [xaxis]="barChartOptions.xaxis!"
+                  [yaxis]="barChartOptions.yaxis!"
+                  [dataLabels]="barChartOptions.dataLabels!"
+                  [colors]="barChartOptions.colors!"
+                  [title]="barChartOptions.title!"
+                  [subtitle]="barChartOptions.subtitle!"
+                  [tooltip]="barChartOptions.tooltip!"
+                  [plotOptions]="barChartOptions.plotOptions!"
+                  [fill]="barChartOptions.fill!"
+                  [grid]="barChartOptions.grid!">
+                </apx-chart>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Line Chart -->
+        <div *ngIf="!isLoading" class="chart-container mb-4">
+          <div class="card">
+            <div class="card-body">
+              <h4 class="card-title">Xu hướng vé bán ra theo giờ</h4>
+              <div id="lineChart">
+                <apx-chart
+                  [series]="lineChartOptions.series!"
+                  [chart]="lineChartOptions.chart!"
+                  [xaxis]="lineChartOptions.xaxis!"
+                  [yaxis]="lineChartOptions.yaxis!"
+                  [dataLabels]="lineChartOptions.dataLabels!"
+                  [colors]="lineChartOptions.colors!"
+                  [tooltip]="lineChartOptions.tooltip!"
+                  [stroke]="lineChartOptions.stroke!"
+                  [markers]="lineChartOptions.markers!"
+                  [fill]="lineChartOptions.fill!"
+                  [grid]="lineChartOptions.grid!">
+                </apx-chart>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Heat Map -->
+        <div *ngIf="!isLoading" class="chart-container">
+          <div class="card">
+            <div class="card-body">
+              <div id="heatMap">
+                <apx-chart
+                  [series]="heatMapOptions.series!"
+                  [chart]="heatMapOptions.chart!"
+                  [xaxis]="heatMapOptions.xaxis!"
+                  [yaxis]="heatMapOptions.yaxis!"
+                  [dataLabels]="heatMapOptions.dataLabels!"
+                  [colors]="heatMapOptions.colors!"
+                  [title]="heatMapOptions.title!"
+                  [tooltip]="heatMapOptions.tooltip!"
+                  [plotOptions]="heatMapOptions.plotOptions!">
+                </apx-chart>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

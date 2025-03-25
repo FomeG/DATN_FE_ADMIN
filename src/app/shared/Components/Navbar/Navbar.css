@@ -94,3 +94,10 @@ body.sidebar-icon-only .main-panel {
   justify-content: center;
   align-items: center;
 }
+
+/* Thêm CSS cho icon trong submenu */
+.sidebar .nav .nav-item .collapse .sub-menu .nav-item .nav-link i {
+    font-size: 0.875rem;
+    margin-right: 0.5rem;
+    vertical-align: middle;
+}

@@ -132,6 +132,9 @@ export class CinemaMapComponent implements OnInit, AfterViewInit, OnChanges {
       // Tạo icon cho marker
       let markerIcon;
       try {
+        // Định nghĩa đường dẫn tới các icon Leaflet
+        L.Icon.Default.prototype.options.imagePath = 'assets/media/';
+        
         // Sử dụng icon mặc định của Leaflet
         markerIcon = new L.Icon.Default();
       } catch (err) {

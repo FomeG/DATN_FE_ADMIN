@@ -18,6 +18,7 @@ import { VoucherUsageManagementComponent } from './voucher/voucher-usage-managem
 import { CinemaManagementComponent } from './cinema-management/cinema-management.component';
 import { ServiceManagementComponent } from './dichvu/service-management/service-management.component';
 import { ServiceTypeManagementComponent } from './dichvu/service-type-management/service-type-management.component';
+import { STATISTICS_ROUTES } from './statistics/statistics-routing';
 
 export const routes: Routes = [
   // Public routes that don't require authentication
@@ -50,7 +51,13 @@ export const routes: Routes = [
       { path: 'voucher', component: VoucherManagementComponent },
       { path: 'voucher-usage', component: VoucherUsageManagementComponent },
       { path: 'payment-callback', component: PaymentCallbackComponent },
-      { path: 'cinemas', component: CinemaManagementComponent }
+      { path: 'cinemas', component: CinemaManagementComponent },
+      
+      // Routes for statistics
+      { 
+        path: 'statistics', 
+        children: STATISTICS_ROUTES 
+      }
     ]
   },
 

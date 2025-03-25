@@ -1,0 +1,333 @@
+/* Styles cho card */
+.card {
+    transition: all 0.3s ease;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08) !important;
+    overflow: hidden;
+    margin-bottom: 12px;
+}
+
+.card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.12) !important;
+}
+
+.card-body {
+    padding: 0.9rem !important;
+}
+
+.card-header {
+    padding: 0.7rem 0.9rem !important;
+}
+
+.card-title {
+    font-size: 1.1rem !important;
+    margin-bottom: 0.3rem !important;
+}
+
+.card-description {
+    font-size: 0.85rem !important;
+    margin-bottom: 0.5rem !important;
+}
+
+/* Styles cho progress bars */
+.progress {
+    border-radius: 10px;
+    overflow: hidden;
+    background-color: rgba(0, 0, 0, 0.05);
+    height: 4px !important;
+}
+
+.progress-bar {
+    transition: width 0.6s ease;
+}
+
+.bg-info {
+    background: linear-gradient(to right, #4facfe, #00f2fe) !important;
+}
+
+.bg-pink {
+    background: linear-gradient(to right, #fa709a, #fee140) !important;
+}
+
+.bg-purple {
+    background: linear-gradient(to right, #667eea, #764ba2) !important;
+}
+
+/* Gender icons */
+.gender-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 16px;
+}
+
+.gender-icon.male {
+    background: linear-gradient(135deg, #4facfe, #00f2fe);
+}
+
+.gender-icon.female {
+    background: linear-gradient(135deg, #fa709a, #fee140);
+}
+
+.gender-icon.other {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+}
+
+/* Stats grid */
+.stats-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-top: 8px;
+}
+
+.stats-card {
+    background: rgba(0, 0, 0, 0.02);
+    padding: 10px;
+    border-radius: 10px;
+    transition: all 0.3s ease;
+}
+
+.stats-card:hover {
+    background: rgba(0, 0, 0, 0.04);
+    transform: translateY(-3px);
+}
+
+.stats-label {
+    font-size: 0.75rem;
+    color: #888;
+    margin-bottom: 3px;
+}
+
+.stats-value {
+    font-size: 1.05rem;
+    font-weight: 700;
+    margin-bottom: 2px;
+}
+
+.stats-percentage {
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: #666;
+}
+
+/* Average spending cards */
+.average-spending-card {
+    padding: 15px;
+    border-radius: 12px;
+    text-align: center;
+    transition: all 0.3s ease;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+    height: 100%;
+}
+
+.male-card {
+    background: linear-gradient(135deg, rgba(79, 172, 254, 0.1), rgba(0, 242, 254, 0.1));
+    border-left: 4px solid #4facfe;
+}
+
+.female-card {
+    background: linear-gradient(135deg, rgba(250, 112, 154, 0.1), rgba(254, 225, 64, 0.1));
+    border-left: 4px solid #fa709a;
+}
+
+.other-card {
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+    border-left: 4px solid #667eea;
+}
+
+.average-spending-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.08);
+}
+
+.gender-icon-lg {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    margin: 0 auto 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 22px;
+}
+
+.male-card .gender-icon-lg {
+    background: linear-gradient(135deg, #4facfe, #00f2fe);
+}
+
+.female-card .gender-icon-lg {
+    background: linear-gradient(135deg, #fa709a, #fee140);
+}
+
+.other-card .gender-icon-lg {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+}
+
+.avg-amount {
+    font-size: 1.2rem;
+    font-weight: 700;
+    margin: 8px 0 4px;
+}
+
+.customer-count {
+    font-size: 0.8rem;
+    color: #666;
+}
+
+/* Button Group */
+.btn-group .btn {
+    font-size: 0.8rem;
+    padding: 0.35rem 0.65rem;
+}
+
+.btn-primary {
+    background-color: #4facfe;
+    border-color: #4facfe;
+}
+
+.btn-outline-primary {
+    color: #4facfe;
+    border-color: #4facfe;
+}
+
+.btn-outline-primary:hover {
+    background-color: #4facfe;
+    border-color: #4facfe;
+    color: white;
+}
+
+/* Loading spinner */
+.spinner-border {
+    width: 2.5rem;
+    height: 2.5rem;
+}
+
+/* Glow effect cho thẻ tổng quan */
+.card.border-0 {
+    position: relative;
+}
+
+.card.border-0::after {
+    content: '';
+    position: absolute;
+    top: -10px;
+    left: -10px;
+    right: -10px;
+    bottom: -10px;
+    background: inherit;
+    filter: blur(20px);
+    opacity: 0.15;
+    z-index: -1;
+    border-radius: 20px;
+}
+
+/* Font weight và spacing */
+.font-weight-bold {
+    font-weight: 700;
+}
+
+.mr-2 {
+    margin-right: 0.5rem;
+}
+
+.mr-3 {
+    margin-right: 1rem;
+}
+
+.ml-2 {
+    margin-left: 0.5rem;
+}
+
+.mt-2 {
+    margin-top: 0.5rem;
+}
+
+.mb-0 {
+    margin-bottom: 0 !important;
+}
+
+.mb-1 {
+    margin-bottom: 0.25rem !important;
+}
+
+.mb-2 {
+    margin-bottom: 0.5rem !important;
+}
+
+.mb-3 {
+    margin-bottom: 1rem !important;
+}
+
+.mb-4 {
+    margin-bottom: 1rem !important;
+}
+
+/* Tooltip customization */
+:host ::ng-deep .apexcharts-tooltip {
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+    border: none !important;
+    background: rgba(255, 255, 255, 0.95) !important;
+    color: #333 !important;
+    font-weight: 500;
+    border-radius: 6px;
+    padding: 10px;
+    font-size: 0.8rem !important;
+}
+
+:host ::ng-deep .apexcharts-tooltip-title {
+    background: rgba(240, 240, 240, 0.8) !important;
+    border-bottom: 1px solid #eee !important;
+    color: #222 !important;
+    font-weight: 600;
+    padding: 8px 10px;
+}
+
+/* Donut chart center label */
+:host ::ng-deep .apexcharts-datalabel-label {
+    font-weight: 500 !important;
+}
+
+:host ::ng-deep .apexcharts-datalabel-value {
+    font-weight: 700 !important;
+    font-size: 1.5rem !important;
+}
+
+.text-purple {
+  color: #8e44ad;
+}
+
+#radarChart {
+  width: 100%;
+  height: 100%;
+  min-height: 320px;
+}
+
+/* Chart containers */
+:host ::ng-deep .apexcharts-canvas {
+    margin: 0 auto !important;
+}
+
+/* Giảm chiều cao cho biểu đồ */
+#genderPieChart, #spendingBarChart, #radarChart {
+    max-height: 300px !important;
+    min-height: 250px !important;
+}
+
+/* Row spacing */
+.row {
+    margin-bottom: 0.8rem !important;
+}
+
+/* Điều chỉnh cho giao diện tổng quan */
+@media (min-width: 768px) {
+    .col-md-6, .col-md-5 {
+        padding-left: 8px !important;
+        padding-right: 8px !important;
+    }
+}

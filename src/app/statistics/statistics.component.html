@@ -1,0 +1,28 @@
+<div class="container-fluid">
+  <div class="row mb-4">
+    <div class="col-12">
+      <h2 class="h4 mb-3">Thống kê</h2>
+      <!-- Navigation tabs -->
+      <ul class="nav nav-tabs">
+        <li class="nav-item">
+          <a class="nav-link" routerLink="bundled-services" routerLinkActive="active">
+            <i class="mdi mdi-package-variant-closed mr-1"></i> Dịch vụ đi kèm
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" routerLink="customer-gender" routerLinkActive="active">
+            <i class="mdi mdi-account-group mr-1"></i> Khách hàng theo giới tính
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" routerLink="peak-hours" routerLinkActive="active">
+            <i class="mdi mdi-clock-outline mr-1"></i> Giờ cao điểm
+          </a>
+        </li>
+      </ul>
+    </div>
+  </div>
+  
+  <!-- Content area -->
+  <router-outlet></router-outlet>
+</div> 

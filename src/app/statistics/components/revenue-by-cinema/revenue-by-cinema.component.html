@@ -1,0 +1,223 @@
+<div class="row">
+  <div class="col-12 grid-margin stretch-card">
+    <div class="card">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <div>
+            <h4 class="card-title mb-0">Thống kê doanh thu theo rạp</h4>
+            <p class="card-description">
+              Phân tích doanh thu và lượng vé bán ra theo từng rạp phim
+            </p>
+          </div>
+          
+          <!-- Filter & Export Buttons -->
+          <div class="d-flex align-items-center">
+            <!-- Time Range Filter -->
+            <div class="btn-group mr-3" role="group">
+              <button type="button" class="btn btn-sm" [ngClass]="timeRangeFilter === 'today' ? 'btn-primary' : 'btn-outline-primary'" 
+                (click)="applyTimeRange('today')">Hôm nay</button>
+              <button type="button" class="btn btn-sm" [ngClass]="timeRangeFilter === 'thisWeek' ? 'btn-primary' : 'btn-outline-primary'" 
+                (click)="applyTimeRange('thisWeek')">Tuần này</button>
+              <button type="button" class="btn btn-sm" [ngClass]="timeRangeFilter === 'thisMonth' ? 'btn-primary' : 'btn-outline-primary'" 
+                (click)="applyTimeRange('thisMonth')">Tháng này</button>
+              <button type="button" class="btn btn-sm" [ngClass]="timeRangeFilter === 'thisYear' ? 'btn-primary' : 'btn-outline-primary'" 
+                (click)="applyTimeRange('thisYear')">Năm nay</button>
+            </div>
+            
+            <!-- Export Button -->
+            <div class="dropdown">
+              <button class="btn btn-sm btn-outline-primary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <i class="mdi mdi-export mr-1"></i>Xuất báo cáo
+              </button>
+              <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                <a class="dropdown-item" href="javascript:void(0)" (click)="exportToExcel('all')">Xuất Excel</a>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Loading State -->
+        <div *ngIf="isLoading" class="text-center p-5">
+          <div class="spinner-border text-primary" role="status">
+            <span class="sr-only">Đang tải...</span>
+          </div>
+          <p class="mt-2">Đang tải dữ liệu thống kê...</p>
+        </div>
+        
+        <!-- Error State -->
+        <div *ngIf="!isLoading && apiError" class="text-center p-5">
+          <div class="alert alert-warning" role="alert">
+            <i class="mdi mdi-alert-circle-outline mr-2"></i>
+            Không thể tải dữ liệu từ API. Đang hiển thị dữ liệu mẫu.
+          </div>
+        </div>
+        
+        <!-- Data Display -->
+        <div *ngIf="!isLoading && cinemaData && cinemaData.length > 0">
+          <!-- Statistics Summary -->
+          <div class="row mb-4">
+            <!-- Total Cinemas -->
+            <div class="col-md-3 col-sm-6 mb-4 mb-md-0">
+              <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                  <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                      <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Tổng số rạp</div>
+                      <div class="h5 mb-0 font-weight-bold text-gray-800">{{cinemaData.length}}</div>
+                    </div>
+                    <div class="col-auto">
+                      <i class="mdi mdi-theater text-gray-300" style="font-size: 32px;"></i>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Top Cinema -->
+            <div class="col-md-3 col-sm-6 mb-4 mb-md-0">
+              <div class="card border-left-success shadow h-100 py-2">
+                <div class="card-body">
+                  <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                      <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Rạp có doanh thu cao nhất</div>
+                      <div class="h5 mb-0 font-weight-bold text-gray-800">{{topCinema}}</div>
+                    </div>
+                    <div class="col-auto">
+                      <i class="mdi mdi-crown text-gray-300" style="font-size: 32px;"></i>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Total Tickets -->
+            <div class="col-md-3 col-sm-6 mb-4 mb-md-0">
+              <div class="card border-left-info shadow h-100 py-2">
+                <div class="card-body">
+                  <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                      <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Tổng số vé</div>
+                      <div class="h5 mb-0 font-weight-bold text-gray-800">{{totalTickets | number}}</div>
+                    </div>
+                    <div class="col-auto">
+                      <i class="mdi mdi-ticket text-gray-300" style="font-size: 32px;"></i>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Total Revenue -->
+            <div class="col-md-3 col-sm-6 mb-4 mb-md-0">
+              <div class="card border-left-warning shadow h-100 py-2">
+                <div class="card-body">
+                  <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                      <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Tổng doanh thu</div>
+                      <div class="h5 mb-0 font-weight-bold text-gray-800">{{totalRevenue | number:'1.0-0'}} ₫</div>
+                    </div>
+                    <div class="col-auto">
+                      <i class="mdi mdi-cash-multiple text-gray-300" style="font-size: 32px;"></i>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Charts -->
+          <div class="row mb-4">
+            <!-- Pie Chart -->
+            <div class="col-lg-4 mb-4 mb-lg-0">
+              <div class="card shadow">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                  <h6 class="m-0 font-weight-bold text-primary">Phân bố vé theo rạp</h6>
+                </div>
+                <div class="card-body">
+                  <div class="chart-container">
+                    <ng-apexcharts 
+                      [series]="pieChartOptions.series!"
+                      [chart]="pieChartOptions.chart!"
+                      [labels]="pieChartOptions.labels!"
+                      [responsive]="pieChartOptions.responsive!"
+                      [colors]="pieChartOptions.colors!"
+                      [dataLabels]="pieChartOptions.dataLabels!"
+                      [legend]="pieChartOptions.legend!"
+                      [tooltip]="pieChartOptions.tooltip!"
+                      ></ng-apexcharts>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Bar Chart -->
+            <div class="col-lg-8">
+              <div class="card shadow">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                  <h6 class="m-0 font-weight-bold text-primary">So sánh doanh thu các rạp</h6>
+                </div>
+                <div class="card-body">
+                  <div class="chart-container">
+                    <ng-apexcharts
+                      [series]="barChartOptions.series!"
+                      [chart]="barChartOptions.chart!"
+                      [dataLabels]="barChartOptions.dataLabels!"
+                      [plotOptions]="barChartOptions.plotOptions!"
+                      [xaxis]="barChartOptions.xaxis!"
+                      [yaxis]="barChartOptions.yaxis!"
+                      [colors]="barChartOptions.colors!"
+                      [tooltip]="barChartOptions.tooltip!"
+                      [grid]="barChartOptions.grid!"
+                      ></ng-apexcharts>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Data Table -->
+          <div class="card shadow mb-4">
+            <div class="card-header py-3">
+              <h6 class="m-0 font-weight-bold text-primary">Chi tiết doanh thu theo rạp</h6>
+            </div>
+            <div class="card-body">
+              <div class="table-responsive">
+                <table class="table table-bordered" width="100%" cellspacing="0">
+                  <thead>
+                    <tr>
+                      <th>STT</th>
+                      <th>Tên rạp</th>
+                      <th>Số suất chiếu</th>
+                      <th>Số vé bán</th>
+                      <th>Tỷ lệ vé</th>
+                      <th>Doanh thu</th>
+                      <th>Tỷ lệ doanh thu</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let item of cinemaData; let i = index">
+                      <td>{{i + 1}}</td>
+                      <td>{{item.cinemaName}}</td>
+                      <td>{{item.totalShowtimes | number}}</td>
+                      <td>{{item.totalTickets | number}}</td>
+                      <td>{{calculatePercentage(item.totalTickets, totalTickets)}}</td>
+                      <td>{{item.totalRevenue | number:'1.0-0'}} ₫</td>
+                      <td>{{calculatePercentage(item.totalRevenue, totalRevenue)}}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- No Data State -->
+        <div *ngIf="!isLoading && (!cinemaData || cinemaData.length === 0)" class="text-center p-5 mt-5">
+          <i class="mdi mdi-theater text-primary" style="font-size: 100px;"></i>
+          <h4 class="mt-3">Không có dữ liệu thống kê</h4>
+          <p>Không có dữ liệu thống kê doanh thu theo rạp trong khoảng thời gian này.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

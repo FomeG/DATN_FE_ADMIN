@@ -1,7 +1,5 @@
 /* Style cho logo trong header */
 .logo-img {
-  height: 40px;
-  width: 40px;
   object-fit: contain;
   border-radius: 6px;
   background-color: #191c24;

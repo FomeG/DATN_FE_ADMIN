@@ -274,6 +274,20 @@ export class AddMovieModalComponent implements OnInit, AfterViewInit {
         });
       }
 
+      // Add actor IDs
+      if (this.selectedActors && this.selectedActors.length > 0) {
+        this.selectedActors.forEach(actor => {
+          formData.append('listActorID', actor.id);
+        });
+      }
+
+      // Add genre IDs
+      if (this.selectedGenres && this.selectedGenres.length > 0) {
+        this.selectedGenres.forEach(genre => {
+          formData.append('listGenreID', genre.id);
+        });
+      }
+
       this.movieService.createMovie(formData).subscribe({
         next: (response) => {
           if (response.responseCode === 1) {

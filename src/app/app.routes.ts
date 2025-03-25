@@ -15,6 +15,7 @@ import { PaymentCallbackComponent } from './VNPAY/payment-callback/payment-callb
 import { PaymentLayoutComponent } from './VNPAY/payment-layout/payment-layout.component';
 import { VoucherManagementComponent } from './voucher/voucher-management/voucher-management.component';
 import { VoucherUsageManagementComponent } from './voucher/voucher-usage-management/voucher-usage-management.component';
+import { CinemaManagementComponent } from './cinema-management/cinema-management.component';
 
 export const routes: Routes = [
   // Public routes that don't require authentication
@@ -45,6 +46,7 @@ export const routes: Routes = [
       { path: 'voucher', component: VoucherManagementComponent },
       { path: 'voucher-usage', component: VoucherUsageManagementComponent },
       { path: 'payment-callback', component: PaymentCallbackComponent },
+      { path: 'cinemas', component: CinemaManagementComponent }
     ]
   },
 

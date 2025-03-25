@@ -1,0 +1,25 @@
+<div class="map-container" [style.height]="mapHeight">
+    <div #mapContainer id="map"></div>
+    <div *ngIf="editable" class="map-instructions">
+        <p><i class="fas fa-info-circle"></i> Nhấp vào bản đồ hoặc kéo điểm đánh dấu để chọn vị trí rạp phim chính xác</p>
+    </div>
+    
+    <!-- Các nút điều khiển bổ sung -->
+    <div *ngIf="editable" class="map-custom-controls">
+        <button class="map-control-btn" title="Phóng to" (click)="zoomIn()">
+            <i class="fas fa-plus"></i>
+        </button>
+        <button class="map-control-btn" title="Thu nhỏ" (click)="zoomOut()">
+            <i class="fas fa-minus"></i>
+        </button>
+        <button class="map-control-btn" title="Làm mới bản đồ" (click)="refreshMap()">
+            <i class="fas fa-sync-alt"></i>
+        </button>
+    </div>
+</div>
+
+<div *ngIf="editable" class="map-help-text text-muted mt-2 mb-3">
+    <p><i class="fas fa-mouse-pointer"></i> <strong>Cách chọn vị trí:</strong> Bạn có thể nhấp chuột vào bản đồ hoặc kéo điểm đánh dấu.</p>
+    <p><i class="fas fa-search-plus"></i> <strong>Phóng to/thu nhỏ:</strong> Sử dụng nút <span class="badge bg-secondary">+</span> <span class="badge bg-secondary">-</span> hoặc cuộn chuột để điều chỉnh mức độ chi tiết.</p>
+    <p><i class="fas fa-sync-alt"></i> <strong>Nếu bản đồ không hiển thị đúng:</strong> Hãy thử nhấn nút làm mới bản đồ hoặc liên hệ quản trị viên.</p>
+</div>

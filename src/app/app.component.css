@@ -2,6 +2,49 @@
     height: 100vh;
     overflow: hidden;
     position: relative;
+    width: 100vw;
+    max-width: 100%;
+}
+
+.page-body-wrapper {
+    min-height: calc(100vh - 70px);
+    position: relative;
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    padding-top: 70px;
+}
+
+.main-panel {
+    flex: 1;
+    min-height: calc(100vh - 70px);
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    width: calc(100% - 260px);
+    /* Điều chỉnh theo chiều rộng của sidebar */
+}
+
+.content-wrapper {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px;
+    background: #080a0e;
+    width: 100%;
+}
+
+/* Đảm bảo footer luôn ở dưới cùng */
+app-footer {
+    position: relative;
+    bottom: 0;
+    width: 100%;
+}
+
+/* Style cho trang login */
+.container-scroller {
+    height: 100vh;
+    overflow: hidden;
+    position: relative;
 }
 
 .page-body-wrapper {
@@ -76,7 +119,7 @@ app-footer {
     display: flex;
     justify-content: center;
     align-items: center;
-    background: url("../../assets/images/auth/Login_bg.jpg") no-repeat center center;
+    background: url("../assets/images/auth/Login_bg.jpg") no-repeat center center;
     background-size: cover;
     overflow: auto;
 }
@@ -153,5 +196,9 @@ app-footer {
 
     .payment-content {
         padding: 20px;
+    }
+
+    .main-panel {
+        width: 100%;
     }
 }

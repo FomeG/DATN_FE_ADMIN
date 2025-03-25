@@ -108,30 +108,21 @@
 
           <div class="form-group">
             <label for="thumbnail">Ảnh thumbnail</label>
-            <input type="file" class="form-control-file" id="thumbnail" (change)="onFileSelect($event, 'thumbnail')"
-              accept="image/*">
+            <input type="file" class="dropify" id="thumbnail" (change)="onFileSelect($event, 'thumbnail')"
+              accept="image/*" data-default-file="" data-allowed-file-extensions="jpg jpeg png gif">
           </div>
 
           <div class="form-group">
             <label for="banner">Ảnh banner</label>
-            <input type="file" class="form-control-file" id="banner" (change)="onFileSelect($event, 'banner')"
-              accept="image/*">
+            <input type="file" class="dropify" id="banner" (change)="onFileSelect($event, 'banner')"
+              accept="image/*" data-default-file="" data-allowed-file-extensions="jpg jpeg png gif">
           </div>
 
           <div class="form-group">
             <label for="trailer">Video trailer</label>
-            <input type="file" class="form-control-file" id="trailer" (change)="onFileSelect($event, 'trailer')"
-              accept="video/*">
+            <input type="file" class="dropify" id="trailer" (change)="onFileSelect($event, 'trailer')"
+              accept="video/*" data-default-file="" data-allowed-file-extensions="mp4 mov avi mkv">
           </div>
-
-
-
-
-
-
-
-
-
 
           <div class="modal-footer">
             <button type="button" class="btn btn-lg rounded btn-outline-danger" data-bs-dismiss="modal">Đóng</button>

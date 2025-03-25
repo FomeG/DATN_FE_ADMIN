@@ -1,4 +1,4 @@
-import { Component, OnInit, Output, EventEmitter, HostListener } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter, HostListener, AfterViewInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { MovieService } from '../../services/movie.service';
@@ -188,8 +188,16 @@ export class AddMovieModalComponent implements OnInit {
   }
 
   onFileSelect(event: any, type: string) {
-    const file = event.target.files[0];
+    // Lấy file từ target của event hoặc từ sự kiện dropify
+    let file: File | null = null;
+
+    // Kiểm tra nếu là sự kiện từ dropify
+    if (event.target && event.target.files && event.target.files[0]) {
+      file = event.target.files[0];
+    }
+
     if (file) {
+      console.log(`Selected ${type} file:`, file.name);
       switch (type) {
         case 'thumbnail':
           this.selectedThumbnail = file;
@@ -246,6 +254,20 @@ export class AddMovieModalComponent implements OnInit {
         });
       }
       
+      // Add genre IDs
+      if (this.selectedGenres && this.selectedGenres.length > 0) {
+        this.selectedGenres.forEach(genre => {
+          formData.append('listGenreID', genre.id);
+        });
+      }
+
+      // Add actor IDs
+      if (this.selectedActors && this.selectedActors.length > 0) {
+        this.selectedActors.forEach(actor => {
+          formData.append('listActorID', actor.id);
+        });
+      }
+
       // Add genre IDs
       if (this.selectedGenres && this.selectedGenres.length > 0) {
         this.selectedGenres.forEach(genre => {

@@ -9,16 +9,25 @@ export interface Showtime {
   roomId: string;
   startTime: Date;
   endTime: Date;
-  status: number;
   movieName: string;
   roomName: string;
+  status?: number;
+  isDeleted?: boolean;
 }
 
 export interface ShowtimeResponse {
-  data: Showtime[];
-  message: string;
   responseCode: number;
+  message: string;
+  data: Showtime[];
   totalRecord: number;
+}
+
+export interface ShowtimeParams {
+  movieId?: string;
+  roomId?: string;
+  search?: string;
+  currentPage: number;
+  recordPerPage: number;
 }
 
 @Injectable({
@@ -29,17 +38,14 @@ export class ShowtimeService {
 
   constructor(private http: HttpClient) { }
 
-  getShowtimes(movieId: string, roomId: string, currentPage: number, recordPerPage: number): Observable<ShowtimeResponse> {
-    let url = `${this.apiUrl}ShowTime/GetListShowTimes?currentPage=${currentPage}&recordPerPage=${recordPerPage}`;
-
-    url += '&status=1,2';
-    if (movieId) {
-      url += `&movieId=${movieId}`;
-    }
-    if (roomId) {
-      url += `&roomId=${roomId}`;
-    }
-
+  getShowtimes(params: {
+    currentPage: number;
+    recordPerPage: number;
+  }): Observable<ShowtimeResponse> {
+    const url = `${this.apiUrl}ShowTime/GetList?currentPage=${params.currentPage}&recordPerPage=${params.recordPerPage}`;
+    
+    console.log('Calling API with URL:', url);
+    
     return this.http.get<ShowtimeResponse>(url);
   }
 

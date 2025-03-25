@@ -1,187 +1,187 @@
 <div class="page-content">
-    <div class="row">
-      <div class="col-12 grid-margin">
-        <div class="card">
-          <div class="card-body">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-              <h4 class="mb-0">Quản lý dịch vụ</h4>
-              <button class="btn btn-primary" (click)="openAddModal()">
-                <i class="fas fa-plus me-2"></i> Thêm dịch vụ mới
-              </button>
-            </div>
-  
-            <!-- Search and filters -->
-            <div class="row mb-4">
-              <div class="col-md-4">
-                <div class="input-group">
-                  <input type="text" class="form-control" placeholder="Tìm kiếm theo tên hoặc mô tả..." [(ngModel)]="searchTerm">
-                  <button class="btn btn-outline-secondary" type="button" (click)="search()">
-                    <i class="fas fa-search"></i>
-                  </button>
-                </div>
-              </div>
-              <div class="col-md-4 ms-auto">
-                <select [(ngModel)]="recordPerPage" (change)="onRecordsPerPageChange()" class="form-select">
-                  <option [value]="10">10 bản ghi</option>
-                  <option [value]="20">20 bản ghi</option>
-                  <option [value]="50">50 bản ghi</option>
-                  <option [value]="100">100 bản ghi</option>
-                </select>
-              </div>
-            </div>
-  
-            <!-- Loading spinner -->
-            <div *ngIf="isLoading" class="text-center py-5">
-              <div class="spinner-border text-primary" role="status">
-                <span class="visually-hidden">Loading...</span>
-              </div>
-              <p class="mt-2">Đang tải dữ liệu...</p>
-            </div>
-  
-            <!-- Table -->
-            <div class="table-responsive" *ngIf="!isLoading">
-              <table class="table table-hover">
-                <thead>
-                  <tr>
-                    <th style="width: 50px">#</th>
-                    <th style="width: 150px">Hình ảnh</th>
-                    <th (click)="sort('serviceName')" style="cursor: pointer; width: 200px">
-                      Tên dịch vụ <i class="fas" [ngClass]="getSortIcon('serviceName')"></i>
-                    </th>
-                    <th style="width: 300px">Mô tả</th>
-                    <th (click)="sort('price')" style="cursor: pointer; width: 150px">
-                      Giá <i class="fas" [ngClass]="getSortIcon('price')"></i>
-                    </th>
-                    <th style="width: 150px">Loại dịch vụ</th>
-                    <th style="width: 150px">Thao tác</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr *ngFor="let service of services; let i = index">
-                    <td>{{ (currentPage - 1) * recordPerPage + i + 1 }}</td>
-                    <td>
-                      <img [src]="service.imageUrl" alt="{{ service.serviceName }}" class="img-thumbnail" style="max-width: 100px; max-height: 60px" onerror="this.src='assets/images/placeholder.png'">
-                    </td>
-                    <td>{{ service.serviceName }}</td>
-                    <td>{{ service.description }}</td>
-                    <td>{{ service.price | number:'1.0-0' }} VNĐ</td>
-                    <td>
-                      {{ serviceTypes.find(t => t.id === service.serviceTypeID)?.serviceTypeName || 'Không xác định' }}
-                    </td>
-                    <td>
-                      <div class="btn-group">
-                        <button class="btn btn-outline-primary btn-sm" (click)="editService(service)">
-                          <i class="fas fa-edit me-1"></i>Sửa
-                        </button>
-                        <button class="btn btn-outline-danger btn-sm ms-1" (click)="deleteService(service.id)">
-                          <i class="fas fa-trash me-1"></i>Xóa
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                  <tr *ngIf="services.length === 0">
-                    <td colspan="7" class="text-center py-3">Không tìm thấy dịch vụ nào</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-  
-            <!-- Pagination -->
-            <nav *ngIf="totalPages > 1" aria-label="Page navigation" class="d-flex justify-content-center mt-4">
-              <ul class="pagination">
-                <li class="page-item" [class.disabled]="currentPage === 1">
-                  <a class="page-link" (click)="onPageChange(currentPage - 1)">Trước</a>
-                </li>
-                <li class="page-item" *ngFor="let page of pages" [class.active]="page === currentPage">
-                  <a class="page-link" (click)="onPageChange(page)">{{ page }}</a>
-                </li>
-                <li class="page-item" [class.disabled]="currentPage === totalPages">
-                  <a class="page-link" (click)="onPageChange(currentPage + 1)">Sau</a>
-                </li>
-              </ul>
-            </nav>
-  
-            <!-- Page info -->
-            <div *ngIf="totalRecords > 0" class="text-center mt-2">
-              <small>Hiển thị {{ (currentPage - 1) * recordPerPage + 1 }} đến
-                {{ Math.min(currentPage * recordPerPage, totalRecords) }} của {{ totalRecords }} dịch vụ</small>
-            </div>
+  <div class="row">
+    <div class="col-12 grid-margin">
+      <div class="card">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center mb-4">
+            <h4 class="mb-0">Quản lý dịch vụ</h4>
+            <button class="btn btn-primary" (click)="openAddModal()">
+              <i class="fas fa-plus me-2"></i> Thêm dịch vụ mới
+            </button>
           </div>
-        </div>
-      </div>
-    </div>
-  
-    <!-- Service Modal -->
-    <div class="modal fade" id="serviceModal" tabindex="-1" aria-labelledby="serviceModalLabel" aria-hidden="true">
-      <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="serviceModalLabel">
-              {{ isEditing ? 'Chỉnh sửa dịch vụ' : 'Thêm dịch vụ mới' }}
-            </h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-          </div>
-          <div class="modal-body">
-            <form [formGroup]="serviceForm" (ngSubmit)="onSubmit()">
-              <div class="row">
-                <div class="col-md-6">
-                  <div class="mb-3">
-                    <label for="serviceName" class="form-label">Tên dịch vụ <span class="text-danger">*</span></label>
-                    <input type="text" class="form-control" id="serviceName" formControlName="serviceName">
-                    <div class="text-danger" *ngIf="serviceForm.get('serviceName')?.invalid && serviceForm.get('serviceName')?.touched">
-                      <small *ngIf="serviceForm.get('serviceName')?.errors?.['required']">Tên dịch vụ là bắt buộc</small>
-                      <small *ngIf="serviceForm.get('serviceName')?.errors?.['maxlength']">Tên dịch vụ không được vượt quá 100 ký tự</small>
-                    </div>
-                  </div>
-  
-                  <div class="mb-3">
-                    <label for="description" class="form-label">Mô tả</label>
-                    <textarea class="form-control" id="description" rows="3" formControlName="description"></textarea>
-                    <div class="text-danger" *ngIf="serviceForm.get('description')?.invalid && serviceForm.get('description')?.touched">
-                      <small *ngIf="serviceForm.get('description')?.errors?.['maxlength']">Mô tả không được vượt quá 500 ký tự</small>
-                    </div>
-                  </div>
-  
-                  <div class="mb-3">
-                    <label for="price" class="form-label">Giá <span class="text-danger">*</span></label>
-                    <input type="number" class="form-control" id="price" formControlName="price">
-                    <div class="text-danger" *ngIf="serviceForm.get('price')?.invalid && serviceForm.get('price')?.touched">
-                      <small *ngIf="serviceForm.get('price')?.errors?.['required']">Giá là bắt buộc</small>
-                      <small *ngIf="serviceForm.get('price')?.errors?.['min']">Giá phải lớn hơn hoặc bằng 0</small>
-                    </div>
-                  </div>
-  
-                  <div class="mb-3">
-                    <label for="serviceTypeID" class="form-label">Loại dịch vụ</label>
-                    <select class="form-select" id="serviceTypeID" formControlName="serviceTypeID">
-                      <option [value]="''">-- Chọn loại dịch vụ --</option>
-                      <option *ngFor="let type of serviceTypes" [value]="type.id">{{ type.serviceTypeName }}</option>
-                    </select>
-                  </div>
-                </div>
-                
-                <div class="col-md-6">
-                  <div class="mb-3">
-                    <label for="photo" class="form-label">Hình ảnh</label>
-                    <input type="file" class="form-control" id="photo" (change)="onFileSelected($event)" accept="image/*">
-                  </div>
-                  
-                  <div class="image-preview mt-3 text-center" *ngIf="imagePreview">
-                    <p>Xem trước:</p>
-                    <img [src]="imagePreview" alt="Preview" class="img-thumbnail" style="max-height: 200px;">
-                  </div>
-                </div>
-              </div>
-              
-              <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
-                <button type="submit" class="btn btn-primary" [disabled]="serviceForm.invalid">
-                  {{ isEditing ? 'Cập nhật' : 'Thêm mới' }}
+
+          <!-- Search and filters -->
+          <div class="row mb-4">
+            <div class="col-md-4">
+              <div class="input-group">
+                <input type="text" class="form-control" placeholder="Tìm kiếm theo tên hoặc mô tả..." [(ngModel)]="searchTerm">
+                <button class="btn btn-outline-secondary" type="button" (click)="search()">
+                  <i class="fas fa-search"></i>
                 </button>
               </div>
-            </form>
+            </div>
+            <div class="col-md-4 ms-auto">
+              <select [(ngModel)]="recordPerPage" (change)="onRecordsPerPageChange()" class="form-select">
+                <option [value]="10">10 bản ghi</option>
+                <option [value]="20">20 bản ghi</option>
+                <option [value]="50">50 bản ghi</option>
+                <option [value]="100">100 bản ghi</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Loading spinner -->
+          <div *ngIf="isLoading" class="text-center py-5">
+            <div class="spinner-border text-primary" role="status">
+              <span class="visually-hidden">Loading...</span>
+            </div>
+            <p class="mt-2">Đang tải dữ liệu...</p>
+          </div>
+
+          <!-- Table -->
+          <div class="table-responsive" *ngIf="!isLoading">
+            <table class="table table-hover">
+              <thead>
+                <tr>
+                  <th style="width: 50px">#</th>
+                  <th style="width: 150px">Hình ảnh</th>
+                  <th (click)="sort('serviceName')" style="cursor: pointer; width: 200px">
+                    Tên dịch vụ <i class="fas" [ngClass]="getSortIcon('serviceName')"></i>
+                  </th>
+                  <th style="width: 300px">Mô tả</th>
+                  <th (click)="sort('price')" style="cursor: pointer; width: 150px">
+                    Giá <i class="fas" [ngClass]="getSortIcon('price')"></i>
+                  </th>
+                  <th style="width: 150px">Loại dịch vụ</th>
+                  <th style="width: 150px">Thao tác</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let service of services; let i = index">
+                  <td>{{ (currentPage - 1) * recordPerPage + i + 1 }}</td>
+                  <td>
+                    <img [src]="service.imageUrl" alt="{{ service.serviceName }}" class="img-thumbnail" style="max-width: 100px; max-height: 60px" onerror="this.src='assets/images/placeholder.png'">
+                  </td>
+                  <td>{{ service.serviceName }}</td>
+                  <td>{{ service.description }}</td>
+                  <td>{{ service.price | number:'1.0-0' }} VNĐ</td>
+                  <td>
+                    {{ serviceTypes.find(t => t.id === service.serviceTypeID)?.serviceTypeName || 'Không xác định' }}
+                  </td>
+                  <td>
+                    <div class="btn-group">
+                      <button class="btn btn-outline-primary btn-sm" (click)="editService(service)">
+                        <i class="fas fa-edit me-1"></i>Sửa
+                      </button>
+                      <button class="btn btn-outline-danger btn-sm ms-1" (click)="deleteService(service.id)">
+                        <i class="fas fa-trash me-1"></i>Xóa
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+                <tr *ngIf="services.length === 0">
+                  <td colspan="7" class="text-center py-3">Không tìm thấy dịch vụ nào</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Pagination -->
+          <nav *ngIf="totalPages > 1" aria-label="Page navigation" class="d-flex justify-content-center mt-4">
+            <ul class="pagination">
+              <li class="page-item" [class.disabled]="currentPage === 1">
+                <a class="page-link" (click)="onPageChange(currentPage - 1)">Trước</a>
+              </li>
+              <li class="page-item" *ngFor="let page of pages" [class.active]="page === currentPage">
+                <a class="page-link" (click)="onPageChange(page)">{{ page }}</a>
+              </li>
+              <li class="page-item" [class.disabled]="currentPage === totalPages">
+                <a class="page-link" (click)="onPageChange(currentPage + 1)">Sau</a>
+              </li>
+            </ul>
+          </nav>
+
+          <!-- Page info -->
+          <div *ngIf="totalRecords > 0" class="text-center mt-2">
+            <small>Hiển thị {{ (currentPage - 1) * recordPerPage + 1 }} đến
+              {{ Math.min(currentPage * recordPerPage, totalRecords) }} của {{ totalRecords }} dịch vụ</small>
           </div>
         </div>
       </div>
     </div>
   </div>
+
+  <!-- Service Modal -->
+  <div class="modal fade" id="serviceModal" tabindex="-1" aria-labelledby="serviceModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="serviceModalLabel">
+            {{ isEditing ? 'Chỉnh sửa dịch vụ' : 'Thêm dịch vụ mới' }}
+          </h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form [formGroup]="serviceForm" (ngSubmit)="onSubmit()">
+            <div class="row">
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label for="serviceName" class="form-label">Tên dịch vụ <span class="text-danger">*</span></label>
+                  <input type="text" class="form-control" id="serviceName" formControlName="serviceName">
+                  <div class="text-danger" *ngIf="serviceForm.get('serviceName')?.invalid && serviceForm.get('serviceName')?.touched">
+                    <small *ngIf="serviceForm.get('serviceName')?.errors?.['required']">Tên dịch vụ là bắt buộc</small>
+                    <small *ngIf="serviceForm.get('serviceName')?.errors?.['maxlength']">Tên dịch vụ không được vượt quá 100 ký tự</small>
+                  </div>
+                </div>
+
+                <div class="mb-3">
+                  <label for="description" class="form-label">Mô tả</label>
+                  <textarea class="form-control" id="description" rows="3" formControlName="description"></textarea>
+                  <div class="text-danger" *ngIf="serviceForm.get('description')?.invalid && serviceForm.get('description')?.touched">
+                    <small *ngIf="serviceForm.get('description')?.errors?.['maxlength']">Mô tả không được vượt quá 500 ký tự</small>
+                  </div>
+                </div>
+
+                <div class="mb-3">
+                  <label for="price" class="form-label">Giá <span class="text-danger">*</span></label>
+                  <input type="number" class="form-control" id="price" formControlName="price">
+                  <div class="text-danger" *ngIf="serviceForm.get('price')?.invalid && serviceForm.get('price')?.touched">
+                    <small *ngIf="serviceForm.get('price')?.errors?.['required']">Giá là bắt buộc</small>
+                    <small *ngIf="serviceForm.get('price')?.errors?.['min']">Giá phải lớn hơn hoặc bằng 0</small>
+                  </div>
+                </div>
+
+                <div class="mb-3">
+                  <label for="serviceTypeID" class="form-label">Loại dịch vụ</label>
+                  <select class="form-select" id="serviceTypeID" formControlName="serviceTypeID">
+                    <option [value]="''">-- Chọn loại dịch vụ --</option>
+                    <option *ngFor="let type of serviceTypes" [value]="type.id">{{ type.serviceTypeName }}</option>
+                  </select>
+                </div>
+              </div>
+              
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label for="photo" class="form-label">Hình ảnh</label>
+                  <input type="file" class="form-control" id="photo" (change)="onFileSelected($event)" accept="image/*">
+                </div>
+                
+                <div class="image-preview mt-3 text-center" *ngIf="imagePreview">
+                  <p>Xem trước:</p>
+                  <img [src]="imagePreview" alt="Preview" class="img-thumbnail" style="max-height: 200px;">
+                </div>
+              </div>
+            </div>
+            
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+              <button type="submit" class="btn btn-primary" [disabled]="serviceForm.invalid">
+                {{ isEditing ? 'Cập nhật' : 'Thêm mới' }}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -2,8 +2,10 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ServiceManagementService } from '../services/service-management.service';
-import { Service } from '../models/service.model';
+import { Service } from '../../model/service.model';
 import Swal from 'sweetalert2';
+
+declare var bootstrap: any;
 
 @Component({
   selector: 'app-service-management',
@@ -175,7 +177,7 @@ export class ServiceManagementComponent implements OnInit {
     if (this.isEditing) {
       this.serviceManagementService.updateService(serviceData)
         .subscribe({
-          next: (response) => {
+          next: (response: any) => {
             if (response.responseCode === 200) {
               Swal.fire({
                 title: 'Thành công!',
@@ -194,7 +196,7 @@ export class ServiceManagementComponent implements OnInit {
               });
             }
           },
-          error: (error) => {
+          error: (error: any) => {
             Swal.fire({
               title: 'Lỗi!',
               text: 'Không thể cập nhật dịch vụ',
@@ -206,7 +208,7 @@ export class ServiceManagementComponent implements OnInit {
     } else {
       this.serviceManagementService.createService(serviceData)
         .subscribe({
-          next: (response) => {
+          next: (response: any) => {
             if (response.responseCode === 200) {
               Swal.fire({
                 title: 'Thành công!',
@@ -225,7 +227,7 @@ export class ServiceManagementComponent implements OnInit {
               });
             }
           },
-          error: (error) => {
+          error: (error: any) => {
             Swal.fire({
               title: 'Lỗi!',
               text: 'Không thể thêm dịch vụ mới',
@@ -251,7 +253,7 @@ export class ServiceManagementComponent implements OnInit {
       if (result.isConfirmed) {
         this.serviceManagementService.deleteService(id)
           .subscribe({
-            next: (response) => {
+            next: (response: any) => {
               if (response.responseCode === 200) {
                 Swal.fire(
                   'Đã xóa!',
@@ -267,7 +269,7 @@ export class ServiceManagementComponent implements OnInit {
                 );
               }
             },
-            error: (error) => {
+            error: (error: any) => {
               Swal.fire(
                 'Lỗi!',
                 'Không thể xóa dịch vụ',
@@ -279,13 +281,15 @@ export class ServiceManagementComponent implements OnInit {
     });
   }
 
-    closeModal() {
-      const modalElement = document.getElementById('addMovieModal');
-      if (modalElement) {
-        const modal = new (window as any).bootstrap.Modal(modalElement);
-        modal.hide();
+  closeModal(): void {
+    const modalElement = document.getElementById('serviceModal');
+    if (modalElement) {
+      const modalInstance = bootstrap.Modal.getInstance(modalElement);
+      if (modalInstance) {
+        modalInstance.hide();
       }
     }
+  }
 
   search(): void {
     if (this.searchTerm.trim() === '') {

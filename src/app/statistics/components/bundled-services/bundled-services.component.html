@@ -1,384 +1,205 @@
-<div class="row">
-    <div class="col-12 grid-margin stretch-card">
-        <div class="card">
-            <div class="card-body">
-                <h4 class="card-title">Thống kê dịch vụ gói</h4>
-                <p class="card-description">
-                    Biểu đồ và phân tích dịch vụ gói
-                </p>
-                <div class="chart-container" style="position: relative; height:60vh; width:100%">
-                    <!-- Placeholder for chart -->
-                    <div class="text-center p-5 mt-5">
-                        <i class="mdi mdi-chart-bar text-primary" style="font-size: 100px;"></i>
-                        <h4 class="mt-3">Biểu đồ thống kê đang được phát triển</h4>
-                        <p>Chức năng này sẽ hiển thị dữ liệu thống kê về dịch vụ gói.</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+<!-- Thanh điều khiển thời gian -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h2 class="h4 mb-0">Thống kê dịch vụ đi kèm</h2>
+  <div class="btn-group">
+    <button class="btn" [ngClass]="timeRangeFilter === 'today' ? 'btn-primary' : 'btn-outline-primary'" (click)="applyTimeRange('today')">Hôm nay</button>
+    <button class="btn" [ngClass]="timeRangeFilter === 'thisWeek' ? 'btn-primary' : 'btn-outline-primary'" (click)="applyTimeRange('thisWeek')">Tuần này</button>
+    <button class="btn" [ngClass]="timeRangeFilter === 'thisMonth' ? 'btn-primary' : 'btn-outline-primary'" (click)="applyTimeRange('thisMonth')">Tháng này</button>
+    <button class="btn" [ngClass]="timeRangeFilter === 'thisYear' ? 'btn-primary' : 'btn-outline-primary'" (click)="applyTimeRange('thisYear')">Năm nay</button>
+  </div>
 </div>
 
-<div class="row">
-    <!-- Thống kê tổng quan -->
-    <div class="col-xl-3 col-sm-6 grid-margin stretch-card">
-        <div class="card">
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-9">
-                        <div class="d-flex align-items-center">
-                            <h4 class="card-title mb-1">Tổng dịch vụ</h4>
-                            <div class="badge badge-success ml-2">+10%</div>
-                        </div>
-                        <h3 class="mb-0 text-success">7,265 <small>₫</small></h3>
-                    </div>
-                    <div class="col-3">
-                        <div class="icon icon-box-success">
-                            <span class="mdi mdi-package-variant mdi-36px"></span>
-                        </div>
-                    </div>
-                </div>
-            </div>
+<!-- Thẻ thống kê tổng quan -->
+<div class="row mb-4">
+  <div class="col-md-6">
+    <div class="card shadow-sm border-0 mb-3" style="background: linear-gradient(to right, #4facfe, #00f2fe); border-radius: 15px;">
+      <div class="card-body text-white">
+        <div class="d-flex align-items-center">
+          <i class="mdi mdi-package-variant-closed mdi-24px mr-3"></i>
+          <div>
+            <h5 class="card-title mb-0">Tổng số dịch vụ đã bán</h5>
+            <h3 class="font-weight-bold">{{ totalServicesCount | number }}</h3>
+          </div>
         </div>
+      </div>
     </div>
-    <div class="col-xl-3 col-sm-6 grid-margin stretch-card">
-        <div class="card">
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-9">
-                        <div class="d-flex align-items-center">
-                            <h4 class="card-title mb-1">Dịch vụ hàng đầu</h4>
-                            <div class="badge badge-info ml-2">+8.3%</div>
-                        </div>
-                        <h3 class="mb-0">7,265 <small>₫</small></h3>
-                    </div>
-                    <div class="col-3">
-                        <div class="icon icon-box-info">
-                            <span class="mdi mdi-food-fork-drink mdi-36px"></span>
-                        </div>
-                    </div>
-                </div>
-            </div>
+  </div>
+  <div class="col-md-6">
+    <div class="card shadow-sm border-0" style="background: linear-gradient(to right, #fa709a, #fee140); border-radius: 15px;">
+      <div class="card-body text-white">
+        <div class="d-flex align-items-center">
+          <i class="mdi mdi-cash-multiple mdi-24px mr-3"></i>
+          <div>
+            <h5 class="card-title mb-0">Tổng doanh thu dịch vụ</h5>
+            <h3 class="font-weight-bold">{{ formatCurrency(totalRevenue) }}</h3>
+          </div>
         </div>
+      </div>
     </div>
-    <div class="col-xl-3 col-sm-6 grid-margin stretch-card">
-        <div class="card">
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-9">
-                        <div class="d-flex align-items-center">
-                            <h4 class="card-title mb-1">Doanh thu dịch vụ</h4>
-                            <div class="badge badge-primary ml-2">+15.7%</div>
-                        </div>
-                        <h3 class="mb-0 text-primary">7,265 <small>₫</small></h3>
-                    </div>
-                    <div class="col-3">
-                        <div class="icon icon-box-primary">
-                            <span class="mdi mdi-currency-usd mdi-36px"></span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="col-xl-3 col-sm-6 grid-margin stretch-card">
-        <div class="card">
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-9">
-                        <div class="d-flex align-items-center">
-                            <h4 class="card-title mb-1">Lợi nhuận dịch vụ</h4>
-                            <div class="badge badge-danger ml-2">+5.9%</div>
-                        </div>
-                        <h3 class="mb-0 text-danger">7,265 <small>₫</small></h3>
-                    </div>
-                    <div class="col-3">
-                        <div class="icon icon-box-danger">
-                            <span class="mdi mdi-chart-line-variant mdi-36px"></span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Thống kê chi tiết hôm nay -->
-    <div class="col-12 grid-margin">
-        <div class="card">
-            <div class="card-body">
-                <h4 class="card-title">Thống kê hôm nay</h4>
-                <div class="row">
-                    <div class="col-md-4 mb-4 stretch-card transparent">
-                        <div class="card card-dark-blue">
-                            <div class="card-body">
-                                <p class="mb-2">Tổng dịch vụ bán ra</p>
-                                <div class="d-flex justify-content-between">
-                                    <h3 class="mb-0">7,265</h3>
-                                    <div class="badge badge-success">+11.05%</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-4 mb-4 stretch-card transparent">
-                        <div class="card card-light-blue">
-                            <div class="card-body">
-                                <p class="mb-2">Tổng khách hàng mua</p>
-                                <div class="d-flex justify-content-between">
-                                    <h3 class="mb-0">3,671</h3>
-                                    <div class="badge badge-success">+22.15%</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-4 mb-4 stretch-card transparent">
-                        <div class="card card-tale">
-                            <div class="card-body">
-                                <p class="mb-2">Lượt mua dịch vụ</p>
-                                <div class="d-flex justify-content-between">
-                                    <h3 class="mb-0">2,318</h3>
-                                    <div class="badge badge-info">+9.12%</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Biểu đồ đường theo thời gian -->
-    <div class="col-12 grid-margin stretch-card">
-        <div class="card">
-            <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center">
-                    <h4 class="card-title">Tổng quan doanh thu dịch vụ</h4>
-                    <div class="dropdown">
-                        <button class="btn btn-outline-primary dropdown-toggle" type="button" id="timeRange"
-                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            Tuần này
-                        </button>
-                        <div class="dropdown-menu" aria-labelledby="timeRange">
-                            <a class="dropdown-item" href="#">Hôm nay</a>
-                            <a class="dropdown-item" href="#">Tuần này</a>
-                            <a class="dropdown-item" href="#">Tháng này</a>
-                            <a class="dropdown-item" href="#">Năm nay</a>
-                        </div>
-                    </div>
-                </div>
-                <div class="chart-container" style="position: relative; height:400px; width:100%">
-                    <!-- Placeholder for chart -->
-                    <div
-                        style="width: 100%; height: 100%; background-image: url('data:image/svg+xml;utf8,<svg xmlns=&quot;http://www.w3.org/2000/svg&quot; viewBox=&quot;0 0 1000 300&quot;><path d=&quot;M0,150 C100,100 200,200 300,150 C400,90 500,250 600,150 C700,90 800,180 900,120 C950,90 1000,150 1000,150&quot; fill=&quot;none&quot; stroke=&quot;%230090e7&quot; stroke-width=&quot;3&quot;/><path d=&quot;M0,150 C100,100 200,200 300,150 C400,90 500,250 600,150 C700,90 800,180 900,120 C950,90 1000,150 1000,150 V300 H0 Z&quot; fill=&quot;rgba(0,144,231,0.1)&quot; stroke=&quot;none&quot;/></svg>'); background-size: cover; background-position: center;">
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Biểu đồ cột theo dịch vụ -->
-    <div class="col-md-6 grid-margin stretch-card">
-        <div class="card">
-            <div class="card-body">
-                <h4 class="card-title">Mua và hủy dịch vụ theo tháng</h4>
-                <div class="chart-container" style="position: relative; height:300px; width:100%">
-                    <!-- Placeholder for chart -->
-                    <div
-                        style="width: 100%; height: 100%; background-image: url('data:image/svg+xml;utf8,<svg xmlns=&quot;http://www.w3.org/2000/svg&quot; viewBox=&quot;0 0 500 300&quot;><rect x=&quot;10&quot; y=&quot;150&quot; width=&quot;30&quot; height=&quot;150&quot; fill=&quot;%230090e7&quot;/><rect x=&quot;50&quot; y=&quot;100&quot; width=&quot;30&quot; height=&quot;200&quot; fill=&quot;%236B7280&quot;/><rect x=&quot;90&quot; y=&quot;180&quot; width=&quot;30&quot; height=&quot;120&quot; fill=&quot;%230090e7&quot;/><rect x=&quot;130&quot; y=&quot;80&quot; width=&quot;30&quot; height=&quot;220&quot; fill=&quot;%236B7280&quot;/><rect x=&quot;170&quot; y=&quot;130&quot; width=&quot;30&quot; height=&quot;170&quot; fill=&quot;%230090e7&quot;/><rect x=&quot;210&quot; y=&quot;90&quot; width=&quot;30&quot; height=&quot;210&quot; fill=&quot;%236B7280&quot;/><rect x=&quot;250&quot; y=&quot;160&quot; width=&quot;30&quot; height=&quot;140&quot; fill=&quot;%230090e7&quot;/><rect x=&quot;290&quot; y=&quot;120&quot; width=&quot;30&quot; height=&quot;180&quot; fill=&quot;%236B7280&quot;/><rect x=&quot;330&quot; y=&quot;140&quot; width=&quot;30&quot; height=&quot;160&quot; fill=&quot;%230090e7&quot;/><rect x=&quot;370&quot; y=&quot;100&quot; width=&quot;30&quot; height=&quot;200&quot; fill=&quot;%236B7280&quot;/><rect x=&quot;410&quot; y=&quot;190&quot; width=&quot;30&quot; height=&quot;110&quot; fill=&quot;%230090e7&quot;/><rect x=&quot;450&quot; y=&quot;140&quot; width=&quot;30&quot; height=&quot;160&quot; fill=&quot;%236B7280&quot;/></svg>'); background-size: cover; background-position: center;">
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Biểu đồ tròn phân phối dịch vụ -->
-    <div class="col-md-6 grid-margin stretch-card">
-        <div class="card">
-            <div class="card-body">
-                <h4 class="card-title">Phân phối dịch vụ theo nhà cung cấp</h4>
-                <div class="row">
-                    <div class="col-md-6">
-                        <div class="chart-container" style="position: relative; height:230px; width:100%">
-                            <!-- Placeholder for chart -->
-                            <div
-                                style="width: 100%; height: 100%; background-image: url('data:image/svg+xml;utf8,<svg xmlns=&quot;http://www.w3.org/2000/svg&quot; viewBox=&quot;0 0 200 200&quot;><path d=&quot;M100,100 L100,0 A100,100 0 0,1 180,140 z&quot; fill=&quot;%230090e7&quot;/><path d=&quot;M100,100 L180,140 A100,100 0 0,1 40,180 z&quot; fill=&quot;%2364748b&quot;/><path d=&quot;M100,100 L40,180 A100,100 0 0,1 0,60 z&quot; fill=&quot;%2334d399&quot;/><path d=&quot;M100,100 L0,60 A100,100 0 0,1 100,0 z&quot; fill=&quot;%23d97706&quot;/></svg>'); background-size: cover; background-position: center;">
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="mt-4">
-                            <div class="d-flex justify-content-between mb-2">
-                                <div class="d-flex align-items-center"><span class="dot bg-primary mr-2"></span>
-                                    <span>Nhà cung cấp A</span>
-                                </div>
-                                <span>39.8%</span>
-                            </div>
-                            <div class="d-flex justify-content-between mb-2">
-                                <div class="d-flex align-items-center"><span class="dot bg-secondary mr-2"></span>
-                                    <span>Nhà cung cấp B</span>
-                                </div>
-                                <span>30.5%</span>
-                            </div>
-                            <div class="d-flex justify-content-between mb-2">
-                                <div class="d-flex align-items-center"><span class="dot bg-success mr-2"></span>
-                                    <span>Nhà cung cấp C</span>
-                                </div>
-                                <span>23.8%</span>
-                            </div>
-                            <div class="d-flex justify-content-between">
-                                <div class="d-flex align-items-center"><span class="dot bg-warning mr-2"></span>
-                                    <span>Khác</span>
-                                </div>
-                                <span>5.9%</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Biểu đồ cột theo danh mục dịch vụ -->
-    <div class="col-12 grid-margin stretch-card">
-        <div class="card">
-            <div class="card-body">
-                <h4 class="card-title">Thống kê theo danh mục dịch vụ</h4>
-                <div class="row">
-                    <div class="col-md-7">
-                        <div class="chart-container" style="position: relative; height:300px; width:100%">
-                            <!-- Placeholder for chart -->
-                            <div
-                                style="width: 100%; height: 100%; background-image: url('data:image/svg+xml;utf8,<svg xmlns=&quot;http://www.w3.org/2000/svg&quot; viewBox=&quot;0 0 500 300&quot;><rect x=&quot;50&quot; y=&quot;80&quot; width=&quot;40&quot; height=&quot;220&quot; fill=&quot;%230090e7&quot;/><rect x=&quot;150&quot; y=&quot;150&quot; width=&quot;40&quot; height=&quot;150&quot; fill=&quot;%2334d399&quot;/><rect x=&quot;250&quot; y=&quot;100&quot; width=&quot;40&quot; height=&quot;200&quot; fill=&quot;%230090e7&quot;/><rect x=&quot;350&quot; y=&quot;200&quot; width=&quot;40&quot; height=&quot;100&quot; fill=&quot;%2334d399&quot;/></svg>'); background-size: cover; background-position: center;">
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-5">
-                        <div class="mt-4">
-                            <div class="provider-list">
-                                <div class="provider-item mb-3">
-                                    <div class="provider-name">Gói bắp nước</div>
-                                    <div class="progress">
-                                        <div class="progress-bar bg-primary" role="progressbar" style="width: 85%"
-                                            aria-valuenow="85" aria-valuemin="0" aria-valuemax="100"></div>
-                                    </div>
-                                </div>
-                                <div class="provider-item mb-3">
-                                    <div class="provider-name">Gói VIP</div>
-                                    <div class="progress">
-                                        <div class="progress-bar bg-success" role="progressbar" style="width: 65%"
-                                            aria-valuenow="65" aria-valuemin="0" aria-valuemax="100"></div>
-                                    </div>
-                                </div>
-                                <div class="provider-item mb-3">
-                                    <div class="provider-name">Gói đôi</div>
-                                    <div class="progress">
-                                        <div class="progress-bar bg-info" role="progressbar" style="width: 45%"
-                                            aria-valuenow="45" aria-valuemin="0" aria-valuemax="100"></div>
-                                    </div>
-                                </div>
-                                <div class="provider-item mb-3">
-                                    <div class="provider-name">Gói sinh nhật</div>
-                                    <div class="progress">
-                                        <div class="progress-bar bg-warning" role="progressbar" style="width: 30%"
-                                            aria-valuenow="30" aria-valuemin="0" aria-valuemax="100"></div>
-                                    </div>
-                                </div>
-                                <div class="provider-item">
-                                    <div class="provider-name">Khác</div>
-                                    <div class="progress">
-                                        <div class="progress-bar bg-danger" role="progressbar" style="width: 15%"
-                                            aria-valuenow="15" aria-valuemin="0" aria-valuemax="100"></div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+  </div>
 </div>
 
-<style>
-    .icon-box-success,
-    .icon-box-info,
-    .icon-box-primary,
-    .icon-box-danger {
-        width: 55px;
-        height: 55px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 50%;
-    }
+<!-- Hiển thị trạng thái đang tải -->
+<div *ngIf="isLoading" class="text-center my-5">
+  <div class="spinner-border text-primary" role="status">
+    <span class="sr-only">Đang tải...</span>
+  </div>
+  <p class="mt-2">Đang tải dữ liệu...</p>
+</div>
 
-    .icon-box-success {
-        background: rgba(0, 210, 91, 0.2);
-        color: #00d25b;
-    }
+<!-- Hiển thị lỗi API (chỉ trong môi trường dev) -->
+<div *ngIf="apiError" class="alert alert-danger mb-4">
+  <h5>Lỗi kết nối API</h5>
+  <p><strong>URL:</strong> {{ apiError.url }}</p>
+  <p><strong>Status:</strong> {{ apiError.status }} {{ apiError.statusText }}</p>
+  <p><strong>Message:</strong> {{ apiError.message || 'Không có thông báo lỗi' }}</p>
+  <button class="btn btn-sm btn-outline-danger mt-2" (click)="apiError = null">Đóng</button>
+</div>
 
-    .icon-box-info {
-        background: rgba(0, 186, 233, 0.2);
-        color: #00bae9;
-    }
+<!-- Không có dữ liệu -->
+<div *ngIf="!isLoading && topServices.length === 0" class="alert alert-info">
+  <p class="mb-0">Không có dữ liệu dịch vụ để hiển thị trong khoảng thời gian đã chọn.</p>
+</div>
 
-    .icon-box-primary {
-        background: rgba(0, 144, 231, 0.2);
-        color: #0090e7;
-    }
+<!-- Nội dung thống kê -->
+<div *ngIf="!isLoading && topServices.length > 0">
+  <!-- Hàng 1: Biểu đồ và danh sách -->
+  <div class="row mb-4">
+    <!-- Top dịch vụ bán chạy -->
+    <div class="col-md-6 mb-4">
+      <div class="card shadow-sm h-100" style="border-radius: 15px;">
+        <div class="card-header bg-transparent border-0">
+          <div class="d-flex align-items-center">
+            <i class="mdi mdi-star-circle mdi-24px text-warning mr-2"></i>
+            <h5 class="mb-0">Top dịch vụ bán chạy</h5>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="chart-container" style="height: 280px;">
+            <div *ngFor="let service of topServices; let i = index" class="mb-3">
+              <div class="d-flex justify-content-between mb-1">
+                <span class="font-weight-medium">{{ i+1 }}. {{ service.serviceName }}</span>
+                <span class="font-weight-bold">{{ service.totalSold | number }}</span>
+              </div>
+              <div class="progress" style="height: 8px;">
+                <div class="progress-bar" role="progressbar" [style.width.%]="(service.totalSold / topServices[0].totalSold * 100)" [ngClass]="'bg-info'"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
 
-    .icon-box-danger {
-        background: rgba(255, 76, 65, 0.2);
-        color: #ff4c41;
-    }
+    <!-- Doanh thu từng dịch vụ -->
+    <div class="col-md-6 mb-4">
+      <div class="card shadow-sm h-100" style="border-radius: 15px;">
+        <div class="card-header bg-transparent border-0">
+          <div class="d-flex align-items-center">
+            <i class="mdi mdi-chart-areaspline mdi-24px text-success mr-2"></i>
+            <h5 class="mb-0">Doanh thu dịch vụ</h5>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="chart-container" style="height: 280px;">
+            <div *ngFor="let service of topServices; let i = index" class="mb-3">
+              <div class="d-flex justify-content-between mb-1">
+                <span class="font-weight-medium">{{ i+1 }}. {{ service.serviceName }}</span>
+                <span class="font-weight-bold">{{ formatCurrency(service.totalRevenue) }}</span>
+              </div>
+              <div class="progress" style="height: 8px;">
+                <div class="progress-bar" role="progressbar" [style.width.%]="(service.totalRevenue / topServices[0].totalRevenue * 100)" [ngClass]="'bg-success'"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 
-    .card-dark-blue {
-        background: #1E283D;
-        color: white;
-    }
+  <!-- Hàng 2: Các biểu đồ trực quan -->
+  <div class="row">
+    <!-- Biểu đồ tròn - Phân phối doanh thu -->
+    <div class="col-md-6 mb-4">
+      <div class="card shadow-sm h-100" style="border-radius: 15px;">
+        <div class="card-header bg-transparent border-0">
+          <div class="d-flex align-items-center">
+            <i class="mdi mdi-chart-pie mdi-24px text-primary mr-2"></i>
+            <h5 class="mb-0">Phân phối doanh thu theo dịch vụ</h5>
+          </div>
+        </div>
+        <div class="card-body">
+          <div id="pieChart">
+            <apx-chart
+              [series]="pieChartOptions.series!"
+              [chart]="pieChartOptions.chart!"
+              [labels]="pieChartOptions.labels!"
+              [responsive]="pieChartOptions.responsive!"
+              [colors]="pieChartOptions.colors!"
+              [dataLabels]="pieChartOptions.dataLabels!"
+              [legend]="pieChartOptions.legend!"
+            ></apx-chart>
+          </div>
+        </div>
+      </div>
+    </div>
 
-    .card-light-blue {
-        background: #1F3BB3;
-        color: white;
-    }
+    <!-- So sánh số lượng bán và doanh thu -->
+    <div class="col-md-6 mb-4">
+      <div class="card shadow-sm h-100" style="border-radius: 15px;">
+        <div class="card-header bg-transparent border-0">
+          <div class="d-flex align-items-center">
+            <i class="mdi mdi-chart-bar mdi-24px text-info mr-2"></i>
+            <h5 class="mb-0">So sánh số lượng bán và doanh thu</h5>
+          </div>
+        </div>
+        <div class="card-body">
+          <div id="barChart">
+            <apx-chart
+              [series]="barChartOptions.series!"
+              [chart]="barChartOptions.chart!"
+              [xaxis]="barChartOptions.xaxis!"
+              [yaxis]="barChartOptions.yaxis!"
+              [dataLabels]="barChartOptions.dataLabels!"
+              [grid]="barChartOptions.grid!"
+              [legend]="barChartOptions.legend!"
+              [colors]="barChartOptions.colors!"
+              [tooltip]="barChartOptions.tooltip!"
+              [plotOptions]="barChartOptions.plotOptions!"
+            ></apx-chart>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 
-    .card-tale {
-        background: #7978E9;
-        color: white;
-    }
-
-    .dot {
-        height: 14px;
-        width: 14px;
-        border-radius: 50%;
-        display: inline-block;
-    }
-
-    .bg-primary {
-        background-color: #0090e7 !important;
-    }
-
-    .bg-secondary {
-        background-color: #64748b !important;
-    }
-
-    .bg-success {
-        background-color: #34d399 !important;
-    }
-
-    .bg-warning {
-        background-color: #d97706 !important;
-    }
-
-    .provider-item {
-        margin-bottom: 1rem;
-    }
-
-    .provider-name {
-        margin-bottom: 0.5rem;
-    }
-
-    .progress {
-        height: 6px;
-        border-radius: 3px;
-    }
-</style>
+  <!-- Hàng 3: Biểu đồ đường - Doanh thu theo thời gian -->
+  <div class="row" *ngIf="!isLoading && topServices.length > 0">
+    <div class="col-12 mb-4">
+      <div class="card shadow-sm h-100" style="border-radius: 15px;">
+        <div class="card-header bg-transparent border-0">
+          <div class="d-flex align-items-center">
+            <i class="mdi mdi-chart-line mdi-24px text-purple mr-2"></i>
+            <h5 class="mb-0">Biểu đồ doanh thu theo thời gian</h5>
+          </div>
+        </div>
+        <div class="card-body">
+          <div id="lineChart">
+            <apx-chart
+              [series]="lineChartOptions.series!"
+              [chart]="lineChartOptions.chart!"
+              [xaxis]="lineChartOptions.xaxis!"
+              [yaxis]="lineChartOptions.yaxis!"
+              [dataLabels]="lineChartOptions.dataLabels!"
+              [grid]="lineChartOptions.grid!"
+              [colors]="lineChartOptions.colors!"
+              [stroke]="lineChartOptions.stroke!"
+              [markers]="lineChartOptions.markers!"
+              [tooltip]="lineChartOptions.tooltip!"
+              [legend]="lineChartOptions.legend!"
+            ></apx-chart>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div> 

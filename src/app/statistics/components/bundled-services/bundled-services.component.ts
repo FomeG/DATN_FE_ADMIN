@@ -8,6 +8,8 @@ import {
 } from "ng-apexcharts";
 import { NgApexchartsModule } from "ng-apexcharts";
 import { StatisticService, StatisticTopServicesRes } from '../../../services/statistic.service';
+import * as XLSX from 'xlsx';
+import * as FileSaver from 'file-saver';
 
 // Cấu hình biểu đồ tròn
 export type PieChartOptions = {
@@ -569,5 +571,145 @@ export class BundledServicesComponent implements OnInit {
    */
   formatMillions(value: number): string {
     return (value / 1000000).toFixed(1) + ' tr';
+  }
+
+  /**
+   * Export dữ liệu ra Excel
+   */
+  exportToExcel(type: string): void {
+    this.isLoading = true;
+    
+    try {
+      let data: any[] = [];
+      let fileName = '';
+      let sheetName = '';
+      
+      // Dữ liệu và tên file khác nhau tùy loại export
+      switch (type) {
+        case 'topServices':
+          data = this.topServices.map(service => ({
+            'Tên dịch vụ': service.serviceName,
+            'Số lượng bán': service.totalSold,
+            'Doanh thu': service.totalRevenue,
+            'Doanh thu (VND)': this.formatCurrency(service.totalRevenue)
+          }));
+          fileName = 'Top_Dich_Vu_' + this.getFormattedDateForFileName();
+          sheetName = 'Top dịch vụ';
+          break;
+          
+        case 'revenueByTime':
+          if (this.lineChartOptions.xaxis?.categories && this.lineChartOptions.series?.[0]?.data) {
+            const categories = this.lineChartOptions.xaxis.categories as string[];
+            const revenueData = this.lineChartOptions.series[0].data as number[];
+            
+            data = categories.map((date, index) => ({
+              'Thời gian': date,
+              'Doanh thu': revenueData[index],
+              'Doanh thu (VND)': this.formatCurrency(revenueData[index])
+            }));
+          }
+          fileName = 'Doanh_Thu_Theo_Thoi_Gian_' + this.getFormattedDateForFileName();
+          sheetName = 'Doanh thu theo thời gian';
+          break;
+          
+        case 'all':
+          // Sheet 1: Top dịch vụ
+          const topServicesData = this.topServices.map(service => ({
+            'Tên dịch vụ': service.serviceName,
+            'Số lượng bán': service.totalSold,
+            'Doanh thu': service.totalRevenue,
+            'Doanh thu (VND)': this.formatCurrency(service.totalRevenue)
+          }));
+          
+          // Sheet 2: Doanh thu theo thời gian
+          let revenueByTimeData: any[] = [];
+          if (this.lineChartOptions.xaxis?.categories && this.lineChartOptions.series?.[0]?.data) {
+            const categories = this.lineChartOptions.xaxis.categories as string[];
+            const revenueData = this.lineChartOptions.series[0].data as number[];
+            
+            revenueByTimeData = categories.map((date, index) => ({
+              'Thời gian': date,
+              'Doanh thu': revenueData[index],
+              'Doanh thu (VND)': this.formatCurrency(revenueData[index])
+            }));
+          }
+          
+          // Sheet 3: Tổng quan
+          const overviewData = [{
+            'Tổng số dịch vụ đã bán': this.totalServicesCount,
+            'Tổng doanh thu': this.totalRevenue,
+            'Tổng doanh thu (VND)': this.formatCurrency(this.totalRevenue),
+            'Khoảng thời gian': this.getDateRangeString(),
+          }];
+          
+          // Tạo Workbook với nhiều sheet
+          const workbook = XLSX.utils.book_new();
+          
+          // Thêm từng sheet vào workbook
+          const topServicesSheet = XLSX.utils.json_to_sheet(topServicesData);
+          XLSX.utils.book_append_sheet(workbook, topServicesSheet, 'Top dịch vụ');
+          
+          const revenueByTimeSheet = XLSX.utils.json_to_sheet(revenueByTimeData);
+          XLSX.utils.book_append_sheet(workbook, revenueByTimeSheet, 'Doanh thu theo thời gian');
+          
+          const overviewSheet = XLSX.utils.json_to_sheet(overviewData);
+          XLSX.utils.book_append_sheet(workbook, overviewSheet, 'Tổng quan');
+          
+          // Xuất file Excel
+          const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
+          const blob = new Blob([excelBuffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+          
+          fileName = 'Bao_Cao_Thong_Ke_Dich_Vu_' + this.getFormattedDateForFileName();
+          FileSaver.saveAs(blob, fileName + '.xlsx');
+          
+          this.isLoading = false;
+          return;
+      }
+      
+      // Trường hợp xuất 1 sheet
+      if (data.length > 0) {
+        const worksheet = XLSX.utils.json_to_sheet(data);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, sheetName);
+        
+        // Xuất file Excel
+        const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
+        const blob = new Blob([excelBuffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+        FileSaver.saveAs(blob, fileName + '.xlsx');
+      }
+    } catch (error) {
+      console.error('Lỗi khi xuất Excel:', error);
+    }
+    
+    this.isLoading = false;
+  }
+  
+  /**
+   * Lấy định dạng ngày cho tên file
+   */
+  private getFormattedDateForFileName(): string {
+    const now = new Date();
+    const day = String(now.getDate()).padStart(2, '0');
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const year = now.getFullYear();
+    return day + '_' + month + '_' + year;
+  }
+  
+  /**
+   * Lấy chuỗi khoảng thời gian hiển thị
+   */
+  private getDateRangeString(): string {
+    if (!this.startDate || !this.endDate) {
+      return 'Tất cả thời gian';
+    }
+    
+    const formatDate = (date: Date) => {
+      const day = String(date.getDate()).padStart(2, '0');
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const year = date.getFullYear();
+      return `${day}/${month}/${year}`;
+    };
+    
+    return `${formatDate(this.startDate)} - ${formatDate(this.endDate)}`;
   }
 }

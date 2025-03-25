@@ -1,0 +1,67 @@
+/* Chart containers */
+.chart-container {
+  min-height: 350px;
+  margin-bottom: 20px;
+  position: relative;
+}
+
+/* Colors */
+.text-danger {
+  color: #f62d51 !important;
+}
+
+.text-success {
+  color: #39c449 !important;
+}
+
+.text-primary {
+  color: #4d84fe !important;
+}
+
+/* Ensure apexcharts take full width and height */
+.apexcharts-canvas {
+  width: 100% !important;
+}
+
+/* Card border styles */
+.border-left-primary {
+  border-left: 4px solid #4d84fe;
+}
+
+.border-left-success {
+  border-left: 4px solid #39c449;
+}
+
+.border-left-info {
+  border-left: 4px solid #2196f3;
+}
+
+.border-left-warning {
+  border-left: 4px solid #fec107;
+}
+
+/* Custom Card Styles */
+.card.shadow {
+  box-shadow: 0 .15rem 1.75rem 0 rgba(58,59,69,.15)!important;
+}
+
+.card-header.py-3 {
+  padding-top: 1rem !important;
+  padding-bottom: 1rem !important;
+}
+
+/* Fix for Safari browser */
+@media not all and (min-resolution:.001dpcm) { 
+  @supports (-webkit-appearance:none) {
+    .card {
+      overflow: visible;
+    }
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 767.98px) {
+  .chart-container {
+    min-height: 300px;
+  }
+}

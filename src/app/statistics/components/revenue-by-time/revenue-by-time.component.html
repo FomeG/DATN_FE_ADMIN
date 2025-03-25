@@ -2,17 +2,235 @@
   <div class="col-12 grid-margin stretch-card">
     <div class="card">
       <div class="card-body">
-        <h4 class="card-title">Thống kê doanh thu theo thời gian</h4>
-        <p class="card-description">
-          Biểu đồ và phân tích doanh thu theo thời gian (ngày, tuần, tháng, năm)
-        </p>
-        <div class="chart-container" style="position: relative; height:60vh; width:100%">
-          <!-- Placeholder for chart -->
-          <div class="text-center p-5 mt-5">
-            <i class="mdi mdi-calendar-clock text-primary" style="font-size: 100px;"></i>
-            <h4 class="mt-3">Biểu đồ thống kê đang được phát triển</h4>
-            <p>Chức năng này sẽ hiển thị dữ liệu thống kê doanh thu theo thời gian.</p>
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <div>
+            <h4 class="card-title mb-0">Thống kê doanh thu theo thời gian</h4>
+            <p class="card-description">
+              Phân tích doanh thu theo thời gian (ngày, tuần, tháng, năm)
+            </p>
           </div>
+          
+          <!-- Filter & Export Buttons -->
+          <div class="d-flex align-items-center">
+            <!-- Time Type Filter -->
+            <div class="btn-group mr-3" role="group">
+              <button type="button" class="btn btn-sm" [ngClass]="timeTypeFilter === 'day' ? 'btn-primary' : 'btn-outline-primary'" 
+                (click)="applyTimeType('day')">Theo ngày</button>
+              <button type="button" class="btn btn-sm" [ngClass]="timeTypeFilter === 'week' ? 'btn-primary' : 'btn-outline-primary'" 
+                (click)="applyTimeType('week')">Theo tuần</button>
+              <button type="button" class="btn btn-sm" [ngClass]="timeTypeFilter === 'month' ? 'btn-primary' : 'btn-outline-primary'" 
+                (click)="applyTimeType('month')">Theo tháng</button>
+              <button type="button" class="btn btn-sm" [ngClass]="timeTypeFilter === 'year' ? 'btn-primary' : 'btn-outline-primary'" 
+                (click)="applyTimeType('year')">Theo năm</button>
+            </div>
+            
+            <!-- Time Range Filter -->
+            <div class="btn-group mr-3" role="group">
+              <button type="button" class="btn btn-sm" [ngClass]="timeRangeFilter === 'thisWeek' ? 'btn-info' : 'btn-outline-info'" 
+                (click)="applyTimeRange('thisWeek')">Tuần này</button>
+              <button type="button" class="btn btn-sm" [ngClass]="timeRangeFilter === 'thisMonth' ? 'btn-info' : 'btn-outline-info'" 
+                (click)="applyTimeRange('thisMonth')">Tháng này</button>
+              <button type="button" class="btn btn-sm" [ngClass]="timeRangeFilter === 'lastMonth' ? 'btn-info' : 'btn-outline-info'" 
+                (click)="applyTimeRange('lastMonth')">Tháng trước</button>
+              <button type="button" class="btn btn-sm" [ngClass]="timeRangeFilter === 'thisYear' ? 'btn-info' : 'btn-outline-info'" 
+                (click)="applyTimeRange('thisYear')">Năm nay</button>
+            </div>
+            
+            <!-- Export Button -->
+            <div class="dropdown">
+              <button class="btn btn-sm btn-outline-primary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <i class="mdi mdi-export mr-1"></i>Xuất báo cáo
+              </button>
+              <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                <a class="dropdown-item" href="javascript:void(0)" (click)="exportToExcel('all')">Xuất Excel</a>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Loading State -->
+        <div *ngIf="isLoading" class="text-center p-5">
+          <div class="spinner-border text-primary" role="status">
+            <span class="sr-only">Đang tải...</span>
+          </div>
+          <p class="mt-2">Đang tải dữ liệu thống kê...</p>
+        </div>
+        
+        <!-- Error State -->
+        <div *ngIf="!isLoading && apiError" class="text-center p-5">
+          <div class="alert alert-warning" role="alert">
+            <i class="mdi mdi-alert-circle-outline mr-2"></i>
+            Không thể tải dữ liệu từ API. Đang hiển thị dữ liệu mẫu.
+          </div>
+        </div>
+        
+        <!-- Data Display -->
+        <div *ngIf="!isLoading && timeData && timeData.length > 0">
+          <!-- Statistics Summary -->
+          <div class="row mb-4">
+            <!-- Date Range -->
+            <div class="col-md-3 col-sm-6 mb-4 mb-md-0">
+              <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                  <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                      <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Khoảng thời gian</div>
+                      <div class="h5 mb-0 font-weight-bold text-gray-800">{{getTimeRangeText()}}</div>
+                    </div>
+                    <div class="col-auto">
+                      <i class="mdi mdi-calendar-range text-gray-300" style="font-size: 32px;"></i>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Peak Date -->
+            <div class="col-md-3 col-sm-6 mb-4 mb-md-0">
+              <div class="card border-left-success shadow h-100 py-2">
+                <div class="card-body">
+                  <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                      <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Ngày có doanh thu cao nhất</div>
+                      <div class="h5 mb-0 font-weight-bold text-gray-800">{{peakDate}}</div>
+                    </div>
+                    <div class="col-auto">
+                      <i class="mdi mdi-trending-up text-gray-300" style="font-size: 32px;"></i>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Total Tickets -->
+            <div class="col-md-3 col-sm-6 mb-4 mb-md-0">
+              <div class="card border-left-info shadow h-100 py-2">
+                <div class="card-body">
+                  <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                      <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Tổng số vé</div>
+                      <div class="h5 mb-0 font-weight-bold text-gray-800">{{totalTickets | number}}</div>
+                    </div>
+                    <div class="col-auto">
+                      <i class="mdi mdi-ticket text-gray-300" style="font-size: 32px;"></i>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Total Revenue -->
+            <div class="col-md-3 col-sm-6 mb-4 mb-md-0">
+              <div class="card border-left-warning shadow h-100 py-2">
+                <div class="card-body">
+                  <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                      <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Tổng doanh thu</div>
+                      <div class="h5 mb-0 font-weight-bold text-gray-800">{{totalRevenue | number:'1.0-0'}} ₫</div>
+                    </div>
+                    <div class="col-auto">
+                      <i class="mdi mdi-cash-multiple text-gray-300" style="font-size: 32px;"></i>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Main Chart -->
+          <div class="card shadow mb-4">
+            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+              <h6 class="m-0 font-weight-bold text-primary">Biểu đồ doanh thu theo {{getTimeTypeName()}}</h6>
+            </div>
+            <div class="card-body">
+              <div class="chart-container">
+                <ng-apexcharts
+                  [series]="mainChartOptions.series!"
+                  [chart]="mainChartOptions.chart!"
+                  [xaxis]="mainChartOptions.xaxis!"
+                  [yaxis]="mainChartOptions.yaxis!"
+                  [dataLabels]="mainChartOptions.dataLabels!"
+                  [grid]="mainChartOptions.grid!"
+                  [stroke]="mainChartOptions.stroke!"
+                  [title]="mainChartOptions.title!"
+                  [colors]="mainChartOptions.colors!"
+                  [fill]="mainChartOptions.fill!"
+                  [tooltip]="mainChartOptions.tooltip!"
+                  ></ng-apexcharts>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Secondary Charts -->
+          <div class="row mb-4">
+            <!-- Revenue vs Tickets Chart -->
+            <div class="col-lg-12">
+              <div class="card shadow">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                  <h6 class="m-0 font-weight-bold text-primary">So sánh doanh thu và số vé bán theo {{getTimeTypeName()}}</h6>
+                </div>
+                <div class="card-body">
+                  <div class="chart-container">
+                    <ng-apexcharts
+                      [series]="mixedChartOptions.series!"
+                      [chart]="mixedChartOptions.chart!"
+                      [xaxis]="mixedChartOptions.xaxis!"
+                      [yaxis]="mixedChartOptions.yaxis!"
+                      [dataLabels]="mixedChartOptions.dataLabels!"
+                      [stroke]="mixedChartOptions.stroke!"
+                      [colors]="mixedChartOptions.colors!"
+                      [fill]="mixedChartOptions.fill!"
+                      [tooltip]="mixedChartOptions.tooltip!"
+                      [markers]="mixedChartOptions.markers!"
+                      [legend]="mixedChartOptions.legend!"
+                      ></ng-apexcharts>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Data Table -->
+          <div class="card shadow mb-4">
+            <div class="card-header py-3">
+              <h6 class="m-0 font-weight-bold text-primary">Chi tiết doanh thu theo {{getTimeTypeName()}}</h6>
+            </div>
+            <div class="card-body">
+              <div class="table-responsive">
+                <table class="table table-bordered" width="100%" cellspacing="0">
+                  <thead>
+                    <tr>
+                      <th>STT</th>
+                      <th>Thời gian</th>
+                      <th>Số suất chiếu</th>
+                      <th>Số vé bán</th>
+                      <th>Tỷ lệ vé</th>
+                      <th>Doanh thu</th>
+                      <th>Tỷ lệ doanh thu</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let item of timeData; let i = index">
+                      <td>{{i + 1}}</td>
+                      <td>{{getFormattedDate(item.date)}}</td>
+                      <td>{{item.totalShowtimes | number}}</td>
+                      <td>{{item.totalTickets | number}}</td>
+                      <td>{{calculatePercentage(item.totalTickets, totalTickets)}}</td>
+                      <td>{{item.totalRevenue | number:'1.0-0'}} ₫</td>
+                      <td>{{calculatePercentage(item.totalRevenue, totalRevenue)}}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- No Data State -->
+        <div *ngIf="!isLoading && (!timeData || timeData.length === 0)" class="text-center p-5 mt-5">
+          <i class="mdi mdi-calendar-clock text-primary" style="font-size: 100px;"></i>
+          <h4 class="mt-3">Không có dữ liệu thống kê</h4>
+          <p>Không có dữ liệu thống kê doanh thu theo thời gian trong khoảng thời gian này.</p>
         </div>
       </div>
     </div>

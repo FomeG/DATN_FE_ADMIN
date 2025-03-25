@@ -299,3 +299,51 @@ apx-chart {
 :host ::ng-deep .apexcharts-xaxistooltip-bottom:after {
   border-bottom-color: rgba(255, 255, 255, 0.95) !important;
 }
+
+/* Styles cho dropdown export */
+.dropdown-toggle::after {
+  margin-left: 8px;
+}
+
+.dropdown-item {
+  padding: 0.5rem 1.25rem;
+  transition: all 0.2s;
+}
+
+.dropdown-item:hover {
+  background-color: rgba(79, 172, 254, 0.1);
+}
+
+.dropdown-menu {
+  border: none;
+  box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+  border-radius: 8px;
+  padding: 0.5rem 0;
+}
+
+.dropdown-divider {
+  margin: 0.5rem 0;
+}
+
+.btn-success {
+  background: linear-gradient(to right, #28a745, #20c997);
+  border: none;
+  box-shadow: 0 2px 6px rgba(40, 167, 69, 0.2);
+}
+
+.btn-success:hover {
+  background: linear-gradient(to right, #28a745, #20c997);
+  box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+  transform: translateY(-1px);
+}
+
+/* Loading spinner */
+.spinner-border {
+  width: 3rem;
+  height: 3rem;
+}
+
+/* Độ rõ nét của văn bản */
+.text-right {
+  text-align: right !important;
+}

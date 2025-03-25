@@ -2,17 +2,232 @@
   <div class="col-12 grid-margin stretch-card">
     <div class="card">
       <div class="card-body">
-        <h4 class="card-title">Thống kê tỷ lệ lấp đầy ghế</h4>
-        <p class="card-description">
-          Biểu đồ và phân tích tỷ lệ lấp đầy ghế theo thời gian và rạp
-        </p>
-        <div class="chart-container" style="position: relative; height:60vh; width:100%">
-          <!-- Placeholder for chart -->
-          <div class="text-center p-5 mt-5">
-            <i class="mdi mdi-seat-recline-normal text-primary" style="font-size: 100px;"></i>
-            <h4 class="mt-3">Biểu đồ thống kê đang được phát triển</h4>
-            <p>Chức năng này sẽ hiển thị dữ liệu thống kê về tỷ lệ lấp đầy ghế tại các rạp chiếu phim.</p>
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <div>
+            <h4 class="card-title mb-0">Thống kê tỷ lệ lấp đầy ghế</h4>
+            <p class="card-description">
+              Phân tích tỷ lệ lấp đầy ghế theo thời gian và rạp
+            </p>
           </div>
+          
+          <!-- Filter & Export Buttons -->
+          <div class="d-flex align-items-center">
+            <!-- Time Range Filter -->
+            <div class="btn-group mr-3" role="group">
+              <button type="button" class="btn btn-sm" [ngClass]="timeRangeFilter === 'today' ? 'btn-primary' : 'btn-outline-primary'" 
+                (click)="applyTimeRange('today')">Hôm nay</button>
+              <button type="button" class="btn btn-sm" [ngClass]="timeRangeFilter === 'thisWeek' ? 'btn-primary' : 'btn-outline-primary'" 
+                (click)="applyTimeRange('thisWeek')">Tuần này</button>
+              <button type="button" class="btn btn-sm" [ngClass]="timeRangeFilter === 'thisMonth' ? 'btn-primary' : 'btn-outline-primary'" 
+                (click)="applyTimeRange('thisMonth')">Tháng này</button>
+              <button type="button" class="btn btn-sm" [ngClass]="timeRangeFilter === 'thisYear' ? 'btn-primary' : 'btn-outline-primary'" 
+                (click)="applyTimeRange('thisYear')">Năm nay</button>
+            </div>
+            
+            <!-- Movie Filter -->
+            <div class="btn-group mr-3" role="group">
+              <button type="button" class="btn btn-sm" [ngClass]="movieFilter === 'all' ? 'btn-info' : 'btn-outline-info'" 
+                (click)="applyMovieFilter('all')">Tất cả phim</button>
+              <button type="button" class="btn btn-sm" [ngClass]="movieFilter === 'The Godfather' ? 'btn-info' : 'btn-outline-info'" 
+                (click)="applyMovieFilter('The Godfather')">The Godfather</button>
+              <button type="button" class="btn btn-sm" [ngClass]="movieFilter === 'The Departed' ? 'btn-info' : 'btn-outline-info'" 
+                (click)="applyMovieFilter('The Departed')">The Departed</button>
+              <button type="button" class="btn btn-sm" [ngClass]="movieFilter === 'Memento' ? 'btn-info' : 'btn-outline-info'" 
+                (click)="applyMovieFilter('Memento')">Memento</button>
+            </div>
+            
+            <!-- Export Button -->
+            <div class="dropdown">
+              <button class="btn btn-sm btn-outline-primary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <i class="mdi mdi-export mr-1"></i>Xuất báo cáo
+              </button>
+              <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                <a class="dropdown-item" href="javascript:void(0)" (click)="exportToExcel()">Xuất Excel</a>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Loading State -->
+        <div *ngIf="isLoading" class="text-center p-5">
+          <div class="spinner-border text-primary" role="status">
+            <span class="sr-only">Đang tải...</span>
+          </div>
+          <p class="mt-2">Đang tải dữ liệu thống kê...</p>
+        </div>
+        
+        <!-- Error State -->
+        <div *ngIf="!isLoading && apiError" class="text-center p-5">
+          <div class="alert alert-warning" role="alert">
+            <i class="mdi mdi-alert-circle-outline mr-2"></i>
+            Không thể tải dữ liệu từ API. Đang hiển thị dữ liệu mẫu.
+          </div>
+        </div>
+        
+        <!-- Data Display -->
+        <div *ngIf="!isLoading && occupancyData && occupancyData.length > 0">
+          <!-- Statistics Summary -->
+          <div class="row mb-4">
+            <!-- Total Occupancy -->
+            <div class="col-md-3 col-sm-6 mb-4 mb-md-0">
+              <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                  <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                      <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Tổng tỷ lệ lấp đầy</div>
+                      <div class="h5 mb-0 font-weight-bold text-gray-800">{{formatPercentage(totalOccupancyRate)}}</div>
+                    </div>
+                    <div class="col-auto">
+                      <i class="mdi mdi-seat text-gray-300" style="font-size: 32px;"></i>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Average Occupancy -->
+            <div class="col-md-3 col-sm-6 mb-4 mb-md-0">
+              <div class="card border-left-success shadow h-100 py-2">
+                <div class="card-body">
+                  <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                      <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Tỷ lệ lấp đầy trung bình</div>
+                      <div class="h5 mb-0 font-weight-bold text-gray-800">{{formatPercentage(averageOccupancyRate)}}</div>
+                    </div>
+                    <div class="col-auto">
+                      <i class="mdi mdi-chart-line text-gray-300" style="font-size: 32px;"></i>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Peak Occupancy -->
+            <div class="col-md-3 col-sm-6 mb-4 mb-md-0">
+              <div class="card border-left-info shadow h-100 py-2">
+                <div class="card-body">
+                  <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                      <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Tỷ lệ lấp đầy cao nhất</div>
+                      <div class="h5 mb-0 font-weight-bold text-gray-800">{{formatPercentage(peakOccupancyRate)}}</div>
+                    </div>
+                    <div class="col-auto">
+                      <i class="mdi mdi-trending-up text-gray-300" style="font-size: 32px;"></i>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Peak Date -->
+            <div class="col-md-3 col-sm-6 mb-4 mb-md-0">
+              <div class="card border-left-warning shadow h-100 py-2">
+                <div class="card-body">
+                  <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                      <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Ngày có tỷ lệ cao nhất</div>
+                      <div class="h5 mb-0 font-weight-bold text-gray-800">{{peakDate}}</div>
+                    </div>
+                    <div class="col-auto">
+                      <i class="mdi mdi-calendar text-gray-300" style="font-size: 32px;"></i>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Charts -->
+          <div class="row mb-4">
+            <!-- Line Chart -->
+            <div class="col-lg-12 mb-4">
+              <div class="card shadow">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                  <h6 class="m-0 font-weight-bold text-primary">Tỷ lệ lấp đầy ghế theo thời gian</h6>
+                </div>
+                <div class="card-body">
+                  <div class="chart-container">
+                    <ng-apexcharts
+                      [series]="lineChartOptions.series!"
+                      [chart]="lineChartOptions.chart!"
+                      [xaxis]="lineChartOptions.xaxis!"
+                      [yaxis]="lineChartOptions.yaxis!"
+                      [dataLabels]="lineChartOptions.dataLabels!"
+                      [stroke]="lineChartOptions.stroke!"
+                      [colors]="lineChartOptions.colors!"
+                      [title]="lineChartOptions.title!"
+                      [grid]="lineChartOptions.grid!"
+                      [tooltip]="lineChartOptions.tooltip!"
+                      ></ng-apexcharts>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Bar Chart -->
+            <div class="col-lg-12">
+              <div class="card shadow">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                  <h6 class="m-0 font-weight-bold text-primary">Tỷ lệ lấp đầy ghế theo rạp</h6>
+                </div>
+                <div class="card-body">
+                  <div class="chart-container">
+                    <ng-apexcharts
+                      [series]="barChartOptions.series!"
+                      [chart]="barChartOptions.chart!"
+                      [dataLabels]="barChartOptions.dataLabels!"
+                      [plotOptions]="barChartOptions.plotOptions!"
+                      [xaxis]="barChartOptions.xaxis!"
+                      [yaxis]="barChartOptions.yaxis!"
+                      [colors]="barChartOptions.colors!"
+                      [tooltip]="barChartOptions.tooltip!"
+                      [grid]="barChartOptions.grid!"
+                      ></ng-apexcharts>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Data Table -->
+          <div class="card shadow mb-4">
+            <div class="card-header py-3">
+              <h6 class="m-0 font-weight-bold text-primary">Chi tiết tỷ lệ lấp đầy ghế</h6>
+            </div>
+            <div class="card-body">
+              <div class="table-responsive">
+                <table class="table table-bordered" width="100%" cellspacing="0">
+                  <thead>
+                    <tr>
+                      <th>STT</th>
+                      <th>Rạp</th>
+                      <th>Ngày</th>
+                      <th>Tổng số ghế</th>
+                      <th>Số ghế đã đặt</th>
+                      <th>Tỷ lệ lấp đầy</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let item of occupancyData; let i = index">
+                      <td>{{i + 1}}</td>
+                      <td>{{item.movieName}}</td>
+                      <td>{{formatDate(item.startTime)}}</td>
+                      <td>{{item.totalSeats}}</td>
+                      <td>{{item.bookedSeats}}</td>
+                      <td>{{formatPercentage(item.occupancyRate)}}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- No Data State -->
+        <div *ngIf="!isLoading && (!occupancyData || occupancyData.length === 0)" class="text-center p-5 mt-5">
+          <i class="mdi mdi-seat text-primary" style="font-size: 100px;"></i>
+          <h4 class="mt-3">Không có dữ liệu thống kê</h4>
+          <p>Không có dữ liệu thống kê tỷ lệ lấp đầy ghế trong khoảng thời gian này.</p>
         </div>
       </div>
     </div>

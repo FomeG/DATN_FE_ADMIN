@@ -40,7 +40,7 @@ export class HeaderComponent {
 
   // Thêm phương thức mở modal đổi mật khẩu
   openChangePasswordModal(): void {
-    this.changePasswordModal.show();
+    this.changePasswordModal.show(); 
   }
 
   test() :void{

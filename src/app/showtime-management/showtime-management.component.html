@@ -1,198 +1,221 @@
 <div class="container-fluid">
-
-  <h2 class="mb-4">Showtime Management</h2>
-  <div class="d-flex">
-
-    <button class="btn-lg btn-primary mb-4" style="border-radius: 15px" data-bs-toggle="modal"
-      data-bs-target="#showtimeModal" (click)="resetForm()">
-      <i class="fas fa-plus"></i> Thêm Showtime
-    </button>
-
-    <input type="text" class="form-control rounded" placeholder="Tìm kiếm Showtime"
-      style="width: 70%; height: 55px;  margin-left: auto" />
-
-  </div>
-
-  <!-- Filters -->
-  <div class="row mb-3">
+  <!-- Header section with title, search, and add button -->
+  <div class="row mb-4 align-items-center">
     <div class="col-md-4">
-      <select class="form-select-lg" [(ngModel)]="selectedMovieId" (change)="onMovieChange()">
-        <option value="">All Movies</option>
-        <option *ngFor="let movie of movies" [value]="movie.id">{{movie.movieName}}</option>
-      </select>
+      <h3 class="page-title m-0">Showtime Management</h3>
     </div>
     <div class="col-md-4">
-      <select class="form-select" [(ngModel)]="selectedRoomId" (change)="onRoomChange()">
-        <option value="">All Rooms</option>
-        <option *ngFor="let room of rooms" [value]="room.id">{{room.name}}</option>
-      </select>
+      <div class="custom-header-search">
+        <input type="text" class="custom-header-input" placeholder="Tìm kiếm tên phim..." [(ngModel)]="searchTerm" (keyup.enter)="onSearch()">
+        <button class="custom-header-search-btn" (click)="onSearch()">
+          <i class="fas fa-search"></i>
+        </button>
+      </div>
+    </div>
+    <div class="col-md-4 text-end">
+      <button class="custom-header-button" style="width: 200px;" data-bs-toggle="modal" data-bs-target="#showtimeModal" (click)="resetForm()">
+        <i class="fas fa-plus-circle me-2"></i> Thêm
+      </button>
     </div>
   </div>
 
+  <div class="page-header">
+    <!-- Search and filter controls -->
+    <div class="row align-items-center mb-3">
+      <div class="col-md-3">
+        <select class="custom-header-select" [(ngModel)]="selectedMovieId" (change)="onMovieChange()">
+          <option value="">Tất cả phim</option>
+          <option *ngFor="let movie of movies" [value]="movie.id">{{ movie.movieName }}</option>
+        </select>
+      </div>
 
+      <div class="col-md-3">
+        <select class="custom-header-select" [(ngModel)]="selectedRoomId" (change)="onRoomChange()">
+          <option value="">Tất cả phòng</option>
+          <option *ngFor="let room of rooms" [value]="room.id">{{ room.name }}</option>
+        </select>
+      </div>
 
+      <div class="col-md-3">
+        <select class="custom-header-select" [(ngModel)]="selectedStatus" (change)="onStatusChange()">
+          <option [value]="STATUS_TYPES.ALL">Tất cả trạng thái</option>
+          <option [value]="STATUS_TYPES.UPCOMING">Sắp chiếu</option>
+          <option [value]="STATUS_TYPES.PLAYING">Đang chiếu</option>
+          <option [value]="STATUS_TYPES.ENDED">Đã chiếu</option>
+        </select>
+      </div>
 
+      <div class="col-md-3">
+        <button class="btn btn-outline-secondary clear-filter-btn" (click)="clearAllFilters()">
+          <i class="fas fa-times me-1"></i>Xóa tất cả bộ lọc
+        </button>
+      </div>
+    </div>
 
-  <!-- Showtimes Table -->
-  <div class="row">
-    <div class="col-12">
-      <div class="card">
-        <div class="card-header">
-          <h4 class="card-title">Danh sách Showtime</h4>
+    <!-- Date Range Filter -->
+    <div class="row align-items-center mb-4">
+      <div class="col-md-6">
+        <div class="d-flex align-items-center">
+          <label class="text-white me-2 mb-0">Từ:</label>
+          <input type="datetime-local" class="form-control date-picker" [(ngModel)]="startDateFilter" (change)="onDateFilterChange()">
         </div>
-        <div class="card-body">
-          <div class="table-responsive">
-            <table class="table table-bordered table-hover" style="border-top: 1px solid #2c2e33;">
-              <thead>
-                <tr>
-                  <th>STT</th>
-                  <th>Movie</th>
-                  <th>Room</th>
-                  <th>Start Time</th>
-                  <th>End Time</th>
-                  <!-- <th>Status</th> -->
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr *ngFor="let showtime of showtimes; let i = index">
-                  <td>{{ ((currentPage - 1) * recordPerPage) + (i + 1) }}</td> 
-                  <td>{{showtime.movieName}}</td>
-                  <td>{{showtime.roomName}}</td>
-                  <td>{{showtime.startTime | date:'medium'}}</td>
-                  <td>{{showtime.endTime | date:'medium'}}</td>
-                  <!-- <td>
-                    <span class="badge" [ngClass]="showtime.status === 1 ? 'bg-success' : 'bg-danger'">
-                      {{showtime.status === 1 ? 'Active' : 'Inactive'}}
-                    </span>
-                  </td> -->
-                  <!-- <td>
-                    <button class="btn btn-sm btn-primary me-2" data-bs-toggle="modal" data-bs-target="#showtimeModal"
-                      (click)="editShowtime(showtime)">
-                      <i class="fas fa-edit"></i> Edit
-                    </button>
-                    <button class="btn btn-sm btn-danger" (click)="deleteShowtime(showtime.id)">
-                      <i class="fas fa-trash"></i> Delete
-                    </button>
-                  </td> -->
-
-                  <td>
-                    <button type="button" class="btn btn-outline-primary btn-rounded">Chi tiết</button>
-
-
-                    <button class="btn btn-outline-warning btn-rounded" (click)="editShowtime(showtime)"
-                      data-bs-toggle="modal" data-bs-target="#showtimeModal">Sửa</button>
-
-
-                    <button class="btn btn-outline-danger btn-rounded"
-                      (click)="deleteShowtime(showtime.id)">Xóa</button>
-                  </td>
-
-
-                </tr>
-
-
-
-                <tr *ngIf="showtimes.length === 0">
-                  <td colspan="6" class="text-center">No showtimes found</td>
-                </tr>
-
-
-
-
-
-
-              </tbody>
-            </table>
-          </div>
-
-
-
-
-          <!-- Pagination -->
-          <nav *ngIf="totalRecords > recordPerPage" aria-label="Page navigation"
-            class="d-flex justify-content-center mt-4">
-            <ul class="pagination">
-              <li class="page-item" [class.disabled]="currentPage === 1">
-                <a class="page-link" (click)="onPageChange(currentPage - 1)" role="button">Previous</a>
-              </li>
-              <li class="page-item">
-                <span class="page-link">Page {{currentPage}}</span>
-              </li>
-              <li class="page-item" [class.disabled]="currentPage * recordPerPage >= totalRecords">
-                <a class="page-link" (click)="onPageChange(currentPage + 1)" role="button">Next</a>
-              </li>
-            </ul>
-          </nav>
-
-
-
-
-
-
-
-
+      </div>
+      <div class="col-md-6">
+        <div class="d-flex align-items-center">
+          <label class="text-white me-2 mb-0">Đến:</label>
+          <input type="datetime-local" class="form-control date-picker" [(ngModel)]="endDateFilter" (change)="onDateFilterChange()">
         </div>
       </div>
     </div>
   </div>
 
+  <!-- Showtimes Table -->
+  <div class="card shadow-sm">
+    <div class="card-body">
+      <div class="table-responsive">
+        <table class="table table-hover align-middle">
+          <thead class="table-light">
+            <tr>
+              <th class="text-center" style="width: 50px">#</th>
+              <th>Phim</th>
+              <th>Phòng</th>
+              <th>Thời gian bắt đầu</th>
+              <th>Thời gian kết thúc</th>
+              <th class="text-center">Trạng thái</th>
+              <th class="text-center" style="width: 250px">Thao tác</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let showtime of showtimes; let i = index">
+              <td class="text-center">{{ ((currentPage - 1) * recordPerPage) + (i + 1) }}</td>
+              <td>{{showtime.movieName}}</td>
+              <td>{{showtime.roomName}}</td>
+              <td>{{showtime.startTime | date:'dd/MM/yyyy HH:mm'}}</td>
+              <td>{{showtime.endTime | date:'dd/MM/yyyy HH:mm'}}</td>
+              <td class="text-center">
+                <span class="badge" [ngClass]="getShowtimeStatus(showtime.startTime, showtime.endTime).class">
+                  {{getShowtimeStatus(showtime.startTime, showtime.endTime).text}}
+                </span>
+              </td>
+              <td class="text-center">
+                <button class="btn btn-outline-warning btn-rounded" (click)="editShowtime(showtime)"
+                  data-bs-toggle="modal" data-bs-target="#showtimeModal">
+                  <i class="fas fa-edit me-1"></i>Sửa
+                </button>
+                <button class="btn btn-outline-danger btn-rounded" (click)="deleteShowtime(showtime.id)">
+                  <i class="fas fa-trash me-1"></i>Xóa
+                </button>
+              </td>
+            </tr>
+            <tr *ngIf="showtimes.length === 0">
+              <td colspan="7" class="text-center">Không tìm thấy showtime nào</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
 
-
-
-
-
+      <!-- Pagination -->
+      <nav *ngIf="totalRecords > recordPerPage" aria-label="Page navigation" class="d-flex justify-content-center mt-4">
+        <ul class="pagination">
+          <li class="page-item" [class.disabled]="currentPage === 1">
+            <a class="page-link" (click)="onPageChange(currentPage - 1)" role="button">Trước</a>
+          </li>
+          <li class="page-item">
+            <span class="page-link">Trang {{currentPage}}</span>
+          </li>
+          <li class="page-item" [class.disabled]="currentPage * recordPerPage >= totalRecords">
+            <a class="page-link" (click)="onPageChange(currentPage + 1)" role="button">Sau</a>
+          </li>
+        </ul>
+      </nav>
+    </div>
+  </div>
 
   <!-- Showtime Modal -->
   <div class="modal fade" id="showtimeModal" tabindex="-1" aria-labelledby="showtimeModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-lg">
       <div class="modal-content">
-        <div class="modal-header">
+        <div class="modal-header bg-primary text-white">
           <h5 class="modal-title" id="showtimeModalLabel">
-            {{isEditing ? 'Edit Showtime' : 'Add New Showtime'}}
+            <i class="fas fa-film me-2"></i>
+            {{isEditing ? 'Cập nhật Showtime' : 'Thêm Showtime mới'}}
           </h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
-        <div class="modal-body">
+        <div class="modal-body p-4">
           <form [formGroup]="showtimeForm" (ngSubmit)="onSubmit()">
-            <div class="mb-3">
-              <label for="movieId" class="form-label">Movie</label>
-              <select class="form-select" id="movieId" formControlName="movieId">
-                <option value="">Select Movie</option>
-                <option *ngFor="let movie of movies" [value]="movie.id">{{movie.movieName}}</option>
-              </select>
+            <div class="row g-3">
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label for="movieId" class="form-label">Phim <span class="text-danger">*</span></label>
+                  <select class="form-select" id="movieId" formControlName="movieId"
+                    [ngClass]="{'is-invalid': showtimeForm.get('movieId')?.invalid && showtimeForm.get('movieId')?.touched}">
+                    <option value="">Chọn phim</option>
+                    <option *ngFor="let movie of movies" [value]="movie.id">{{movie.movieName}}</option>
+                  </select>
+                  <div class="invalid-feedback"
+                    *ngIf="showtimeForm.get('movieId')?.invalid && showtimeForm.get('movieId')?.touched">
+                    Vui lòng chọn phim
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label for="roomId" class="form-label">Phòng <span class="text-danger">*</span></label>
+                  <select class="form-select" id="roomId" formControlName="roomId"
+                    [ngClass]="{'is-invalid': showtimeForm.get('roomId')?.invalid && showtimeForm.get('roomId')?.touched}">
+                    <option value="">Chọn phòng</option>
+                    <option *ngFor="let room of rooms" [value]="room.id">{{room.name}}</option>
+                  </select>
+                  <div class="invalid-feedback"
+                    *ngIf="showtimeForm.get('roomId')?.invalid && showtimeForm.get('roomId')?.touched">
+                    Vui lòng chọn phòng
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label for="startTime" class="form-label">Thời gian bắt đầu <span class="text-danger">*</span></label>
+                  <input type="datetime-local" class="form-control" id="startTime" formControlName="startTime"
+                    [ngClass]="{'is-invalid': showtimeForm.get('startTime')?.invalid && showtimeForm.get('startTime')?.touched}">
+                  <div class="invalid-feedback"
+                    *ngIf="showtimeForm.get('startTime')?.invalid && showtimeForm.get('startTime')?.touched">
+                    Vui lòng chọn thời gian bắt đầu
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label for="endTime" class="form-label">Thời gian kết thúc <span class="text-danger">*</span></label>
+                  <input type="datetime-local" class="form-control" id="endTime" formControlName="endTime"
+                    [ngClass]="{'is-invalid': showtimeForm.get('endTime')?.invalid && showtimeForm.get('endTime')?.touched}">
+                  <div class="invalid-feedback"
+                    *ngIf="showtimeForm.get('endTime')?.invalid && showtimeForm.get('endTime')?.touched">
+                    Vui lòng chọn thời gian kết thúc
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label for="status" class="form-label">Trạng thái</label>
+                  <select class="form-select" id="status" formControlName="status">
+                    <option [ngValue]="1">Hoạt động</option>
+                    <option [ngValue]="0">Không hoạt động</option>
+                  </select>
+                </div>
+              </div>
             </div>
 
-            <div class="mb-3">
-              <label for="roomId" class="form-label">Room</label>
-              <select class="form-select" id="roomId" formControlName="roomId">
-                <option value="">Select Room</option>
-                <option *ngFor="let room of rooms" [value]="room.id">{{room.name}}</option>
-              </select>
-            </div>
-
-            <div class="mb-3">
-              <label for="startTime" class="form-label">Start Time</label>
-              <input type="datetime-local" class="form-control" id="startTime" formControlName="startTime">
-            </div>
-
-            <div class="mb-3">
-              <label for="endTime" class="form-label">End Time</label>
-              <input type="datetime-local" class="form-control" id="endTime" formControlName="endTime">
-            </div>
-
-            <div class="mb-3">
-              <label for="status" class="form-label">Status</label>
-              <select class="form-select" id="status" formControlName="status">
-                <option [ngValue]="1">Active</option>
-                <option [ngValue]="0">Inactive</option>
-              </select>
-            </div>
-
-            <div class="modal-footer">
-              <button type="button" class="btn btn-outline-danger" data-bs-dismiss="modal">Close</button>
-              <button type="submit" class="btn btn-primary" [disabled]="!showtimeForm.valid">
-                {{isEditing ? 'Update' : 'Create'}}
+            <div class="modal-footer border-top mt-4">
+              <button type="button" class="btn btn-outline-secondary btn-rounded" data-bs-dismiss="modal">
+                <i class="fas fa-times me-1"></i>Hủy
+              </button>
+              <button type="submit" class="btn btn-outline-primary btn-rounded" [disabled]="showtimeForm.invalid">
+                <i class="fas fa-save me-1"></i>{{isEditing ? 'Cập nhật' : 'Thêm mới'}}
               </button>
             </div>
           </form>

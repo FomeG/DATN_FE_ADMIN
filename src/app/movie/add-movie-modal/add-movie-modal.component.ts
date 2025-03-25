@@ -1,4 +1,4 @@
-import { Component, OnInit, Output, EventEmitter, HostListener } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter, HostListener, AfterViewInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { MovieService } from '../../services/movie.service';
@@ -15,7 +15,9 @@ declare var $: any; // Để sử dụng jQuery với Dropify
   templateUrl: './add-movie-modal.component.html',
   styleUrls: ['./add-movie-modal.component.css']
 })
-export class AddMovieModalComponent implements OnInit {
+
+
+export class AddMovieModalComponent implements OnInit, AfterViewInit {
   @Output() movieAdded = new EventEmitter<void>();
 
   movieForm: FormGroup;
@@ -112,15 +114,26 @@ export class AddMovieModalComponent implements OnInit {
   }
 
   ngAfterViewInit() {
-    // Khởi tạo Dropify
-    $('.dropify').dropify({
-      messages: {
-        default: 'Kéo và thả file vào đây hoặc click để chọn',
-        replace: 'Kéo và thả hoặc click để thay thế',
-        remove: 'Xóa',
-        error: 'Có lỗi xảy ra'
+    // Đảm bảo jQuery và dropify đã tải xong
+    setTimeout(() => {
+      try {
+        if ($ && $.fn && $.fn.dropify) {
+          $('.dropify').dropify({
+            messages: {
+              default: 'Kéo và thả file vào đây hoặc click để chọn',
+              replace: 'Kéo và thả hoặc click để thay thế',
+              remove: 'Xóa',
+              error: 'Có lỗi xảy ra'
+            }
+          });
+          console.log('Dropify initialized successfully');
+        } else {
+          console.error('Dropify plugin not loaded properly');
+        }
+      } catch (error) {
+        console.error('Error initializing dropify:', error);
       }
-    });
+    }, 500);
   }
 
   loadActors() {
@@ -188,8 +201,16 @@ export class AddMovieModalComponent implements OnInit {
   }
 
   onFileSelect(event: any, type: string) {
-    const file = event.target.files[0];
+    // Lấy file từ target của event hoặc từ sự kiện dropify
+    let file: File | null = null;
+    
+    // Kiểm tra nếu là sự kiện từ dropify
+    if (event.target && event.target.files && event.target.files[0]) {
+      file = event.target.files[0];
+    }
+    
     if (file) {
+      console.log(`Selected ${type} file:`, file.name);
       switch (type) {
         case 'thumbnail':
           this.selectedThumbnail = file;

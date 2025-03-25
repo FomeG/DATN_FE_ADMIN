@@ -173,9 +173,9 @@ export class AddMovieModalComponent implements OnInit, AfterViewInit {
   @HostListener('document:click', ['$event'])
   onClickOutside(event: Event) {
     const element = event.target as HTMLElement;
-    if (!element.closest('.actor-dropdown') && !element.closest('.genre-dropdown') && 
-        !element.closest('input[placeholder="Tìm kiếm diễn viên..."]') && 
-        !element.closest('input[placeholder="Tìm kiếm thể loại..."]')) {
+    if (!element.closest('.actor-dropdown') && !element.closest('.genre-dropdown') &&
+      !element.closest('input[placeholder="Tìm kiếm diễn viên..."]') &&
+      !element.closest('input[placeholder="Tìm kiếm thể loại..."]')) {
       this.showDropdown = false;
       this.showGenreDropdown = false;
     }
@@ -203,12 +203,12 @@ export class AddMovieModalComponent implements OnInit, AfterViewInit {
   onFileSelect(event: any, type: string) {
     // Lấy file từ target của event hoặc từ sự kiện dropify
     let file: File | null = null;
-    
+
     // Kiểm tra nếu là sự kiện từ dropify
     if (event.target && event.target.files && event.target.files[0]) {
       file = event.target.files[0];
     }
-    
+
     if (file) {
       console.log(`Selected ${type} file:`, file.name);
       switch (type) {
@@ -237,36 +237,36 @@ export class AddMovieModalComponent implements OnInit, AfterViewInit {
     if (this.movieForm.valid) {
       this.isLoading = true;
       this.errorMessage = '';
-      
+
       const formData = new FormData();
-      
+
       // Add form fields
       formData.append('movieName', this.movieForm.value.movieName);
       formData.append('description', this.movieForm.value.description);
       formData.append('duration', this.movieForm.value.duration);
       formData.append('releaseDate', this.movieForm.value.releaseDate);
       formData.append('status', this.movieForm.value.status);
-      
+
       // Add files if selected
       if (this.selectedThumbnail) {
         formData.append('thumbnail', this.selectedThumbnail);
       }
-      
+
       if (this.selectedBanner) {
         formData.append('banner', this.selectedBanner);
       }
-      
+
       if (this.selectedTrailer) {
         formData.append('trailer', this.selectedTrailer);
       }
-      
+
       // Add actor IDs
       if (this.selectedActors && this.selectedActors.length > 0) {
         this.selectedActors.forEach(actor => {
           formData.append('listActorID', actor.id);
         });
       }
-      
+
       // Add genre IDs
       if (this.selectedGenres && this.selectedGenres.length > 0) {
         this.selectedGenres.forEach(genre => {

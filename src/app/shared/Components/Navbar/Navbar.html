@@ -13,7 +13,7 @@
             <i class="toggle-icon" [innerHTML]="sidebarOpen ? '&lt;' : '&gt;'"></i>
         </button>
     </div>
-    
+
     <ul class="nav">
         <li class="nav-item profile">
             <div class="profile-desc">
@@ -132,6 +132,25 @@
 
 
         <li class="nav-item menu-items">
+            <a class="nav-link" data-toggle="collapse" href="#Service-dropdown" aria-expanded="false"
+                aria-controls="Service-dropdown">
+                <span class="menu-icon">
+                    <i class="mdi mdi-laptop"></i>
+                </span>
+                <span class="menu-title">Dịch vụ</span>
+                <i class="menu-arrow"></i>
+            </a>
+            <div class="collapse" id="Service-dropdown">
+                <ul class="nav flex-column sub-menu">
+                    <li class="nav-item"> <a class="nav-link" href="service"> Dịch vụ </a></li>
+                    <li class="nav-item"> <a class="nav-link" href="service-type"> Loại dịch vụ </a></li>
+                </ul>
+            </div>
+        </li>
+
+
+
+        <li class="nav-item menu-items">
             <a class="nav-link" href="/showtimes">
                 <span class="menu-icon">
                     <i class="mdi mdi-clock"></i>
@@ -210,7 +229,8 @@
 
 
         <li class="nav-item menu-items">
-            <a class="nav-link" data-toggle="collapse" href="#voucher-dropdown" aria-expanded="false" aria-controls="voucher-dropdown">
+            <a class="nav-link" data-toggle="collapse" href="#voucher-dropdown" aria-expanded="false"
+                aria-controls="voucher-dropdown">
                 <span class="menu-icon">
                     <i class="mdi mdi-laptop"></i>
                 </span>
@@ -228,6 +248,7 @@
 
 
 
+
         <li class="nav-item menu-items">
             <a class="nav-link"
                 href="http://www.bootstrapdash.com/demo/corona-free/jquery/documentation/documentation.html">
@@ -237,25 +258,6 @@
                 <span class="menu-title">Documentation</span>
             </a>
         </li>
-
-
-
-
-
-
-
-        <li class="nav-item menu-items">
-            <a class="nav-link" href="log">
-                <span class="menu-icon">
-                    <i class="mdi mdi-playlist-play"></i>
-                </span>
-                <span class="menu-title">Log</span>
-            </a>
-        </li>
-
-
-               
-
 
 
 

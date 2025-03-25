@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { ServiceManagementService } from '../services/service-management.service';
-import { Service } from '../../model/service.model';
+import { ServiceManagementService } from '../../services/service.service';
+import { Service, ServiceResponse, CreateServiceRequest, UpdateServiceRequest } from '../../model/service.model';
 import Swal from 'sweetalert2';
 
 declare var bootstrap: any;
@@ -28,11 +28,11 @@ export class ServiceManagementComponent implements OnInit {
   selectedImage: File | null = null;
   imagePreview: string | ArrayBuffer | null = null;
   searchTerm = '';
-  
+
   // Sort
   sortColumn = '';
   sortDirection = 'asc';
-  
+
   // Math object for template
   Math = Math;
 
@@ -155,7 +155,7 @@ export class ServiceManagementComponent implements OnInit {
       serviceTypeID: service.serviceTypeID
     });
     this.imagePreview = service.imageUrl;
-    
+
     const modal = document.getElementById('serviceModal');
     if (modal) {
       const bootstrapModal = new bootstrap.Modal(modal);
@@ -296,9 +296,9 @@ export class ServiceManagementComponent implements OnInit {
       this.loadServices();
       return;
     }
-    
+
     const searchTermLower = this.searchTerm.toLowerCase();
-    this.services = this.services.filter(service => 
+    this.services = this.services.filter(service =>
       service.serviceName.toLowerCase().includes(searchTermLower) ||
       service.description.toLowerCase().includes(searchTermLower)
     );
@@ -312,20 +312,20 @@ export class ServiceManagementComponent implements OnInit {
       this.sortColumn = column;
       this.sortDirection = 'asc';
     }
-    
+
     this.applySort();
   }
 
   applySort(): void {
     this.services.sort((a, b) => {
       let comparison = 0;
-      
+
       if (this.sortColumn === 'serviceName') {
         comparison = a.serviceName.localeCompare(b.serviceName);
       } else if (this.sortColumn === 'price') {
         comparison = a.price - b.price;
       }
-      
+
       return this.sortDirection === 'asc' ? comparison : -comparison;
     });
   }
@@ -335,5 +335,12 @@ export class ServiceManagementComponent implements OnInit {
       return 'fa-sort';
     }
     return this.sortDirection === 'asc' ? 'fa-sort-up' : 'fa-sort-down';
+  }
+
+
+
+  getServiceTypeName(serviceTypeID: string): string {
+    const serviceType = this.serviceTypes.find(t => t.id === serviceTypeID);
+    return serviceType?.serviceTypeName || 'Không xác định';
   }
 }

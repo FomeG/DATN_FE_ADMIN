@@ -36,7 +36,18 @@
             ],
             "scripts": [
               "node_modules/jquery/dist/jquery.min.js",
-              "node_modules/dropify/dist/js/dropify.min.js"
+              "node_modules/popper.js/dist/umd/popper.min.js",
+              "node_modules/bootstrap/dist/js/bootstrap.min.js",
+              "node_modules/dropify/dist/js/dropify.min.js",
+              "node_modules/select2/dist/js/select2.min.js",
+              "node_modules/typeahead.js/dist/typeahead.bundle.min.js",
+              "src/assets/js/off-canvas.js",
+              "src/assets/js/misc.js",
+              "src/assets/js/settings.js",
+              "src/assets/js/hoverable-collapse.js",
+              "src/assets/js/todolist.js",
+              "src/assets/js/file-upload.js",
+              "src/assets/js/typeahead.js"
             ]
           },
           "configurations": {

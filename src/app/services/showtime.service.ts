@@ -42,7 +42,7 @@ export class ShowtimeService {
     currentPage: number;
     recordPerPage: number;
   }): Observable<ShowtimeResponse> {
-    const url = `${this.apiUrl}ShowTime/GetListShowTimes?currentPage=${params.currentPage}&recordPerPage=${params.recordPerPage}`;
+    const url = `${this.apiUrl}ShowTime/GetList?currentPage=${params.currentPage}&recordPerPage=${params.recordPerPage}`;
     
     console.log('Calling API with URL:', url);
     

@@ -82,7 +82,7 @@ app-footer {
     display: flex;
     justify-content: center;
     align-items: center;
-    background: url("../../assets/images/auth/Login_bg.jpg") no-repeat center center;
+    background: url("../assets/images/auth/Login_bg.jpg") no-repeat center center;
     background-size: cover;
     overflow: auto;
 }

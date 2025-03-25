@@ -1,1 +1,19 @@
-<?xml version="1.0" encoding="UTF-8"?><svg width="100" height="30" viewBox="0 0 100 30" xmlns="http://www.w3.org/2000/svg"><text x="10" y="20" font-family="Arial" font-size="15" font-weight="bold" fill="#0090e7">Cinema Admin</text></svg>
+<svg width="250" height="250" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <!-- Vòng ngoài film reel -->
+  <circle cx="100" cy="100" r="95" fill="#000" stroke="#fff" stroke-width="5" />
+  
+  <!-- Vòng trong -->
+  <circle cx="100" cy="100" r="60" fill="#fff" />
+  
+  <!-- Vòng nhỏ ở giữa -->
+  <circle cx="100" cy="100" r="10" fill="#000" />
+  
+  <!-- Các lỗ nhỏ của film reel -->
+  <circle cx="70" cy="70" r="8" fill="#000" />
+  <circle cx="130" cy="70" r="8" fill="#000" />
+  <circle cx="70" cy="130" r="8" fill="#000" />
+  <circle cx="130" cy="130" r="8" fill="#000" />
+  
+  <!-- Văn bản logo -->
+  <text x="100" y="190" font-family="Arial" font-size="20" fill="#fff" text-anchor="middle">Movie</text>
+</svg>

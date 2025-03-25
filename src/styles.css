@@ -1,13 +1,13 @@
 /* Import các file CSS của template Corona */
-@import '../assets/vendors/mdi/css/materialdesignicons.min.css';
-@import '../assets/vendors/css/vendor.bundle.base.css';
-@import '../assets/css/style.css';
+@import './assets/vendors/mdi/css/materialdesignicons.min.css';
+@import './assets/vendors/css/vendor.bundle.base.css';
+@import './assets/css/style.css';
 
 /* Import các thư viện bổ sung */
-@import '../assets/vendors/select2/select2.min.css';
-@import '../assets/vendors/select2-bootstrap-theme/select2-bootstrap.min.css';
-@import '../assets/vendors/owl-carousel-2/owl.carousel.min.css';
-@import '../assets/vendors/owl-carousel-2/owl.theme.default.min.css';
+@import './assets/vendors/select2/select2.min.css';
+@import './assets/vendors/select2-bootstrap-theme/select2-bootstrap.min.css';
+@import './assets/vendors/owl-carousel-2/owl.carousel.min.css';
+@import './assets/vendors/owl-carousel-2/owl.theme.default.min.css';
 /* Sử dụng CDN cho dropify thay vì node_modules */
 @import 'https://cdnjs.cloudflare.com/ajax/libs/Dropify/0.2.2/css/dropify.min.css';
 
@@ -35,7 +35,7 @@ body.auth.login-bg {
 }
 
 .auth .login-bg {
-    background: url("../assets/images/auth/Login_bg.jpg") no-repeat center center;
+    background: url("./assets/images/auth/Login_bg.jpg") no-repeat center center;
     background-size: cover;
 }
 

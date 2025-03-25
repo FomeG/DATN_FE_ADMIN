@@ -1,8 +1,16 @@
-import { Component, EventEmitter, OnInit, Output, OnDestroy } from '@angular/core';
+import { Component, EventEmitter, OnInit, Output, OnDestroy, AfterViewInit, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, AbstractControl, ValidationErrors } from '@angular/forms';
 import { PricingRuleService, PricingRule } from '../../services/pricing-rule.service';
 import Swal from 'sweetalert2';
+
+// Khai báo kiểu Bootstrap global để tránh lỗi typescript
+declare global {
+  interface Window {
+    bootstrap?: any;
+    $?: any;
+  }
+}
 
 interface PricingRuleData {
   ruleName: string;
@@ -56,32 +64,44 @@ interface PricingRuleData {
                 </div>
 
                 <!-- Time Range -->
-                <div class="col-md-6 mb-3">
+                <div class="col-md-6 mb-3 time-picker-container">
                   <label class="form-label">Thời Gian Bắt Đầu</label>
-                  <input type="time" class="form-control" formControlName="startTime"
-                         [class.is-invalid]="ruleForm.errors?.['timeRange'] && (ruleForm.get('startTime')?.touched || ruleForm.get('endTime')?.touched)">
+                  <div class="input-group">
+                    <input type="time" class="form-control" formControlName="startTime" #startTimePicker
+                           [class.is-invalid]="ruleForm.errors?.['timeRange'] && (ruleForm.get('startTime')?.touched || ruleForm.get('endTime')?.touched)">
+                    <button class="btn btn-outline-secondary" type="button" (click)="confirmTimeSelection('startTime')">OK</button>
+                  </div>
                 </div>
 
-                <div class="col-md-6 mb-3">
+                <div class="col-md-6 mb-3 time-picker-container">
                   <label class="form-label">Thời Gian Kết Thúc</label>
-                  <input type="time" class="form-control" formControlName="endTime"
-                         [class.is-invalid]="ruleForm.errors?.['timeRange'] && (ruleForm.get('startTime')?.touched || ruleForm.get('endTime')?.touched)">
+                  <div class="input-group">
+                    <input type="time" class="form-control" formControlName="endTime" #endTimePicker
+                           [class.is-invalid]="ruleForm.errors?.['timeRange'] && (ruleForm.get('startTime')?.touched || ruleForm.get('endTime')?.touched)">
+                    <button class="btn btn-outline-secondary" type="button" (click)="confirmTimeSelection('endTime')">OK</button>
+                  </div>
                   <div class="invalid-feedback" *ngIf="ruleForm.errors?.['timeRange'] && (ruleForm.get('startTime')?.touched || ruleForm.get('endTime')?.touched)">
                     Thời gian bắt đầu phải nhỏ hơn thời gian kết thúc và phải nhập đủ cả hai
                   </div>
                 </div>
 
                 <!-- Date Range -->
-                <div class="col-md-6 mb-3">
+                <div class="col-md-6 mb-3 date-picker-container">
                   <label class="form-label">Ngày Bắt Đầu</label>
-                  <input type="date" class="form-control" formControlName="startDate"
-                         [class.is-invalid]="(ruleForm.errors?.['dateRange'] || ruleForm.errors?.['startDateFuture']) && (ruleForm.get('startDate')?.touched || ruleForm.get('endDate')?.touched)">
+                  <div class="input-group">
+                    <input type="date" class="form-control" formControlName="startDate" #startDatePicker
+                           [class.is-invalid]="(ruleForm.errors?.['dateRange'] || ruleForm.errors?.['startDateFuture']) && (ruleForm.get('startDate')?.touched || ruleForm.get('endDate')?.touched)">
+                    <button class="btn btn-outline-secondary" type="button" (click)="confirmDateSelection('startDate')">OK</button>
+                  </div>
                 </div>
 
-                <div class="col-md-6 mb-3">
+                <div class="col-md-6 mb-3 date-picker-container">
                   <label class="form-label">Ngày Kết Thúc</label>
-                  <input type="date" class="form-control" formControlName="endDate"
-                         [class.is-invalid]="ruleForm.errors?.['dateRange'] && (ruleForm.get('startDate')?.touched || ruleForm.get('endDate')?.touched)">
+                  <div class="input-group">
+                    <input type="date" class="form-control" formControlName="endDate" #endDatePicker
+                           [class.is-invalid]="ruleForm.errors?.['dateRange'] && (ruleForm.get('startDate')?.touched || ruleForm.get('endDate')?.touched)">
+                    <button class="btn btn-outline-secondary" type="button" (click)="confirmDateSelection('endDate')">OK</button>
+                  </div>
                   <div class="invalid-feedback" *ngIf="(ruleForm.errors?.['dateRange'] || ruleForm.errors?.['startDateFuture']) && (ruleForm.get('startDate')?.touched || ruleForm.get('endDate')?.touched)">
                     <div *ngIf="ruleForm.errors?.['dateRange']">Ngày bắt đầu phải nhỏ hơn ngày kết thúc và phải nhập đủ cả hai</div>
                     <div *ngIf="ruleForm.errors?.['startDateFuture']">Ngày bắt đầu phải là ngày trong tương lai</div>
@@ -89,10 +109,13 @@ interface PricingRuleData {
                 </div>
 
                 <!-- Specific Date -->
-                <div class="col-md-6 mb-3">
+                <div class="col-md-6 mb-3 date-picker-container">
                   <label class="form-label">Ngày Cụ Thể</label>
-                  <input type="date" class="form-control" formControlName="date"
-                         [class.is-invalid]="(ruleForm.errors?.['dateFuture'] || ruleForm.errors?.['exclusiveDate']) && ruleForm.get('date')?.touched">
+                  <div class="input-group">
+                    <input type="date" class="form-control" formControlName="date" #specificDatePicker
+                           [class.is-invalid]="(ruleForm.errors?.['dateFuture'] || ruleForm.errors?.['exclusiveDate']) && ruleForm.get('date')?.touched">
+                    <button class="btn btn-outline-secondary" type="button" (click)="confirmDateSelection('date')">OK</button>
+                  </div>
                   <div class="invalid-feedback" *ngIf="(ruleForm.errors?.['dateFuture'] || ruleForm.errors?.['exclusiveDate']) && ruleForm.get('date')?.touched">
                     <div *ngIf="ruleForm.errors?.['dateFuture']">Ngày phải là ngày trong tương lai</div>
                     <div *ngIf="ruleForm.errors?.['exclusiveDate']">Không thể chọn ngày cụ thể cùng với các điều kiện ngày khác</div>
@@ -144,59 +167,25 @@ interface PricingRuleData {
                   </div>
                 </div>
               </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                <button type="submit" class="btn btn-primary" [disabled]="ruleForm.invalid || ruleForm.errors?.['noCondition']">Lưu</button>
+              </div>
             </form>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
-            <button type="button" 
-                    class="btn btn-primary" 
-                    (click)="onSubmit()" 
-                    [disabled]="ruleForm.invalid || ruleForm.errors?.['noCondition']">
-              Lưu
-            </button>
           </div>
         </div>
       </div>
     </div>
   `,
   styles: [`
-    .modal-lg {
-      max-width: 900px;
-    }
     .required:after {
-      content: " *";
+      content: ' *';
       color: red;
     }
-    .form-label {
-      font-weight: 500;
+    .invalid-feedback {
+      display: block;
     }
-    
-    /* Responsive styles */
-    @media (max-width: 576px) {
-      .modal-dialog {
-        margin: 0.5rem;
-      }
-      
-      .col-md-6 {
-        margin-bottom: 1rem;
-      }
-    }
-    
     @media (max-width: 768px) {
-      .modal-lg {
-        max-width: 100%;
-      }
-    }
-    
-    /* Ẩn một số trường trên màn hình nhỏ */
-    @media (max-width: 576px) {
-      .hide-on-mobile {
-        display: none;
-      }
-    }
-    
-    /* Hiển thị dạng stack trên mobile */
-    @media (max-width: 576px) {
       .row {
         flex-direction: column;
       }
@@ -204,10 +193,30 @@ interface PricingRuleData {
         width: 100%;
       }
     }
+    .date-picker-container .input-group,
+    .time-picker-container .input-group {
+      display: flex;
+    }
+    .date-picker-container .btn,
+    .time-picker-container .btn {
+      flex-shrink: 0;
+      width: 50px;
+    }
+    .invalid-feedback {
+      width: 100%;
+      margin-top: 0.25rem;
+      font-size: 0.875em;
+      color: #dc3545;
+    }
   `]
 })
-export class AddPricingRuleModalComponent implements OnDestroy {
+export class AddPricingRuleModalComponent implements OnDestroy, AfterViewInit {
   @Output() ruleAdded = new EventEmitter<void>();
+  @ViewChild('startTimePicker') startTimePicker!: ElementRef<HTMLInputElement>;
+  @ViewChild('endTimePicker') endTimePicker!: ElementRef<HTMLInputElement>;
+  @ViewChild('startDatePicker') startDatePicker!: ElementRef<HTMLInputElement>;
+  @ViewChild('endDatePicker') endDatePicker!: ElementRef<HTMLInputElement>;
+  @ViewChild('specificDatePicker') specificDatePicker!: ElementRef<HTMLInputElement>;
   
   ruleForm: FormGroup;
 
@@ -239,16 +248,20 @@ export class AddPricingRuleModalComponent implements OnDestroy {
     });
   }
 
+  ngAfterViewInit(): void {
+    // Thêm bất kỳ logic khởi tạo nào ở đây nếu cần
+  }
+
   // Kiểm tra thời gian bắt đầu phải nhỏ hơn thời gian kết thúc
   private timeRangeValidator(control: AbstractControl): ValidationErrors | null {
     const startTime = control.get('startTime')?.value;
     const endTime = control.get('endTime')?.value;
 
-    if (startTime && endTime && startTime >= endTime) {
+    if (startTime !== null && endTime !== null && startTime >= endTime) {
       return { timeRange: true };
     }
 
-    if ((startTime && !endTime) || (!startTime && endTime)) {
+    if ((startTime !== null && endTime === null) || (startTime === null && endTime !== null)) {
       return { timeRange: true };
     }
 
@@ -260,15 +273,15 @@ export class AddPricingRuleModalComponent implements OnDestroy {
     const startDate = control.get('startDate')?.value;
     const endDate = control.get('endDate')?.value;
 
-    if (startDate && endDate && new Date(startDate) > new Date(endDate)) {
+    if (startDate !== null && endDate !== null && new Date(startDate) > new Date(endDate)) {
       return { dateRange: true };
     }
 
-    if ((startDate && !endDate) || (!startDate && endDate)) {
+    if ((startDate !== null && endDate === null) || (startDate === null && endDate !== null)) {
       return { dateRange: true };
     }
 
-    if (startDate && new Date(startDate) < new Date()) {
+    if (startDate !== null && new Date(startDate) < new Date()) {
       return { startDateFuture: true };
     }
 
@@ -279,7 +292,7 @@ export class AddPricingRuleModalComponent implements OnDestroy {
   private futureDateValidator(control: AbstractControl): ValidationErrors | null {
     const date = control.get('date')?.value;
 
-    if (date && new Date(date) < new Date()) {
+    if (date !== null && new Date(date) < new Date()) {
       return { dateFuture: true };
     }
 
@@ -291,11 +304,11 @@ export class AddPricingRuleModalComponent implements OnDestroy {
     const specialDay = control.get('specialDay')?.value;
     const specialMonth = control.get('specialMonth')?.value;
 
-    if ((specialDay && !specialMonth) || (!specialDay && specialMonth)) {
+    if ((specialDay !== null && specialMonth === null) || (specialDay === null && specialMonth !== null)) {
       return { specialDayMonth: true };
     }
 
-    if (specialDay && specialMonth) {
+    if (specialDay !== null && specialMonth !== null) {
       const daysInMonth = new Date(new Date().getFullYear(), specialMonth, 0).getDate();
       if (specialDay < 1 || specialDay > daysInMonth) {
         return { specialDayMonth: true };
@@ -317,30 +330,33 @@ export class AddPricingRuleModalComponent implements OnDestroy {
     const endTime = control.get('endTime')?.value;
 
     // Kiểm tra có ít nhất một điều kiện được chọn
-    const hasDateCondition = date || (startDate && endDate) || (specialDay && specialMonth) || dayOfWeek;
-    const hasTimeCondition = startTime && endTime;
+    const hasDateCondition = date !== null || 
+                             (startDate !== null && endDate !== null) || 
+                             (specialDay !== null && specialMonth !== null) || 
+                             dayOfWeek !== null;
+    const hasTimeCondition = startTime !== null && endTime !== null;
     
     if (!hasDateCondition && !hasTimeCondition) {
       return { noCondition: true };
     }
 
     // Specific date không thể cùng tồn tại với các điều kiện khác (ngoại trừ time range)
-    if (date && (specialDay || specialMonth || startDate || endDate || dayOfWeek)) {
+    if (date !== null && (specialDay !== null || specialMonth !== null || startDate !== null || endDate !== null || dayOfWeek !== null)) {
       return { exclusiveDate: true };
     }
 
     // Date range không thể cùng tồn tại với các điều kiện khác (ngoại trừ time range)
-    if ((startDate || endDate) && (specialDay || specialMonth || date || dayOfWeek)) {
+    if ((startDate !== null || endDate !== null) && (specialDay !== null || specialMonth !== null || date !== null || dayOfWeek !== null)) {
       return { exclusiveDateRange: true };
     }
 
     // Special day/month không thể cùng tồn tại với các điều kiện khác (ngoại trừ time range)
-    if ((specialDay || specialMonth) && (startDate || endDate || date || dayOfWeek)) {
+    if ((specialDay !== null || specialMonth !== null) && (startDate !== null || endDate !== null || date !== null || dayOfWeek !== null)) {
       return { exclusiveSpecial: true };
     }
 
     // Day of week không thể cùng tồn tại với các điều kiện khác (ngoại trừ time range)
-    if (dayOfWeek && (startDate || endDate || date || specialDay || specialMonth)) {
+    if (dayOfWeek !== null && (startDate !== null || endDate !== null || date !== null || specialDay !== null || specialMonth !== null)) {
       return { exclusiveDayOfWeek: true };
     }
 
@@ -362,76 +378,79 @@ export class AddPricingRuleModalComponent implements OnDestroy {
     const errors: string[] = [];
     
     // 1. Kiểm tra các trường bắt buộc
-    if (!formData.ruleName || !formData.multiplier || formData.isDiscount === null) {
+    if (!formData.ruleName || formData.multiplier === null || formData.isDiscount === null) {
       errors.push('Thiếu thông tin bắt buộc (Tên quy tắc, Hệ số, hoặc Loại giảm giá)');
     }
 
     // 2. Kiểm tra có ít nhất một điều kiện
-    if (!formData.startTime && !formData.endTime && 
-        !formData.startDate && !formData.endDate && 
-        !formData.date && !formData.specialDay && 
-        !formData.specialMonth && !formData.dayOfWeek) {
+    if (formData.startTime === null && formData.endTime === null && 
+        formData.startDate === null && formData.endDate === null && 
+        formData.date === null && formData.specialDay === null && 
+        formData.specialMonth === null && formData.dayOfWeek === null) {
       errors.push('Phải có ít nhất một điều kiện về thời gian hoặc ngày');
     }
 
     // 3. Kiểm tra các cặp thời gian
-    if ((formData.startTime && !formData.endTime) || (!formData.startTime && formData.endTime)) {
+    if ((formData.startTime !== null && formData.endTime === null) || 
+        (formData.startTime === null && formData.endTime !== null)) {
       errors.push('Thời gian bắt đầu và kết thúc phải được nhập đầy đủ');
     }
 
     // 4. Kiểm tra cặp ngày
-    if ((formData.startDate && !formData.endDate) || (!formData.startDate && formData.endDate)) {
+    if ((formData.startDate !== null && formData.endDate === null) || 
+        (formData.startDate === null && formData.endDate !== null)) {
       errors.push('Ngày bắt đầu và kết thúc phải được nhập đầy đủ');
     }
 
     // 5. Kiểm tra cặp ngày/tháng đặc biệt
-    if ((formData.specialDay && !formData.specialMonth) || (!formData.specialDay && formData.specialMonth)) {
+    if ((formData.specialDay !== null && formData.specialMonth === null) || 
+        (formData.specialDay === null && formData.specialMonth !== null)) {
       errors.push('Ngày và tháng đặc biệt phải được nhập đầy đủ');
     }
 
     // 6. Kiểm tra điều kiện loại trừ cho ngày cụ thể
-    if (formData.date && (formData.specialDay || formData.specialMonth || 
-        formData.startDate || formData.endDate || formData.dayOfWeek)) {
+    if (formData.date !== null && (formData.specialDay !== null || formData.specialMonth !== null || 
+        formData.startDate !== null || formData.endDate !== null || formData.dayOfWeek !== null)) {
       errors.push('Ngày cụ thể không thể kết hợp với các điều kiện ngày khác');
     }
 
     // 7. Kiểm tra điều kiện loại trừ cho khoảng ngày
-    if ((formData.startDate || formData.endDate) && 
-        (formData.specialDay || formData.specialMonth || 
-         formData.date || formData.dayOfWeek)) {
+    if ((formData.startDate !== null || formData.endDate !== null) && 
+        (formData.specialDay !== null || formData.specialMonth !== null || 
+         formData.date !== null || formData.dayOfWeek !== null)) {
       errors.push('Khoảng ngày không thể kết hợp với các điều kiện ngày khác');
     }
 
     // 8. Kiểm tra điều kiện loại trừ cho ngày/tháng đặc biệt
-    if ((formData.specialDay || formData.specialMonth) && 
-        (formData.startDate || formData.endDate || 
-         formData.date || formData.dayOfWeek)) {
+    if ((formData.specialDay !== null || formData.specialMonth !== null) && 
+        (formData.startDate !== null || formData.endDate !== null || 
+         formData.date !== null || formData.dayOfWeek !== null)) {
       errors.push('Ngày/tháng đặc biệt không thể kết hợp với các điều kiện ngày khác');
     }
 
     // 9. Kiểm tra điều kiện loại trừ cho ngày trong tuần
-    if (formData.dayOfWeek && 
-        (formData.startDate || formData.endDate || 
-         formData.date || formData.specialDay || formData.specialMonth)) {
+    if (formData.dayOfWeek !== null && 
+        (formData.startDate !== null || formData.endDate !== null || 
+         formData.date !== null || formData.specialDay !== null || formData.specialMonth !== null)) {
       errors.push('Ngày trong tuần không thể kết hợp với các điều kiện ngày khác');
     }
 
     // 10. Kiểm tra giá trị thời gian
-    if (formData.startTime && formData.endTime && formData.startTime >= formData.endTime) {
+    if (formData.startTime !== null && formData.endTime !== null && formData.startTime >= formData.endTime) {
       errors.push('Thời gian bắt đầu phải nhỏ hơn thời gian kết thúc');
     }
 
     // 11. Kiểm tra giá trị ngày
-    if (formData.startDate && formData.endDate && formData.startDate > formData.endDate) {
+    if (formData.startDate !== null && formData.endDate !== null && formData.startDate > formData.endDate) {
       errors.push('Ngày bắt đầu phải nhỏ hơn ngày kết thúc');
     }
 
     // 12. Kiểm tra ngày trong tương lai
-    if (formData.date && new Date(formData.date) < new Date()) {
+    if (formData.date !== null && new Date(formData.date) < new Date()) {
       errors.push('Ngày cụ thể phải là ngày trong tương lai');
     }
 
-    if (formData.startDate && new Date(formData.startDate) < new Date()) {
+    if (formData.startDate !== null && new Date(formData.startDate) < new Date()) {
       errors.push('Ngày bắt đầu phải là ngày trong tương lai');
     }
 
@@ -441,12 +460,12 @@ export class AddPricingRuleModalComponent implements OnDestroy {
     }
 
     // 14. Kiểm tra ngày trong tuần
-    if (formData.dayOfWeek && (formData.dayOfWeek < 1 || formData.dayOfWeek > 7)) {
+    if (formData.dayOfWeek !== null && (formData.dayOfWeek < 1 || formData.dayOfWeek > 7)) {
       errors.push('Ngày trong tuần phải từ 1 đến 7');
     }
 
     // 15. Kiểm tra ngày hợp lệ với tháng
-    if (formData.specialDay && formData.specialMonth) {
+    if (formData.specialDay !== null && formData.specialMonth !== null) {
       const maxDay = new Date(new Date().getFullYear(), formData.specialMonth, 0).getDate();
       if (formData.specialDay < 1 || formData.specialDay > maxDay) {
         errors.push(`Ngày ${formData.specialDay} không hợp lệ với tháng ${formData.specialMonth}`);
@@ -456,21 +475,55 @@ export class AddPricingRuleModalComponent implements OnDestroy {
     return errors;
   }
 
+  // Phương thức đóng modal an toàn
+  private safeCloseModal(): void {
+    const modalElement = document.getElementById('addPricingRuleModal');
+    if (!modalElement) return;
+    
+    // Xóa tất cả các class và style liên quan đến modal
+    modalElement.classList.remove('show');
+    modalElement.style.display = 'none';
+    modalElement.setAttribute('aria-hidden', 'true');
+    modalElement.removeAttribute('aria-modal');
+    modalElement.removeAttribute('role');
+    
+    // Xóa backdrop
+    const backdrops = document.getElementsByClassName('modal-backdrop');
+    while (backdrops.length > 0) {
+      backdrops[0].remove();
+    }
+
+    // Xóa các style và class trên body
+    document.body.classList.remove('modal-open');
+    document.body.style.removeProperty('padding-right');
+    document.body.style.removeProperty('overflow');
+  }
+
   onSubmit(): void {
     if (this.ruleForm.valid && !this.ruleForm.errors?.['noCondition']) {
       const formValue = this.ruleForm.value;
+      
+      // Chuẩn hóa dữ liệu để đảm bảo gửi null thay vì chuỗi rỗng hoặc số 0
+      // Điều này đặc biệt quan trọng vì SP_PricingRule_Create yêu cầu các tham số
+      // không được chọn phải là NULL, không phải chuỗi rỗng hoặc số 0
       const formData: Omit<PricingRule, 'pricingRuleId'> = {
-        ruleName: formValue.ruleName,
+        ruleName: formValue.ruleName.trim() || null,
         multiplier: formValue.multiplier,
         isDiscount: formValue.isDiscount ?? false,
+        
+        // Đảm bảo thời gian là null nếu không có giá trị
         startTime: formValue.startTime || null,
         endTime: formValue.endTime || null,
+        
+        // Đảm bảo ngày là null nếu không có giá trị
         startDate: formValue.startDate || null,
         endDate: formValue.endDate || null,
         date: formValue.date || null,
-        specialDay: formValue.specialDay || null,
-        specialMonth: formValue.specialMonth || null,
-        dayOfWeek: formValue.dayOfWeek || null
+        
+        // Đảm bảo các số là null khi không có giá trị hoặc bằng 0
+        specialDay: formValue.specialDay ? (formValue.specialDay > 0 ? formValue.specialDay : null) : null,
+        specialMonth: formValue.specialMonth ? (formValue.specialMonth > 0 ? formValue.specialMonth : null) : null,
+        dayOfWeek: formValue.dayOfWeek !== null ? formValue.dayOfWeek : null
       };
 
       // Kiểm tra validation
@@ -507,33 +560,8 @@ export class AddPricingRuleModalComponent implements OnDestroy {
                 dayOfWeek: null
               });
 
-              // Đóng modal và xử lý backdrop
-              const modalElement = document.getElementById('addPricingRuleModal');
-              if (modalElement) {
-                // Xóa tất cả các class và style liên quan đến modal
-                modalElement.classList.remove('show');
-                modalElement.style.display = 'none';
-                modalElement.setAttribute('aria-hidden', 'true');
-                modalElement.removeAttribute('aria-modal');
-                modalElement.removeAttribute('role');
-                
-                // Xóa backdrop
-                const backdrops = document.getElementsByClassName('modal-backdrop');
-                while (backdrops.length > 0) {
-                  backdrops[0].remove();
-                }
-
-                // Xóa các style và class trên body
-                document.body.classList.remove('modal-open');
-                document.body.style.removeProperty('padding-right');
-                document.body.style.removeProperty('overflow');
-
-                // Dispose modal instance nếu có
-                const modalInstance = (window as any).bootstrap.Modal.getInstance(modalElement);
-                if (modalInstance) {
-                  modalInstance.dispose();
-                }
-              }
+              // Đóng modal
+              this.safeCloseModal();
 
               // Emit sự kiện sau khi đóng modal
               this.ruleAdded.emit();
@@ -592,33 +620,73 @@ export class AddPricingRuleModalComponent implements OnDestroy {
     }
   }
 
-  ngOnDestroy() {
-    // Cleanup khi component bị hủy
-    const modalElement = document.getElementById('addPricingRuleModal');
-    if (modalElement) {
-      // Xóa tất cả các class và style liên quan đến modal
-      modalElement.classList.remove('show');
-      modalElement.style.display = 'none';
-      modalElement.setAttribute('aria-hidden', 'true');
-      modalElement.removeAttribute('aria-modal');
-      modalElement.removeAttribute('role');
+  // Phương thức xác nhận lựa chọn thời gian
+  confirmTimeSelection(field: 'startTime' | 'endTime'): void {
+    // Lấy giá trị hiện tại từ form control
+    const value = this.ruleForm.get(field)?.value;
+    
+    // Cập nhật lại control để trigger validation
+    if (value) {
+      this.ruleForm.get(field)?.setValue(value);
+      this.ruleForm.get(field)?.markAsTouched();
       
-      // Xóa backdrop
-      const backdrops = document.getElementsByClassName('modal-backdrop');
-      while (backdrops.length > 0) {
-        backdrops[0].remove();
-      }
-
-      // Xóa các style và class trên body
-      document.body.classList.remove('modal-open');
-      document.body.style.removeProperty('padding-right');
-      document.body.style.removeProperty('overflow');
-
-      // Dispose modal instance nếu có
-      const modalInstance = (window as any).bootstrap.Modal.getInstance(modalElement);
-      if (modalInstance) {
-        modalInstance.dispose();
+      // Đóng dropdown picker (nếu có)
+      if (field === 'startTime' && this.startTimePicker) {
+        this.startTimePicker.nativeElement.blur();
+      } else if (field === 'endTime' && this.endTimePicker) {
+        this.endTimePicker.nativeElement.blur();
       }
     }
+    
+    // Hiển thị thông báo nhỏ
+    if (value) {
+      this.showToast(`Đã chọn thời gian: ${value}`);
+    }
+  }
+
+  // Phương thức xác nhận lựa chọn ngày
+  confirmDateSelection(field: 'startDate' | 'endDate' | 'date'): void {
+    // Lấy giá trị hiện tại từ form control
+    const value = this.ruleForm.get(field)?.value;
+    
+    // Cập nhật lại control để trigger validation
+    if (value) {
+      this.ruleForm.get(field)?.setValue(value);
+      this.ruleForm.get(field)?.markAsTouched();
+      
+      // Đóng dropdown picker (nếu có)
+      if (field === 'startDate' && this.startDatePicker) {
+        this.startDatePicker.nativeElement.blur();
+      } else if (field === 'endDate' && this.endDatePicker) {
+        this.endDatePicker.nativeElement.blur();
+      } else if (field === 'date' && this.specificDatePicker) {
+        this.specificDatePicker.nativeElement.blur();
+      }
+    }
+    
+    // Hiển thị thông báo nhỏ
+    if (value) {
+      // Định dạng ngày sang dạng thân thiện hơn
+      const formattedDate = new Date(value).toLocaleDateString('vi-VN');
+      this.showToast(`Đã chọn ngày: ${formattedDate}`);
+    }
+  }
+
+  // Hiển thị thông báo nhỏ khi xác nhận
+  private showToast(message: string): void {
+    Swal.fire({
+      toast: true,
+      position: 'top-end',
+      showConfirmButton: false,
+      timer: 1500,
+      timerProgressBar: true,
+      icon: 'success',
+      title: message
+    });
+  }
+
+  ngOnDestroy() {
+    // Cleanup khi component bị hủy
+    this.safeCloseModal();
   }
 } 

@@ -14,6 +14,6 @@ export interface LoginResponse {
   }
   
   export interface LoginRequest {
-    useName: string;  // Match với SignInReq.cs
+    userName: string;  // Match với SignInReq.cs
     passWord: string; // Match với SignInReq.cs 
   }

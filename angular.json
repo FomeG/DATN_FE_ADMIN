@@ -22,16 +22,33 @@
             "tsConfig": "tsconfig.app.json",
             "assets": [
               "src/favicon.ico",
+              "src/assets",
               {
                 "glob": "**/*",
-                "input": "assets",
-                "output": "/assets"
+                "input": "./node_modules/leaflet/dist/images/",
+                "output": "./assets/leaflet/"
               }
             ],
             "styles": [
-              "src/styles.css"
+              "src/styles.css",
+              "./node_modules/leaflet/dist/leaflet.css",
+              "node_modules/dropify/dist/css/dropify.min.css"
             ],
-            "scripts": []
+            "scripts": [
+              "node_modules/jquery/dist/jquery.min.js",
+              "node_modules/popper.js/dist/umd/popper.min.js",
+              "node_modules/bootstrap/dist/js/bootstrap.min.js",
+              "node_modules/dropify/dist/js/dropify.min.js",
+              "node_modules/select2/dist/js/select2.min.js",
+              "node_modules/typeahead.js/dist/typeahead.bundle.min.js",
+              "src/assets/js/off-canvas.js",
+              "src/assets/js/misc.js",
+              "src/assets/js/settings.js",
+              "src/assets/js/hoverable-collapse.js",
+              "src/assets/js/todolist.js",
+              "src/assets/js/file-upload.js",
+              "src/assets/js/typeahead.js"
+            ]
           },
           "configurations": {
             "production": {

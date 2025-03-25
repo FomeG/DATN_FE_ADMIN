@@ -2,6 +2,49 @@
     height: 100vh;
     overflow: hidden;
     position: relative;
+    width: 100vw;
+    max-width: 100%;
+}
+
+.page-body-wrapper {
+    min-height: calc(100vh - 70px);
+    position: relative;
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    padding-top: 70px;
+}
+
+.main-panel {
+    flex: 1;
+    min-height: calc(100vh - 70px);
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    width: calc(100% - 260px);
+    /* Điều chỉnh theo chiều rộng của sidebar */
+}
+
+.content-wrapper {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px;
+    background: #080a0e;
+    width: 100%;
+}
+
+/* Đảm bảo footer luôn ở dưới cùng */
+app-footer {
+    position: relative;
+    bottom: 0;
+    width: 100%;
+}
+
+/* Style cho trang login */
+.container-scroller {
+    height: 100vh;
+    overflow: hidden;
+    position: relative;
 }
 
 .page-body-wrapper {
@@ -33,8 +76,87 @@ app-footer {
     width: 100%;
 }
 
-/* Style cho trang login */
-.auth.login-bg {
+/* Trang đăng nhập */
+.auth-page-container {
     height: 100vh;
-    overflow-y: auto;
+    width: 100vw;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: url("../assets/images/auth/Login_bg.jpg") no-repeat center center;
+    background-size: cover;
+    overflow: auto;
+}
+
+/* Payment Layout Styles */
+.payment-layout {
+    min-height: 100vh;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #1f1f1f, #121212);
+    padding: 20px;
+}
+
+.payment-container {
+    width: 100%;
+    max-width: 800px;
+    background-color: #1e1e1e;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    overflow: hidden;
+}
+
+.payment-header {
+    padding: 20px 30px;
+    background: linear-gradient(135deg, #8B0000, #000000);
+    color: white;
+    text-align: center;
+    position: relative;
+}
+
+.payment-logo {
+    height: 60px;
+    margin-bottom: 10px;
+}
+
+.payment-header h1 {
+    margin: 0;
+    font-size: 28px;
+    font-weight: 600;
+}
+
+.payment-content {
+    padding: 30px;
+    background-color: #1e1e1e;
+    color: #ffffff;
+    min-height: 300px;
+}
+
+.payment-footer {
+    padding: 15px;
+    text-align: center;
+    border-top: 1px solid #333;
+    color: #888;
+    font-size: 14px;
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+    .payment-container {
+        width: 95%;
+    }
+
+    .payment-header h1 {
+        font-size: 24px;
+    }
+
+    .payment-content {
+        padding: 20px;
+    }
+
+    .main-panel {
+        width: 100%;
+    }
 }

@@ -1,170 +1,165 @@
-<!-- Form Section -->
-<div class="card mb-4">
-  <div class="card-header">
-    <h5 class="mb-0">{{ isEditing ? 'Edit Pricing Rule' : 'Create New Pricing Rule' }}</h5>
-  </div>
-  <div class="card-body">
-    <form [formGroup]="ruleForm" (ngSubmit)="onSubmit()">
-      <div class="row">
-        <!-- Rule Name -->
-        <div class="col-md-6 mb-3">
-          <label class="form-label">Rule Name</label>
-          <input type="text" class="form-control" formControlName="ruleName" [readonly]="isEditing">
-        </div>
-
-        <!-- Multiplier -->
-        <div class="col-md-6 mb-3">
-          <label class="form-label">Multiplier</label>
-          <input type="number" class="form-control" formControlName="multiplier">
-        </div>
-
-        <!-- Time Range -->
-        <div class="col-md-6 mb-3">
-          <label class="form-label">Start Time</label>
-          <input type="time" class="form-control" formControlName="startTime" [readonly]="isEditing">
-        </div>
-
-        <div class="col-md-6 mb-3">
-          <label class="form-label">End Time</label>
-          <input type="time" class="form-control" formControlName="endTime" [readonly]="isEditing">
-        </div>
-
-        <!-- Date Range -->
-        <div class="col-md-6 mb-3">
-          <label class="form-label">Start Date</label>
-          <input type="date" class="form-control" formControlName="startDate" [readonly]="isEditing">
-        </div>
-
-        <div class="col-md-6 mb-3">
-          <label class="form-label">End Date</label>
-          <input type="date" class="form-control" formControlName="endDate" [readonly]="isEditing">
-        </div>
-
-        <!-- Specific Date -->
-        <div class="col-md-6 mb-3">
-          <label class="form-label">Specific Date</label>
-          <input type="date" class="form-control" formControlName="date" [readonly]="isEditing">
-        </div>
-
-        <!-- Special Day/Month -->
-        <div class="col-md-6 mb-3">
-          <label class="form-label">Special Day</label>
-          <input type="number" class="form-control" formControlName="specialDay" [readonly]="isEditing">
-        </div>
-
-        <div class="col-md-6 mb-3">
-          <label class="form-label">Special Month</label>
-          <input type="number" class="form-control" formControlName="specialMonth" [readonly]="isEditing">
-        </div>
-
-        <!-- Day of Week -->
-        <div class="col-md-6 mb-3">
-          <label class="form-label">Day of Week</label>
-          <select class="form-select" formControlName="dayOfWeek" [disabled]="isEditing">
-            <option [ngValue]="null">Select day</option>
-            <option [ngValue]="0">Sunday</option>
-            <option [ngValue]="1">Monday</option>
-            <option [ngValue]="2">Tuesday</option>
-            <option [ngValue]="3">Wednesday</option>
-            <option [ngValue]="4">Thursday</option>
-            <option [ngValue]="5">Friday</option>
-            <option [ngValue]="6">Saturday</option>
-          </select>
-        </div>
-
-        <!-- Is Discount -->
-        <div class="col-md-6 mb-3">
-          <div class="form-check mt-4">
-            <input type="checkbox" class="form-check-input" formControlName="isDiscount" [disabled]="isEditing">
-            <label class="form-check-label">Is Discount</label>
-          </div>
-        </div>
-      </div>
-
-      <!-- Form Buttons -->
-      <div class="d-flex gap-2">
-        <button type="submit" class="btn btn-primary" [disabled]="!ruleForm.valid">
-          {{ isEditing ? 'Update' : 'Create' }}
-        </button>
-        <button type="button" class="btn btn-secondary" (click)="resetForm()">
-          Cancel
-        </button>
-      </div>
-    </form>
-  </div>
-</div>
-
-<!-- Table Section -->
-<div class="card">
-  <div class="card-header">
-    <h5 class="mb-0">Pricing Rules</h5>
-  </div>
-  <div class="card-body">
-    <div class="table-responsive">
-      <table class="table table-striped">
-        <thead>
-          <tr>
-            <th>Rule Name</th>
-            <th>Multiplier</th>
-            <th>Time Range</th>
-            <th>Date Range</th>
-            <th>Special Conditions</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let rule of rules">
-            <td>{{ rule.ruleName }}</td>
-            <td>{{ rule.multiplier }}</td>
-            <td>
-              <ng-container *ngIf="rule.startTime && rule.endTime">
-                {{ rule.startTime }} - {{ rule.endTime }}
-              </ng-container>
-            </td>
-            <td>
-              <ng-container *ngIf="rule.startDate && rule.endDate">
-                {{ rule.startDate | date }} - {{ rule.endDate | date }}
-              </ng-container>
-            </td>
-            <td>
-              <div *ngIf="rule.specialDay">Special Day: {{ rule.specialDay }}</div>
-              <div *ngIf="rule.specialMonth">Special Month: {{ rule.specialMonth }}</div>
-              <div *ngIf="rule.dayOfWeek !== null">Day of Week: {{ ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][rule.dayOfWeek] }}</div>
-              <div *ngIf="rule.isDiscount">Discount Rule</div>
-            </td>
-            <td>
-              <div class="d-flex gap-2">
-                <button class="btn btn-sm btn-primary" (click)="editRule(rule)">
-                  Edit
-                </button>
-                <button class="btn btn-sm btn-danger" (click)="deleteRule(rule.pricingRuleId)">
-                  Delete
-                </button>
-              </div>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+<!-- Main Container -->
+<div class="container-fluid">
+  <div class="row mb-4">
+    <div class="col-md-4">
+      <h2 class="page-title">Quản lý quy tắc giá</h2>
     </div>
-
-    <!-- Pagination -->
-    <div class="d-flex justify-content-between align-items-center mt-3">
-      <div>
-        Total Records: {{ totalRecords }}
+    <div class="col-md-4">
+      <div class="input-group header-search">
+        <input 
+          type="text" 
+          class="form-control" 
+          placeholder="Tìm kiếm theo tên quy tắc..." 
+          [(ngModel)]="searchTerm" 
+          (keyup.enter)="applyFilters()"
+        >
+        <button 
+          class="btn btn-primary" 
+          type="button"
+          (click)="applyFilters()"
+        >
+          <i class="fas fa-search"></i> Tìm kiếm
+        </button>
       </div>
-      <nav>
-        <ul class="pagination mb-0">
+    </div>
+    <div class="col-md-4 d-flex justify-content-end">
+      <button class="btn-lg btn-primary header-button" data-bs-toggle="modal" data-bs-target="#addPricingRuleModal">
+        <i class="fas fa-plus me-2"></i> Thêm quy tắc mới
+      </button>
+    </div>
+  </div>
+
+  <div class="row mb-4">
+    <div class="col-md-4">
+      <select class="form-select header-select" [(ngModel)]="filterType" (change)="applyFilters()">
+        <option value="all">Tất cả loại quy tắc</option>
+        <option value="time">Theo giờ</option>
+        <option value="special_day">Ngày đặc biệt</option>
+        <option value="day_of_week">Ngày trong tuần</option>
+        <option value="discount">Giảm giá</option>
+      </select>
+    </div>
+    <div class="col-md-4">
+      <select class="form-select header-select" [(ngModel)]="filterMonth" (change)="applyFilters()">
+        <option value="all">Tất cả tháng</option>
+        <option value="1">Tháng 1</option>
+        <option value="2">Tháng 2</option>
+        <option value="3">Tháng 3</option>
+        <option value="4">Tháng 4</option>
+        <option value="5">Tháng 5</option>
+        <option value="6">Tháng 6</option>
+        <option value="7">Tháng 7</option>
+        <option value="8">Tháng 8</option>
+        <option value="9">Tháng 9</option>
+        <option value="10">Tháng 10</option>
+        <option value="11">Tháng 11</option>
+        <option value="12">Tháng 12</option>
+      </select>
+    </div>
+    <div class="col-md-4">
+      <div class="d-flex justify-content-between">
+        <button class="btn btn-outline-secondary clear-filter-btn" (click)="clearFilters()">
+          <i class="fas fa-times me-1"></i> Xóa bộ lọc
+        </button>
+        <span class="records-info">Hiển thị {{rules.length}} / {{totalRecords}} quy tắc</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pricing Rules List -->
+  <div class="card shadow-sm">
+    <div class="card-body">
+      <div class="table-responsive">
+        <table class="table table-hover align-middle">
+          <thead class="table-light">
+            <tr>
+              <th class="text-center" style="width: 50px">#</th>
+              <th>Tên quy tắc</th>
+              <th>Loại</th>
+              <th>Hệ số nhân</th>
+              <th>Chi tiết</th>
+              <th class="text-center" style="width: 150px">Thao tác</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let rule of rules; let i = index">
+              <td class="text-center">{{ (currentPage - 1) * recordPerPage + i + 1 }}</td>
+              <td>
+                <span class="fw-medium">{{ rule.ruleName }}</span>
+                <span class="badge ms-2" 
+                  [ngClass]="rule.isDiscount ? 'bg-success' : 'bg-danger'">
+                  {{ rule.isDiscount ? 'Giảm giá' : 'Phụ thu' }}
+                </span>
+              </td>
+              <td>
+                <span class="badge" [ngClass]="getRuleTypeBadgeClass(rule)">
+                  {{ getRuleTypeText(rule) }}
+                </span>
+              </td>
+              <td>
+                <span class="fw-bold" [ngClass]="rule.isDiscount ? 'text-success' : 'text-danger'">
+                  {{ rule.isDiscount ? '-' : '+' }} {{ rule.multiplier }}
+                </span>
+              </td>
+              <td>
+                <div *ngIf="rule.startTime && rule.endTime">
+                  <small class="d-block"><i class="fas fa-clock me-1"></i> {{ rule.startTime }} - {{ rule.endTime }}</small>
+                </div>
+                <div *ngIf="rule.startDate && rule.endDate">
+                  <small class="d-block"><i class="fas fa-calendar-alt me-1"></i> {{ rule.startDate | date:'dd/MM/yyyy' }} - {{ rule.endDate | date:'dd/MM/yyyy' }}</small>
+                </div>
+                <div *ngIf="rule.date">
+                  <small class="d-block"><i class="fas fa-calendar-check me-1"></i> {{ rule.date | date:'dd/MM/yyyy' }}</small>
+                </div>
+                <div *ngIf="rule.specialDay && rule.specialMonth">
+                  <small class="d-block"><i class="fas fa-calendar-day me-1"></i> Ngày {{ rule.specialDay }}/{{ rule.specialMonth }}</small>
+                </div>
+                <div *ngIf="rule.dayOfWeek !== null">
+                  <small class="d-block"><i class="fas fa-calendar-week me-1"></i> {{ getDayOfWeekText(rule.dayOfWeek) }}</small>
+                </div>
+              </td>
+              <td class="text-center">
+                <button class="btn btn-outline-primary btn-rounded" (click)="openEditModal(rule)">
+                  <i class="fas fa-edit me-1"></i>Sửa
+                </button>
+                <button class="btn btn-outline-danger btn-rounded" (click)="deleteRule(rule.pricingRuleId)">
+                  <i class="fas fa-trash me-1"></i>Xóa
+                </button>
+              </td>
+            </tr>
+            
+            <tr *ngIf="rules.length === 0">
+              <td colspan="6" class="text-center py-4">
+                <i class="fas fa-search fa-2x mb-2 text-muted"></i>
+                <p class="text-muted">Không tìm thấy quy tắc giá nào phù hợp với tiêu chí tìm kiếm.</p>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Pagination -->
+      <nav *ngIf="totalPages > 0" class="mt-4">
+        <ul class="pagination justify-content-center">
           <li class="page-item" [class.disabled]="currentPage === 1">
-            <a class="page-link" (click)="onPageChange(currentPage - 1)">Previous</a>
+            <a class="page-link" href="javascript:void(0)" (click)="onPageChange(currentPage - 1)">
+              <i class="fas fa-chevron-left"></i>
+            </a>
           </li>
           <li class="page-item">
-            <span class="page-link">Page {{ currentPage }}</span>
+            <span class="page-link">Trang {{ currentPage }}</span>
           </li>
           <li class="page-item" [class.disabled]="currentPage * recordPerPage >= totalRecords">
-            <a class="page-link" (click)="onPageChange(currentPage + 1)">Next</a>
+            <a class="page-link" href="javascript:void(0)" (click)="onPageChange(currentPage + 1)">
+              <i class="fas fa-chevron-right"></i>
+            </a>
           </li>
         </ul>
       </nav>
     </div>
   </div>
-</div> 
+</div>
+
+<!-- Modals -->
+<app-add-pricing-rule-modal (ruleAdded)="loadRules()"></app-add-pricing-rule-modal>
+<app-edit-pricing-rule-modal [rule]="selectedRule" (ruleUpdated)="loadRules()"></app-edit-pricing-rule-modal> 

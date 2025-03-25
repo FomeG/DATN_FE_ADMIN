@@ -1,4 +1,4 @@
-import { Component, EventEmitter, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, OnInit, Output, ViewChild, ElementRef } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -6,6 +6,7 @@ import { RoomService } from '../../services/room.service';
 import { CinemaService } from '../../services/cinema.service';
 import { SeatService } from '../../services/seat.service';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-add-room',
@@ -17,15 +18,16 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 export class AddRoomComponent implements OnInit {
 
   @Output() roomAdded = new EventEmitter<void>();
+  @ViewChild('closeBtn') closeModal!: ElementRef;
+  
   roomForm: FormGroup;
   isLoading = false;
   errorMessage = '';
   isFormSubmitted = false;
   cinemas: any[] = [];
+  totalSeats: number = 0;
 
   showSuccessMessage = false; // Biến để hiển thị thông báo thành công
-  closeModal = false;
-
 
   constructor(
     private fb: FormBuilder,
@@ -46,65 +48,60 @@ export class AddRoomComponent implements OnInit {
   ngOnInit() {
     this.isFormSubmitted = false;
     this.loadCinemas();
-    this.closeModal = false;
   }
 
   loadCinemas() {
-    this.cinemaService.getCinemas(1, 10).subscribe({
-      next: (response) => {
-        this.cinemas = response.data;
+    this.cinemaService.getCinemas(1, 1000).subscribe({
+      next: (cinemas) => {
+        this.cinemas = cinemas.data;
       },
       error: (error) => {
-        console.error('Lỗi khi tải rạp:', error);
-        this.errorMessage = 'Có lỗi xảy ra khi lấy danh sách rạp';
+        Swal.fire('Lỗi', 'Lỗi khi tải danh sách rạp: ' + error.message, 'error');
       }
     });
   }
 
+  createRoom() {
+    if (!this.validateRoomForm()) {
+      Swal.fire('Lỗi', 'Vui lòng điền đầy đủ thông tin phòng.', 'error');
+      return;
+    }
 
+    // Tính totalSeats từ totalColNumber và totalRowNumber
+    this.roomForm.patchValue({
+      totalSeats: this.roomForm.value.totalColNumber * this.roomForm.value.totalRowNumber
+    });
 
-  onSubmit() {
-    this.isFormSubmitted = true;
-    if (this.roomForm.invalid) return;
-
-    this.isLoading = true;
-    this.errorMessage = '';
-
-    const formData = {
-      cinemaId: this.roomForm.value.cinemaId,
-      name: this.roomForm.value.roomName,
-      totalColNumber: this.roomForm.value.totalColumns,
-      totalRowNumber: this.roomForm.value.totalRows,
-      seatPrice: this.roomForm.value.seatPrice
-    };
-
-    this.roomService.createRoom(formData).subscribe({
+    this.roomService.createRoom(this.roomForm.value).subscribe({
       next: (response) => {
-        if (response.responseCode === 200) {
-          this.roomForm.reset();
-          this.roomForm.patchValue({
-            cinemaId: '',
-            totalRows: 1,
-            totalColumns: 1,
-            seatPrice: 0
-          });
-          this.roomAdded.emit();
-          this.closeModal = true;
-          this.showSuccessMessage = true; // Hiển thị thông báo thành công
-          setTimeout(() => {
-            this.showSuccessMessage = false; // Ẩn thông báo sau 3 giây
-          }, 3000);
-        } else {
-          this.errorMessage = response.message || 'Có lỗi xảy ra khi thêm phòng';
+        Swal.fire('Thành công', 'Thêm mới phòng thành công.', 'success');
+        this.roomForm.reset();
+        if (this.closeModal) {
+          this.closeModal.nativeElement.click();
         }
+        this.roomAdded.emit();
       },
       error: (error) => {
-        console.error('Lỗi khi tạo phòng:', error);
-        this.errorMessage = 'Có lỗi xảy ra khi thêm phòng';
-      },
-      complete: () => {
-        this.isLoading = false;
+        Swal.fire('Lỗi', 'Lỗi khi thêm mới phòng: ' + error.message, 'error');
       }
     });
+  }
+
+  validateRoomForm(): boolean {
+    if (!this.roomForm.value.roomName || 
+        !this.roomForm.value.seatPrice || 
+        !this.roomForm.value.totalColNumber || 
+        !this.roomForm.value.totalRowNumber || 
+        !this.roomForm.value.cinemaId) {
+      return false;
+    }
+    return true;
+  }
+
+  // Tự động tính toán tổng số ghế khi thay đổi số hàng hoặc số cột
+  calculateTotalSeats() {
+    const cols = this.roomForm.value.totalColNumber || 0;
+    const rows = this.roomForm.value.totalRowNumber || 0;
+    this.totalSeats = cols * rows;
   }
 }

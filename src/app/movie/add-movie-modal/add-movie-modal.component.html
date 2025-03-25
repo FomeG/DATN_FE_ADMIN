@@ -1,0 +1,138 @@
+<div class="modal fade" id="addMovieModal" tabindex="-1" role="dialog" aria-labelledby="addMovieModalLabel"
+  aria-hidden="true">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="addMovieModalLabel">Thêm phim mới</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form [formGroup]="movieForm" (ngSubmit)="onSubmit()">
+          <!-- Alert for error message -->
+          <div *ngIf="errorMessage" class="alert alert-danger">
+            {{ errorMessage }}
+          </div>
+
+          <div class="form-group">
+            <label for="movieName">Tên phim *</label>
+            <input type="text" class="form-control" id="movieName" formControlName="movieName">
+            <div *ngIf="movieForm.get('movieName')?.touched && movieForm.get('movieName')?.invalid" class="text-danger">
+              <small *ngIf="movieForm.get('movieName')?.errors?.['required']">Tên phim là bắt buộc</small>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="description">Mô tả *</label>
+            <textarea class="form-control" id="description" rows="3" formControlName="description"></textarea>
+            <div *ngIf="movieForm.get('description')?.touched && movieForm.get('description')?.invalid"
+              class="text-danger">
+              <small *ngIf="movieForm.get('description')?.errors?.['required']">Mô tả là bắt buộc</small>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="duration">Thời lượng (phút) *</label>
+            <input type="number" class="form-control" id="duration" formControlName="duration">
+            <div *ngIf="movieForm.get('duration')?.touched && movieForm.get('duration')?.invalid" class="text-danger">
+              <small *ngIf="movieForm.get('duration')?.errors?.['required']">Thời lượng là bắt buộc</small>
+              <small *ngIf="movieForm.get('duration')?.errors?.['min']">Thời lượng phải lớn hơn 0</small>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="releaseDate">Ngày phát hành *</label>
+            <input type="date" class="form-control" id="releaseDate" formControlName="releaseDate">
+            <div *ngIf="movieForm.get('releaseDate')?.touched && movieForm.get('releaseDate')?.invalid"
+              class="text-danger">
+              <small *ngIf="movieForm.get('releaseDate')?.errors?.['required']">Ngày phát hành là bắt buộc</small>
+            </div>
+          </div>
+
+          <!-- Actor Selection -->
+          <div class="mb-3 position-relative">
+            <label class="form-label">Diễn viên</label>
+            <div class="selected-actors mb-2">
+              <span *ngFor="let actor of selectedActors" class="badge bg-primary me-2 mb-2">
+                {{actor.name}}
+                <button type="button" class="btn-close btn-close-white ms-2" (click)="removeActor(actor)"
+                  style="font-size: 0.5rem;">
+                </button>
+              </span>
+            </div>
+            <div class="input-group">
+              <input type="text" class="form-control" [(ngModel)]="searchTerm" [ngModelOptions]="{standalone: true}"
+                (input)="filterActors()" (focus)="showDropdown = true" placeholder="Tìm kiếm diễn viên...">
+            </div>
+          
+            <!-- Dropdown list -->
+            <div class="actor-dropdown shadow" *ngIf="showDropdown && filteredActors.length > 0">
+              <div class="list-group">
+                <button type="button" *ngFor="let actor of filteredActors" class="list-group-item list-group-item-action"
+                  (click)="selectActor(actor)">
+                  {{actor.name}}
+                </button>
+              </div>
+            </div>
+          </div>
+
+
+          <div class="mb-3 position-relative">
+            <label class="form-label">Thể loại</label>
+            <div class="selected-genres mb-2">
+              <span *ngFor="let genre of selectedGenres" class="badge bg-info me-2 mb-2">
+                {{genre.genreName}}
+                <button type="button" class="btn-close btn-close-white ms-2" (click)="removeGenre(genre)"
+                  style="font-size: 0.5rem;">
+                </button>
+              </span>
+            </div>
+            <div class="input-group">
+              <input type="text" class="form-control" [(ngModel)]="genreSearchTerm" [ngModelOptions]="{standalone: true}"
+                (input)="filterGenres()" (focus)="showGenreDropdown = true" placeholder="Tìm kiếm thể loại...">
+            </div>
+          
+            <!-- Dropdown list cho thể loại -->
+            <div class="genre-dropdown shadow" *ngIf="showGenreDropdown && filteredGenres.length > 0">
+              <div class="list-group">
+                <button type="button" *ngFor="let genre of filteredGenres" class="list-group-item list-group-item-action"
+                  (click)="selectGenre(genre)">
+                  {{genre.genreName}}
+                </button>
+              </div>
+            </div>
+          </div>
+
+
+
+          <div class="form-group">
+            <label for="thumbnail">Ảnh thumbnail</label>
+            <input type="file" class="dropify" id="thumbnail" (change)="onFileSelect($event, 'thumbnail')"
+              accept="image/*" data-default-file="" data-allowed-file-extensions="jpg jpeg png gif">
+          </div>
+
+          <div class="form-group">
+            <label for="banner">Ảnh banner</label>
+            <input type="file" class="dropify" id="banner" (change)="onFileSelect($event, 'banner')"
+              accept="image/*" data-default-file="" data-allowed-file-extensions="jpg jpeg png gif">
+          </div>
+
+          <div class="form-group">
+            <label for="trailer">Video trailer</label>
+            <input type="file" class="dropify" id="trailer" (change)="onFileSelect($event, 'trailer')"
+              accept="video/*" data-default-file="" data-allowed-file-extensions="mp4 mov avi mkv">
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn btn-lg rounded btn-outline-danger" data-bs-dismiss="modal">Đóng</button>
+            <button type="submit" class="btn btn-lg btn-primary">
+              <span *ngIf="isLoading" class="spinner-border spinner-border-sm mr-1"></span>
+              Thêm phim
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

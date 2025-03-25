@@ -16,6 +16,7 @@ import { PaymentLayoutComponent } from './VNPAY/payment-layout/payment-layout.co
 import { VoucherManagementComponent } from './voucher/voucher-management/voucher-management.component';
 import { VoucherUsageManagementComponent } from './voucher/voucher-usage-management/voucher-usage-management.component';
 import { CinemaManagementComponent } from './cinema-management/cinema-management.component';
+import { ServiceManagementComponent } from './service-management/service-management.component';
 
 export const routes: Routes = [
   // Public routes that don't require authentication
@@ -40,6 +41,7 @@ export const routes: Routes = [
       { path: 'log', component: LogManagementComponent },
       { path: 'rooms', component: RoomManagementComponent },
       { path: 'pricing-rules', component: PricingRuleComponent },
+      { path: 'service', component: ServiceManagementComponent },
 
 
 

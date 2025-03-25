@@ -21,7 +21,8 @@
     display: flex;
     flex-direction: column;
     position: relative;
-    width: calc(100% - 260px); /* Điều chỉnh theo chiều rộng của sidebar */
+    width: calc(100% - 260px);
+    /* Điều chỉnh theo chiều rộng của sidebar */
 }
 
 .content-wrapper {
@@ -154,7 +155,7 @@ app-footer {
     .payment-content {
         padding: 20px;
     }
-    
+
     .main-panel {
         width: 100%;
     }

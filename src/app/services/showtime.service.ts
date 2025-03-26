@@ -7,11 +7,11 @@ export interface Showtime {
   id: string;
   movieId: string;
   roomId: string;
-  startTime: Date;
-  endTime: Date;
+  startTime: string;
+  endTime: string;
   movieName: string;
   roomName: string;
-  status?: number;
+  status: number;
   isDeleted?: boolean;
 }
 
@@ -50,14 +50,22 @@ export class ShowtimeService {
   }
 
   createShowtime(showtimeData: any): Observable<any> {
-    return this.http.post(`${this.apiUrl}ShowTime/CreateShowTime`, showtimeData);
+    return this.http.post(`${this.apiUrl}ShowTime/Create`, showtimeData);
   }
 
   updateShowtime(id: string, showtimeData: any): Observable<any> {
-    return this.http.post(`${this.apiUrl}ShowTime/UpdateShowTime?ShowTimeId=${id}`, showtimeData);
+    return this.http.post(`${this.apiUrl}ShowTime/Update?ShowTimeId=${id}`, showtimeData);
   }
 
   deleteShowtime(id: string): Observable<any> {
-    return this.http.post(`${this.apiUrl}ShowTime/DeleteShowTime?showTimeId=${id}`, {});
+    return this.http.post(`${this.apiUrl}ShowTime/Delete/${id}`, {});
+  }
+
+  updateShowtimeStatus(id: string, status: number): Observable<any> {
+    return this.http.post(`${this.apiUrl}ShowTime/UpdateShowTimeStatus?id=${id}&status=${status}`, {});
+  }
+
+  getShowtimesByStatus(status: number): Observable<ShowtimeResponse> {
+    return this.http.get<ShowtimeResponse>(`${this.apiUrl}ShowTime/GetByStatus/${status}`);
   }
 }

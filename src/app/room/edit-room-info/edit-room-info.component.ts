@@ -1,4 +1,4 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RoomService, Room, RoomType } from '../../services/room.service';
@@ -37,6 +37,7 @@ import { Modal } from 'bootstrap';
 export class EditRoomInfoComponent implements OnInit {
   @Input() roomId: string = '';
   @Input() totalSeats: number = 0;
+  @Output() roomUpdated = new EventEmitter<void>();
 
   room: Room | null = null;
   roomTypes: RoomType[] = [];
@@ -97,6 +98,8 @@ export class EditRoomInfoComponent implements OnInit {
       next: (response) => {
         if (response.responseCode === 200) {
           Swal.fire('Thành công', 'Cập nhật thông tin phòng thành công', 'success');
+          // Emit event to notify parent
+          this.roomUpdated.emit();
           // Close modal
           const modal = document.getElementById('editRoomInfoModal');
           if (modal) {

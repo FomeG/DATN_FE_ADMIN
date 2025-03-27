@@ -1,0 +1,59 @@
+.date-range-picker {
+  display: inline-block;
+}
+
+.dropdown-menu {
+  min-width: 280px;
+}
+
+.quick-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  justify-content: center;
+}
+
+.dropdown-header {
+  text-align: center;
+  color: var(--bs-primary);
+  font-weight: 600;
+  border-bottom: 1px solid rgba(0,0,0,0.1);
+  padding-bottom: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .dropdown-menu {
+    background-color: #2a2a2a;
+    border-color: #444;
+    color: #fff;
+  }
+  
+  .dropdown-header {
+    color: #7ea8f8;
+    border-bottom-color: rgba(255,255,255,0.1);
+  }
+  
+  .form-control {
+    background-color: #333;
+    border-color: #555;
+    color: #fff;
+  }
+  
+  .form-label {
+    color: #ddd;
+  }
+}
+
+/* Make buttons more compact on smaller screens */
+@media (max-width: 576px) {
+  .quick-options .btn {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
+  }
+  
+  .dropdown-menu {
+    min-width: 250px;
+  }
+} 

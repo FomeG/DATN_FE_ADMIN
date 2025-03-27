@@ -13,7 +13,7 @@ import { authGuard } from './auth/auth.guard';
 import { PaymentCallbackComponent } from './VNPAY/payment-callback/payment-callback.component';
 import { PaymentLayoutComponent } from './VNPAY/payment-layout/payment-layout.component';
 import { CinemaManagementComponent } from './cinema-management/cinema-management.component';
-import { STATISTICS_ROUTES } from './statistics/statistics-routing';
+import { DashboardComponent } from './statistics/dashboard/dashboard.component';
 
 export const routes: Routes = [
   // Public routes that don't require authentication
@@ -44,12 +44,7 @@ export const routes: Routes = [
       { path: 'rooms', component: RoomManagementComponent },
       { path: 'pricing-rules', component: PricingRuleComponent },
       { path: 'cinemas', component: CinemaManagementComponent },
-      
-      // Routes for statistics
-      { 
-        path: 'statistics', 
-        children: STATISTICS_ROUTES 
-      }
+      { path: 'statistics', component: DashboardComponent }
     ]
   },
   

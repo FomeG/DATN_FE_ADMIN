@@ -1,0 +1,52 @@
+<div class="date-range-picker">
+  <div class="dropdown">
+    <button class="btn btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+      <i class="mdi mdi-calendar-range"></i>
+      {{ getDateRangeDisplayName() }}
+    </button>
+    <div class="dropdown-menu p-3">
+      <h6 class="dropdown-header">Chọn khoảng thời gian</h6>
+      
+      <!-- Các lựa chọn nhanh -->
+      <div class="quick-options mb-3">
+        <button class="btn btn-sm" [ngClass]="{'btn-primary': dateRange.label === 'today', 'btn-outline-primary': dateRange.label !== 'today'}"
+                (click)="onRangeTypeChange('today')">
+          Hôm nay
+        </button>
+        <button class="btn btn-sm" [ngClass]="{'btn-primary': dateRange.label === 'thisWeek', 'btn-outline-primary': dateRange.label !== 'thisWeek'}"
+                (click)="onRangeTypeChange('thisWeek')">
+          Tuần này
+        </button>
+        <button class="btn btn-sm" [ngClass]="{'btn-primary': dateRange.label === 'thisMonth', 'btn-outline-primary': dateRange.label !== 'thisMonth'}"
+                (click)="onRangeTypeChange('thisMonth')">
+          Tháng này
+        </button>
+        <button class="btn btn-sm" [ngClass]="{'btn-primary': dateRange.label === 'thisYear', 'btn-outline-primary': dateRange.label !== 'thisYear'}"
+                (click)="onRangeTypeChange('thisYear')">
+          Năm nay
+        </button>
+        <button class="btn btn-sm" [ngClass]="{'btn-primary': dateRange.label === 'custom', 'btn-outline-primary': dateRange.label !== 'custom'}"
+                (click)="onRangeTypeChange('custom')">
+          Tùy chỉnh
+        </button>
+      </div>
+      
+      <!-- Lựa chọn tùy chỉnh -->
+      <div class="custom-range-options" *ngIf="isCustomRange">
+        <div class="mb-3">
+          <label for="startDate" class="form-label">Từ ngày</label>
+          <input type="date" class="form-control" id="startDate" 
+                 [(ngModel)]="customStartDate">
+        </div>
+        <div class="mb-3">
+          <label for="endDate" class="form-label">Đến ngày</label>
+          <input type="date" class="form-control" id="endDate" 
+                 [(ngModel)]="customEndDate">
+        </div>
+        <button class="btn btn-primary w-100" (click)="applyCustomRange()">
+          Áp dụng
+        </button>
+      </div>
+    </div>
+  </div>
+</div> 

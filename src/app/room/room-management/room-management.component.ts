@@ -37,6 +37,7 @@ export class RoomManagementComponent implements OnInit {
   cinemaFilter = '-1';
   roomTypeFilter = '-1';
   cinemas: Cinema[] = [];
+  isLoading = false;
 
   constructor(
     private roomService: RoomService, 
@@ -49,29 +50,31 @@ export class RoomManagementComponent implements OnInit {
     this.loadCinemas();
     this.loadRoomTypes();
     
-    // Kiểm tra trạng thái phòng mỗi 5 phút
+    // Kiểm tra trạng thái phòng mỗi 30 giây
     setInterval(() => {
-      this.rooms.forEach(room => {
-        if (room.status !== 2) { // Không kiểm tra nếu phòng đang bảo trì
-          this.checkRoomStatus(room.id);
-        }
-      });
-    }, 5 * 60 * 1000);
+      this.checkAllRoomsStatus();
+    }, 30 * 1000);
   }
 
   loadRooms() {
-    this.roomService.getRooms(1, 1000).subscribe({
+    this.isLoading = true;
+    this.roomService.getRooms(this.currentPage, this.recordPerPage).subscribe({
       next: (response) => {
         if (response.responseCode === 200) {
           this.allRooms = response.data.filter(room => !room.isdeleted);
+          this.rooms = response.data;
+          this.totalRecords = response.totalRecord;
+          this.totalPages = Math.ceil(this.totalRecords / this.recordPerPage);
           this.applyFilters();
         } else {
-          Swal.fire('Lỗi', response.message || 'Có lỗi xảy ra khi tải danh sách phòng', 'error');
+          Swal.fire('Lỗi', 'Không thể tải danh sách phòng', 'error');
         }
+        this.isLoading = false;
       },
       error: (error) => {
         console.error('Error loading rooms:', error);
         Swal.fire('Lỗi', 'Không thể tải danh sách phòng', 'error');
+        this.isLoading = false;
       }
     });
   }
@@ -102,24 +105,32 @@ export class RoomManagementComponent implements OnInit {
     });
   }
 
-  checkRoomStatus(roomId: string): void {
+  checkAllRoomsStatus() {
+    // Chỉ kiểm tra các phòng không đang bảo trì
+    const roomsToCheck = this.rooms.filter(room => room.status !== 2);
+    
+    // Gọi API một lần để lấy tất cả lịch chiếu
     this.http.get(`${environment.apiUrl}ShowTime/GetList?currentPage=1&recordPerPage=1000`).subscribe({
       next: (response: any) => {
         if (response.responseCode === 200) {
-          const showTimes = response.data.filter((showTime: any) => showTime.roomId === roomId);
+          const showTimes = response.data;
           const currentTime = new Date();
           
-          const hasActiveShowTime = showTimes.some((showTime: any) => {
-            const startTime = new Date(showTime.startTime);
-            const endTime = new Date(showTime.endTime);
-            return currentTime >= startTime && currentTime <= endTime;
-          });
+          // Cập nhật trạng thái cho từng phòng
+          roomsToCheck.forEach(room => {
+            const roomShowTimes = showTimes.filter((showTime: any) => showTime.roomId === room.id);
+            const hasActiveShowTime = roomShowTimes.some((showTime: any) => {
+              const startTime = new Date(showTime.startTime);
+              const endTime = new Date(showTime.endTime);
+              return currentTime >= startTime && currentTime <= endTime;
+            });
 
-          // Chỉ cập nhật trạng thái nếu phòng không đang trong trạng thái bảo trì
-          const room = this.rooms.find(r => r.id === roomId);
-          if (room && room.status !== 2) {
-            this.updateRoomStatus(roomId, hasActiveShowTime ? 4 : 1);
-          }
+            // Chỉ cập nhật nếu trạng thái thay đổi
+            const newStatus = hasActiveShowTime ? 4 : 1;
+            if (room.status !== newStatus) {
+              this.updateRoomStatus(room.id, newStatus);
+            }
+          });
         }
       },
       error: (error) => {
@@ -217,7 +228,6 @@ export class RoomManagementComponent implements OnInit {
   }
 
   onRoomAdded() {
-    Swal.fire('Thành công', 'Thêm mới phòng thành công.', 'success');
     this.loadRooms();
   }
 

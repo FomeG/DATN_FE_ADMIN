@@ -5,89 +5,94 @@
             <!-- Header -->
             <div class="modal-header">
                 <h5 class="modal-title" id="AddRoomModalLabel">Thêm phòng mới</h5>
-                <!-- Nút đóng modal -->
-                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
 
             <!-- Body -->
             <div class="modal-body">
                 <form [formGroup]="roomForm" (ngSubmit)="createRoom()">
-                    <!-- Thông báo lỗi chung -->
-                    <!-- Hiển thị lỗi chỉ khi có lỗi trong quá trình gửi form -->
-                    <div *ngIf="errorMessage && isFormSubmitted" class="alert alert-danger">
-                        {{ errorMessage }}
-                    </div>
-
                     <!-- Chọn rạp -->
-                    <div class="form-group">
-                        <label for="cinemaId">Chọn rạp</label>
-                        <select class="form-control" id="cinemaId" formControlName="cinemaId">
-                            <option value="" disabled>-- Chọn rạp --</option>
-                            <option *ngFor="let cinema of cinemas" [value]="cinema.cinemasId">{{ cinema.name }}</option>
+                    <div class="form-group mb-3">
+                        <label for="cinemaId" class="form-label">Chọn rạp <span class="text-danger">*</span></label>
+                        <select class="form-select" id="cinemaId" formControlName="cinemaId">
+                            <option value="">-- Chọn rạp --</option>
+                            <option *ngFor="let cinema of cinemas" [value]="cinema.cinemasId">
+                                {{ cinema.name }}
+                            </option>
                         </select>
-                        <div *ngIf="roomForm.get('cinemaId')?.touched && roomForm.get('cinemaId')?.invalid"
-                            class="text-danger">
+                        <div class="text-danger" *ngIf="roomForm.get('cinemaId')?.touched && roomForm.get('cinemaId')?.invalid">
                             <small *ngIf="roomForm.get('cinemaId')?.errors?.['required']">Vui lòng chọn rạp</small>
                         </div>
                     </div>
 
-                    <!-- Tên phòng -->
-                    <div class="form-group">
-                        <label for="roomName">Tên phòng</label>
-                        <input type="text" class="form-control" id="roomName" formControlName="roomName">
-                        <div *ngIf="roomForm.get('roomName')?.touched && roomForm.get('roomName')?.invalid"
-                            class="text-danger">
-                            <small *ngIf="roomForm.get('roomName')?.errors?.['required']">Tên phòng là bắt buộc</small>
+                    <!-- Chọn loại phòng -->
+                    <div class="form-group mb-3">
+                        <label for="roomTypeId" class="form-label">Loại phòng <span class="text-danger">*</span></label>
+                        <select class="form-select" id="roomTypeId" formControlName="roomTypeId">
+                            <option value="">-- Chọn loại phòng --</option>
+                            <option *ngFor="let type of roomTypes" [value]="type.roomTypeId">
+                                {{ type.name }}
+                            </option>
+                        </select>
+                        <div class="text-danger" *ngIf="roomForm.get('roomTypeId')?.touched && roomForm.get('roomTypeId')?.invalid">
+                            <small *ngIf="roomForm.get('roomTypeId')?.errors?.['required']">Vui lòng chọn loại phòng</small>
                         </div>
                     </div>
 
-                    <!-- Số hàng -->
-                    <div class="form-group">
-                        <label for="totalRows">Số hàng</label>
-                        <input type="number" class="form-control" id="totalRows" formControlName="totalRows">
-                        <div *ngIf="roomForm.get('totalRows')?.touched && roomForm.get('totalRows')?.invalid"
-                            class="text-danger">
-                            <small *ngIf="roomForm.get('totalRows')?.errors?.['required']">Số hàng là bắt buộc</small>
-                            <small *ngIf="roomForm.get('totalRows')?.errors?.['min']">Số hàng phải lớn hơn 0</small>
+                    <!-- Tên phòng -->
+                    <div class="form-group mb-3">
+                        <label for="name" class="form-label">Tên phòng <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="name" formControlName="name">
+                        <div class="text-danger" *ngIf="roomForm.get('name')?.touched && roomForm.get('name')?.invalid">
+                            <small *ngIf="roomForm.get('name')?.errors?.['required']">Vui lòng nhập tên phòng</small>
                         </div>
                     </div>
 
                     <!-- Số cột -->
-                    <div class="form-group">
-                        <label for="totalColumns">Số cột</label>
-                        <input type="number" class="form-control" id="totalColumns" formControlName="totalColumns">
-                        <div *ngIf="roomForm.get('totalColumns')?.touched && roomForm.get('totalColumns')?.invalid"
-                            class="text-danger">
-                            <small *ngIf="roomForm.get('totalColumns')?.errors?.['required']">Số cột là bắt buộc</small>
-                            <small *ngIf="roomForm.get('totalColumns')?.errors?.['min']">Số cột phải lớn hơn 0</small>
+                    <div class="form-group mb-3">
+                        <label for="totalColNumber" class="form-label">Số cột <span class="text-danger">*</span></label>
+                        <input type="number" class="form-control" id="totalColNumber" formControlName="totalColNumber" 
+                               (change)="calculateTotalSeats()">
+                        <div class="text-danger" *ngIf="roomForm.get('totalColNumber')?.touched && roomForm.get('totalColNumber')?.invalid">
+                            <small *ngIf="roomForm.get('totalColNumber')?.errors?.['required']">Vui lòng nhập số cột</small>
+                            <small *ngIf="roomForm.get('totalColNumber')?.errors?.['min']">Số cột phải lớn hơn 0</small>
+                        </div>
+                    </div>
+
+                    <!-- Số hàng -->
+                    <div class="form-group mb-3">
+                        <label for="totalRowNumber" class="form-label">Số hàng <span class="text-danger">*</span></label>
+                        <input type="number" class="form-control" id="totalRowNumber" formControlName="totalRowNumber"
+                               (change)="calculateTotalSeats()">
+                        <div class="text-danger" *ngIf="roomForm.get('totalRowNumber')?.touched && roomForm.get('totalRowNumber')?.invalid">
+                            <small *ngIf="roomForm.get('totalRowNumber')?.errors?.['required']">Vui lòng nhập số hàng</small>
+                            <small *ngIf="roomForm.get('totalRowNumber')?.errors?.['min']">Số hàng phải lớn hơn 0</small>
                         </div>
                     </div>
 
                     <!-- Giá ghế -->
-                    <div class="form-group">
-                        <label for="seatPrice">Giá ghế</label>
+                    <div class="form-group mb-3">
+                        <label for="seatPrice" class="form-label">Giá ghế (VNĐ) <span class="text-danger">*</span></label>
                         <input type="number" class="form-control" id="seatPrice" formControlName="seatPrice">
-                        <div *ngIf="roomForm.get('seatPrice')?.touched && roomForm.get('seatPrice')?.invalid"
-                            class="text-danger">
-                            <small *ngIf="roomForm.get('seatPrice')?.errors?.['required']">Giá ghế là bắt buộc</small>
-                            <small *ngIf="roomForm.get('seatPrice')?.errors?.['min']">Giá ghế phải >= 0</small>
+                        <div class="text-danger" *ngIf="roomForm.get('seatPrice')?.touched && roomForm.get('seatPrice')?.invalid">
+                            <small *ngIf="roomForm.get('seatPrice')?.errors?.['required']">Vui lòng nhập giá ghế</small>
+                            <small *ngIf="roomForm.get('seatPrice')?.errors?.['min']">Giá ghế phải lớn hơn hoặc bằng 0</small>
                         </div>
                     </div>
 
-                    <div class="modal-footer">
-                        <!-- Nút Đóng modal -->
-                        <button #closeBtn type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
-                        <button type="submit" class="btn btn-primary"  >
-                            <span *ngIf="isLoading" class="spinner-border spinner-border-sm mr-1"></span>
-                            
-                            Thêm phòng
-                        </button>
-
-
+                    <!-- Hiển thị tổng số ghế -->
+                    <div class="alert alert-info" *ngIf="totalSeats > 0">
+                        Tổng số ghế: {{ totalSeats }} ghế
                     </div>
                 </form>
+            </div>
+
+            <div class="modal-footer">
+                <button #closeBtn type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                <button type="button" class="btn btn-primary" (click)="createRoom()" [disabled]="roomForm.invalid || isLoading">
+                    <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-1"></span>
+                    Thêm phòng
+                </button>
             </div>
         </div>
     </div>

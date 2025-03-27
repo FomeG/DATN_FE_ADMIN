@@ -145,8 +145,8 @@
     <app-edit-room></app-edit-room>
 
     <!-- Nhúng component sửa thông tin phòng -->
-    <app-edit-room-info></app-edit-room-info>
+    <app-edit-room-info #editRoomInfoComponent (roomUpdated)="loadRooms()"></app-edit-room-info>
 
     <!-- Nhúng component thêm phòng -->
-    <app-add-room (movieAdded)="onRoomAdded()"></app-add-room>
+    <app-add-room (roomAdded)="onRoomAdded()"></app-add-room>
 </div>

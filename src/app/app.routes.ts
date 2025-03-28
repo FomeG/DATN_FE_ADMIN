@@ -1,7 +1,7 @@
 import { Routes } from '@angular/router';
 import { MovieManagementComponent } from './movie/movie-management/movie-management.component';
 import { MovieDetailComponent } from './movie/movie-detail/movie-detail.component';
-import { EditMovieComponent } from './edit-movie/edit-movie.component';
+import { EditMovieComponent } from './movie/edit-movie/edit-movie.component';
 import { EmpManagementComponent } from './emp-management/emp-management.component';
 import { ActorManagementComponent } from './actor-management/actor-management.component';
 import { ShowtimeManagementComponent } from './showtime-management/showtime-management.component';

@@ -59,10 +59,10 @@ export type SeatProfitabilityChartOptions = {
       <div class="card-header d-flex justify-content-between align-items-center">
         <h5 class="card-title mb-0">Lợi nhuận ghế</h5>
         <div class="btn-group">
-          <button class="btn btn-sm btn-outline-primary" data-bs-toggle="tooltip" title="Xuất Excel" (click)="exportDataToExcel()">
+          <button class="btn btn-sm btn-outline-primary" data-bs-toggle="tooltip" title="Xuất Excel" (click)="exportSeatProfitabilityToExcel()">
             <i class="mdi mdi-microsoft-excel"></i> Xuất Excel
           </button>
-          <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="tooltip" title="Tải lại" (click)="loadChartData()">
+          <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="tooltip" title="Tải lại" (click)="loadSeatProfitabilityData()">
             <i class="mdi mdi-refresh"></i> Tải lại
           </button>
         </div>
@@ -75,20 +75,13 @@ export type SeatProfitabilityChartOptions = {
         </div>
         
         <div *ngIf="!isLoading && !hasData" class="text-center p-5">
-          <p class="text-muted mb-4">API chưa trả về dữ liệu. Hiển thị dữ liệu mẫu:</p>
-          <div id="sample-chart">
-            <apx-chart
-              [series]="sampleChartOptions.series"
-              [chart]="sampleChartOptions.chart"
-              [xaxis]="sampleChartOptions.xaxis"
-              [stroke]="sampleChartOptions.stroke"
-              [dataLabels]="sampleChartOptions.dataLabels"
-              [yaxis]="sampleChartOptions.yaxis"
-              [legend]="sampleChartOptions.legend"
-              [fill]="sampleChartOptions.fill"
-              [tooltip]="sampleChartOptions.tooltip"
-              [plotOptions]="sampleChartOptions.plotOptions"
-            ></apx-chart>
+          <p class="text-muted">Không có dữ liệu trong khoảng thời gian đã chọn</p>
+        </div>
+        
+        <div *ngIf="isSampleData" class="sample-data-warning">
+          <div class="alert alert-warning mb-3">
+            <i class="mdi mdi-information-outline me-2"></i>
+            Đang hiển thị dữ liệu mẫu do không có dữ liệu thực từ API
           </div>
         </div>
         
@@ -295,14 +288,19 @@ export type SeatProfitabilityChartOptions = {
         color: #90cdf4 !important;
       }
     }
+    
+    .sample-data-warning {
+      margin-bottom: 1rem;
+    }
   `]
 })
 export class SeatProfitabilityChartComponent implements OnInit, OnDestroy {
   chartOptions!: SeatProfitabilityChartOptions;
   sampleChartOptions!: SeatProfitabilityChartOptions;
   
-  isLoading: boolean = false;
-  hasData: boolean = false;
+  isLoading = true;
+  hasData = false;
+  isSampleData = false;
   
   private dateRangeSubscription: Subscription;
   private currentDateRange: DateRange;
@@ -320,12 +318,12 @@ export class SeatProfitabilityChartComponent implements OnInit, OnDestroy {
 
     this.dateRangeSubscription = this.dashboardService.dateRange$.subscribe(range => {
       this.currentDateRange = range;
-      this.loadChartData();
+      this.loadSeatProfitabilityData();
     });
   }
 
   ngOnInit(): void {
-    this.loadChartData();
+    this.loadSeatProfitabilityData();
   }
 
   ngOnDestroy(): void {
@@ -517,25 +515,34 @@ export class SeatProfitabilityChartComponent implements OnInit, OnDestroy {
   /**
    * Tải dữ liệu biểu đồ
    */
-  loadChartData(): void {
+  loadSeatProfitabilityData(): void {
     this.isLoading = true;
     this.hasData = false;
+    this.isSampleData = false;
+
+    // Chuyển đổi null thành undefined nếu cần
+    const startDate = this.currentDateRange?.startDate ?? undefined;
+    const endDate = this.currentDateRange?.endDate ?? undefined;
     
-    this.statisticService.getSeatProfitability(
-      this.currentDateRange.startDate || undefined,
-      this.currentDateRange.endDate || undefined
-    ).subscribe({
+    this.statisticService.getSeatProfitability(startDate, endDate).subscribe({
       next: (response: CommonResponse<StatisticSeatProfitabilityRes[]>) => {
         this.isLoading = false;
-        
-        if (response.data && response.data.length > 0) {
+        if (response && response.data && response.data.length > 0) {
           this.hasData = true;
+          this.isSampleData = false;
           this.updateChart(response.data);
+        } else {
+          this.hasData = true;
+          this.isSampleData = true;
+          this.updateChartWithSampleData();
         }
       },
       error: (error: any) => {
-        console.error('Error loading seat profitability data', error);
         this.isLoading = false;
+        console.error('Lỗi khi tải dữ liệu lợi nhuận ghế:', error);
+        this.hasData = true;
+        this.isSampleData = true;
+        this.updateChartWithSampleData();
       }
     });
   }
@@ -576,7 +583,7 @@ export class SeatProfitabilityChartComponent implements OnInit, OnDestroy {
     };
   }
 
-  exportDataToExcel(): void {
+  exportSeatProfitabilityToExcel(): void {
     if (!this.hasData) return;
     
     // Chuẩn bị dữ liệu xuất Excel
@@ -594,5 +601,9 @@ export class SeatProfitabilityChartComponent implements OnInit, OnDestroy {
       'Lợi nhuận ghế',
       this.currentDateRange
     );
+  }
+
+  private updateChartWithSampleData(): void {
+    this.chartOptions = this.sampleChartOptions;
   }
 } 

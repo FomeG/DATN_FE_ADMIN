@@ -83,6 +83,13 @@ export type RevenueChartOptions = {
           <p class="text-muted">Không có dữ liệu trong khoảng thời gian đã chọn</p>
         </div>
         
+        <div *ngIf="isSampleData" class="sample-data-warning">
+          <div class="alert alert-warning mb-3">
+            <i class="mdi mdi-information-outline me-2"></i>
+            Đang hiển thị dữ liệu mẫu do không có dữ liệu thực từ API
+          </div>
+        </div>
+        
         <div *ngIf="!isLoading && hasData">
           <div id="revenue-chart">
             <apx-chart
@@ -358,6 +365,10 @@ export type RevenueChartOptions = {
         border-bottom: 1px solid #4a5568 !important;
       }
     }
+
+    .sample-data-warning {
+      margin-bottom: 1rem;
+    }
   `]
 })
 export class RevenueChartComponent implements OnInit, OnDestroy {
@@ -368,6 +379,7 @@ export class RevenueChartComponent implements OnInit, OnDestroy {
     isLoadingCinema = true;
     hasData = false;
     hasCinemaData = false;
+    isSampleData = false;
 
     private dateRangeSubscription!: Subscription;
     private currentDateRange: DateRange = {} as DateRange;
@@ -398,6 +410,7 @@ export class RevenueChartComponent implements OnInit, OnDestroy {
     loadRevenueByTimeData(): void {
         this.isLoading = true;
         this.hasData = false;
+        this.isSampleData = false;
 
         if (!this.currentDateRange) {
             this.isLoading = false;
@@ -413,12 +426,20 @@ export class RevenueChartComponent implements OnInit, OnDestroy {
 
                 if (response && response.data && response.data.length > 0) {
                     this.hasData = true;
+                    this.isSampleData = false;
                     this.updateTimeChart(response.data);
+                } else {
+                    this.hasData = true;
+                    this.isSampleData = true;
+                    this.updateTimeChartWithSampleData();
                 }
             },
             error: (error: any) => {
                 this.isLoading = false;
                 console.error('Error loading revenue by time data', error);
+                this.hasData = true;
+                this.isSampleData = true;
+                this.updateTimeChartWithSampleData();
             }
         });
     }
@@ -495,6 +516,26 @@ export class RevenueChartComponent implements OnInit, OnDestroy {
         }];
 
         this.cinemaChartOptions.xaxis.categories = categories;
+    }
+
+    private updateTimeChartWithSampleData(): void {
+        // Tạo dữ liệu mẫu cho biểu đồ
+        const sampleData: StatisticRevenueByTimeRes[] = [
+            { orderDate: new Date('2023-01-15'), hourOfDay: 0, totalRevenue: 25000000, totalOrders: 150 },
+            { orderDate: new Date('2023-02-15'), hourOfDay: 0, totalRevenue: 35000000, totalOrders: 210 },
+            { orderDate: new Date('2023-03-15'), hourOfDay: 0, totalRevenue: 30000000, totalOrders: 180 },
+            { orderDate: new Date('2023-04-15'), hourOfDay: 0, totalRevenue: 40000000, totalOrders: 240 },
+            { orderDate: new Date('2023-05-15'), hourOfDay: 0, totalRevenue: 50000000, totalOrders: 300 },
+            { orderDate: new Date('2023-06-15'), hourOfDay: 0, totalRevenue: 45000000, totalOrders: 270 },
+            { orderDate: new Date('2023-07-15'), hourOfDay: 0, totalRevenue: 55000000, totalOrders: 330 },
+            { orderDate: new Date('2023-08-15'), hourOfDay: 0, totalRevenue: 60000000, totalOrders: 360 },
+            { orderDate: new Date('2023-09-15'), hourOfDay: 0, totalRevenue: 65000000, totalOrders: 390 },
+            { orderDate: new Date('2023-10-15'), hourOfDay: 0, totalRevenue: 70000000, totalOrders: 420 },
+            { orderDate: new Date('2023-11-15'), hourOfDay: 0, totalRevenue: 75000000, totalOrders: 450 },
+            { orderDate: new Date('2023-12-15'), hourOfDay: 0, totalRevenue: 80000000, totalOrders: 480 }
+        ];
+        
+        this.updateTimeChart(sampleData);
     }
 
     private initChartOptions(): void {

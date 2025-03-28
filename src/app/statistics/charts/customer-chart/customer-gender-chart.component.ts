@@ -71,6 +71,13 @@ interface CommonResponse<T> {
           <p class="text-muted">Không có dữ liệu trong khoảng thời gian đã chọn</p>
         </div>
         
+        <div *ngIf="isSampleData" class="sample-data-warning">
+          <div class="alert alert-warning mb-3">
+            <i class="mdi mdi-information-outline me-2"></i>
+            Đang hiển thị dữ liệu mẫu do không có dữ liệu thực từ API
+          </div>
+        </div>
+        
         <div *ngIf="!isLoading && hasData">
           <div id="gender-chart">
             <apx-chart
@@ -285,12 +292,17 @@ interface CommonResponse<T> {
         border-bottom: 1px solid #4a5568 !important;
       }
     }
+
+    .sample-data-warning {
+      margin-bottom: 1rem;
+    }
   `]
 })
 export class CustomerGenderChartComponent implements OnInit, OnDestroy {
   chartOptions!: GenderChartOptions;
   isLoading = true;
   hasData = false;
+  isSampleData = false;
 
   private dateRangeSubscription!: Subscription;
   private currentDateRange: DateRange = {} as DateRange;
@@ -319,6 +331,7 @@ export class CustomerGenderChartComponent implements OnInit, OnDestroy {
   loadGenderData(): void {
     this.isLoading = true;
     this.hasData = false;
+    this.isSampleData = false;
 
     console.log('Đang gọi API với tham số:', {
       startDate: this.currentDateRange?.startDate,
@@ -333,10 +346,12 @@ export class CustomerGenderChartComponent implements OnInit, OnDestroy {
 
         if (response && response.data && response.data.length > 0) {
           this.hasData = true;
+          this.isSampleData = false;
           this.updateChart(response.data);
         } else {
           console.log('Không có dữ liệu giới tính khách hàng, hiển thị dữ liệu mẫu');
           this.hasData = true;
+          this.isSampleData = true;
           this.updateChartWithSampleData();
         }
       },
@@ -346,6 +361,7 @@ export class CustomerGenderChartComponent implements OnInit, OnDestroy {
         alert('Lỗi khi tải dữ liệu giới tính khách hàng: ' + JSON.stringify(error));
         // Hiển thị dữ liệu mẫu trong trường hợp lỗi
         this.hasData = true;
+        this.isSampleData = true;
         this.updateChartWithSampleData();
       }
     });
@@ -378,9 +394,8 @@ export class CustomerGenderChartComponent implements OnInit, OnDestroy {
    */
   private updateChartWithSampleData(): void {
     const sampleData: StatisticCustomerGenderRes[] = [
-      { gender: 'Male', totalCustomers: 65, totalSpent: 3250000 },
-      { gender: 'Female', totalCustomers: 45, totalSpent: 2150000 },
-      { gender: 'Other', totalCustomers: 5, totalSpent: 250000 }
+      { gender: 'Female', totalCustomers: 1, totalSpent: 3887996 },
+      { gender: 'Male', totalCustomers: 1, totalSpent: 3820271 }
     ];
     
     this.updateChart(sampleData);

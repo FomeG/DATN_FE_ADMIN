@@ -64,6 +64,13 @@ interface CommonResponse<T> {
           <p class="text-muted">Không có dữ liệu trong khoảng thời gian đã chọn</p>
         </div>
         
+        <div *ngIf="isSampleData" class="sample-data-warning">
+          <div class="alert alert-warning mb-3">
+            <i class="mdi mdi-information-outline me-2"></i>
+            Đang hiển thị dữ liệu mẫu do không có dữ liệu thực từ API
+          </div>
+        </div>
+        
         <div *ngIf="!isLoading && hasData">
           <div id="popular-genres-chart">
             <apx-chart
@@ -277,15 +284,21 @@ interface CommonResponse<T> {
         border-bottom: 1px solid #4a5568 !important;
       }
     }
+    
+    .sample-data-warning {
+      margin-bottom: 1rem;
+    }
   `]
 })
 export class PopularGenresChartComponent implements OnInit, OnDestroy {
   chartOptions!: PopularGenresChartOptions;
   isLoading = true;
   hasData = false;
+  isSampleData = false;
 
   private dateRangeSubscription!: Subscription;
   private currentDateRange: DateRange = {} as DateRange;
+  private currentPopularGenresData: StatisticPopularGenresRes[] = [];
 
   constructor(
     private statisticService: StatisticService,
@@ -311,34 +324,33 @@ export class PopularGenresChartComponent implements OnInit, OnDestroy {
   loadPopularGenresData(): void {
     this.isLoading = true;
     this.hasData = false;
-
-    console.log('Đang gọi API thể loại phim phổ biến với tham số:', {
-      startDate: this.currentDateRange?.startDate,
-      endDate: this.currentDateRange?.endDate
-    });
-
-    this.statisticService.getPopularGenres(
-      this.currentDateRange?.startDate || undefined,
-      this.currentDateRange?.endDate || undefined
-    ).subscribe({
+    this.isSampleData = false;
+    
+    const startDate = this.currentDateRange?.startDate ?? undefined;
+    const endDate = this.currentDateRange?.endDate ?? undefined;
+    
+    this.statisticService.getPopularGenres(startDate, endDate).subscribe({
       next: (response: CommonResponse<StatisticPopularGenresRes[]>) => {
         this.isLoading = false;
         console.log('Kết quả API thể loại phim phổ biến:', response);
 
         if (response && response.data && response.data.length > 0) {
           this.hasData = true;
+          this.isSampleData = false;
+          this.currentPopularGenresData = response.data;
           this.updateChart(response.data);
         } else {
           console.log('Không có dữ liệu thể loại phim phổ biến, hiển thị dữ liệu mẫu');
           this.hasData = true;
+          this.isSampleData = true;
           this.updateChartWithSampleData();
         }
       },
       error: (error: any) => {
         this.isLoading = false;
         console.error('Lỗi khi tải dữ liệu thể loại phim phổ biến:', error);
-        // Hiển thị dữ liệu mẫu trong trường hợp lỗi
         this.hasData = true;
+        this.isSampleData = true;
         this.updateChartWithSampleData();
       }
     });
@@ -346,7 +358,7 @@ export class PopularGenresChartComponent implements OnInit, OnDestroy {
 
   private updateChart(data: StatisticPopularGenresRes[]): void {
     // Giới hạn số lượng thể loại hiển thị (top 10)
-    data.sort((a, b) => b.totalRevenue - a.totalRevenue);
+    data.sort((a, b) => b.totalBookedSeats - a.totalBookedSeats);
     const topData = data.slice(0, 10);
     
     const labels: string[] = [];
@@ -355,8 +367,8 @@ export class PopularGenresChartComponent implements OnInit, OnDestroy {
     // Xử lý từng thể loại phim
     topData.forEach(item => {
       labels.push(item.genreName);
-      // Chuyển đổi doanh thu thành đơn vị triệu đồng cho dễ đọc
-      series.push(Math.round(item.totalRevenue / 1000000));
+      // Sử dụng số lượng ghế đã đặt
+      series.push(item.totalBookedSeats);
     });
 
     this.chartOptions.series = series;
@@ -368,14 +380,14 @@ export class PopularGenresChartComponent implements OnInit, OnDestroy {
    */
   private updateChartWithSampleData(): void {
     const sampleData: StatisticPopularGenresRes[] = [
-      { genreName: 'Hành động', totalShowtimes: 120, totalRevenue: 450000000 },
-      { genreName: 'Hoạt hình', totalShowtimes: 100, totalRevenue: 380000000 },
-      { genreName: 'Khoa học viễn tưởng', totalShowtimes: 85, totalRevenue: 320000000 },
-      { genreName: 'Kinh dị', totalShowtimes: 70, totalRevenue: 250000000 },
-      { genreName: 'Tình cảm', totalShowtimes: 65, totalRevenue: 220000000 },
-      { genreName: 'Hài', totalShowtimes: 60, totalRevenue: 180000000 },
-      { genreName: 'Phiêu lưu', totalShowtimes: 50, totalRevenue: 150000000 },
-      { genreName: 'Tâm lý', totalShowtimes: 40, totalRevenue: 120000000 }
+      { genreName: 'Tình Cảm', totalShowtimes: 5, totalBookedSeats: 76 },
+      { genreName: 'Gia Đình', totalShowtimes: 5, totalBookedSeats: 72 },
+      { genreName: 'Kịch', totalShowtimes: 2, totalBookedSeats: 71 },
+      { genreName: 'Kinh Dị', totalShowtimes: 3, totalBookedSeats: 65 },
+      { genreName: 'Xã Hội', totalShowtimes: 2, totalBookedSeats: 51 },
+      { genreName: 'Viễn Tưởng', totalShowtimes: 7, totalBookedSeats: 11 },
+      { genreName: 'Tâm Lý', totalShowtimes: 1, totalBookedSeats: 2 },
+      { genreName: 'Hành Động', totalShowtimes: 1, totalBookedSeats: 1 }
     ];
     
     this.updateChart(sampleData);
@@ -468,7 +480,7 @@ export class PopularGenresChartComponent implements OnInit, OnDestroy {
         theme: 'dark',
         y: {
           formatter: function(val: number) {
-            return val + ' triệu đồng';
+            return val + ' lượt đặt vé';
           }
         },
         custom: ({ series, seriesIndex, dataPointIndex, w }: any) => {
@@ -479,7 +491,7 @@ export class PopularGenresChartComponent implements OnInit, OnDestroy {
           return `
             <div class="custom-tooltip">
               <span class="tooltip-title">${label}</span>
-              <span class="tooltip-value">${value} triệu đồng (${percent}%)</span>
+              <span class="tooltip-value">${value} lượt đặt vé (${percent}%)</span>
             </div>
           `;
         }
@@ -514,14 +526,23 @@ export class PopularGenresChartComponent implements OnInit, OnDestroy {
   exportPopularGenresToExcel(): void {
     if (!this.hasData) return;
 
-    // Chuẩn bị dữ liệu xuất Excel
-    const exportData = this.chartOptions.labels.map((genre: string, index: number) => {
+    // Lấy dữ liệu hiện tại đang hiển thị trên biểu đồ
+    const genresData = this.chartOptions.labels.map((genre: string, index: number) => {
+      // Tìm dữ liệu tổng số suất chiếu từ data gốc nếu có
+      const genreData = this.currentPopularGenresData.find(item => item.genreName === genre);
+      
       return {
         'Thể loại': genre,
-        'Doanh thu (triệu đồng)': this.chartOptions.series[index]
+        'Số suất chiếu': genreData?.totalShowtimes || 0,
+        'Lượt đặt vé': this.chartOptions.series[index]
       };
     });
 
-    this.exportService.exportToExcel(exportData, 'the_loai_phim_pho_bien', 'Thể loại phim phổ biến', this.currentDateRange);
+    this.exportService.exportToExcel(
+      genresData, 
+      'the_loai_phim_pho_bien', 
+      'Thể loại phim phổ biến', 
+      this.currentDateRange
+    );
   }
 } 

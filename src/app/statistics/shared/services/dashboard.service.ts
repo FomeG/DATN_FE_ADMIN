@@ -74,13 +74,19 @@ export class DashboardService {
    */
   private getTodayDateRange(): DateRange {
     const today = new Date();
-    today.setHours(0, 0, 0, 0);
     
-    const endOfDay = new Date();
+    // Bắt đầu ngày hôm nay, 00:00:00
+    const startOfDay = new Date(today);
+    startOfDay.setHours(0, 0, 0, 0);
+    
+    // Kết thúc ngày hôm nay, 23:59:59
+    const endOfDay = new Date(today);
     endOfDay.setHours(23, 59, 59, 999);
     
+    console.log(`Hôm nay: từ ${startOfDay.toLocaleString()} đến ${endOfDay.toLocaleString()}`);
+    
     return {
-      startDate: today,
+      startDate: startOfDay,
       endDate: endOfDay,
       label: 'today'
     };
@@ -91,17 +97,22 @@ export class DashboardService {
    */
   private getWeekDateRange(): DateRange {
     const today = new Date();
-    const currentDay = today.getDay(); // 0 = Sunday, 1 = Monday, etc.
+    const currentDay = today.getDay(); // 0 = Chủ nhật, 1 = Thứ 2, ..., 6 = Thứ 7
     
-    // Tính toán ngày đầu tiên trong tuần (Chủ nhật)
+    // Tính toán ngày đầu tiên trong tuần (Thứ 2)
+    // Nếu hôm nay là Chủ nhật (0), thì đầu tuần là thứ 2 tuần trước (-6 ngày)
+    // Nếu hôm nay là thứ 2-7 (1-6), thì đầu tuần là thứ 2 tuần này (1-currentDay ngày)
     const firstDay = new Date(today);
-    firstDay.setDate(today.getDate() - currentDay);
+    const daysSinceMonday = currentDay === 0 ? 6 : currentDay - 1;
+    firstDay.setDate(today.getDate() - daysSinceMonday);
     firstDay.setHours(0, 0, 0, 0);
     
-    // Tính toán ngày cuối cùng trong tuần (Thứ 7)
+    // Tính toán ngày cuối cùng trong tuần (Chủ nhật)
     const lastDay = new Date(firstDay);
     lastDay.setDate(firstDay.getDate() + 6);
     lastDay.setHours(23, 59, 59, 999);
+    
+    console.log(`Tuần này: từ ${firstDay.toLocaleString()} đến ${lastDay.toLocaleString()}`);
     
     return {
       startDate: firstDay,
@@ -124,6 +135,8 @@ export class DashboardService {
     const lastDay = new Date(today.getFullYear(), today.getMonth() + 1, 0);
     lastDay.setHours(23, 59, 59, 999);
     
+    console.log(`Tháng này: từ ${firstDay.toLocaleString()} đến ${lastDay.toLocaleString()}`);
+    
     return {
       startDate: firstDay,
       endDate: lastDay,
@@ -144,6 +157,8 @@ export class DashboardService {
     // Ngày cuối cùng của năm
     const lastDay = new Date(today.getFullYear(), 11, 31);
     lastDay.setHours(23, 59, 59, 999);
+    
+    console.log(`Năm này: từ ${firstDay.toLocaleString()} đến ${lastDay.toLocaleString()}`);
     
     return {
       startDate: firstDay,

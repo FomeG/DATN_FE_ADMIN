@@ -70,6 +70,13 @@ interface CommonResponse<T> {
         <div *ngIf="!isLoading && !hasData" class="text-center p-5">
           <p class="text-muted">Không có dữ liệu trong khoảng thời gian đã chọn</p>
         </div>
+
+        <div *ngIf="isSampleData" class="sample-data-warning">
+          <div class="alert alert-warning mb-3">
+            <i class="mdi mdi-information-outline me-2"></i>
+            Đang hiển thị dữ liệu mẫu do không có dữ liệu thực từ API
+          </div>
+        </div>
         
         <div *ngIf="!isLoading && hasData">
           <div id="seat-occupancy-chart">
@@ -286,12 +293,17 @@ interface CommonResponse<T> {
         border-bottom: 1px solid #4a5568 !important;
       }
     }
+
+    .sample-data-warning {
+      margin-bottom: 1rem;
+    }
   `]
 })
 export class SeatOccupancyChartComponent implements OnInit, OnDestroy {
   chartOptions!: SeatOccupancyChartOptions;
   isLoading = true;
   hasData = false;
+  isSampleData = false;
 
   private dateRangeSubscription!: Subscription;
   private currentDateRange: DateRange = {} as DateRange;
@@ -300,11 +312,11 @@ export class SeatOccupancyChartComponent implements OnInit, OnDestroy {
     private statisticService: StatisticService,
     private dashboardService: DashboardService,
     private exportService: ExportService
-  ) {
-    this.initChartOptions();
-  }
+  ) { }
 
   ngOnInit(): void {
+    this.initChartOptions();
+    this.currentDateRange = this.dashboardService.getCurrentDateRange();
     this.dateRangeSubscription = this.dashboardService.dateRange$.subscribe(dateRange => {
       this.currentDateRange = dateRange;
       this.loadSeatOccupancyData();
@@ -320,159 +332,190 @@ export class SeatOccupancyChartComponent implements OnInit, OnDestroy {
   loadSeatOccupancyData(): void {
     this.isLoading = true;
     this.hasData = false;
-
-    console.log('Đang gọi API tỷ lệ lấp đầy ghế với tham số:', {
-      startDate: this.currentDateRange?.startDate,
-      endDate: this.currentDateRange?.endDate
-    });
-
-    // Gọi API mà không truyền tham số thời gian để tránh lỗi
-    this.statisticService.getSeatOccupancy().subscribe({
-      next: (response: CommonResponse<StatisticSeatOccupancyRes[]>) => {
-        this.isLoading = false;
-        console.log('Kết quả API tỷ lệ lấp đầy ghế (không filter thời gian):', response);
-
-        if (response && response.data && response.data.length > 0) {
+    this.isSampleData = false;
+    
+    // Chuyển đổi null thành undefined
+    const startDate = this.currentDateRange.startDate ?? undefined;
+    const endDate = this.currentDateRange.endDate ?? undefined;
+    
+    this.statisticService.getSeatOccupancy(startDate, endDate)
+      .subscribe({
+        next: (response: CommonResponse<StatisticSeatOccupancyRes[]>) => {
+          this.isLoading = false;
+          if (response && response.data && response.data.length > 0) {
+            this.hasData = true;
+            this.isSampleData = false;
+            this.updateChart(response.data);
+          } else {
+            // Nếu không có dữ liệu thực, sử dụng dữ liệu mẫu
+            this.hasData = true;
+            this.isSampleData = true;
+            this.updateChartWithSampleData();
+          }
+        },
+        error: (error: any) => {
+          console.error('Error loading seat occupancy data:', error);
+          this.isLoading = false;
           this.hasData = true;
-          this.updateChart(response.data);
-        } else {
-          console.log('Không có dữ liệu tỷ lệ lấp đầy ghế, hiển thị dữ liệu mẫu');
-          this.hasData = true;
+          this.isSampleData = true;
+          // Hiển thị dữ liệu mẫu khi gặp lỗi
           this.updateChartWithSampleData();
         }
-      },
-      error: (error: any) => {
-        this.isLoading = false;
-        console.error('Lỗi khi tải dữ liệu tỷ lệ lấp đầy ghế:', error);
-        // Hiển thị dữ liệu mẫu trong trường hợp lỗi
-        this.hasData = true;
-        this.updateChartWithSampleData();
-      }
-    });
+      });
   }
 
   private updateChart(data: StatisticSeatOccupancyRes[]): void {
-    // Giới hạn số lượng phim hiển thị (10 phim có tỷ lệ lấp đầy cao nhất)
-    data.sort((a, b) => b.occupancyRate - a.occupancyRate);
-    const topData = data.slice(0, 10);
+    // Tạo dữ liệu cho heatmap
+    const daysOfWeek = ['Thứ 2', 'Thứ 3', 'Thứ 4', 'Thứ 5', 'Thứ 6', 'Thứ 7', 'Chủ nhật'];
+    const timeSlots = ['09:00', '11:30', '14:00', '16:30', '19:00', '21:30'];
     
-    const categories: string[] = [];
-    const seriesData: { name: string; data: number[] }[] = [];
+    // Khởi tạo mảng dữ liệu cho heatmap
+    const heatmapData: { name: string; data: { x: string; y: number; }[] }[] = [];
     
-    // Xử lý từng phim và tỷ lệ lấp đầy
-    topData.forEach(item => {
-      // Format ngày giờ hiển thị
-      const startTime = new Date(item.startTime);
-      const timeStr = startTime.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
-      const dateStr = startTime.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit' });
+    // Tạo mảng 2 chiều để lưu trữ tỷ lệ lấp đầy theo ngày và giờ
+    const occupancyByDayAndTime: { [day: string]: { [time: string]: { count: number; total: number; } } } = {};
+    
+    // Khởi tạo dữ liệu trống cho tất cả các ô trong heatmap
+    daysOfWeek.forEach(day => {
+      occupancyByDayAndTime[day] = {};
+      timeSlots.forEach(time => {
+        occupancyByDayAndTime[day][time] = { count: 0, total: 0 };
+      });
+    });
+    
+    // Phân loại dữ liệu vào các ô tương ứng
+    data.forEach(item => {
+      const date = new Date(item.startTime);
+      const dayIndex = date.getDay(); // 0 = Chủ nhật, 1-6 = Thứ 2-Chủ nhật
+      const day = daysOfWeek[dayIndex === 0 ? 6 : dayIndex - 1]; // Chuyển đổi sang mảng daysOfWeek
       
-      const movieName = item.movieName.length > 20 
-        ? item.movieName.substring(0, 17) + '...' 
-        : item.movieName;
+      // Lấy giờ và phút
+      const hours = date.getHours();
+      const minutes = date.getMinutes();
+      
+      // Tìm khung giờ gần nhất
+      let closestTime = timeSlots[0];
+      let minDiff = Number.MAX_VALUE;
+      
+      timeSlots.forEach(timeSlot => {
+        const [h, m] = timeSlot.split(':').map(Number);
+        const slotMinutes = h * 60 + m;
+        const currentMinutes = hours * 60 + minutes;
+        const diff = Math.abs(currentMinutes - slotMinutes);
         
-      const displayName = `${movieName} (${timeStr} ${dateStr})`;
-      const rate = Math.round(item.occupancyRate * 100); // Làm tròn phần trăm
+        if (diff < minDiff) {
+          minDiff = diff;
+          closestTime = timeSlot;
+        }
+      });
       
-      categories.push(displayName);
+      // Cập nhật số liệu cho ô tương ứng
+      occupancyByDayAndTime[day][closestTime].count += item.bookedSeats;
+      occupancyByDayAndTime[day][closestTime].total += item.totalSeats;
     });
     
-    // Tạo dữ liệu dạng heatmap (chỉ cần 1 cột)
-    seriesData.push({
-      name: "Tỷ lệ lấp đầy (%)",
-      data: topData.map(item => Math.round(item.occupancyRate * 100))
+    // Tạo dữ liệu cho từng ngày trong tuần
+    daysOfWeek.forEach(day => {
+      const dayData: { x: string; y: number; }[] = [];
+      
+      timeSlots.forEach(time => {
+        const cell = occupancyByDayAndTime[day][time];
+        const occupancyRate = cell.total > 0 ? Math.round((cell.count / cell.total) * 100) : 0;
+        
+        dayData.push({
+          x: time,
+          y: occupancyRate
+        });
+      });
+      
+      heatmapData.push({
+        name: day,
+        data: dayData
+      });
     });
-
-    this.chartOptions.series = seriesData;
-    this.chartOptions.xaxis.categories = categories;
+    
+    // Cập nhật tùy chọn biểu đồ
+    this.chartOptions.series = heatmapData;
+    this.chartOptions.tooltip = {
+      custom: ({ series, seriesIndex, dataPointIndex, w }) => {
+        const value = series[seriesIndex][dataPointIndex];
+        const day = w.globals.seriesNames[seriesIndex];
+        const time = w.globals.labels[dataPointIndex];
+        
+        return `<div class="custom-tooltip">
+          <span class="tooltip-title">${day} - ${time}</span>
+          <span class="tooltip-value">Tỷ lệ lấp đầy: ${value}%</span>
+        </div>`;
+      }
+    };
+    
+    this.hasData = true;
   }
 
-  /**
-   * Cập nhật biểu đồ với dữ liệu mẫu khi không có dữ liệu thực
-   */
   private updateChartWithSampleData(): void {
-    const now = new Date();
-    const sampleData: StatisticSeatOccupancyRes[] = [
-      { 
-        startTime: new Date(now.getFullYear(), now.getMonth(), now.getDate(), 10, 0), 
-        movieName: 'Người Nhện: Không Còn Nhà', 
-        totalSeats: 100, 
-        bookedSeats: 92, 
-        occupancyRate: 0.92 
-      },
-      { 
-        startTime: new Date(now.getFullYear(), now.getMonth(), now.getDate(), 14, 30), 
-        movieName: 'Biệt Đội Avengers', 
-        totalSeats: 100, 
-        bookedSeats: 88, 
-        occupancyRate: 0.88 
-      },
-      { 
-        startTime: new Date(now.getFullYear(), now.getMonth(), now.getDate(), 18, 0), 
-        movieName: 'Kẻ Cắp Mặt Trăng 4', 
-        totalSeats: 100, 
-        bookedSeats: 85, 
-        occupancyRate: 0.85 
-      },
-      { 
-        startTime: new Date(now.getFullYear(), now.getMonth(), now.getDate(), 19, 45), 
-        movieName: 'Biệt Đội Siêu Anh Hùng', 
-        totalSeats: 100, 
-        bookedSeats: 80, 
-        occupancyRate: 0.80 
-      },
-      { 
-        startTime: new Date(now.getFullYear(), now.getMonth(), now.getDate(), 20, 30), 
-        movieName: 'Fast & Furious 10', 
-        totalSeats: 100, 
-        bookedSeats: 78, 
-        occupancyRate: 0.78 
-      },
-      { 
-        startTime: new Date(now.getFullYear(), now.getMonth(), now.getDate(), 17, 15), 
-        movieName: 'Venom 3', 
-        totalSeats: 100, 
-        bookedSeats: 75, 
-        occupancyRate: 0.75 
-      },
-      { 
-        startTime: new Date(now.getFullYear(), now.getMonth(), now.getDate(), 12, 15), 
-        movieName: 'Avatar 2', 
-        totalSeats: 100, 
-        bookedSeats: 72, 
-        occupancyRate: 0.72 
-      },
-      { 
-        startTime: new Date(now.getFullYear(), now.getMonth(), now.getDate(), 10, 45), 
-        movieName: 'Doraemon: Nobita và Mặt Trăng', 
-        totalSeats: 100, 
-        bookedSeats: 70, 
-        occupancyRate: 0.70 
-      },
-      { 
-        startTime: new Date(now.getFullYear(), now.getMonth(), now.getDate(), 15, 30), 
-        movieName: 'Godzilla vs. Kong', 
-        totalSeats: 100, 
-        bookedSeats: 68, 
-        occupancyRate: 0.68 
-      },
-      { 
-        startTime: new Date(now.getFullYear(), now.getMonth(), now.getDate(), 16, 45), 
-        movieName: 'Đảo Hải Tặc: Red', 
-        totalSeats: 100, 
-        bookedSeats: 65, 
-        occupancyRate: 0.65 
-      }
-    ];
+    // Tạo dữ liệu mẫu cho heatmap
+    const daysOfWeek = ['Thứ 2', 'Thứ 3', 'Thứ 4', 'Thứ 5', 'Thứ 6', 'Thứ 7', 'Chủ nhật'];
+    const timeSlots = ['09:00', '11:30', '14:00', '16:30', '19:00', '21:30'];
     
-    this.updateChart(sampleData);
+    // Tạo mẫu dữ liệu cho biểu đồ nhiệt
+    const sampleHeatmapData: { name: string; data: { x: string; y: number; }[] }[] = [];
+    
+    // Tạo dữ liệu mẫu với tỷ lệ lấp đầy cao hơn vào cuối tuần và buổi tối
+    daysOfWeek.forEach((day, dayIndex) => {
+      const dayData: { x: string; y: number; }[] = [];
+      
+      timeSlots.forEach((time, timeIndex) => {
+        let occupancyRate = 30; // Tỷ lệ cơ bản
+        
+        // Buổi tối có tỷ lệ cao hơn
+        if (timeIndex >= 3) {
+          occupancyRate += 20;
+        }
+        
+        // Cuối tuần có tỷ lệ cao hơn
+        if (dayIndex >= 4) {
+          occupancyRate += 25;
+        }
+        
+        // Thêm một chút biến động ngẫu nhiên
+        occupancyRate += Math.floor(Math.random() * 15);
+        
+        // Giới hạn tỷ lệ trong khoảng 0-100
+        occupancyRate = Math.min(100, Math.max(0, occupancyRate));
+        
+        dayData.push({
+          x: time,
+          y: occupancyRate
+        });
+      });
+      
+      sampleHeatmapData.push({
+        name: day,
+        data: dayData
+      });
+    });
+    
+    // Cập nhật tùy chọn biểu đồ
+    this.chartOptions.series = sampleHeatmapData;
+    this.chartOptions.tooltip = {
+      custom: ({ series, seriesIndex, dataPointIndex, w }) => {
+        const value = series[seriesIndex][dataPointIndex];
+        const day = w.globals.seriesNames[seriesIndex];
+        const time = w.globals.labels[dataPointIndex];
+        
+        return `<div class="custom-tooltip">
+          <span class="tooltip-title">${day} - ${time}</span>
+          <span class="tooltip-value">Tỷ lệ lấp đầy: ${value}%</span>
+        </div>`;
+      }
+    };
+    
+    this.hasData = true;
   }
 
   private initChartOptions(): void {
     this.chartOptions = {
-      series: [{
-        name: 'Tỷ lệ lấp đầy (%)',
-        data: []
-      }],
+      series: [],
       chart: {
         height: 400,
         type: 'heatmap',
@@ -486,108 +529,101 @@ export class SeatOccupancyChartComponent implements OnInit, OnDestroy {
             zoomout: false,
             pan: false,
             reset: false
+          }
+        },
+        background: 'transparent',
+        animations: {
+          enabled: true,
+          speed: 800,
+          animateGradually: {
+            enabled: true,
+            delay: 150
           },
-          export: {
-            csv: {
-              filename: 'Thống kê tỷ lệ lấp đầy ghế',
-              columnDelimiter: ',',
-              headerCategory: 'Phim',
-              headerValue: 'Tỷ lệ lấp đầy',
-            },
-            svg: {
-              filename: 'Thống kê tỷ lệ lấp đầy ghế',
-            },
-            png: {
-              filename: 'Thống kê tỷ lệ lấp đầy ghế',
-            }
-          },
-        }
-      },
-      plotOptions: {
-        heatmap: {
-          radius: 0,
-          enableShades: true,
-          shadeIntensity: 0.5,
-          colorScale: {
-            ranges: [
-              { from: 0, to: 40, color: '#e74a3b', name: 'Thấp' },
-              { from: 41, to: 60, color: '#f6c23e', name: 'Trung bình' },
-              { from: 61, to: 75, color: '#36b9cc', name: 'Khá' },
-              { from: 76, to: 100, color: '#1cc88a', name: 'Cao' }
-            ]
+          dynamicAnimation: {
+            enabled: true,
+            speed: 350
           }
         }
       },
       dataLabels: {
         enabled: true,
-        formatter: function (val: number) {
-          return val.toFixed(0) + '%';
+        formatter: function(val) {
+          return val + '%';
         },
         style: {
-          fontSize: '14px',
-          colors: ['#fff'],
-          fontWeight: 'bold'
+          colors: ['#fff']
+        }
+      },
+      plotOptions: {
+        heatmap: {
+          colorScale: {
+            ranges: [
+              {
+                from: 0,
+                to: 20,
+                color: '#2C3E50',
+                name: 'Rất thấp'
+              },
+              {
+                from: 21,
+                to: 40,
+                color: '#3498DB',
+                name: 'Thấp'
+              },
+              {
+                from: 41,
+                to: 60,
+                color: '#2ECC71',
+                name: 'Trung bình'
+              },
+              {
+                from: 61,
+                to: 80,
+                color: '#F39C12',
+                name: 'Cao'
+              },
+              {
+                from: 81,
+                to: 100,
+                color: '#E74C3C',
+                name: 'Rất cao'
+              }
+            ]
+          }
         }
       },
       stroke: {
-        width: 1,
-        colors: ['#2d3748']
+        width: 1
       },
       xaxis: {
-        categories: [],
-        title: {
-          text: 'Suất chiếu phim',
-          style: {
-            color: '#fff',
-            fontSize: '14px',
-            fontWeight: 600
-          }
-        },
+        type: 'category',
         labels: {
           style: {
-            colors: '#fff',
-            fontSize: '12px'
-          },
-          trim: false,
-          rotate: -25,
-          rotateAlways: true,
-          formatter: function (val: string) {
-            if (val.length > 30) {
-              return val.substring(0, 27) + '...';
-            }
-            return val;
+            colors: '#fff'
+          }
+        },
+        title: {
+          text: 'Giờ',
+          style: {
+            color: '#fff'
           }
         }
       },
       yaxis: {
-        show: false
-      },
-      tooltip: {
-        theme: 'dark',
-        y: {
-          formatter: (val: number) => {
-            return val.toFixed(1) + '%';
+        title: {
+          text: 'Ngày trong tuần',
+          style: {
+            color: '#fff'
           }
         },
-        custom: ({ series, seriesIndex, dataPointIndex, w }: {
-          series: any[], 
-          seriesIndex: number, 
-          dataPointIndex: number, 
-          w: any
-        }) => {
-          const value = series[seriesIndex][dataPointIndex];
-          const movieName = w.globals.labels[dataPointIndex];
-          
-          return `
-            <div class="custom-tooltip">
-              <span class="tooltip-title">Suất chiếu: ${movieName}</span>
-              <span class="tooltip-value">Tỷ lệ lấp đầy: ${value.toFixed(1)}%</span>
-            </div>
-          `;
+        labels: {
+          style: {
+            colors: '#fff'
+          }
         }
       },
       title: {
-        text: 'Tỷ lệ lấp đầy ghế theo suất chiếu',
+        text: 'Tỷ lệ lấp đầy ghế theo ngày và giờ',
         align: 'center',
         style: {
           color: '#e2e8f0',
@@ -595,16 +631,17 @@ export class SeatOccupancyChartComponent implements OnInit, OnDestroy {
           fontWeight: 'bold'
         }
       },
+      tooltip: {
+        enabled: true
+      },
       legend: {
-        show: true,
-        position: 'bottom',
+        position: 'right',
         labels: {
           colors: '#fff'
         }
       },
       fill: {
-        opacity: 1,
-        colors: ['#36b9cc']
+        opacity: 1
       },
       labels: []
     };
@@ -612,15 +649,35 @@ export class SeatOccupancyChartComponent implements OnInit, OnDestroy {
 
   exportSeatOccupancyToExcel(): void {
     if (!this.hasData) return;
-
-    // Chuẩn bị dữ liệu xuất Excel
-    const exportData = this.chartOptions.xaxis.categories.map((movie: string, index: number) => {
-      return {
-        'Suất chiếu': movie,
-        'Tỷ lệ lấp đầy (%)': this.chartOptions.series[0].data[index]
-      };
+    
+    const daysOfWeek = ['Thứ 2', 'Thứ 3', 'Thứ 4', 'Thứ 5', 'Thứ 6', 'Thứ 7', 'Chủ nhật'];
+    const timeSlots = ['09:00', '11:30', '14:00', '16:30', '19:00', '21:30'];
+    
+    // Tạo dữ liệu xuất Excel
+    const exportData: any[] = [];
+    
+    // Tạo dữ liệu từ series của biểu đồ
+    this.chartOptions.series.forEach((series: any) => {
+      const day = series.name;
+      
+      series.data.forEach((dataPoint: any, index: number) => {
+        const time = timeSlots[index];
+        const occupancyRate = dataPoint.y;
+        
+        exportData.push({
+          'Ngày trong tuần': day,
+          'Khung giờ': time,
+          'Tỷ lệ lấp đầy (%)': occupancyRate
+        });
+      });
     });
-
-    this.exportService.exportToExcel(exportData, 'ty_le_lap_day_ghe', 'Tỷ lệ lấp đầy ghế', this.currentDateRange);
+    
+    // Gọi service xuất Excel
+    this.exportService.exportToExcel(
+      exportData,
+      'ty_le_lap_day_ghe',
+      'Tỷ lệ lấp đầy ghế theo ngày và giờ',
+      this.currentDateRange
+    );
   }
 } 

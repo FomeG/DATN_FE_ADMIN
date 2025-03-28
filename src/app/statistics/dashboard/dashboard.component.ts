@@ -65,6 +65,16 @@ export class DashboardComponent implements OnInit {
    */
   changeTab(tabId: string): void {
     this.activeTab = tabId;
+    
+    // Khi chuyển tab, kích hoạt việc cập nhật dữ liệu
+    // bằng cách sử dụng lại khoảng thời gian hiện tại
+    // Tất cả các chart component đều lắng nghe sự kiện này
+    setTimeout(() => {
+      // Lấy khoảng thời gian hiện tại và phát lại sự kiện
+      // để tất cả các component đều cập nhật lại dữ liệu
+      const currentRange = {...this.dateRange};
+      this.dashboardService.updateDateRange(currentRange);
+    }, 100); // Trì hoãn nhỏ để đảm bảo component đã được render
   }
 
   /**

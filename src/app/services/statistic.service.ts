@@ -48,7 +48,7 @@ export interface StatisticRevenueByCinemaRes {
 export interface StatisticPopularGenresRes {
   genreName: string;
   totalShowtimes: number;
-  totalRevenue: number;
+  totalBookedSeats: number;
 }
 
 // Giờ cao điểm
@@ -95,12 +95,18 @@ export class StatisticService {
   private formatDate(date?: Date): string | null {
     if (!date) return null;
     
-    // Format thủ công thành YYYY-MM-DD
+    // Format thủ công thành YYYY-MM-DD mà không chuyển đổi múi giờ
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, '0');
     const day = String(date.getDate()).padStart(2, '0');
     
-    return `${year}-${month}-${day}`;
+    // Sử dụng định dạng 'YYYY-MM-DD' để tránh vấn đề múi giờ
+    const formattedDate = `${year}-${month}-${day}`;
+    
+    // Log để debug
+    console.log(`Ngày gốc: ${date.toLocaleString()}, Ngày sau format: ${formattedDate}`);
+    
+    return formattedDate;
   }
 
   /**
@@ -117,6 +123,7 @@ export class StatisticService {
       params = params.set('endDate', this.formatDate(endDate) || '');
     }
     
+    console.log(`[API Params] startDate: ${params.get('startDate')}, endDate: ${params.get('endDate')}`);
     return params;
   }
 
@@ -191,6 +198,7 @@ export class StatisticService {
    */
   getPeakHours(startDate?: Date, endDate?: Date): Observable<CommonResponse<StatisticPeakHoursRes[]>> {
     const params = this.createDateRangeParams(startDate, endDate);
+    console.log(`[getPeakHours] Gọi API với startDate=${startDate?.toLocaleString()}, endDate=${endDate?.toLocaleString()}`);
     return this.http.get<CommonResponse<StatisticPeakHoursRes[]>>(
       `${this.baseUrl}Statistic/GetPeakHours`, 
       { params }

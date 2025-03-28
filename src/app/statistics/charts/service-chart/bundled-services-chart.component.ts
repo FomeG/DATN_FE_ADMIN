@@ -73,6 +73,13 @@ interface CommonResponse<T> {
           <p class="text-muted">Không có dữ liệu trong khoảng thời gian đã chọn</p>
         </div>
         
+        <div *ngIf="isSampleData" class="sample-data-warning">
+          <div class="alert alert-warning mb-3">
+            <i class="mdi mdi-information-outline me-2"></i>
+            Đang hiển thị dữ liệu mẫu do không có dữ liệu thực từ API
+          </div>
+        </div>
+        
         <div *ngIf="!isLoading && hasData">
           <div id="bundled-services-chart">
             <apx-chart
@@ -290,12 +297,17 @@ interface CommonResponse<T> {
         border-bottom: 1px solid #4a5568 !important;
       }
     }
+
+    .sample-data-warning {
+      margin-bottom: 1rem;
+    }
   `]
 })
 export class BundledServicesChartComponent implements OnInit, OnDestroy {
   chartOptions!: BundledServicesChartOptions;
   isLoading = true;
   hasData = false;
+  isSampleData = false;
 
   private dateRangeSubscription!: Subscription;
   private currentDateRange: DateRange = {} as DateRange;
@@ -324,34 +336,29 @@ export class BundledServicesChartComponent implements OnInit, OnDestroy {
   loadBundledServicesData(): void {
     this.isLoading = true;
     this.hasData = false;
-
-    console.log('Đang gọi API dịch vụ gói với tham số:', {
-      startDate: this.currentDateRange?.startDate,
-      endDate: this.currentDateRange?.endDate
-    });
-
-    this.statisticService.getBundledServices(
-      this.currentDateRange?.startDate || undefined,
-      this.currentDateRange?.endDate || undefined
-    ).subscribe({
+    this.isSampleData = false;
+    
+    const startDate = this.currentDateRange?.startDate ?? undefined;
+    const endDate = this.currentDateRange?.endDate ?? undefined;
+    
+    this.statisticService.getBundledServices(startDate, endDate).subscribe({
       next: (response: CommonResponse<StatisticBundledServicesRes[]>) => {
         this.isLoading = false;
-        console.log('Kết quả API dịch vụ gói:', response);
-
         if (response && response.data && response.data.length > 0) {
           this.hasData = true;
+          this.isSampleData = false;
           this.updateChart(response.data);
         } else {
-          console.log('Không có dữ liệu dịch vụ gói, hiển thị dữ liệu mẫu');
           this.hasData = true;
+          this.isSampleData = true;
           this.updateChartWithSampleData();
         }
       },
       error: (error: any) => {
         this.isLoading = false;
         console.error('Lỗi khi tải dữ liệu dịch vụ gói:', error);
-        // Hiển thị dữ liệu mẫu trong trường hợp lỗi
         this.hasData = true;
+        this.isSampleData = true;
         this.updateChartWithSampleData();
       }
     });

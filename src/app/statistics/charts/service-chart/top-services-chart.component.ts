@@ -71,6 +71,13 @@ interface CommonResponse<T> {
           <p class="text-muted">Không có dữ liệu trong khoảng thời gian đã chọn</p>
         </div>
         
+        <div *ngIf="isSampleData" class="sample-data-warning">
+          <div class="alert alert-warning mb-3">
+            <i class="mdi mdi-information-outline me-2"></i>
+            Đang hiển thị dữ liệu mẫu do không có dữ liệu thực từ API
+          </div>
+        </div>
+        
         <div *ngIf="!isLoading && hasData">
           <div id="top-services-chart">
             <apx-chart
@@ -287,12 +294,17 @@ interface CommonResponse<T> {
         border-bottom: 1px solid #4a5568 !important;
       }
     }
+
+    .sample-data-warning {
+      margin-bottom: 1rem;
+    }
   `]
 })
 export class TopServicesChartComponent implements OnInit, OnDestroy {
   chartOptions!: TopServicesChartOptions;
   isLoading = true;
   hasData = false;
+  isSampleData = false;
 
   private dateRangeSubscription!: Subscription;
   private currentDateRange: DateRange = {} as DateRange;
@@ -321,34 +333,32 @@ export class TopServicesChartComponent implements OnInit, OnDestroy {
   loadTopServicesData(): void {
     this.isLoading = true;
     this.hasData = false;
-
-    console.log('Đang gọi API top dịch vụ bán chạy với tham số:', {
-      startDate: this.currentDateRange?.startDate,
-      endDate: this.currentDateRange?.endDate
-    });
-
-    this.statisticService.getTopServices(
-      this.currentDateRange?.startDate || undefined,
-      this.currentDateRange?.endDate || undefined
-    ).subscribe({
+    this.isSampleData = false;
+    
+    const startDate = this.currentDateRange?.startDate ?? undefined;
+    const endDate = this.currentDateRange?.endDate ?? undefined;
+    
+    this.statisticService.getTopServices(startDate, endDate).subscribe({
       next: (response: CommonResponse<StatisticTopServicesRes[]>) => {
         this.isLoading = false;
         console.log('Kết quả API top dịch vụ bán chạy:', response);
 
         if (response && response.data && response.data.length > 0) {
           this.hasData = true;
+          this.isSampleData = false;
           this.updateChart(response.data);
         } else {
           console.log('Không có dữ liệu top dịch vụ bán chạy, hiển thị dữ liệu mẫu');
           this.hasData = true;
+          this.isSampleData = true;
           this.updateChartWithSampleData();
         }
       },
       error: (error: any) => {
         this.isLoading = false;
         console.error('Lỗi khi tải dữ liệu top dịch vụ bán chạy:', error);
-        // Hiển thị dữ liệu mẫu trong trường hợp lỗi
         this.hasData = true;
+        this.isSampleData = true;
         this.updateChartWithSampleData();
       }
     });

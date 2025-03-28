@@ -71,6 +71,13 @@ interface CommonResponse<T> {
           <p class="text-muted">Không có dữ liệu trong khoảng thời gian đã chọn</p>
         </div>
         
+        <div *ngIf="isSampleData" class="sample-data-warning">
+          <div class="alert alert-warning mb-3">
+            <i class="mdi mdi-information-outline me-2"></i>
+            Đang hiển thị dữ liệu mẫu do không có dữ liệu thực từ API
+          </div>
+        </div>
+        
         <div *ngIf="!isLoading && hasData">
           <div id="peak-hours-chart">
             <apx-chart
@@ -286,12 +293,17 @@ interface CommonResponse<T> {
         border-bottom: 1px solid #4a5568 !important;
       }
     }
+
+    .sample-data-warning {
+      margin-bottom: 1rem;
+    }
   `]
 })
 export class PeakHoursChartComponent implements OnInit, OnDestroy {
   chartOptions!: PeakHoursChartOptions;
   isLoading = true;
   hasData = false;
+  isSampleData = false;
 
   private dateRangeSubscription!: Subscription;
   private currentDateRange: DateRange = {} as DateRange;
@@ -320,24 +332,24 @@ export class PeakHoursChartComponent implements OnInit, OnDestroy {
   loadPeakHoursData(): void {
     this.isLoading = true;
     this.hasData = false;
+    this.isSampleData = false;
 
-    console.log('Đang gọi API giờ cao điểm với tham số:', {
-      startDate: this.currentDateRange?.startDate,
-      endDate: this.currentDateRange?.endDate
-    });
-
-    // Gọi API mà không truyền tham số thời gian để xem kết quả
-    this.statisticService.getPeakHours().subscribe({
+    // Chuyển đổi null thành undefined
+    const startDate = this.currentDateRange.startDate ?? undefined;
+    const endDate = this.currentDateRange.endDate ?? undefined;
+    
+    // Gọi API với tham số thời gian từ bộ lọc
+    this.statisticService.getPeakHours(startDate, endDate).subscribe({
       next: (response: CommonResponse<StatisticPeakHoursRes[]>) => {
         this.isLoading = false;
-        console.log('Kết quả API giờ cao điểm (không filter thời gian):', response);
-
         if (response && response.data && response.data.length > 0) {
           this.hasData = true;
+          this.isSampleData = false;
           this.updateChart(response.data);
         } else {
-          console.log('Không có dữ liệu giờ cao điểm, hiển thị dữ liệu mẫu');
+          // Nếu không có dữ liệu thực, sử dụng dữ liệu mẫu
           this.hasData = true;
+          this.isSampleData = true;
           this.updateChartWithSampleData();
         }
       },
@@ -346,6 +358,7 @@ export class PeakHoursChartComponent implements OnInit, OnDestroy {
         console.error('Lỗi khi tải dữ liệu giờ cao điểm:', error);
         // Hiển thị dữ liệu mẫu khi có lỗi
         this.hasData = true;
+        this.isSampleData = true;
         this.updateChartWithSampleData();
       }
     });
@@ -359,9 +372,10 @@ export class PeakHoursChartComponent implements OnInit, OnDestroy {
     const seriesData: number[] = [];
 
     data.forEach(item => {
-      // Format giờ hiển thị
+      // Format giờ hiển thị với định dạng 24h chuẩn
       const hour = item.hourOfDay;
-      const hourDisplay = `${hour}:00`;
+      const hourFormatted = hour.toString().padStart(2, '0'); // Đảm bảo 2 chữ số (01, 02, etc.)
+      const hourDisplay = `${hourFormatted}:00`;
       
       categories.push(hourDisplay);
       seriesData.push(item.totalTicketsSold);
@@ -439,14 +453,23 @@ export class PeakHoursChartComponent implements OnInit, OnDestroy {
         bar: {
           horizontal: false,
           columnWidth: '70%',
-          borderRadius: 4,
+          borderRadius: 6,
           dataLabels: {
             position: 'top',
           },
         }
       },
       dataLabels: {
-        enabled: false,
+        enabled: true,
+        formatter: function(val: number) {
+          return val.toFixed(0);
+        },
+        style: {
+          fontSize: '12px',
+          colors: ['#fff'],
+          fontWeight: 'bold'
+        },
+        offsetY: -20
       },
       stroke: {
         show: true,
@@ -456,16 +479,37 @@ export class PeakHoursChartComponent implements OnInit, OnDestroy {
       xaxis: {
         categories: [],
         title: {
-          text: 'Giờ trong ngày'
+          text: 'Giờ trong ngày',
+          style: {
+            color: '#e2e8f0',
+            fontSize: '14px',
+            fontWeight: 600
+          }
+        },
+        labels: {
+          style: {
+            colors: '#e2e8f0',
+            fontSize: '12px'
+          },
+          rotate: 0
         }
       },
       yaxis: {
         title: {
-          text: 'Lượt khách'
+          text: 'Lượt khách',
+          style: {
+            color: '#e2e8f0',
+            fontSize: '14px',
+            fontWeight: 600
+          }
         },
         labels: {
           formatter: (val: number) => {
             return val.toFixed(0);
+          },
+          style: {
+            colors: '#e2e8f0',
+            fontSize: '12px'
           }
         }
       },
@@ -482,26 +526,32 @@ export class PeakHoursChartComponent implements OnInit, OnDestroy {
         },
         custom: ({ series, seriesIndex, dataPointIndex, w }) => {
           const value = series[seriesIndex][dataPointIndex];
-          const timeOfDay = w.globals.categoryLabels[dataPointIndex];
+          const timeOfDay = w.globals.labels[dataPointIndex] || w.globals.categoryLabels[dataPointIndex];
           
           return `
             <div class="custom-tooltip">
               <span class="tooltip-title">Thời gian: ${timeOfDay}</span>
-              <span class="tooltip-value">${value} lượt khách</span>
+              <span class="tooltip-value">${value.toLocaleString('vi-VN')} lượt khách</span>
             </div>
           `;
         }
       },
       title: {
         text: 'Phân bố khách hàng theo giờ',
-        align: 'center'
+        align: 'center',
+        style: {
+          color: '#e2e8f0',
+          fontSize: '16px',
+          fontWeight: 'bold'
+        }
       },
       legend: {
         position: 'top',
         horizontalAlign: 'right',
-        floating: true,
-        offsetY: -25,
-        offsetX: -5
+        offsetY: 0,
+        labels: {
+          colors: '#e2e8f0'
+        }
       },
       labels: []
     };

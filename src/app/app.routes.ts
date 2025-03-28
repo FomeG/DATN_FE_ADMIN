@@ -32,7 +32,7 @@ export const routes: Routes = [
     path: '',
     canActivate: [authGuard],
     children: [
-      { path: '', redirectTo: 'movies', pathMatch: 'full' },
+      { path: '', redirectTo: 'statistics/bundled-services', pathMatch: 'full' },
       { path: 'movies', component: MovieManagementComponent },
       { path: 'movies/edit/:id', component: EditMovieComponent },
       { path: 'movies/detail/:id', component: MovieDetailComponent },

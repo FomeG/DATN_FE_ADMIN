@@ -39,7 +39,7 @@ export class AuthService {
           if (response.responseCode === 200) {
             localStorage.setItem(this.tokenKey, response.data.accessToken);
             localStorage.setItem(this.refreshTokenKey, response.data.refreshToken);
-            
+
             // Lưu thông tin user
             const user: User = {
               userId: response.data.userId,
@@ -73,7 +73,7 @@ export class AuthService {
     const token = this.getToken();
     // Basic check for token existence
     return !!token;
-    
+
     // If you want a more sophisticated check that also validates token expiration:
     // return !!token && !this.isTokenExpired(token);
   }

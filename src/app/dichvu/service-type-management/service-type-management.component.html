@@ -1,1 +1,188 @@
-<p>service-type-management works!</p>
+<div class="container-fluid">
+    <h2 class="mb-4">Quản lý loại dịch vụ</h2>
+    <div class="d-flex">
+      <button class="btn btn-primary mb-4" style="border-radius: 15px" (click)="openAddModal()">
+        <i class="fas fa-plus"></i> Thêm loại dịch vụ mới
+      </button>
+  
+      <div class="input-group" style="width: 70%; margin-left: auto">
+        <input type="text" class="form-control" placeholder="Tìm kiếm loại dịch vụ..." [(ngModel)]="searchTerm"
+          (keyup.enter)="search()" style="height: 55px;">
+        <button class="btn btn-primary mb-4" type="button" (click)="search()">
+          <i class="fas fa-search"></i>
+        </button>
+      </div>
+    </div>
+  
+    <div class="row">
+      <div class="col-12">
+        <div class="card">
+          <div class="card-header">
+            <div class="d-flex justify-content-between align-items-center">
+              <h5 class="card-title mb-0">Danh sách loại dịch vụ</h5>
+              <div class="d-flex align-items-center">
+                <select [(ngModel)]="recordPerPage" (change)="onRecordsPerPageChange()" class="form-select me-3">
+                  <option [value]="10">10 bản ghi</option>
+                  <option [value]="20">20 bản ghi</option>
+                  <option [value]="50">50 bản ghi</option>
+                  <option [value]="100">100 bản ghi</option>
+                </select>
+                <span>Hiển thị {{ (currentPage - 1) * recordPerPage + 1 }} đến
+                  {{ Math.min(currentPage * recordPerPage, totalRecords) }} của {{ totalRecords }} loại dịch vụ</span>
+              </div>
+            </div>
+          </div>
+  
+          <div class="card-body">
+            <!-- Loading spinner -->
+            <div *ngIf="isLoading" class="text-center py-5">
+              <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+              </div>
+              <p class="mt-2">Đang tải dữ liệu...</p>
+            </div>
+  
+            <!-- Table -->
+            <div class="table-responsive" *ngIf="!isLoading">
+              <table class="table align-items-center mb-0">
+                <thead>
+                  <tr>
+                    <th style="width: 50px">#</th>
+                    <th style="width: 150px">Hình ảnh</th>
+                    <th (click)="sort('name')" style="cursor: pointer; width: 200px">
+                      Tên loại dịch vụ <i class="fas" [ngClass]="getSortIcon('name')"></i>
+                    </th>
+                    <th style="width: 300px">Mô tả</th>
+                    <th style="width: 150px">Số lượng dịch vụ</th>
+                    <th style="width: 200px" class="text-center">Thao tác</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let serviceType of serviceTypes; let i = index">
+                    <td>{{ (currentPage - 1) * recordPerPage + i + 1 }}</td>
+                    <td>
+                      <div class="d-flex align-items-center">
+                        <img [src]="serviceType.imageUrl" alt="{{ serviceType.name }}" class="img-thumbnail"
+                          style="width: 80px; height: 60px; object-fit: cover;"
+                          onerror="this.src='assets/images/placeholder.png'">
+                      </div>
+                    </td>
+                    <td>
+                      <div class="d-flex align-items-center">
+                        <div class="ms-2">
+                          <p class="fw-bold mb-1">{{ serviceType.name }}</p>
+                        </div>
+                      </div>
+                    </td>
+                    <td>{{ serviceType.description }}</td>
+                    <td>
+                      <span class="badge bg-info">{{ getServiceCount(serviceType) }} dịch vụ</span>
+                    </td>
+                    <td class="text-center">
+                      <button type="button" class="btn btn-outline-primary btn-rounded me-2"
+                        (click)="editServiceType(serviceType)">
+                        <i class="fas fa-edit"></i> Sửa
+                      </button>
+                      <button type="button" class="btn btn-outline-danger btn-rounded"
+                        (click)="deleteServiceType(serviceType.id)">
+                        <i class="fas fa-trash"></i> Xóa
+                      </button>
+                    </td>
+                  </tr>
+                  <tr *ngIf="serviceTypes.length === 0">
+                    <td colspan="6" class="text-center py-3">Không tìm thấy loại dịch vụ nào</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+  
+            <!-- Pagination -->
+            <nav aria-label="Service type pagination" *ngIf="totalPages > 1" class="mt-4">
+              <ul class="pagination justify-content-center">
+                <!-- Previous button -->
+                <li class="page-item" [class.disabled]="currentPage === 1">
+                  <a class="page-link" href="javascript:void(0)" (click)="onPageChange(currentPage - 1)">
+                    Trước
+                  </a>
+                </li>
+  
+                <!-- Page numbers -->
+                <li class="page-item" *ngFor="let page of pages" [class.active]="page === currentPage">
+                  <a class="page-link" href="javascript:void(0)" (click)="onPageChange(page)">
+                    {{page}}
+                  </a>
+                </li>
+  
+                <!-- Next button -->
+                <li class="page-item" [class.disabled]="currentPage === totalPages">
+                  <a class="page-link" href="javascript:void(0)" (click)="onPageChange(currentPage + 1)">
+                    Sau
+                  </a>
+                </li>
+              </ul>
+            </nav>
+          </div>
+        </div>
+      </div>
+    </div>
+  
+    <!-- Service Type Modal -->
+    <div class="modal fade" id="serviceTypeModal" tabindex="-1" aria-labelledby="serviceTypeModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="serviceTypeModalLabel">
+              {{ isEditing ? 'Chỉnh sửa loại dịch vụ' : 'Thêm loại dịch vụ mới' }}
+            </h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <form [formGroup]="serviceTypeForm" (ngSubmit)="onSubmit()">
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <label for="name" class="form-label">Tên loại dịch vụ <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" id="name" formControlName="name">
+                    <div class="text-danger" *ngIf="serviceTypeForm.get('name')?.invalid && serviceTypeForm.get('name')?.touched">
+                      <small *ngIf="serviceTypeForm.get('name')?.errors?.['required']">Tên loại dịch vụ là bắt buộc</small>
+                      <small *ngIf="serviceTypeForm.get('name')?.errors?.['maxlength']">Tên loại dịch vụ không được vượt quá
+                        100 ký tự</small>
+                    </div>
+                  </div>
+  
+                  <div class="mb-3">
+                    <label for="description" class="form-label">Mô tả</label>
+                    <textarea class="form-control" id="description" rows="3" formControlName="description"></textarea>
+                    <div class="text-danger"
+                      *ngIf="serviceTypeForm.get('description')?.invalid && serviceTypeForm.get('description')?.touched">
+                      <small *ngIf="serviceTypeForm.get('description')?.errors?.['maxlength']">Mô tả không được vượt quá 500
+                        ký tự</small>
+                    </div>
+                  </div>
+                </div>
+  
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <label for="photo" class="form-label">Hình ảnh</label>
+                    <input type="file" class="form-control" id="photo" (change)="onFileSelected($event)" accept="image/*">
+                  </div>
+  
+                  <div class="image-preview mt-3 text-center" *ngIf="imagePreview">
+                    <p>Xem trước:</p>
+                    <img [src]="imagePreview" alt="Preview" class="img-thumbnail" style="max-height: 200px;">
+                  </div>
+                </div>
+              </div>
+  
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                <button type="submit" class="btn btn-primary" [disabled]="serviceTypeForm.invalid">
+                  {{ isEditing ? 'Cập nhật' : 'Thêm mới' }}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>

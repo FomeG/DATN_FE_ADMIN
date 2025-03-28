@@ -10,7 +10,7 @@ describe('ServiceTypeManagementComponent', () => {
     await TestBed.configureTestingModule({
       imports: [ServiceTypeManagementComponent]
     })
-    .compileComponents();
+      .compileComponents();
 
     fixture = TestBed.createComponent(ServiceTypeManagementComponent);
     component = fixture.componentInstance;

@@ -1,9 +1,11 @@
 <div class="container-fluid">
 
-  <h2 class="mb-4">Movie Management</h2>
+  <h2 class="mb-4">Quản lý phim</h2>
+
+
   <div class="d-flex">
 
-    <button class="btn btn-primary mb-4" style="border-radius: 15px" data-bs-toggle="modal"
+    <!-- <button class="btn btn-primary mb-4" style="border-radius: 15px" data-bs-toggle="modal"
       data-bs-target="#addMovieModal">
       <i class="fas fa-plus"></i> Thêm phim mới
     </button>
@@ -12,97 +14,128 @@
       (keyup.enter)="search()" style="width: 70%; height: 55px;  margin-left: auto">
     <button class="btn btn-primary mb-4" type="button" (click)="search()">
       <i class="fas fa-search"></i>
-    </button>
+    </button> -->
+
+
+    <h1>Chỗ này để 1 số bộ lọc</h1>
+
+
   </div>
+
+
 
 
   <div class="row">
     <div class="col-12">
       <div class="card">
         <div class="card-header">
+          <div class="d-flex justify-content-between align-items-center m-0">
 
-          
-          <div class="d-flex justify-content-between align-items-center">
-            <h4 class="card-title mb-0">Danh sách phim</h4>
+            <div class="col-md-4 text-end">
+              <button class="custom-header-button" style="width: 200px;" data-bs-toggle="modal"
+                data-bs-target="#addMovieModal">
+                <i class="fas fa-plus"></i> Thêm phim mới
+              </button>
+            </div>
 
-            <!-- Dropdown số bản ghi mỗi trang -->
-            <div>
-              <select [(ngModel)]="recordPerPage" (change)="onRecordsPerPageChange()"
-                class="form-select form-select-sm">
-                <option [value]="10">10 bản ghi</option>
-                <option [value]="20">20 bản ghi</option>
-                <option [value]="50">50 bản ghi</option>
-                <option [value]="100">100 bản ghi</option>
-              </select>
+            <div class="d-flex justify-content-between align-items-center m-0" style="gap: 0.5rem;">
+              <div class="custom-header-search">
+                <input type="text" class="form-control" placeholder="Tìm kiếm phim..." [(ngModel)]="searchTerm"
+                  (keyup.enter)="search()">
+                <button class="custom-header-search-btn" (click)="search()">
+                  <i class="fas fa-search"></i>
+                </button>
+              </div>
+
+
+
+              <!-- Dropdown số bản ghi mỗi trang -->
+              <div>
+                <select [(ngModel)]="recordPerPage" (change)="onRecordsPerPageChange()"
+                  class="form-select form-select-sm">
+                  <option [value]="10">10 bản ghi</option>
+                  <option [value]="20">20 bản ghi</option>
+                  <option [value]="50">50 bản ghi</option>
+                  <option [value]="100">100 bản ghi</option>
+                </select>
+              </div>
+
             </div>
           </div>
 
 
         </div>
-        <div class="card-body">
-          <div class="table-responsive">
-            <table class="table table-bordered table-hover" style="border-top: 1px solid #2c2e33;">
-              <thead>
-                <tr>
-                  <th></th>
-                  <th (click)="sort('movieName')" style="cursor: pointer">
-                    Tên phim <i class="fas" [ngClass]="getSortIcon('movieName')"></i>
-                  </th>
-                  <th (click)="sort('description')" style="cursor: pointer">
-                    Mô tả <i class="fas" [ngClass]="getSortIcon('description')"></i>
-                  </th>
-                  <th (click)="sort('duration')" style="cursor: pointer">
-                    Thời lượng (phút) <i class="fas" [ngClass]="getSortIcon('duration')"></i>
-                  </th>
-                  <th (click)="sort('releaseDate')" style="cursor: pointer">
-                    Ngày phát hành <i class="fas" [ngClass]="getSortIcon('releaseDate')"></i>
-                  </th>
-                  <!-- <th>Trạng thái</th> -->
-                  <th>Thao tác</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr *ngFor="let movie of filteredMovies">
-                  <td>
-                    <img *ngIf="movie.thumbnail" [src]="movie.thumbnail" alt="Movie Thumbnail" />
-                  </td>
-                  <td>
-                    <div class="d-flex align-items-center">
-                      <div class="ms-3">
-                        <p class="fw-bold mb-1">{{movie.movieName}}</p>
+
+        <!-- Movie Table -->
+
+        <div class="card">
+          <div class="card-body pt-0">
+            <div class="table-responsive">
+              <table class="table table-hover align-middle">
+                <thead>
+                  <tr>
+                    <th></th>
+                    <th (click)="sort('movieName')" style="cursor: pointer">
+                      Tên phim <i class="fas" [ngClass]="getSortIcon('movieName')"></i>
+                    </th>
+                    <th (click)="sort('description')" style="cursor: pointer">
+                      Mô tả <i class="fas" [ngClass]="getSortIcon('description')"></i>
+                    </th>
+                    <th (click)="sort('duration')" style="cursor: pointer">
+                      Thời lượng (phút) <i class="fas" [ngClass]="getSortIcon('duration')"></i>
+                    </th>
+                    <th (click)="sort('releaseDate')" style="cursor: pointer">
+                      Ngày phát hành <i class="fas" [ngClass]="getSortIcon('releaseDate')"></i>
+                    </th>
+                    <!-- <th>Trạng thái</th> -->
+                    <th class="text-center">Thao tác</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let movie of filteredMovies">
+                    <td>
+                      <img *ngIf="movie.thumbnail" [src]="movie.thumbnail" alt="Movie Thumbnail" />
+                    </td>
+                    <td>
+                      <div class="d-flex align-items-center">
+                        <div class="ms-3">
+                          <p class="fw-bold mb-1">{{movie.movieName}}</p>
+                        </div>
                       </div>
-                    </div>
-                  </td>
-                  <td>{{movie.description}}</td>
-                  <td>{{movie.duration}}</td>
-                  <td>{{movie.releaseDate | date:'dd/MM/yyyy'}}</td>
-                  <!-- <td>
+                    </td>
+                    <td>{{movie.description}}</td>
+                    <td>{{movie.duration}}</td>
+                    <td>{{movie.releaseDate | date:'dd/MM/yyyy'}}</td>
+                    <!-- <td>
                     <span class="badge" [ngClass]="{'bg-success': movie.status === 1, 'bg-danger': movie.status === 0}">
                       {{movie.status === 1 ? 'Đang chiếu' : 'Ngừng chiếu'}}
                     </span>
                   </td> -->
 
 
-                  <td>
-                    <button type="button" class="btn btn-outline-primary btn-rounded"
-                      (click)="onViewMovieDetails(movie.id)">
-                      <i class="mdi mdi-information-outline"></i>Chi tiết</button>
-                    <button type="button" class="btn btn-outline-warning btn-rounded me-2" (click)="onEditMovie(movie.id)"
-                      data-bs-toggle="modal" data-bs-target="#voucherModal">
-                      <i class="fas fa-edit"></i> Sửa
-                    </button>
-                    <button type="button" class="btn btn-outline-danger btn-rounded" (click)="onDeleteMovie(movie.id)">
-                      <i class="fas fa-trash"></i> Xóa
-                    </button>
-                  </td>
+                    <td>
+                      <button type="button" class="btn btn-outline-primary btn-rounded"
+                        (click)="onViewMovieDetails(movie.id)"><i class="mdi mdi-information-outline"></i>
+                      </button>
+
+                      <button type="button" class="btn btn-outline-warning btn-rounded me-2"
+                        (click)="onEditMovie(movie.id)" data-bs-toggle="modal" data-bs-target="#voucherModal"><i
+                          class="fas fa-edit"></i>
+                      </button>
+
+                      <button type="button" class="btn btn-outline-danger btn-rounded"
+                        (click)="onDeleteMovie(movie.id)"><i class="fas fa-trash"></i>
+                      </button>
+                    </td>
 
 
-                </tr>
-              </tbody>
-            </table>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
           </div>
-        </div>
 
+        </div>
 
 
 

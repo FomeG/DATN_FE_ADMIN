@@ -2,9 +2,9 @@ import { Component, OnInit, Output, EventEmitter, HostListener } from '@angular/
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { MovieService } from '../services/movie.service';
-import { ActorService, Actor } from '../services/actor.service';
-import { GenreService, Genre } from '../services/genre.service';
+import { MovieService } from '../../services/movie.service';
+import { ActorService, Actor } from '../../services/actor.service';
+import { GenreService, Genre } from '../../services/genre.service';
 
 import Swal from 'sweetalert2';
 
@@ -26,6 +26,7 @@ export class EditMovieComponent implements OnInit {
   selectedActors: any[] = [];
   selectedThumbnail: File | null = null;
   selectedTrailer: File | null = null;
+  selectedBanner: File | null = null;
 
   // Genre properties
   genres: Genre[] = [];
@@ -58,11 +59,54 @@ export class EditMovieComponent implements OnInit {
 
   ngOnInit() {
     this.initForm();
+
+    // Đầu tiên, tải chi tiết phim
     this.route.params.subscribe(params => {
       this.movieId = params['id'];
-      this.loadMovieDetails();
-      this.loadActors();
-      this.loadGenres(); // Load all genres
+
+      // Tải chi tiết phim trước
+      this.movieService.getMovieById(this.movieId).subscribe({
+        next: (response) => {
+          if (response.data) {
+            const movieData = response.data;
+            this.movieForm.patchValue({
+              movieName: movieData.movieName,
+              description: movieData.description,
+              duration: movieData.duration,
+              releaseDate: movieData.releaseDate.split('T')[0],
+              status: movieData.status
+            });
+
+            // Cập nhật danh sách diễn viên từ listdienvien
+            this.selectedActors = movieData.listdienvien ? movieData.listdienvien.map((dv: any) => ({
+              id: dv.id,
+              name: dv.name,
+              photo: dv.photo
+            })) : [];
+
+            // Update listActorID control
+            this.updateFormActorIds();
+
+            // Cập nhật danh sách thể loại từ genres
+            this.selectedGenres = movieData.genres ? movieData.genres.map((g: any) => ({
+              id: g.id,
+              genreName: g.genreName,
+              status: g.status
+            })) : [];
+
+            // Update listGenreID control
+            this.updateFormGenreIds();
+
+            // Sau khi có dữ liệu phim, mới tải diễn viên và thể loại
+            this.loadActors();
+            this.loadGenres();
+          }
+        },
+        error: (error) => {
+          console.error('Error loading movie details:', error);
+          Swal.fire('Lỗi!', 'Không thể tải thông tin phim', 'error');
+        }
+      });
     });
   }
 
@@ -79,19 +123,18 @@ export class EditMovieComponent implements OnInit {
     });
   }
 
-  // Load genres
   loadGenres() {
     this.genreService.getGenres(1, 1000).subscribe({
       next: (response) => {
         if (response.responseCode === 200) {
           this.genres = response.data;
-          this.filteredGenres = this.genres.filter(genre => 
-            !this.selectedGenres.some(selected => selected.id === genre.id)
-          );
+          // Lọc ra các thể loại chưa được chọn
+          this.filterGenres();
         }
       },
       error: (error) => {
         console.error('Error loading genres:', error);
+        Swal.fire('Lỗi!', 'Không thể tải danh sách thể loại', 'error');
       }
     });
   }
@@ -108,15 +151,17 @@ export class EditMovieComponent implements OnInit {
         !this.selectedGenres.some(selected => selected.id === genre.id)
       );
     }
-    this.showGenreDropdown = true;
+    this.showGenreDropdown = false;
   }
+
+
 
   // Select a genre
   selectGenre(genre: Genre) {
     if (!this.selectedGenres.some(selected => selected.id === genre.id)) {
       this.selectedGenres.push(genre);
       this.genreSearchTerm = '';
-      this.showGenreDropdown = false;
+      this.filterGenres(); // Cập nhật lại danh sách đã lọc
       this.updateFormGenreIds();
     }
   }
@@ -124,6 +169,7 @@ export class EditMovieComponent implements OnInit {
   // Remove a genre
   removeGenre(genre: Genre) {
     this.selectedGenres = this.selectedGenres.filter(g => g.id !== genre.id);
+    this.filterGenres(); // Cập nhật lại danh sách đã lọc sau khi xóa
     this.updateFormGenreIds();
   }
 
@@ -136,13 +182,12 @@ export class EditMovieComponent implements OnInit {
   onFileSelect(event: any, type: string) {
     const file = event.target.files[0];
     if (file) {
-      switch (type) {
-        case 'thumbnail':
-          this.selectedThumbnail = file;
-          break;
-        case 'trailer':
-          this.selectedTrailer = file;
-          break;
+      if (type === 'thumbnail') {
+        this.selectedThumbnail = file;
+      } else if (type === 'trailer') {
+        this.selectedTrailer = file;
+      } else if (type === 'banner') { // Thêm xử lý banner
+        this.selectedBanner = file;
       }
     }
   }
@@ -168,23 +213,30 @@ export class EditMovieComponent implements OnInit {
               name: dv.name,
               photo: dv.photo
             })) : [];
-            
+
             // Update listActorID control
             this.updateFormActorIds();
-            
+
+            // Cập nhật lại danh sách diễn viên đã lọc
+            this.filterActors();
+
             // Cập nhật danh sách thể loại từ genres
             this.selectedGenres = movieData.genres ? movieData.genres.map((g: any) => ({
               id: g.id,
               genreName: g.genreName,
               status: g.status
             })) : [];
-            
+
             // Update listGenreID control
             this.updateFormGenreIds();
+
+            // Cập nhật lại danh sách thể loại đã lọc
+            this.filterGenres();
           }
         },
         error: (error) => {
           console.error('Error loading movie details:', error);
+          Swal.fire('Lỗi!', 'Không thể tải thông tin phim', 'error');
         }
       });
     }
@@ -195,13 +247,13 @@ export class EditMovieComponent implements OnInit {
       next: (response) => {
         if (response.responseCode === 200) {
           this.actors = response.data;
-          this.filteredActors = this.actors.filter(actor =>
-            !this.selectedActors.some(selected => selected.id === actor.id)
-          );
+          // Lọc ra các diễn viên chưa được chọn
+          this.filterActors();
         }
       },
       error: (error) => {
         console.error('Error loading actors:', error);
+        Swal.fire('Lỗi!', 'Không thể tải danh sách diễn viên', 'error');
       }
     });
   }
@@ -217,15 +269,15 @@ export class EditMovieComponent implements OnInit {
         !this.selectedActors.some(selected => selected.id === actor.id)
       );
     }
-    this.showDropdown = true;
+    this.showDropdown = false;
   }
 
   @HostListener('document:click', ['$event'])
   onClickOutside(event: Event) {
     const element = event.target as HTMLElement;
-    if (!element.closest('.actor-dropdown') && !element.closest('.genre-dropdown') && 
-        !element.closest('input[placeholder="Tìm kiếm diễn viên..."]') && 
-        !element.closest('input[placeholder="Tìm kiếm thể loại..."]')) {
+    if (!element.closest('.actor-dropdown') && !element.closest('.genre-dropdown') &&
+      !element.closest('input[placeholder="Tìm kiếm diễn viên..."]') &&
+      !element.closest('input[placeholder="Tìm kiếm thể loại..."]')) {
       this.showDropdown = false;
       this.showGenreDropdown = false;
     }
@@ -235,13 +287,14 @@ export class EditMovieComponent implements OnInit {
     if (!this.selectedActors.some(selected => selected.id === actor.id)) {
       this.selectedActors.push(actor);
       this.searchTerm = '';
-      this.showDropdown = false;
+      this.filterActors(); // Cập nhật lại danh sách đã lọc
       this.updateFormActorIds();
     }
   }
 
   removeActor(actor: Actor) {
     this.selectedActors = this.selectedActors.filter(a => a.id !== actor.id);
+    this.filterActors(); // Cập nhật lại danh sách đã lọc sau khi xóa
     this.updateFormActorIds();
   }
 
@@ -254,64 +307,58 @@ export class EditMovieComponent implements OnInit {
     this.router.navigate(['/movies']);
   }
 
+
   onSubmit() {
     if (this.movieForm.valid) {
       this.isLoading = true;
-      
+
       const formData = new FormData();
-      
-      formData.append('movieID', this.movieId);
-      formData.append('movieName', this.movieForm.value.movieName);
-      formData.append('description', this.movieForm.value.description);
-      formData.append('duration', this.movieForm.value.duration);
-      formData.append('releaseDate', this.movieForm.value.releaseDate);
-      formData.append('status', this.movieForm.value.status);
-      
+      formData.append('MovieId', this.movieId);
+      formData.append('MovieName', this.movieForm.get('movieName')?.value);
+      formData.append('Description', this.movieForm.get('description')?.value);
+      formData.append('Duration', this.movieForm.get('duration')?.value);
+      formData.append('ReleaseDate', this.movieForm.get('releaseDate')?.value);
+      formData.append('Status', this.movieForm.get('status')?.value);
+
+      // Thêm danh sách diễn viên và thể loại
+      const actorIds = this.selectedActors.map(actor => actor.id);
+      const genreIds = this.selectedGenres.map(genre => genre.id);
+
+      formData.append('ListActorID', JSON.stringify(actorIds));
+      formData.append('ListGenreID', JSON.stringify(genreIds));
+
+      // Thêm các file
       if (this.selectedThumbnail) {
-        formData.append('thumbnail', this.selectedThumbnail);
+        formData.append('Thumbnail', this.selectedThumbnail);
       }
-      
+
       if (this.selectedTrailer) {
-        formData.append('trailer', this.selectedTrailer);
+        formData.append('Trailer', this.selectedTrailer);
       }
-      
-      // Add actor IDs
-      if (this.selectedActors && this.selectedActors.length > 0) {
-        this.selectedActors.forEach(actor => {
-          formData.append('listActorID', actor.id);
-        });
+
+      if (this.selectedBanner) {
+        formData.append('Banner', this.selectedBanner); // Thêm banner vào formData
       }
-      
-      // Add genre IDs
-      if (this.selectedGenres && this.selectedGenres.length > 0) {
-        this.selectedGenres.forEach(genre => {
-          formData.append('listGenreID', genre.id);
-        });
-      }
-  
-      // Fix: Pass both movieId and formData to updateMovie
+
+      // Gọi service để cập nhật
       this.movieService.updateMovie(this.movieId, formData).subscribe({
         next: (response) => {
           this.isLoading = false;
           if (response.responseCode === 200) {
-            Swal.fire(
-              'Thành công!',
-              'Cập nhật phim thành công.',
-              'success'
-            ).then(() => {
+            Swal.fire('Thành công!', 'Cập nhật phim thành công', 'success').then(() => {
               this.router.navigate(['/movies']);
             });
           } else {
-            Swal.fire('Lỗi!', response.message || 'Có lỗi xảy ra khi cập nhật phim.', 'error');
+            Swal.fire('Lỗi!', response.message || 'Có lỗi xảy ra khi cập nhật phim', 'error');
           }
         },
-        error: (error) => {
+        error: (err) => {
           this.isLoading = false;
-          Swal.fire('Lỗi!', 'Có lỗi xảy ra khi cập nhật phim:' + error.message, 'error');
+          Swal.fire('Lỗi!', 'Có lỗi xảy ra khi cập nhật phim', 'error');
+          console.error(err);
         }
       });
     }
   }
 
-  
 }

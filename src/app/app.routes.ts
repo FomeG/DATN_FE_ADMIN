@@ -1,7 +1,7 @@
 import { Routes } from '@angular/router';
 import { MovieManagementComponent } from './movie/movie-management/movie-management.component';
 import { MovieDetailComponent } from './movie/movie-detail/movie-detail.component';
-import { EditMovieComponent } from './edit-movie/edit-movie.component';
+import { EditMovieComponent } from './movie/edit-movie/edit-movie.component';
 import { EmpManagementComponent } from './emp-management/emp-management.component';
 import { ActorManagementComponent } from './actor-management/actor-management.component';
 import { ShowtimeManagementComponent } from './showtime-management/showtime-management.component';
@@ -16,6 +16,10 @@ import { PaymentLayoutComponent } from './VNPAY/payment-layout/payment-layout.co
 import { VoucherManagementComponent } from './voucher/voucher-management/voucher-management.component';
 import { VoucherUsageManagementComponent } from './voucher/voucher-usage-management/voucher-usage-management.component';
 import { CinemaManagementComponent } from './cinema-management/cinema-management.component';
+import { ServiceManagementComponent } from './dichvu/service-management/service-management.component';
+import { ServiceTypeManagementComponent } from './dichvu/service-type-management/service-type-management.component';
+// import { STATISTICS_ROUTES } from './statistics/statistics-routing';
+import { DashboardComponent } from './statistics/dashboard/dashboard.component';
 
 export const routes: Routes = [
   // Public routes that don't require authentication
@@ -29,7 +33,7 @@ export const routes: Routes = [
     path: '',
     canActivate: [authGuard],
     children: [
-      { path: '', redirectTo: 'movies', pathMatch: 'full' },
+      { path: '', redirectTo: 'statistics/bundled-services', pathMatch: 'full' },
       { path: 'movies', component: MovieManagementComponent },
       { path: 'movies/edit/:id', component: EditMovieComponent },
       { path: 'movies/detail/:id', component: MovieDetailComponent },
@@ -40,13 +44,16 @@ export const routes: Routes = [
       { path: 'log', component: LogManagementComponent },
       { path: 'rooms', component: RoomManagementComponent },
       { path: 'pricing-rules', component: PricingRuleComponent },
+      { path: 'service', component: ServiceManagementComponent },
+      { path: 'service-type', component: ServiceTypeManagementComponent },
 
 
 
       { path: 'voucher', component: VoucherManagementComponent },
       { path: 'voucher-usage', component: VoucherUsageManagementComponent },
       { path: 'payment-callback', component: PaymentCallbackComponent },
-      { path: 'cinemas', component: CinemaManagementComponent }
+      { path: 'cinemas', component: CinemaManagementComponent },
+      { path: 'statistics', component: DashboardComponent }
     ]
   },
 

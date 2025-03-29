@@ -30,21 +30,28 @@
     </div>
 
     <div class="row mb-4">
-        <div class="col-md-4">
+        <div class="col-md-3">
             <select class="form-select header-select" [(ngModel)]="statusFilter" (change)="applyFilters()">
                 <option value="-1">Tất cả trạng thái</option>
-                <option value="1">Đang hoạt động</option>
+                <option value="1">Có sẵn</option>
                 <option value="2">Đang bảo trì</option>
-                <option value="3">Không hoạt động</option>
+                <option value="3">Đang dọn dẹp</option>
+                <option value="4">Đang sử dụng</option>
             </select>
         </div>
-        <div class="col-md-4">
+        <div class="col-md-3">
             <select class="form-select header-select" [(ngModel)]="cinemaFilter" (change)="applyFilters()">
                 <option value="-1">Tất cả rạp phim</option>
                 <option *ngFor="let cinema of cinemas" [value]="cinema.cinemasId">{{ cinema.name }}</option>
             </select>
         </div>
-        <div class="col-md-4">
+        <div class="col-md-3">
+            <select class="form-select header-select" [(ngModel)]="roomTypeFilter" (change)="applyFilters()">
+                <option value="-1">Tất cả loại phòng</option>
+                <option *ngFor="let type of roomTypes" [value]="type.roomTypeId">{{ type.name }}</option>
+            </select>
+        </div>
+        <div class="col-md-3">
             <div class="d-flex justify-content-between">
                 <button class="btn btn-outline-secondary clear-filter-btn" (click)="clearFilters()">
                     <i class="fas fa-times me-1"></i> Xóa bộ lọc
@@ -64,6 +71,7 @@
                             <th class="text-center" style="width: 50px">#</th>
                             <th>Tên phòng</th>
                             <th>Rạp phim</th>
+                            <th>Loại phòng</th>
                             <th class="text-center">Tổng số ghế</th>
                             <th class="text-center">Giá ghế</th>
                             <th class="text-center">Trạng thái</th>
@@ -75,6 +83,7 @@
                             <td class="text-center">{{ (currentPage - 1) * recordPerPage + i + 1 }}</td>
                             <td>{{ room.name }}</td>
                             <td>{{ getCinemaName(room.cinemaId) }}</td>
+                            <td>{{ getRoomTypeName(room.roomTypeId) }}</td>
                             <td class="text-center">{{ room.totalSeats }}</td>
                             <td class="text-center">{{ room.seatPrice.toString() }} VNĐ</td>
                             <td class="text-center">
@@ -83,16 +92,26 @@
                                 </span>
                             </td>
                             <td class="text-center">
-                                <button class="btn btn-outline-primary btn-rounded" (click)="onEditRoom(room.id, room.totalSeats)">
-                                    <i class="fas fa-edit me-1"></i>Sửa
+                                <button class="btn btn-outline-warning btn-sm btn-rounded" 
+                                        (click)="editRoomv2(room.id)" 
+                                        title="Sửa phòng"
+                                        [disabled]="!canUpdateStatus(room)">
+                                    <i class="fas fa-edit me-1"></i> Sửa phòng
                                 </button>
-                                <button class="btn btn-outline-danger btn-sm btn-rounded" (click)="deleteRoom(room.id)" title="Xóa phòng">
-                                    <i class="fas fa-trash"></i>
+                                <button class="btn btn-outline-primary btn-rounded" 
+                                        (click)="onEditRoom(room.id, room.totalSeats)">
+                                    <i class="fas fa-edit me-1"></i>Sửa sơ đồ ghế 
+                                </button>
+                                <button class="btn btn-outline-danger btn-sm btn-rounded" 
+                                        (click)="deleteRoom(room.id)" 
+                                        title="Xóa phòng"
+                                        [disabled]="!canUpdateStatus(room)">
+                                    <i class="fas fa-trash"></i> Xoá
                                 </button>
                             </td>
                         </tr>
                         <tr *ngIf="rooms.length === 0">
-                            <td colspan="7" class="text-center py-4">
+                            <td colspan="8" class="text-center py-4">
                                 <i class="fas fa-search fa-2x mb-2 text-muted"></i>
                                 <p class="text-muted">Không tìm thấy phòng nào phù hợp với tiêu chí tìm kiếm.</p>
                             </td>
@@ -125,6 +144,9 @@
     <!-- Nhúng component sửa phòng (modal) -->
     <app-edit-room></app-edit-room>
 
+    <!-- Nhúng component sửa thông tin phòng -->
+    <app-edit-room-info #editRoomInfoComponent (roomUpdated)="loadRooms()"></app-edit-room-info>
+
     <!-- Nhúng component thêm phòng -->
-    <app-add-room (movieAdded)="onRoomAdded()"></app-add-room>
+    <app-add-room (roomAdded)="onRoomAdded()"></app-add-room>
 </div>

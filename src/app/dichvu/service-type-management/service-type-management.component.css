@@ -1,0 +1,23 @@
+.btn-rounded {
+    border-radius: 50px;
+    padding: 0.25rem 0.75rem;
+  }
+  
+  .img-thumbnail {
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  }
+  
+  .modal-content {
+    border-radius: 8px;
+  }
+  
+  .page-item.active .page-link {
+    background-color: #4facfe;
+    border-color: #4facfe;
+  }
+  
+  .badge {
+    padding: 0.5em 0.8em;
+    font-weight: 500;
+  }

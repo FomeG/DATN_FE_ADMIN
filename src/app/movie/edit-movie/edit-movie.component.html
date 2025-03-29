@@ -40,7 +40,7 @@
         <div class="col-md-6">
           <div class="form-group">
             <label for="status" class="form-label">Trạng thái</label>
-            <select class="form-select" id="status" formControlName="status">
+            <select class="form-control" id="status" formControlName="status">
               <option [value]="1">Hoạt động</option>
               <option [value]="0">Không hoạt động</option>
             </select>
@@ -57,13 +57,23 @@
 
         <div class="col-md-6">
           <div class="form-group">
+            <label for="banner" class="form-label">Ảnh Banner</label>
+            <input type="file" class="form-control" id="banner" (change)="onFileSelect($event, 'banner')"
+              accept="image/*">
+          </div>
+        </div>
+
+
+        <div class="col-md-6">
+          <div class="form-group">
             <label for="thumbnail" class="form-label">Ảnh thumbnail</label>
             <input type="file" class="form-control" id="thumbnail" (change)="onFileSelect($event, 'thumbnail')"
               accept="image/*">
           </div>
         </div>
 
-        <div class="col-md-6">
+
+        <div class="col-md-12">
           <div class="form-group">
             <label for="trailer" class="form-label">Trailer</label>
             <input type="file" class="form-control" id="trailer" (change)="onFileSelect($event, 'trailer')"
@@ -118,6 +128,37 @@
 
 
 
+        <!-- Phần Thể loại trong form -->
+        <div class="mb-3 col-12">
+          <label class="form-label">Thể loại</label>
+          <div class="selected-genres mb-2">
+            <span *ngFor="let genre of selectedGenres" class="badge bg-success me-2 mb-2">
+              {{genre.genreName}}
+              <button type="button" class="btn-close btn-close-white ms-2" (click)="removeGenre(genre)"
+                style="font-size: 0.5rem;">
+              </button>
+            </span>
+          </div>
+          <div class="genre-search-container position-relative">
+            <input type="text" class="form-control" [(ngModel)]="genreSearchTerm" [ngModelOptions]="{standalone: true}"
+              (input)="filterGenres()" (focus)="showGenreDropdown = true" placeholder="Tìm kiếm thể loại...">
+
+            <!-- Dropdown list -->
+            <div class="actor-dropdown shadow" *ngIf="showGenreDropdown && filteredGenres.length > 0">
+              <div class="list-group">
+                <button type="button" *ngFor="let genre of filteredGenres"
+                  class="list-group-item list-group-item-action" (click)="selectGenre(genre)">
+                  {{genre.genreName}}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+
+
+
+
 
 
 
@@ -129,7 +170,8 @@
               <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-1"></span>
               {{isLoading ? 'Đang cập nhật...' : 'Cập nhật'}}
             </button>
-            <button type="button" class="btn-lg btn btn-outline-danger" routerLink="/movies" style="margin-left: 10px;">Hủy</button>
+            <button type="button" class="btn-lg btn btn-outline-danger" routerLink="/movies"
+              style="margin-left: 10px;">Hủy</button>
           </div>
         </div>
       </form>

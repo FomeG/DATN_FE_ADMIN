@@ -21,10 +21,15 @@
     "@ng-bootstrap/ng-bootstrap": "^18.0.0",
     "@popperjs/core": "^2.11.8",
     "@ttskch/select2-bootstrap4-theme": "^1.5.2",
+    "apexcharts": "^4.5.0",
     "bootstrap": "^5.3.3",
+    "chart.js": "^4.4.8",
     "dropify": "^0.2.2",
+    "file-saver": "^2.0.5",
     "jquery": "^3.7.1",
     "leaflet": "^1.9.4",
+    "ng-apexcharts": "^1.15.0",
+    "ng2-charts": "^8.0.0",
     "ngx-pagination": "^6.0.3",
     "popper.js": "^1.16.1",
     "rxjs": "~7.8.0",
@@ -32,6 +37,7 @@
     "sweetalert2": "^11.17.2",
     "tslib": "^2.3.0",
     "typeahead.js": "^0.11.1",
+    "xlsx": "^0.18.5",
     "zone.js": "~0.15.0"
   },
   "devDependencies": {

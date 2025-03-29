@@ -1,0 +1,25 @@
+.modal-content {
+  background-color: #191c24;
+  color: #ffffff;
+}
+
+.modal-header {
+  border-bottom: 1px solid #2c2e33;
+}
+
+.modal-footer {
+  border-top: 1px solid #2c2e33;
+}
+
+.form-control, .form-select {
+  background-color: #2A3038;
+  border-color: #2c2e33;
+  color: #ffffff;
+}
+
+.form-control:focus, .form-select:focus {
+  background-color: #2A3038;
+  border-color: #0090e7;
+  color: #ffffff;
+  box-shadow: 0 0 0 0.2rem rgba(0, 144, 231, 0.25);
+} 

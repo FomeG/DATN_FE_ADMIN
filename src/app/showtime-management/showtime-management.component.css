@@ -963,3 +963,253 @@
   input[type="datetime-local"]::-webkit-calendar-picker-indicator:hover {
     opacity: 1;
   }
+
+  /* Modal styles */
+  .modal-content {
+    background-color: #191c24;
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 0 30px rgba(0, 0, 0, 0.3);
+  }
+
+  .modal-header {
+    border-bottom: 1px solid #2c2e33;
+    padding: 1rem;
+    background: linear-gradient(45deg, #0090e7, #0077b5);
+  }
+
+  .modal-title {
+    font-size: 1.1rem;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+  }
+
+  .modal-body {
+    padding: 1rem;
+  }
+
+  .modal-footer {
+    border-top: 1px solid #2c2e33;
+    padding: 1rem;
+  }
+
+  /* Form styles */
+  .form-group {
+    margin-bottom: 1rem;
+  }
+
+  .form-label {
+    color: #ffffff;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    font-size: 0.9rem;
+  }
+
+  .form-label i {
+    color: #0090e7;
+    margin-right: 0.5rem;
+    font-size: 0.9rem;
+  }
+
+  .custom-select,
+  .custom-input {
+    background-color: #2A3038;
+    border: 1px solid #2c2e33;
+    color: #ffffff;
+    border-radius: 6px;
+    padding: 0.5rem 0.75rem;
+    height: auto;
+    min-height: 38px;
+    font-size: 0.9rem;
+    transition: all 0.2s ease;
+  }
+
+  .custom-select:focus,
+  .custom-input:focus {
+    border-color: #0090e7;
+    box-shadow: 0 0 0 0.15rem rgba(0, 144, 231, 0.25);
+    background-color: #2A3038;
+  }
+
+  .input-group-text {
+    background-color: #2A3038;
+    border: 1px solid #2c2e33;
+    color: #6c7293;
+    border-right: none;
+    border-radius: 6px 0 0 6px;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.9rem;
+  }
+
+  .input-group .custom-input {
+    border-radius: 0 6px 6px 0;
+    border-left: none;
+  }
+
+  /* Select dropdown styles */
+  .custom-select option {
+    background-color: #2A3038;
+    color: #ffffff;
+    padding: 0.5rem;
+    font-size: 0.9rem;
+  }
+
+  /* Invalid state styles */
+  .is-invalid {
+    border-color: #fc424a !important;
+  }
+
+  .is-invalid:focus {
+    box-shadow: 0 0 0 0.15rem rgba(252, 66, 74, 0.25) !important;
+  }
+
+  .invalid-feedback {
+    color: #fc424a;
+    font-size: 0.8rem;
+    margin-top: 0.25rem;
+  }
+
+  /* Button styles */
+  .btn-rounded {
+    border-radius: 20px;
+    padding: 0.5rem 1rem;
+    font-weight: 500;
+    font-size: 0.9rem;
+    transition: all 0.2s ease;
+  }
+
+  .btn-primary {
+    background: linear-gradient(to right, #0090e7, #0077b5);
+    border: none;
+  }
+
+  .btn-primary:hover {
+    background: linear-gradient(to right, #0077b5, #005f92);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 144, 231, 0.3);
+  }
+
+  .btn-outline-secondary {
+    border-color: #6c757d;
+    color: #6c757d;
+  }
+
+  .btn-outline-secondary:hover {
+    background-color: #6c757d;
+    color: #ffffff;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(108, 117, 125, 0.3);
+  }
+
+  /* Disabled button styles */
+  .btn:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+    transform: none !important;
+    box-shadow: none !important;
+  }
+
+  /* DateTime input styles */
+  input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+    filter: invert(1);
+    opacity: 0.5;
+    cursor: pointer;
+    width: 16px;
+    height: 16px;
+  }
+
+  input[type="datetime-local"]::-webkit-calendar-picker-indicator:hover {
+    opacity: 0.8;
+  }
+
+  /* Required field indicator */
+  .text-danger {
+    color: #fc424a !important;
+    margin-left: 0.25rem;
+    font-size: 0.8rem;
+  }
+
+  /* Icon colors */
+  .fa-film { color: #0090e7; }
+  .fa-door-open { color: #00d25b; }
+  .fa-clock { color: #ffab00; }
+  .fa-calendar-alt { color: #6c7293; }
+  .fa-toggle-on { color: #00d25b; }
+
+  /* Responsive adjustments */
+  @media (max-width: 576px) {
+    .modal-dialog {
+      margin: 0.5rem;
+    }
+    
+    .modal-body {
+      padding: 0.75rem;
+    }
+    
+    .btn-rounded {
+      padding: 0.4rem 0.8rem;
+      font-size: 0.85rem;
+    }
+  }
+
+  /* Animation for modal */
+  .modal.fade .modal-dialog {
+    transform: scale(0.8);
+    transition: transform 0.3s ease-in-out;
+  }
+
+  .modal.show .modal-dialog {
+    transform: scale(1);
+  }
+
+  /* Grid spacing */
+  .row.g-4 {
+    margin-right: -1rem;
+    margin-left: -1rem;
+  }
+
+  .row.g-4 > [class*="col-"] {
+    padding-right: 1rem;
+    padding-left: 1rem;
+  }
+
+  /* Styles for report issue modal */
+  .nav-tabs .nav-link {
+    color: #6c7293;
+    border: none;
+    padding: 10px 20px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+  }
+
+  .nav-tabs .nav-link.active {
+    color: #ffab00;
+    border-bottom: 2px solid #ffab00;
+    background: none;
+  }
+
+  .nav-tabs .nav-link:hover {
+    color: #ffab00;
+    border-color: transparent;
+  }
+
+  #reportIssueModal .modal-header {
+    background: linear-gradient(to right, #ffab00, #ff8f00);
+  }
+
+  #reportIssueModal .table th {
+    color: #6c7293;
+    font-weight: 500;
+  }
+
+  #reportIssueModal .table td {
+    vertical-align: middle;
+  }
+
+  #reportIssueModal .btn-danger {
+    padding: 5px 10px;
+    font-size: 0.875rem;
+  }

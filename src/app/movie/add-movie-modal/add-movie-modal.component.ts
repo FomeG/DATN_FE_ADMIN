@@ -38,6 +38,9 @@ export class AddMovieModalComponent implements OnInit, AfterViewInit {
   isLoading = false;
   errorMessage = '';
 
+
+  trailerPreviewUrl: string | null = null;
+
   constructor(
     private fb: FormBuilder,
     private movieService: MovieService,
@@ -78,31 +81,19 @@ export class AddMovieModalComponent implements OnInit, AfterViewInit {
     });
   }
 
-  filterGenres() {
-    if (!this.genreSearchTerm.trim()) {
-      this.filteredGenres = this.genres.filter(genre =>
-        !this.selectedGenres.some(selected => selected.id === genre.id)
-      );
-    } else {
-      this.filteredGenres = this.genres.filter(genre =>
-        genre.genreName.toLowerCase().includes(this.genreSearchTerm.toLowerCase()) &&
-        !this.selectedGenres.some(selected => selected.id === genre.id)
-      );
-    }
-    this.showGenreDropdown = true;
-  }
 
   selectGenre(genre: Genre) {
     if (!this.selectedGenres.some(selected => selected.id === genre.id)) {
       this.selectedGenres.push(genre);
       this.genreSearchTerm = '';
-      this.showGenreDropdown = false;
+      this.filterGenres();
       this.updateFormGenreIds();
     }
   }
 
   removeGenre(genre: Genre) {
     this.selectedGenres = this.selectedGenres.filter(g => g.id !== genre.id);
+    this.filterGenres();
     this.updateFormGenreIds();
   }
 
@@ -166,8 +157,25 @@ export class AddMovieModalComponent implements OnInit, AfterViewInit {
         !this.selectedActors.some(selected => selected.id === actor.id)
       );
     }
-    this.showDropdown = true;
+    this.showDropdown = this.filteredActors.length > 0;
   }
+
+  filterGenres() {
+    if (!this.genreSearchTerm.trim()) {
+      // Khi không có từ khóa tìm kiếm, hiển thị tất cả genres chưa được chọn
+      this.filteredGenres = this.genres.filter(genre =>
+        !this.selectedGenres.some(selected => selected.id === genre.id)
+      );
+    } else {
+      // Lọc theo từ khóa và loại bỏ các genres đã được chọn
+      this.filteredGenres = this.genres.filter(genre =>
+        genre.genreName.toLowerCase().includes(this.genreSearchTerm.toLowerCase()) &&
+        !this.selectedGenres.some(selected => selected.id === genre.id)
+      );
+    }
+    this.showGenreDropdown = this.filteredGenres.length > 0;
+  }
+
 
   // Thêm click outside handler để đóng dropdown
   @HostListener('document:click', ['$event'])
@@ -185,13 +193,14 @@ export class AddMovieModalComponent implements OnInit, AfterViewInit {
     if (!this.selectedActors.some(selected => selected.id === actor.id)) {
       this.selectedActors.push(actor);
       this.searchTerm = '';
-      this.showDropdown = false;
+      this.filterActors();
       this.updateFormActorIds();
     }
   }
 
   removeActor(actor: Actor) {
     this.selectedActors = this.selectedActors.filter(a => a.id !== actor.id);
+    this.filterActors();
     this.updateFormActorIds();
   }
 
@@ -220,6 +229,7 @@ export class AddMovieModalComponent implements OnInit, AfterViewInit {
           break;
         case 'trailer':
           this.selectedTrailer = file;
+          this.trailerPreviewUrl = URL.createObjectURL(file);
           break;
       }
     }
@@ -358,5 +368,22 @@ export class AddMovieModalComponent implements OnInit, AfterViewInit {
       listActorID: [[]],
       listGenreID: [[]]
     });
+  }
+
+
+
+
+
+
+
+
+
+
+
+  // Nhớ xóa URL khi component bị hủy
+  ngOnDestroy() {
+    if (this.trailerPreviewUrl) {
+      URL.revokeObjectURL(this.trailerPreviewUrl);
+    }
   }
 }

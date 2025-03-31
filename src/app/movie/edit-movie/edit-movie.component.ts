@@ -5,6 +5,8 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { MovieService } from '../../services/movie.service';
 import { ActorService, Actor } from '../../services/actor.service';
 import { GenreService, Genre } from '../../services/genre.service';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
+
 
 import Swal from 'sweetalert2';
 
@@ -38,13 +40,24 @@ export class EditMovieComponent implements OnInit {
   searchTerm: string = '';
   showDropdown: boolean = false;
 
+
+
+
+  // Thêm vào class EditMovieComponent
+  movie: any; // Thông tin phim hiện tại
+  thumbnailPreviewUrl: string | null = null;
+  bannerPreviewUrl: string | null = null;
+  trailerPreviewUrl: string | null = null;
+  safeTrailerUrl: SafeResourceUrl | null = null;
+
   constructor(
     private fb: FormBuilder,
     private route: ActivatedRoute,
     private router: Router,
     private movieService: MovieService,
     private actorService: ActorService,
-    private genreService: GenreService
+    private genreService: GenreService,
+    private sanitizer: DomSanitizer
   ) {
     this.movieForm = this.fb.group({
       movieName: ['', Validators.required],
@@ -100,6 +113,7 @@ export class EditMovieComponent implements OnInit {
             // Sau khi có dữ liệu phim, mới tải diễn viên và thể loại
             this.loadActors();
             this.loadGenres();
+
           }
         },
         error: (error) => {
@@ -108,6 +122,10 @@ export class EditMovieComponent implements OnInit {
         }
       });
     });
+
+
+
+    
   }
 
   // Initialize form
@@ -179,15 +197,26 @@ export class EditMovieComponent implements OnInit {
     this.movieForm.patchValue({ listGenreID: genreIds });
   }
 
+  // Sửa phương thức onFileSelect để tạo URL preview
   onFileSelect(event: any, type: string) {
     const file = event.target.files[0];
     if (file) {
-      if (type === 'thumbnail') {
-        this.selectedThumbnail = file;
-      } else if (type === 'trailer') {
-        this.selectedTrailer = file;
-      } else if (type === 'banner') { // Thêm xử lý banner
-        this.selectedBanner = file;
+      switch (type) {
+        case 'thumbnail':
+          this.selectedThumbnail = file;
+          // Tạo URL xem trước
+          this.thumbnailPreviewUrl = URL.createObjectURL(file);
+          break;
+        case 'trailer':
+          this.selectedTrailer = file;
+          // Tạo URL xem trước
+          this.trailerPreviewUrl = URL.createObjectURL(file);
+          break;
+        case 'banner':
+          this.selectedBanner = file;
+          // Tạo URL xem trước
+          this.bannerPreviewUrl = URL.createObjectURL(file);
+          break;
       }
     }
   }
@@ -206,6 +235,11 @@ export class EditMovieComponent implements OnInit {
               releaseDate: movieData.releaseDate.split('T')[0],
               status: movieData.status
             });
+
+            // Xử lý trailer URL nếu có
+            if (movieData.trailer) {
+              this.processTrailerUrl(movieData.trailer);
+            }
 
             // Cập nhật danh sách diễn viên từ listdienvien
             this.selectedActors = movieData.listdienvien ? movieData.listdienvien.map((dv: any) => ({
@@ -232,6 +266,10 @@ export class EditMovieComponent implements OnInit {
 
             // Cập nhật lại danh sách thể loại đã lọc
             this.filterGenres();
+
+
+            this.loadActors();
+            this.loadGenres();
           }
         },
         error: (error) => {
@@ -242,6 +280,38 @@ export class EditMovieComponent implements OnInit {
     }
   }
 
+
+
+
+
+  // Thêm phương thức để xử lý trailer URL
+  processTrailerUrl(url: string): void {
+    // Kiểm tra nếu URL đã ở dạng embed
+    if (url.includes('youtube.com/embed/')) {
+      this.safeTrailerUrl = this.sanitizer.bypassSecurityTrustResourceUrl(url);
+      return;
+    }
+
+    // Xử lý URL YouTube thông thường
+    if (url.includes('youtube.com/watch?v=') || url.includes('youtu.be/')) {
+      let videoId = '';
+      if (url.includes('youtube.com/watch?v=')) {
+        videoId = url.split('v=')[1].split('&')[0];
+      } else if (url.includes('youtu.be/')) {
+        videoId = url.split('youtu.be/')[1];
+      }
+
+      if (videoId) {
+        const embedUrl = `https://www.youtube.com/embed/${videoId}`;
+        this.safeTrailerUrl = this.sanitizer.bypassSecurityTrustResourceUrl(embedUrl);
+      }
+    } else {
+      // Nếu không phải URL YouTube, dùng trực tiếp nếu là file
+      if (url.startsWith('http')) {
+        this.safeTrailerUrl = this.sanitizer.bypassSecurityTrustResourceUrl(url);
+      }
+    }
+  }
   loadActors() {
     this.actorService.getActors(1, 99999).subscribe({
       next: (response) => {
@@ -358,6 +428,28 @@ export class EditMovieComponent implements OnInit {
           console.error(err);
         }
       });
+    }
+  }
+
+
+
+
+
+
+
+
+
+  // Thêm phương thức ngOnDestroy để dọn dẹp các URL đã tạo
+  ngOnDestroy() {
+    // Dọn dẹp các URL đã tạo
+    if (this.thumbnailPreviewUrl) {
+      URL.revokeObjectURL(this.thumbnailPreviewUrl);
+    }
+    if (this.trailerPreviewUrl) {
+      URL.revokeObjectURL(this.trailerPreviewUrl);
+    }
+    if (this.bannerPreviewUrl) {
+      URL.revokeObjectURL(this.bannerPreviewUrl);
     }
   }
 

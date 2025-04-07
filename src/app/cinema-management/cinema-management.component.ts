@@ -178,10 +178,6 @@ export class CinemaManagementComponent implements OnInit, OnDestroy {
             document.body.classList.remove('modal-open');
         }
 
-        // Reset body styles
-        document.body.style.overflow = '';
-        document.body.style.paddingRight = '';
-
         // Force reset data attributes
         document.body.removeAttribute('data-bs-overflow');
         document.body.removeAttribute('data-bs-padding-right');

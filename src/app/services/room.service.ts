@@ -86,4 +86,12 @@ export class RoomService {
     }): Observable<ApiResponse<null>> {
         return this.http.post<ApiResponse<null>>(`${this.apiUrl}Room/UpdateRoom`, room);
     }
+
+
+
+
+
+    getRoomsByCinema(cinemaId: string): Observable<any> {
+        return this.http.get<any>(`${this.apiUrl}Room/GetAllRoomByCinema?CinemaID=${cinemaId}`);
+      }
 }

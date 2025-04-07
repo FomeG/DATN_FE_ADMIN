@@ -4,7 +4,7 @@ import { MovieDetailComponent } from './movie/movie-detail/movie-detail.componen
 import { EditMovieComponent } from './movie/edit-movie/edit-movie.component';
 import { EmpManagementComponent } from './emp-management/emp-management.component';
 import { ActorManagementComponent } from './actor-management/actor-management.component';
-import { ShowtimeManagementComponent } from './showtime-management/showtime-management.component';
+import { ShowtimeManagementComponent } from './showtime/showtime-management/showtime-management.component';
 import { MembershipManagementComponent } from './membership-management/membership-management.component';
 import { RoomManagementComponent } from './room/room-management/room-management.component';
 import { PricingRuleComponent } from './pricing-rule/pricing-rule.component';

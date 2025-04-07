@@ -1,0 +1,297 @@
+<!-- hien thi modal -->
+<div class="modal fade" id="showtimeModal" tabindex="-1" aria-labelledby="showtimeModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-md modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title" id="showtimeModalLabel">
+          <i class="fas fa-film me-2"></i>
+          {{isEditing ? 'Cập nhật Showtime' : 'Thêm Showtime mới'}}
+        </h5>
+        <button type="button" class="btn-close btn-close-white" (click)="closeModal()" aria-label="Close"></button>
+      </div>
+      <div class="modal-body p-3">
+        <form [formGroup]="showtimeForm" (ngSubmit)="onSubmit()">
+          <div class="row g-3">
+            <!-- Movie Selection -->
+            <div class="col-12">
+              <div class="form-group">
+                <label for="movieId" class="form-label">
+                  <i class="fas fa-film me-1"></i>Phim <span class="text-danger">*</span>
+                </label>
+                <ng-container *ngIf="!isEditing">
+                  <select class="form-select custom-select" id="movieId" formControlName="movieId"
+                    [ngClass]="{'is-invalid': showtimeForm.get('movieId')?.invalid && showtimeForm.get('movieId')?.touched}">
+                    <option value="">Chọn phim</option>
+                    <option *ngFor="let movie of movies" [value]="movie.id">{{movie.movieName}}</option>
+                  </select>
+                </ng-container>
+                <ng-container *ngIf="isEditing">
+                  <input type="text" class="form-control" [value]="selectedMovieName" readonly>
+                </ng-container>
+                <div class="invalid-feedback"
+                  *ngIf="showtimeForm.get('movieId')?.invalid && showtimeForm.get('movieId')?.touched">
+                  Vui lòng chọn phim
+                </div>
+              </div>
+            </div>
+
+            <!-- Room Selection -->
+            <div class="col-12">
+              <div class="form-group">
+                <label for="roomId" class="form-label">
+                  <i class="fas fa-door-open me-1"></i>Phòng <span class="text-danger">*</span>
+                </label>
+                <select class="form-select custom-select" id="roomId" formControlName="roomId"
+                  [ngClass]="{'is-invalid': showtimeForm.get('roomId')?.invalid && showtimeForm.get('roomId')?.touched}">
+                  <option value="">Chọn phòng</option>
+                  <option *ngFor="let room of rooms" [value]="room.id">{{room.name}}</option>
+                </select>
+                <div class="invalid-feedback"
+                  *ngIf="showtimeForm.get('roomId')?.invalid && showtimeForm.get('roomId')?.touched">
+                  Vui lòng chọn phòng
+                </div>
+              </div>
+            </div>
+
+            <div class="row g-3">
+              <!-- Start Time and End Time in one row -->
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label for="startTime" class="form-label">
+                    <i class="fas fa-clock me-1"></i>Thời gian bắt đầu <span class="text-danger">*</span>
+                  </label>
+                  <div class="input-group">
+                    <span class="input-group-text">
+                      <i class="fas fa-calendar-alt"></i>
+                    </span>
+                    <input type="datetime-local" class="form-control custom-input" id="startTime"
+                      formControlName="startTime"
+                      [ngClass]="{'is-invalid': showtimeForm.get('startTime')?.invalid && showtimeForm.get('startTime')?.touched}">
+                  </div>
+                  <div class="invalid-feedback"
+                    *ngIf="showtimeForm.get('startTime')?.invalid && showtimeForm.get('startTime')?.touched">
+                    Vui lòng chọn thời gian bắt đầu
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label for="endTime" class="form-label">
+                    <i class="fas fa-clock me-1"></i>Thời gian kết thúc
+                  </label>
+                  <div class="input-group">
+                    <span class="input-group-text">
+                      <i class="fas fa-calendar-alt"></i>
+                    </span>
+                    <input type="datetime-local" class="form-control custom-input" id="endTime"
+                      formControlName="endTime" readonly>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Intro Time and Cleanup Time in one row -->
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label for="introTime" class="form-label">
+                    <i class="fas fa-hourglass-start me-1"></i>Thời gian quảng cáo
+                  </label>
+                  <select class="form-select custom-select" id="introTime" formControlName="introTime">
+                    <option *ngFor="let time of INTRO_TIMES" [value]="time.value">
+                      {{time.label}}
+                    </option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label for="cleanupTime" class="form-label">
+                    <i class="fas fa-broom me-1"></i>Thời gian dọn dẹp
+                  </label>
+                  <select class="form-select custom-select" id="cleanupTime" formControlName="cleanupTime">
+                    <option *ngFor="let time of CLEANUP_TIMES" [value]="time.value">
+                      {{time.label}}
+                    </option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Form Actions -->
+          <div class="modal-footer border-top mt-3">
+            <button type="button" class="btn btn-outline-secondary btn-rounded" (click)="closeModal()">
+              <i class="fas fa-times me-1"></i>Hủy
+            </button>
+            <button type="submit" class="btn btn-primary btn-rounded" [disabled]="showtimeForm.invalid">
+              <i class="fas fa-save me-1"></i>{{isEditing ? 'Cập nhật' : 'Thêm mới'}}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+
+
+
+
+    openAddModal(): void {
+    try {
+      // Clean up any existing modal effects
+      this.cleanupModalEffects();
+
+      this.isEditing = false;
+      this.selectedShowtime = null;
+
+      this.showtimeForm.reset({
+        status: this.SHOWTIME_STATUS.UPCOMING_SALE
+      });
+
+      const modalEl = document.getElementById('showtimeModal');
+      if (modalEl) {
+        // Dispose existing modal if any
+        try {
+          const existingModal = bootstrap.Modal.getInstance(modalEl);
+          if (existingModal) {
+            existingModal.dispose();
+          }
+        } catch (e) {
+          // Handle error
+        }
+
+        // Create new modal with specific options
+        this.modalInstance = new bootstrap.Modal(modalEl, {
+          backdrop: 'static',
+          keyboard: true,
+          focus: true
+        });
+
+        // Setup event listeners
+        modalEl.addEventListener('shown.bs.modal', () => {
+          modalEl.removeAttribute('aria-hidden');
+        }, { once: true });
+
+        modalEl.addEventListener('hidden.bs.modal', () => {
+          modalEl.setAttribute('aria-hidden', 'true');
+          this.cleanupModalEffects();
+        }, { once: true });
+
+        // Show the modal
+        this.modalInstance.show();
+      }
+    } catch (error) {
+      this.cleanupModalEffects();
+    }
+  }
+
+
+
+
+  editShowtime(showtime: Showtime) {
+    if (!this.canEditShowtime(showtime)) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Không thể sửa!',
+        text: 'Chỉ có thể sửa suất chiếu chưa bắt đầu hoặc đang chiếu.',
+        confirmButtonText: 'OK'
+      });
+      return;
+    }
+
+    try {
+      // Clean up any existing modal effects
+      this.cleanupModalEffects();
+
+      this.isEditing = true;
+      this.selectedShowtime = showtime;
+
+      // Calculate total duration from start and end time
+      const startTime = new Date(showtime.startTime);
+      const endTime = new Date(showtime.endTime);
+      const totalDuration = (endTime.getTime() - startTime.getTime()) / (1000 * 60);
+
+      // Set default values for intro and cleanup time
+      const defaultIntroTime = 10;
+      const defaultCleanupTime = 15;
+
+      this.showtimeForm.patchValue({
+        movieId: showtime.movieId,
+        roomId: showtime.roomId,
+        startTime: new Date(showtime.startTime).toISOString().slice(0, 16),
+        endTime: new Date(showtime.endTime).toISOString().slice(0, 16),
+        introTime: defaultIntroTime,
+        cleanupTime: defaultCleanupTime
+      });
+
+      const modalEl = document.getElementById('showtimeModal');
+      if (modalEl) {
+        // Dispose existing modal if any
+        try {
+          const existingModal = bootstrap.Modal.getInstance(modalEl);
+          if (existingModal) {
+            existingModal.dispose();
+          }
+        } catch (e) {
+          // Handle error
+        }
+
+        // Create new modal with specific options
+        this.modalInstance = new bootstrap.Modal(modalEl, {
+          backdrop: 'static',
+          keyboard: true,
+          focus: true
+        });
+
+        // Setup event listeners
+        modalEl.addEventListener('shown.bs.modal', () => {
+          modalEl.removeAttribute('aria-hidden');
+        }, { once: true });
+
+        modalEl.addEventListener('hidden.bs.modal', () => {
+          modalEl.setAttribute('aria-hidden', 'true');
+          this.cleanupModalEffects();
+        }, { once: true });
+
+        // Show the modal
+        this.modalInstance.show();
+      }
+    } catch (error) {
+      this.cleanupModalEffects();
+    }
+  }
+
+
+
+  closeModal(): void {
+    try {
+      if (this.modalInstance) {
+        this.modalInstance.hide();
+      } else {
+        const modalEl = document.getElementById('showtimeModal');
+        if (modalEl) {
+          const modal = bootstrap.Modal.getInstance(modalEl);
+          if (modal) {
+            modal.hide();
+          }
+        }
+      }
+
+      // Reset form and state
+      this.resetForm();
+
+      // Ensure modal effects are cleaned up
+      setTimeout(() => {
+        this.cleanupModalEffects();
+      }, 100);
+    } catch (error) {
+      this.cleanupModalEffects();
+    }
+  }

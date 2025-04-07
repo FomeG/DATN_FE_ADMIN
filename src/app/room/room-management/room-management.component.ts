@@ -21,26 +21,31 @@ import { Modal } from 'bootstrap';
 export class RoomManagementComponent implements OnInit {
   @ViewChild(EditRoomComponent) editRoomComponent!: EditRoomComponent;
   @ViewChild(EditRoomInfoComponent) editRoomInfoComponent!: EditRoomInfoComponent;
-
+  Math = Math;
   rooms: Room[] = [];
   allRooms: Room[] = [];
   roomTypes: RoomType[] = [];
-  currentPage = 1;
-  recordPerPage = 10;
-  totalRecords = 0;
-  totalPages = 0;
+  // Thêm biến để lưu vị trí scroll
+  private scrollPosition: number = 0;
+
+  // Các thuộc tính
+  currentPage: number = 1;
+  totalPages: number = 0;
   pages: number[] = [];
-  
+  recordPerPage: number = 10;
+  totalRecords: number = 0;
+  isLoading: boolean = false;
+
+
   // Filters
   searchTerm = '';
   statusFilter = '-1';
   cinemaFilter = '-1';
   roomTypeFilter = '-1';
   cinemas: Cinema[] = [];
-  isLoading = false;
 
   constructor(
-    private roomService: RoomService, 
+    private roomService: RoomService,
     private cinemaService: CinemaService,
     private http: HttpClient
   ) { }
@@ -49,25 +54,23 @@ export class RoomManagementComponent implements OnInit {
     this.loadRooms();
     this.loadCinemas();
     this.loadRoomTypes();
-    
+
     // Kiểm tra trạng thái phòng mỗi 30 giây
     setInterval(() => {
       this.checkAllRoomsStatus();
     }, 30 * 1000);
   }
 
-  loadRooms() {
+  loadRooms(): void {
     this.isLoading = true;
+
+    // Gọi API với tham số phân trang
     this.roomService.getRooms(this.currentPage, this.recordPerPage).subscribe({
-      next: (response) => {
-        if (response.responseCode === 200) {
-          this.allRooms = response.data.filter(room => !room.isdeleted);
+      next: (response: any) => {
+        if (response && response.data) {
           this.rooms = response.data;
           this.totalRecords = response.totalRecord;
-          this.totalPages = Math.ceil(this.totalRecords / this.recordPerPage);
-          this.applyFilters();
-        } else {
-          Swal.fire('Lỗi', 'Không thể tải danh sách phòng', 'error');
+          this.calculatePagination();
         }
         this.isLoading = false;
       },
@@ -108,14 +111,14 @@ export class RoomManagementComponent implements OnInit {
   checkAllRoomsStatus() {
     // Chỉ kiểm tra các phòng không đang bảo trì
     const roomsToCheck = this.rooms.filter(room => room.status !== 2);
-    
+
     // Gọi API một lần để lấy tất cả lịch chiếu
     this.http.get(`${environment.apiUrl}ShowTime/GetList?currentPage=1&recordPerPage=1000`).subscribe({
       next: (response: any) => {
         if (response.responseCode === 200) {
           const showTimes = response.data;
           const currentTime = new Date();
-          
+
           // Cập nhật trạng thái cho từng phòng
           roomsToCheck.forEach(room => {
             const roomShowTimes = showTimes.filter((showTime: any) => showTime.roomId === room.id);
@@ -168,19 +171,19 @@ export class RoomManagementComponent implements OnInit {
 
   applyFilters() {
     let filteredRooms = [...this.allRooms];
-    
+
     if (this.searchTerm && this.searchTerm.trim() !== '') {
       const searchTermLower = this.searchTerm.toLowerCase().trim();
-      filteredRooms = filteredRooms.filter(room => 
+      filteredRooms = filteredRooms.filter(room =>
         room.name.toLowerCase().includes(searchTermLower)
       );
     }
-    
+
     if (this.statusFilter !== '-1') {
       const status = parseInt(this.statusFilter, 10);
       filteredRooms = filteredRooms.filter(room => room.status === status);
     }
-    
+
     if (this.cinemaFilter !== '-1') {
       filteredRooms = filteredRooms.filter(room => room.cinemaId === this.cinemaFilter);
     }
@@ -188,14 +191,14 @@ export class RoomManagementComponent implements OnInit {
     if (this.roomTypeFilter !== '-1') {
       filteredRooms = filteredRooms.filter(room => room.roomTypeId === this.roomTypeFilter);
     }
-    
+
     this.totalRecords = filteredRooms.length;
     this.calculateTotalPages();
-    
+
     if (this.currentPage > this.totalPages && this.totalPages > 0) {
       this.currentPage = 1;
     }
-    
+
     const startIndex = (this.currentPage - 1) * this.recordPerPage;
     const endIndex = startIndex + this.recordPerPage;
     this.rooms = filteredRooms.slice(startIndex, endIndex);
@@ -215,12 +218,7 @@ export class RoomManagementComponent implements OnInit {
     this.pages = Array.from({ length: this.totalPages }, (_, i) => i + 1);
   }
 
-  onPageChange(page: number) {
-    if (page !== this.currentPage && page >= 1 && page <= this.totalPages) {
-      this.currentPage = page;
-      this.applyFilters();
-    }
-  }
+
 
   onSearch() {
     this.currentPage = 1;
@@ -281,7 +279,7 @@ export class RoomManagementComponent implements OnInit {
       }
     });
   }
-  
+
   getStatusText(status: number): string {
     switch (status) {
       case 1:
@@ -296,7 +294,7 @@ export class RoomManagementComponent implements OnInit {
         return 'Không xác định';
     }
   }
-  
+
   getStatusBadgeClass(status: number): string {
     switch (status) {
       case 1:
@@ -311,7 +309,7 @@ export class RoomManagementComponent implements OnInit {
         return 'badge bg-secondary';
     }
   }
-  
+
   getCinemaName(cinemaId: string): string {
     const cinema = this.cinemas.find(c => c.cinemasId === cinemaId);
     return cinema ? cinema.name : 'Không xác định';
@@ -346,4 +344,45 @@ export class RoomManagementComponent implements OnInit {
       }
     }
   }
+
+
+
+
+
+  calculatePagination(): void {
+    this.totalPages = Math.ceil(this.totalRecords / this.recordPerPage);
+    this.pages = [];
+
+    // Hiển thị tối đa 5 trang
+    const startPage = Math.max(1, this.currentPage - 2);
+    const endPage = Math.min(this.totalPages, startPage + 4);
+
+    for (let i = startPage; i <= endPage; i++) {
+      this.pages.push(i);
+    }
+  }
+
+
+
+  // Xử lý khi thay đổi số bản ghi mỗi trang
+  onRecordsPerPageChange(): void {
+    this.currentPage = 1; // Reset về trang đầu tiên
+    this.loadRooms();
+  }
+
+
+  // Xử lý khi thay đổi trang
+  onPageChange(page: number): void {
+    if (page < 1 || page > this.totalPages || page === this.currentPage) {
+      return;
+    }
+    this.currentPage = page;
+    this.loadRooms();
+    this.applyFilters();
+  }
+
+
+
+
+
 }

@@ -1,36 +1,61 @@
 <div class="container-fluid">
   <h2 class="mb-4">Service Management</h2>
   <div class="d-flex">
-    <button class="btn btn-primary mb-4" style="border-radius: 15px" (click)="openAddModal()">
-      <i class="fas fa-plus"></i> Thêm dịch vụ mới
-    </button>
 
-    <div class="input-group" style="width: 70%; margin-left: auto">
+
+    <!-- <div class="input-group" style="width: 70%; margin-left: auto">
       <input type="text" class="form-control" placeholder="Tìm kiếm dịch vụ..." [(ngModel)]="searchTerm"
         (keyup.enter)="search()" style="height: 55px;">
       <button class="btn btn-primary mb-4" type="button" (click)="search()">
         <i class="fas fa-search"></i>
       </button>
-    </div>
+    </div> -->
   </div>
 
   <div class="row">
     <div class="col-12">
       <div class="card">
         <div class="card-header">
+
+
           <div class="d-flex justify-content-between align-items-center">
-            <h5 class="card-title mb-0">Danh sách dịch vụ</h5>
-            <div class="d-flex align-items-center">
-              <select [(ngModel)]="recordPerPage" (change)="onRecordsPerPageChange()" class="form-select me-3">
-                <option [value]="10">10 bản ghi</option>
-                <option [value]="20">20 bản ghi</option>
-                <option [value]="50">50 bản ghi</option>
-                <option [value]="100">100 bản ghi</option>
-              </select>
-              <span>Hiển thị {{ (currentPage - 1) * recordPerPage + 1 }} đến
-                {{ Math.min(currentPage * recordPerPage, totalRecords) }} của {{ totalRecords }} dịch vụ</span>
+            <div class="col-md-4 text-end">
+              <button class="custom-header-button" style="width: 200px;" (click)="openAddModal()">
+                <i class="fas fa-plus"></i> Thêm dịch vụ mới
+              </button>
             </div>
+
+
+
+            <div class="d-flex justify-content-between align-items-center m-0" style="gap: 0.5rem;">
+              <div class="custom-header-search">
+                <input type="text" class="form-control" placeholder="Tìm kiếm dịch vụ..." [(ngModel)]="searchTerm"
+                  (keyup.enter)="search()">
+                <button class="custom-header-search-btn" (click)="search()">
+                  <i class="fas fa-search"></i>
+                </button>
+              </div>
+
+
+
+              <!-- Dropdown số bản ghi mỗi trang -->
+              <div>
+                <select [(ngModel)]="recordPerPage" (change)="onRecordsPerPageChange()"
+                  class="form-select form-select-sm">
+                  <option [value]="10">10 bản ghi</option>
+                  <option [value]="20">20 bản ghi</option>
+                  <option [value]="50">50 bản ghi</option>
+                  <option [value]="100">100 bản ghi</option>
+                </select>
+              </div>
+
+            </div>
+            
           </div>
+
+
+
+
         </div>
 
         <div class="card-body">
@@ -81,13 +106,11 @@
                   <td>{{ service.price | number:'1.0-0' }} VNĐ</td>
                   <td>{{ getServiceTypeName(service.serviceTypeID) }}</td>
                   <td class="text-center">
-                    <button type="button" class="btn btn-outline-primary btn-rounded me-2"
-                      (click)="editService(service)">
-                      <i class="fas fa-edit"></i> Sửa
+                    <button type="button" class="btn btn-outline-warning me-2" (click)="editService(service)">
+                      <i class="fas fa-edit"></i>
                     </button>
-                    <button type="button" class="btn btn-outline-danger btn-rounded"
-                      (click)="deleteService(service.id)">
-                      <i class="fas fa-trash"></i> Xóa
+                    <button type="button" class="btn btn-outline-danger" (click)="deleteService(service.id)">
+                      <i class="fas fa-trash"></i>
                     </button>
                   </td>
                 </tr>
@@ -96,6 +119,10 @@
                 </tr>
               </tbody>
             </table>
+
+
+            <span>Hiển thị {{ (currentPage - 1) * recordPerPage + 1 }} đến
+              {{ Math.min(currentPage * recordPerPage, totalRecords) }} của {{ totalRecords }} dịch vụ</span>
           </div>
 
           <!-- Pagination -->
@@ -127,6 +154,42 @@
       </div>
     </div>
   </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
   <!-- Service Modal -->
   <div class="modal fade" id="serviceModal" tabindex="-1" aria-labelledby="serviceModalLabel" aria-hidden="true">

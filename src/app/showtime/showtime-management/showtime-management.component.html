@@ -12,7 +12,7 @@
     <div class="row align-items-center mb-3">
       <div class="col-md-3">
         <select class="custom-header-select" [(ngModel)]="selectedMovieId" (change)="onMovieChange()">
-          <option value="">Tất cả phim</option>
+          <option [value]="''">Tất cả phim</option>
           <option *ngFor="let movie of movies" [value]="movie.id">{{ movie.movieName }}</option>
         </select>
       </div>
@@ -98,7 +98,7 @@
               </div>
 
             </div>
-            
+
           </div>
 
         </div>
@@ -112,6 +112,7 @@
                   <tr>
                     <th class="text-center" style="width: 50px">#</th>
                     <th>Phim</th>
+                    <th>Thời lượng</th>
                     <th>Phòng</th>
                     <th>Thời gian bắt đầu</th>
                     <th>Thời gian kết thúc</th>
@@ -122,7 +123,8 @@
                 <tbody>
                   <tr *ngFor="let showtime of showtimes; let i = index">
                     <td class="text-center">{{ ((currentPage - 1) * recordPerPage) + (i + 1) }}</td>
-                    <td>{{showtime.movieName}}</td>
+                    <td><a href="movies/detail/{{showtime.movieId}}" class="btn">{{showtime.movieName}}</a></td>
+                    <td>{{showtime.duration}}</td>
                     <td>{{showtime.roomName}}</td>
                     <td>{{showtime.startTime | date:'dd/MM/yyyy HH:mm'}}</td>
                     <td>{{showtime.endTime | date:'dd/MM/yyyy HH:mm'}}</td>
@@ -174,141 +176,7 @@
 
     </div>
   </div>
-  <!-- Showtime Modal -->
-  <div class="modal fade" id="showtimeModal" tabindex="-1" aria-labelledby="showtimeModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-md modal-dialog-centered">
-      <div class="modal-content">
-        <div class="modal-header bg-primary text-white">
-          <h5 class="modal-title" id="showtimeModalLabel">
-            <i class="fas fa-film me-2"></i>
-            {{isEditing ? 'Cập nhật Showtime' : 'Thêm Showtime mới'}}
-          </h5>
-          <button type="button" class="btn-close btn-close-white" (click)="closeModal()" aria-label="Close"></button>
-        </div>
-        <div class="modal-body p-3">
-          <form [formGroup]="showtimeForm" (ngSubmit)="onSubmit()">
-            <div class="row g-3">
-              <!-- Movie Selection -->
-              <div class="col-12">
-                <div class="form-group">
-                  <label for="movieId" class="form-label">
-                    <i class="fas fa-film me-1"></i>Phim <span class="text-danger">*</span>
-                  </label>
-                  <ng-container *ngIf="!isEditing">
-                    <select class="form-select custom-select" id="movieId" formControlName="movieId"
-                      [ngClass]="{'is-invalid': showtimeForm.get('movieId')?.invalid && showtimeForm.get('movieId')?.touched}">
-                      <option value="">Chọn phim</option>
-                      <option *ngFor="let movie of movies" [value]="movie.id">{{movie.movieName}}</option>
-                    </select>
-                  </ng-container>
-                  <ng-container *ngIf="isEditing">
-                    <input type="text" class="form-control" [value]="selectedMovieName" readonly>
-                  </ng-container>
-                  <div class="invalid-feedback"
-                    *ngIf="showtimeForm.get('movieId')?.invalid && showtimeForm.get('movieId')?.touched">
-                    Vui lòng chọn phim
-                  </div>
-                </div>
-              </div>
 
-              <!-- Room Selection -->
-              <div class="col-12">
-                <div class="form-group">
-                  <label for="roomId" class="form-label">
-                    <i class="fas fa-door-open me-1"></i>Phòng <span class="text-danger">*</span>
-                  </label>
-                  <select class="form-select custom-select" id="roomId" formControlName="roomId"
-                    [ngClass]="{'is-invalid': showtimeForm.get('roomId')?.invalid && showtimeForm.get('roomId')?.touched}">
-                    <option value="">Chọn phòng</option>
-                    <option *ngFor="let room of rooms" [value]="room.id">{{room.name}}</option>
-                  </select>
-                  <div class="invalid-feedback"
-                    *ngIf="showtimeForm.get('roomId')?.invalid && showtimeForm.get('roomId')?.touched">
-                    Vui lòng chọn phòng
-                  </div>
-                </div>
-              </div>
-
-              <div class="row g-3">
-                <!-- Start Time and End Time in one row -->
-                <div class="col-md-6">
-                  <div class="form-group">
-                    <label for="startTime" class="form-label">
-                      <i class="fas fa-clock me-1"></i>Thời gian bắt đầu <span class="text-danger">*</span>
-                    </label>
-                    <div class="input-group">
-                      <span class="input-group-text">
-                        <i class="fas fa-calendar-alt"></i>
-                      </span>
-                      <input type="datetime-local" class="form-control custom-input" id="startTime"
-                        formControlName="startTime"
-                        [ngClass]="{'is-invalid': showtimeForm.get('startTime')?.invalid && showtimeForm.get('startTime')?.touched}">
-                    </div>
-                    <div class="invalid-feedback"
-                      *ngIf="showtimeForm.get('startTime')?.invalid && showtimeForm.get('startTime')?.touched">
-                      Vui lòng chọn thời gian bắt đầu
-                    </div>
-                  </div>
-                </div>
-
-                <div class="col-md-6">
-                  <div class="form-group">
-                    <label for="endTime" class="form-label">
-                      <i class="fas fa-clock me-1"></i>Thời gian kết thúc
-                    </label>
-                    <div class="input-group">
-                      <span class="input-group-text">
-                        <i class="fas fa-calendar-alt"></i>
-                      </span>
-                      <input type="datetime-local" class="form-control custom-input" id="endTime"
-                        formControlName="endTime" readonly>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- Intro Time and Cleanup Time in one row -->
-                <div class="col-md-6">
-                  <div class="form-group">
-                    <label for="introTime" class="form-label">
-                      <i class="fas fa-hourglass-start me-1"></i>Thời gian quảng cáo
-                    </label>
-                    <select class="form-select custom-select" id="introTime" formControlName="introTime">
-                      <option *ngFor="let time of INTRO_TIMES" [value]="time.value">
-                        {{time.label}}
-                      </option>
-                    </select>
-                  </div>
-                </div>
-
-                <div class="col-md-6">
-                  <div class="form-group">
-                    <label for="cleanupTime" class="form-label">
-                      <i class="fas fa-broom me-1"></i>Thời gian dọn dẹp
-                    </label>
-                    <select class="form-select custom-select" id="cleanupTime" formControlName="cleanupTime">
-                      <option *ngFor="let time of CLEANUP_TIMES" [value]="time.value">
-                        {{time.label}}
-                      </option>
-                    </select>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Form Actions -->
-            <div class="modal-footer border-top mt-3">
-              <button type="button" class="btn btn-outline-secondary btn-rounded" (click)="closeModal()">
-                <i class="fas fa-times me-1"></i>Hủy
-              </button>
-              <button type="submit" class="btn btn-primary btn-rounded" [disabled]="showtimeForm.invalid">
-                <i class="fas fa-save me-1"></i>{{isEditing ? 'Cập nhật' : 'Thêm mới'}}
-              </button>
-            </div>
-          </form>
-        </div>
-      </div>
-    </div>
-  </div>
 
 
   <!-- Report Issue Button -->
@@ -359,6 +227,7 @@
                   <thead>
                     <tr>
                       <th>Phim</th>
+                      <th>Thời lượng</th>
                       <th>Phòng</th>
                       <th>Thời gian</th>
                       <th>Thao tác</th>
@@ -367,6 +236,7 @@
                   <tbody>
                     <tr *ngFor="let showtime of upcomingShowtimes">
                       <td>{{ showtime.movieName }}</td>
+                      <td>{{ showtime.duration }}</td>
                       <td>{{ showtime.roomName }}</td>
                       <td>{{ showtime.startTime | date:'dd/MM/yyyy HH:mm' }}</td>
                       <td>
@@ -442,6 +312,243 @@
             <i class="fas fa-times"></i> Đóng
           </button>
         </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- hien thi modal -->
+<div class="modal fade" id="showtimeModal" tabindex="-1" aria-labelledby="showtimeModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title" id="showtimeModalLabel">
+          <i class="fas fa-film me-2"></i>
+          {{isEditing ? 'Cập nhật Showtime' : 'Thêm Showtime mới'}}
+        </h5>
+        <button type="button" class="btn-close btn-close-white" (click)="closeModal()" aria-label="Close"></button>
+      </div>
+      <div class="modal-body p-3">
+        <form [formGroup]="showtimeForm" (ngSubmit)="onSubmit()">
+          <!-- Movie Selection -->
+          <div class="form-group mb-4">
+            <label for="movieId" class="form-label">
+              <i class="fas fa-film me-1"></i>Phim <span class="text-danger">*</span>
+            </label>
+            <ng-container *ngIf="!isEditing">
+              <select class="form-select custom-select" id="movieId" formControlName="movieId"
+                [ngClass]="{'is-invalid': showtimeForm.get('movieId')?.invalid && showtimeForm.get('movieId')?.touched}"
+                (ngModelChange)="onMovieFormChange($event)">
+                <option value="">Chọn phim</option>
+                <option *ngFor="let movie of movies" [value]="movie.id">{{movie.movieName}}</option>
+              </select>
+            </ng-container>
+            <ng-container *ngIf="isEditing">
+              <input type="text" class="form-control" [value]="selectedMovieName" readonly>
+            </ng-container>
+            <div class="invalid-feedback"
+              *ngIf="showtimeForm.get('movieId')?.invalid && showtimeForm.get('movieId')?.touched">
+              Vui lòng chọn phim
+            </div>
+          </div>
+
+          <!-- Date Selection -->
+          <div class="form-group mb-4">
+            <label for="showtimeDate" class="form-label">
+              <i class="fas fa-calendar-alt me-1"></i>Ngày chiếu <span class="text-danger">*</span>
+            </label>
+            <input type="date" class="form-control" id="showtimeDate" formControlName="showtimeDate"
+              [ngClass]="{'is-invalid': showtimeForm.get('showtimeDate')?.invalid && showtimeForm.get('showtimeDate')?.touched}"
+              (change)="onShowtimeDateChange()">
+            <div class="invalid-feedback"
+              *ngIf="showtimeForm.get('showtimeDate')?.invalid && showtimeForm.get('showtimeDate')?.touched">
+              Vui lòng chọn ngày chiếu
+            </div>
+          </div>
+
+          <!-- Add Cinema Button -->
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="mb-0">Danh sách rạp và phòng chiếu</h5>
+
+          </div>
+
+          <!-- Cinema and Room List -->
+          <div class="cinema-list">
+            <div class="cinema-item card mb-3" *ngFor="let cinema of cinemaList; let cinemaIndex = index">
+              <div class="card-body" style="border: 1px solid #444444; border-radius: 10px;">
+                <!-- Cinema Selection -->
+                <div class="row mb-3">
+                  <div class="col-md-8 m-0">
+                    <div class="form-group m-0">
+
+                      <label class="form-label">Rạp</label>
+
+
+                      <div style="display: flex; gap: 30px;">
+
+                        <select class="form-select" [(ngModel)]="cinema.id" (change)="onCinemaChange(cinemaIndex)"
+                          [ngModelOptions]="{standalone: true}">
+                          <option [ngValue]="null">-- Chọn rạp --</option>
+                          <option *ngFor="let c of cinemas" [ngValue]="c.cinemasId">
+                            {{ c.name }}
+                          </option>
+                        </select>
+
+
+                        <button type="button" class="btn btn-danger ms-auto" (click)="removeCinema(cinemaIndex)">
+                          <i class="fas fa-trash me-1"></i>Xóa rạp
+                        </button>
+                      </div>
+
+
+                    </div>
+                  </div>
+
+                  <!-- <div class="col-md-4 d-flex align-items-end">
+                    <button type="button" class="btn btn-danger ms-auto" (click)="removeCinema(cinemaIndex)">
+                      <i class="fas fa-trash me-1"></i>Xóa rạp
+                    </button>
+                  </div> -->
+                </div>
+
+
+
+                <!-- Room List -->
+                <div class="room-list">
+                  <div class="room-item card mb-2" *ngFor="let room of cinema.rooms; let roomIndex = index">
+                    <div class="card-body" style="border: rgba(77, 77, 77, 0.386) 1px solid; border-radius: 10px;">
+                      <div class="row align-items-center">
+                        <div class="col-md-2">
+                          <div class="form-group">
+                            <label class="form-label">Phòng</label>
+                            <select class="form-select" [(ngModel)]="room.id" [ngModelOptions]="{standalone: true}"
+                              (change)="onRoomChange(cinemaIndex, roomIndex)" [disabled]="room.loading">
+                              <option value="">Chọn phòng</option>
+                              <option *ngFor="let r of getAvailableRoomsForDropdown(cinema, roomIndex)" [value]="r.id">
+                                {{r.name}}</option>
+                            </select>
+                          </div>
+                        </div>
+
+                        <div class="col-md-4">
+                          <div class="form-group">
+                            <label class="form-label">Thời gian bắt đầu</label>
+                            <input type="datetime-local" class="form-control" [(ngModel)]="room.startTime"
+                              [ngModelOptions]="{standalone: true}" (change)="calculateEndTime(cinemaIndex, roomIndex)">
+                          </div>
+                        </div>
+
+
+                        <div class="col-md-4">
+                          <div class="form-group">
+                            <label class="form-label">Thời gian kết thúc</label>
+                            <input type="datetime-local" class="form-control" [(ngModel)]="room.endTime"
+                              [ngModelOptions]="{standalone: true}" readonly>
+                          </div>
+                        </div>
+
+
+                        <div class="col-md-2" style="align-items: center;">
+                          <button type="button" class="btn btn-sm btn-danger"
+                            (click)="removeRoom(cinemaIndex, roomIndex)">
+                            <i class="fas fa-trash"></i>
+                          </button>
+                        </div>
+
+
+                      </div>
+                      <!-- Loading indicator -->
+                      <div class="text-center mt-2" *ngIf="room.loading">
+                        <div class="spinner-border spinner-border-sm text-primary" role="status">
+                          <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <span class="ms-2">Đang kiểm tra lịch...</span>
+                      </div>
+                      <!-- Error message -->
+                      <div class="alert alert-danger mt-2" *ngIf="room.errorMessage">
+                        {{ room.errorMessage }}
+                      </div>
+                      <!-- Success message -->
+                      <div class="alert alert-success mt-2" *ngIf="room.successMessage">
+                        {{ room.successMessage }}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                                <!-- Add Room Button -->
+                                <div class="d-flex mb-3" *ngIf="cinema.id">
+                                  <button type="button" class="btn btn-sm btn-outline-primary" (click)="addRoomToCinema(cinemaIndex)">
+                                    <i class="fas fa-plus-circle me-1"></i>Thêm phòng
+                                  </button>
+                                </div>
+              </div>
+            </div>
+
+
+
+            <button type="button" class="btn btn-outline-success" (click)="addCinemaToList()"
+            [disabled]="!showtimeForm.get('movieId')?.value"
+            [title]="!showtimeForm.get('movieId')?.value ? 'Vui lòng chọn phim trước' : 'Thêm rạp'">
+            <i class="fas fa-plus-circle me-1"></i>Thêm rạp
+          </button>
+          </div>
+
+          <!-- Form Actions -->
+          <div class="modal-footer border-top mt-3 align-items-center">
+
+
+            <!-- <button type="button" class="btn btn-outline-danger btn-rounded" (click)="closeModal()">
+              <i class="fas fa-times me-1"></i>Hủy
+            </button> -->
+
+
+            <button type="button" class="btn btn-outline-danger btn-rounded" (click)="closeModal()">
+              <i class="fas fa-times me-1"></i>Hủy
+            </button>
+
+
+            <button type="submit" class="btn btn-primary btn-rounded" [disabled]="!isFormValid()">
+              <i class="fas fa-save me-1"></i>{{isEditing ? 'Cập nhật' : 'Thêm mới'}}
+            </button>
+
+
+          </div>
+        </form>
       </div>
     </div>
   </div>

@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators, AbstractControl, ValidatorFn, ValidationErrors } from '@angular/forms';
 import { Router } from '@angular/router';
 import { VoucherService, Voucher } from '../../services/voucher.service';
 import Swal from 'sweetalert2';
@@ -26,7 +26,7 @@ export class VoucherManagementComponent implements OnInit {
   isLoading = false;
   editingVoucherId: string | null = null;
   Math = Math;
-  
+
   // Thêm các biến cho sort
   sortColumn: string = '';
   sortDirection: 'asc' | 'desc' = 'asc';
@@ -36,16 +36,19 @@ export class VoucherManagementComponent implements OnInit {
     private fb: FormBuilder,
     private router: Router
   ) {
+    // In your initForm() method or constructor
     this.voucherForm = this.fb.group({
       code: ['', [Validators.required, Validators.maxLength(50)]],
       description: [''],
       discountType: ['PERCENT', Validators.required],
-      discountValue: [0, [Validators.required, Validators.min(0)]],
-      minOrderValue: [0, [Validators.required, Validators.min(0)]],
+      discountValue: [0, [Validators.required, Validators.min(1)]],
+      minOrderValue: [0],
       startDate: ['', Validators.required],
       endDate: ['', Validators.required],
-      maxUsage: [0, [Validators.required, Validators.min(0)]],
-      status: [true]
+      maxUsage: [1, [Validators.required, Validators.min(1)]],
+      status: [1]
+    }, {
+      validators: this.dateRangeValidator()
     });
   }
 
@@ -87,7 +90,7 @@ export class VoucherManagementComponent implements OnInit {
       this.sortColumn = column;
       this.sortDirection = 'asc';
     }
-    
+
     this.applySort();
   }
 
@@ -99,7 +102,7 @@ export class VoucherManagementComponent implements OnInit {
       // Xử lý các kiểu dữ liệu khác nhau
       const valueA = a[this.sortColumn];
       const valueB = b[this.sortColumn];
-      
+
       // So sánh dựa trên kiểu dữ liệu
       let comparison = 0;
       if (typeof valueA === 'string') {
@@ -109,7 +112,7 @@ export class VoucherManagementComponent implements OnInit {
       } else {
         comparison = valueA - valueB;
       }
-      
+
       // Áp dụng chiều sort
       return this.sortDirection === 'asc' ? comparison : -comparison;
     });
@@ -126,11 +129,11 @@ export class VoucherManagementComponent implements OnInit {
   calculatePagination(): void {
     this.totalPages = Math.ceil(this.totalRecords / this.recordPerPage);
     this.pages = [];
-    
+
     // Hiển thị tối đa 5 trang
     const startPage = Math.max(1, this.currentPage - 2);
     const endPage = Math.min(this.totalPages, startPage + 4);
-    
+
     for (let i = startPage; i <= endPage; i++) {
       this.pages.push(i);
     }
@@ -155,7 +158,7 @@ export class VoucherManagementComponent implements OnInit {
       discountValue: 0,
       minOrderValue: 0,
       maxUsage: 0,
-      status: true
+      status: 1
     });
     this.isEditing = false;
     this.editingVoucherId = null;
@@ -171,7 +174,7 @@ export class VoucherManagementComponent implements OnInit {
     }
 
     const formData = this.voucherForm.value;
-    
+
     // Format dates
     if (formData.startDate) {
       formData.startDate = new Date(formData.startDate).toISOString();
@@ -222,11 +225,11 @@ export class VoucherManagementComponent implements OnInit {
   editVoucher(voucher: Voucher): void {
     this.isEditing = true;
     this.editingVoucherId = voucher.id;
-    
+
     // Format dates for input fields
     const startDate = voucher.startDate ? new Date(voucher.startDate).toISOString().split('T')[0] : '';
     const endDate = voucher.endDate ? new Date(voucher.endDate).toISOString().split('T')[0] : '';
-    
+
     this.voucherForm.patchValue({
       code: voucher.code,
       description: voucher.description,
@@ -276,10 +279,10 @@ export class VoucherManagementComponent implements OnInit {
       this.filteredVouchers = [...this.vouchers];
       return;
     }
-    
+
     const term = this.searchTerm.toLowerCase().trim();
-    this.filteredVouchers = this.vouchers.filter(voucher => 
-      voucher.code.toLowerCase().includes(term) || 
+    this.filteredVouchers = this.vouchers.filter(voucher =>
+      voucher.code.toLowerCase().includes(term) ||
       (voucher.description && voucher.description.toLowerCase().includes(term))
     );
 
@@ -323,4 +326,108 @@ export class VoucherManagementComponent implements OnInit {
   goToVoucherUsageHistory(voucherId: string): void {
     this.router.navigate(['/voucher-usage'], { queryParams: { voucherId } });
   }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  // Trả về văn bản trạng thái dựa vào mã số
+  getStatusText(status: number): string {
+    switch (status) {
+      case 0:
+        return 'Đã xóa';
+      case 1:
+        return 'Hoạt động';
+      case 2:
+        return 'Đã hết hạn';
+      default:
+        return 'Không xác định';
+    }
+  }
+
+  // Trả về class CSS cho badge dựa vào trạng thái
+  getStatusBadgeClass(status: number): string {
+    switch (status) {
+      case 0:
+        return 'bg-secondary';
+      case 1:
+        return 'bg-success';
+      case 2:
+        return 'bg-warning';
+      default:
+        return 'bg-secondary';
+    }
+  }
+
+
+
+
+
+  // Add this function in your component class
+  private dateRangeValidator(): ValidatorFn {
+    return (control: AbstractControl): ValidationErrors | null => {
+      const startDate = control.get('startDate')?.value;
+      const endDate = control.get('endDate')?.value;
+      const today = new Date();
+      today.setHours(0, 0, 0, 0); // Set to beginning of today
+
+      // Convert dates to Date objects for comparison
+      const start = startDate ? new Date(startDate) : null;
+      const end = endDate ? new Date(endDate) : null;
+
+      const errors: ValidationErrors = {};
+
+      // Check if start date is before today
+      if (start && start < today) {
+        errors['startDateBeforeToday'] = true;
+      }
+
+      // Check if end date is before today
+      if (end && end < today) {
+        errors['endDateBeforeToday'] = true;
+      }
+
+      // Check if end date is before start date
+      if (start && end && end < start) {
+        errors['endDateBeforeStartDate'] = true;
+      }
+
+      return Object.keys(errors).length > 0 ? errors : null;
+    };
+  }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 }
+
+
+
+
+
+
+
+

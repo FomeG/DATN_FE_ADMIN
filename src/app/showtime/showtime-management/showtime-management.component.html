@@ -369,17 +369,16 @@
             <label for="movieId" class="form-label">
               <i class="fas fa-film me-1"></i>Phim <span class="text-danger">*</span>
             </label>
-            <ng-container *ngIf="!isEditing">
-              <select class="form-select custom-select" id="movieId" formControlName="movieId"
-                [ngClass]="{'is-invalid': showtimeForm.get('movieId')?.invalid && showtimeForm.get('movieId')?.touched}"
-                (ngModelChange)="onMovieFormChange($event)">
-                <option value="">Chọn phim</option>
-                <option *ngFor="let movie of movies" [value]="movie.id">{{movie.movieName}}</option>
-              </select>
-            </ng-container>
-            <ng-container *ngIf="isEditing">
-              <input type="text" class="form-control" [value]="selectedMovieName" readonly>
-            </ng-container>
+
+
+
+            <!-- Cho phép chọn phim cả khi thêm mới và khi chỉnh sửa -->
+            <select class="form-select custom-select" id="movieId" formControlName="movieId"
+              [ngClass]="{'is-invalid': showtimeForm.get('movieId')?.invalid && showtimeForm.get('movieId')?.touched}"
+              (ngModelChange)="onMovieFormChange($event)">
+              <option value="">Chọn phim</option>
+              <option *ngFor="let movie of movies" [value]="movie.id">{{movie.movieName}}</option>
+            </select>
             <div class="invalid-feedback"
               *ngIf="showtimeForm.get('movieId')?.invalid && showtimeForm.get('movieId')?.touched">
               Vui lòng chọn phim
@@ -400,14 +399,17 @@
             </div>
           </div>
 
+
+
+
           <!-- Add Cinema Button -->
-          <div class="d-flex justify-content-between align-items-center mb-3">
+          <div class="d-flex justify-content-between align-items-center mb-3" *ngIf="!isEditing">
             <h5 class="mb-0">Danh sách rạp và phòng chiếu</h5>
 
           </div>
 
           <!-- Cinema and Room List -->
-          <div class="cinema-list">
+          <div class="cinema-list" *ngIf="!isEditing">
             <div class="cinema-item card mb-3" *ngFor="let cinema of cinemaList; let cinemaIndex = index">
               <div class="card-body" style="border: 1px solid #444444; border-radius: 10px;">
                 <!-- Cinema Selection -->
@@ -454,6 +456,8 @@
                       <div class="row align-items-center">
                         <div class="col-md-2">
                           <div class="form-group">
+
+
                             <label class="form-label">Phòng</label>
                             <select class="form-select" [(ngModel)]="room.id" [ngModelOptions]="{standalone: true}"
                               (change)="onRoomChange(cinemaIndex, roomIndex)" [disabled]="room.loading">
@@ -461,6 +465,9 @@
                               <option *ngFor="let r of getAvailableRoomsForDropdown(cinema, roomIndex)" [value]="r.id">
                                 {{r.name}}</option>
                             </select>
+
+
+
                           </div>
                         </div>
 
@@ -510,23 +517,103 @@
                   </div>
                 </div>
 
-                                <!-- Add Room Button -->
-                                <div class="d-flex mb-3" *ngIf="cinema.id">
-                                  <button type="button" class="btn btn-sm btn-outline-primary" (click)="addRoomToCinema(cinemaIndex)">
-                                    <i class="fas fa-plus-circle me-1"></i>Thêm phòng
-                                  </button>
-                                </div>
+                <!-- Add Room Button -->
+                <div class="d-flex mb-3" *ngIf="cinema.id">
+                  <button type="button" class="btn btn-sm btn-outline-primary" (click)="addRoomToCinema(cinemaIndex)">
+                    <i class="fas fa-plus-circle me-1"></i>Thêm phòng
+                  </button>
+                </div>
               </div>
             </div>
 
 
 
             <button type="button" class="btn btn-outline-success" (click)="addCinemaToList()"
-            [disabled]="!showtimeForm.get('movieId')?.value"
-            [title]="!showtimeForm.get('movieId')?.value ? 'Vui lòng chọn phim trước' : 'Thêm rạp'">
-            <i class="fas fa-plus-circle me-1"></i>Thêm rạp
-          </button>
+              [disabled]="!showtimeForm.get('movieId')?.value"
+              [title]="!showtimeForm.get('movieId')?.value ? 'Vui lòng chọn phim trước' : 'Thêm rạp'">
+              <i class="fas fa-plus-circle me-1"></i>Thêm rạp
+            </button>
           </div>
+
+
+
+
+
+
+
+
+
+
+          <!-- Khi chỉnh sửa: Thông tin rạp, phòng, thời gian -->
+          <div *ngIf="isEditing && cinemaList.length > 0" class="mt-4">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <h5 class="mb-0">Thông tin suất chiếu</h5>
+            </div>
+
+            <div class="card mb-3">
+              <div class="card-body" style="border: 1px solid #444444; border-radius: 10px;">
+                <div class="row mb-3">
+                  <div class="col-md-6">
+                    <div class="form-group">
+                      <label class="form-label">Rạp</label>
+                      <select style="width: 100%;" class="form-select" [(ngModel)]="cinemaList[0].id"
+                        (change)="onCinemaChange(0)" [ngModelOptions]="{standalone: true}">
+                        <option [ngValue]="null">-- Chọn rạp --</option>
+                        <option *ngFor="let c of cinemas" [ngValue]="c.cinemasId">
+                          {{ c.name }}
+                        </option>
+                      </select>
+
+
+                    </div>
+                  </div>
+
+                  <div class="col-md-6">
+                    <div class="form-group">
+                      <label class="form-label">Phòng</label>
+                      <select style="width: 100%;" class="form-select" [(ngModel)]="cinemaList[0].rooms[0].id"
+                        [ngModelOptions]="{standalone: true}" (change)="onRoomChange(0, 0)"
+                        [disabled]="cinemaList[0].rooms[0].loading">
+                        <option value="">Chọn phòng</option>
+                        <option *ngFor="let r of getAvailableRoomsForDropdown(cinemaList[0], 0)" [value]="r.id">
+                          {{r.name}}
+                        </option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="row" *ngIf="cinemaList[0] && cinemaList[0].rooms && cinemaList[0].rooms.length > 0">
+                  <div class="col-md-6">
+                    <div class="form-group">
+                      <label class="form-label">Thời gian bắt đầu</label>
+                      <input type="datetime-local" class="form-control" [(ngModel)]="cinemaList[0].rooms[0].startTime"
+                        [ngModelOptions]="{standalone: true}" (change)="calculateEndTime(0, 0)">
+                    </div>
+                  </div>
+
+                  <div class="col-md-6">
+                    <div class="form-group">
+                      <label class="form-label">Thời gian kết thúc</label>
+                      <input type="datetime-local" class="form-control" [(ngModel)]="cinemaList[0].rooms[0].endTime"
+                        [ngModelOptions]="{standalone: true}">
+                    </div>
+                  </div>
+                </div>
+
+
+
+              </div>
+            </div>
+          </div>
+
+
+
+
+
+
+
+
 
           <!-- Form Actions -->
           <div class="modal-footer border-top mt-3 align-items-center">

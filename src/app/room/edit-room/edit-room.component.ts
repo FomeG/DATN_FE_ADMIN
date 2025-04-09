@@ -84,7 +84,7 @@ export class EditRoomComponent implements OnInit {
 
         // Sắp xếp ghế theo hàng và cột
         this.seats.sort((a, b) => a.rowNumber - b.rowNumber || a.colNumber - b.colNumber);
-        
+
         // Áp dụng tính giá mới cho tất cả các ghế đơn
         this.seats.forEach(seat => {
           if (!seat.isDouble && !seat.isMerged) {
@@ -96,7 +96,7 @@ export class EditRoomComponent implements OnInit {
             }
           }
         });
-        
+
         this.groupSeatsByRow(this.seats);
         this.mergePairSeats();
       },
@@ -190,7 +190,7 @@ export class EditRoomComponent implements OnInit {
       Swal.fire('success', "Sửa ghế thành công", 'success');
 
     } catch (error) {
-      Swal.fire('error', "Có lỗi xảy ra khi cập nhật ghếg", 'error');
+      Swal.fire('error', "Có lỗi xảy ra khi cập nhật ghế", 'error');
     }
   }
 
@@ -224,12 +224,12 @@ export class EditRoomComponent implements OnInit {
     }
 
     this.selectedSeat = seat.isClicked ? { ...seat } : null;
-    
+
     // Nếu không phải ghế đôi, tính lại giá ghế dựa trên multiplier của loại ghế
     if (this.selectedSeat && !this.selectedSeat.isDouble) {
       this.calculateSeatPrice(this.selectedSeat);
     }
-    
+
     console.log(this.selectedSeats);
 
   }
@@ -252,18 +252,18 @@ export class EditRoomComponent implements OnInit {
         this.calculateSeatPrice(this.selectedSeat);
         return;
       }
-      
+
       (this.selectedSeat as any)[field] = value;
     }
   }
-  
+
   // Phương thức tính giá ghế dựa trên loại ghế
   calculateSeatPrice(seat: SeatInfo): void {
     if (!seat || seat.isDouble) return;
-    
+
     // Tìm loại ghế tương ứng để lấy multiplier
     const seatType = this.seatTypes.find(type => type.id === seat.seatTypeId);
-    
+
     if (seatType && seat.originalPrice !== undefined) {
       // Tính giá ghế = giá cơ bản + hệ số nhân
       seat.seatPrice = seat.originalPrice! + seatType.multiplier;

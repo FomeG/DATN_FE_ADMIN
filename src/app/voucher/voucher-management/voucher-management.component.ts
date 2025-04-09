@@ -65,16 +65,15 @@ export class VoucherManagementComponent implements OnInit {
             this.vouchers = response.data;
             this.filteredVouchers = [...this.vouchers];
             this.totalRecords = response.totalRecord;
-            this.calculatePagination();
-            this.applySort(); // Sort data after loading
+            this.calculatePagination(); // Đảm bảo gọi hàm này sau khi có dữ liệu
+            this.applySort();
           } else {
-            Swal.fire('Lỗi', response.message || 'Không thể tải danh sách voucher', 'error');
+            // Xử lý lỗi
           }
           this.isLoading = false;
         },
         error: (error) => {
-          console.error('Error loading vouchers:', error);
-          Swal.fire('Lỗi', 'Đã xảy ra lỗi khi tải danh sách voucher', 'error');
+          // Xử lý lỗi
           this.isLoading = false;
         }
       });
@@ -127,10 +126,10 @@ export class VoucherManagementComponent implements OnInit {
   }
 
   calculatePagination(): void {
-    this.totalPages = Math.ceil(this.totalRecords / this.recordPerPage);
+    this.totalPages = Math.ceil(this.totalRecords / this.recordPerPage) || 1;
     this.pages = [];
 
-    // Hiển thị tối đa 5 trang
+    // Tạo mảng các trang, tối đa hiển thị 5 trang một lúc
     const startPage = Math.max(1, this.currentPage - 2);
     const endPage = Math.min(this.totalPages, startPage + 4);
 
@@ -184,6 +183,7 @@ export class VoucherManagementComponent implements OnInit {
     }
 
     if (this.isEditing && this.editingVoucherId) {
+
       // Update existing voucher
       this.voucherService.updateVoucher(this.editingVoucherId, formData)
         .subscribe({

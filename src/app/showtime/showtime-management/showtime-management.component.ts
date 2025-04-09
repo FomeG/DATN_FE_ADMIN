@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MovieService } from '../../services/movie.service';
@@ -112,7 +112,8 @@ export class ShowtimeManagementComponent implements OnInit, OnDestroy {
   private modalInstance: any;
   isSubmitting = false;
   private updateInterval: any;
-  changeDetectorRef: any;
+
+  private lastRoomChangeCall = 0;
 
   constructor(
     private showtimeService: ShowtimeService,
@@ -120,7 +121,8 @@ export class ShowtimeManagementComponent implements OnInit, OnDestroy {
     private roomService: RoomService,
     private cinemaService: CinemaService,
     private fb: FormBuilder,
-    private datePipe: DatePipe
+    private datePipe: DatePipe,
+    private changeDetectorRef: ChangeDetectorRef
   ) {
     this.showtimeForm = this.fb.group({
       movieId: ['', Validators.required],
@@ -132,10 +134,20 @@ export class ShowtimeManagementComponent implements OnInit, OnDestroy {
       status: [this.SHOWTIME_STATUS.UPCOMING_SALE] // Set default status
     });
 
-    // Calculate end time when start time, intro time, or cleanup time changes
-    this.showtimeForm.get('startTime')?.valueChanges.subscribe(() => this.calculateEndTime());
-    this.showtimeForm.get('introTime')?.valueChanges.subscribe(() => this.calculateEndTime());
-    this.showtimeForm.get('cleanupTime')?.valueChanges.subscribe(() => this.calculateEndTime());
+    // Subscribe to form value changes
+    const formChanges = ['startTime', 'introTime', 'cleanupTime'];
+    formChanges.forEach(controlName => {
+      this.showtimeForm.get(controlName)?.valueChanges.subscribe(() => {
+        // Only recalculate for active room if in edit mode
+        if (this.isEditing && this.cinemaList.length > 0) {
+          const cinema = this.cinemaList[0];
+          const room = cinema.rooms[0];
+          if (room && room.startTime) {
+            this.calculateEndTime(0, 0);
+          }
+        }
+      });
+    });
   }
 
   ngOnInit(): void {
@@ -267,15 +279,28 @@ export class ShowtimeManagementComponent implements OnInit, OnDestroy {
       cinema.name = selectedCinema.name;
     }
 
-    // Reset rooms
-    cinema.rooms = [];
-
     try {
-      // Ghi log để kiểm tra
-      console.log('Loading rooms for cinema ID:', cinema.id);
-
       // Load rooms for this cinema
       cinema.availableRooms = await this.loadRoomsForCinema(cinema.id);
+
+      // Nếu đang edit và thay đổi rạp, tạo một phòng trống mới
+      if (this.isEditing) {
+        const currentRooms = cinema.rooms;
+        const firstRoom = currentRooms && currentRooms[0];
+
+        cinema.rooms = [{
+          id: '',
+          name: '',
+          startTime: firstRoom ? firstRoom.startTime : '',
+          endTime: firstRoom ? firstRoom.endTime : '',
+          loading: false,
+          errorMessage: '',
+          successMessage: ''
+        }];
+      } else {
+        cinema.rooms = [];
+      }
+
     } catch (error) {
       console.error('Error loading rooms for cinema:', error);
       Swal.fire({
@@ -377,40 +402,60 @@ export class ShowtimeManagementComponent implements OnInit, OnDestroy {
       this.showtimeService.showtimeAutoDate(request).subscribe({
         next: (response) => {
           room.loading = false;
-          if (response.responseCode === 200) {
-            // Success
-            room.successMessage = 'Có thể tạo suất chiếu cho phòng này.';
 
-            let startTimeDate: Date;
+          if (response.responseCode === 200 || response.responseCode === -999901) {
+            if (response.responseCode === 200) {
+              // Success
+              room.successMessage = 'Có thể tạo suất chiếu cho phòng này.';
+              let startTimeDate: Date;
 
-            if (response.data) {
-              // Nếu có dữ liệu từ API, sử dụng endTime + 20 phút
-              const endTimeFromApi = new Date(response.data.endTime);
-              endTimeFromApi.setMinutes(endTimeFromApi.getMinutes() + 20);
-              startTimeDate = endTimeFromApi;
-            } else {
-              // Nếu không có dữ liệu (responseCode = 200, data = null)
-              // Sử dụng ngày từ form và giờ mặc định là 9:00
-              startTimeDate = new Date(date);
-              startTimeDate.setHours(9, 0, 0, 0);
+              if (response.data) {
+                // Nếu có dữ liệu từ API, sử dụng endTime + 20 phút
+                const endTimeFromApi = new Date(response.data.endTime);
+                endTimeFromApi.setMinutes(endTimeFromApi.getMinutes() + 20);
+                startTimeDate = endTimeFromApi;
+              } else {
+                // Nếu không có dữ liệu (responseCode = 200, data = null)
+                // Sử dụng ngày từ form và giờ mặc định là 9:00
+                startTimeDate = new Date(date);
+                startTimeDate.setHours(9, 0, 0, 0);
+              }
+
+              // Format as yyyy-MM-ddTHH:mm
+              room.startTime = this.formatDateTimeForInput(startTimeDate);
+
+            } else if (response.responseCode === -999901) {
+              // Đã có suất chiếu trong ngày này
+              room.errorMessage = 'Phim này đã có suất chiếu ngày hôm nay trong phòng này.';
+
+              // Xóa thời gian đã chọn
+              room.startTime = '';
+              room.endTime = '';
+
+              // Hiển thị Swal alert
+              Swal.fire({
+                icon: 'warning',
+                title: 'Không thể tạo suất chiếu!',
+                text: 'Phim này đã có suất chiếu ngày hôm nay trong phòng này.',
+                confirmButtonText: 'Đồng ý'
+              });
+
+              // Return early to prevent calculating end time
+              return;
             }
 
-            // Format as yyyy-MM-ddTHH:mm
-            room.startTime = this.formatDateTimeForInput(startTimeDate);
+            // Calculate end time if we have a start time
+            if (room.startTime) {
+              this.calculateEndTime(cinemaIndex, roomIndex);
+            }
 
-            // Calculate end time based on movie duration and other factors
-            this.calculateEndTime(cinemaIndex, roomIndex);
           } else {
-            // Error
+            // Other errors
             room.errorMessage = response.message || 'Không thể tạo suất chiếu cho phòng này.';
 
-            // Nếu lỗi, vẫn hiển thị thời gian mặc định để người dùng có thể chỉnh sửa
-            const defaultDate = new Date(date);
-            defaultDate.setHours(9, 0, 0, 0);
-            room.startTime = this.formatDateTimeForInput(defaultDate);
-
-            // Tính thời gian kết thúc dựa trên thời lượng phim
-            this.calculateEndTime(cinemaIndex, roomIndex);
+            // Reset times
+            room.startTime = '';
+            room.endTime = '';
           }
         },
         error: (error) => {
@@ -551,6 +596,9 @@ export class ShowtimeManagementComponent implements OnInit, OnDestroy {
 
 
 
+
+
+
   updateShowtime(): void {
     if (!this.selectedShowtime || !this.isFormValid()) return;
 
@@ -563,10 +611,13 @@ export class ShowtimeManagementComponent implements OnInit, OnDestroy {
 
     const updateRequest = {
       roomId: room.id,
+      movieId: this.showtimeForm.get('movieId')?.value,
       startTime: room.startTime,
       endTime: room.endTime
     };
 
+
+    console.log("MOVIE ID MOVIE ID MOVIE ID MOVIE ID MOvIE ID MOVIDMMDSAL<MSAKMD" + updateRequest.movieId)
     Swal.fire({
       title: 'Xác nhận',
       text: 'Bạn có chắc muốn cập nhật suất chiếu này không?',
@@ -586,6 +637,13 @@ export class ShowtimeManagementComponent implements OnInit, OnDestroy {
               });
               this.closeModal();
               this.loadShowtimes();
+            } else if (response.responseCode === -999902) {
+              Swal.fire({
+                icon: 'warning',
+                title: 'Không thể cập nhật!',
+                text: 'Không thể thay đổi thông tin suất chiếu vì đã có người đặt vé.',
+                confirmButtonText: 'Đồng ý'
+              });
             } else {
               Swal.fire({
                 icon: 'error',
@@ -979,78 +1037,20 @@ export class ShowtimeManagementComponent implements OnInit, OnDestroy {
       showtime.status === this.SHOWTIME_STATUS.UPCOMING;
   }
 
-  editShowtime(showtime: Showtime) {
-    if (!this.canEditShowtime(showtime)) {
-      Swal.fire({
-        icon: 'warning',
-        title: 'Không thể sửa!',
-        text: 'Chỉ có thể sửa suất chiếu chưa bắt đầu hoặc đang chiếu.',
-        confirmButtonText: 'OK'
-      });
-      return;
-    }
 
-    try {
-      // Clean up any existing modal effects
-      this.cleanupModalEffects();
 
-      this.isEditing = true;
-      this.selectedShowtime = showtime;
 
-      // Calculate total duration from start and end time
-      const startTime = new Date(showtime.startTime);
-      const endTime = new Date(showtime.endTime);
-      const totalDuration = (endTime.getTime() - startTime.getTime()) / (1000 * 60);
 
-      // Set default values for intro and cleanup time
-      const defaultIntroTime = 10;
-      const defaultCleanupTime = 15;
 
-      this.showtimeForm.patchValue({
-        movieId: showtime.movieId,
-        roomId: showtime.roomId,
-        startTime: new Date(showtime.startTime).toISOString().slice(0, 16),
-        endTime: new Date(showtime.endTime).toISOString().slice(0, 16),
-        introTime: defaultIntroTime,
-        cleanupTime: defaultCleanupTime
-      });
 
-      const modalEl = document.getElementById('showtimeModal');
-      if (modalEl) {
-        // Dispose existing modal if any
-        try {
-          const existingModal = bootstrap.Modal.getInstance(modalEl);
-          if (existingModal) {
-            existingModal.dispose();
-          }
-        } catch (e) {
-          // Handle error
-        }
 
-        // Create new modal with specific options
-        this.modalInstance = new bootstrap.Modal(modalEl, {
-          backdrop: 'static',
-          keyboard: true,
-          focus: true
-        });
 
-        // Setup event listeners
-        modalEl.addEventListener('shown.bs.modal', () => {
-          modalEl.removeAttribute('aria-hidden');
-        }, { once: true });
 
-        modalEl.addEventListener('hidden.bs.modal', () => {
-          modalEl.setAttribute('aria-hidden', 'true');
-          this.cleanupModalEffects();
-        }, { once: true });
 
-        // Show the modal
-        this.modalInstance.show();
-      }
-    } catch (error) {
-      this.cleanupModalEffects();
-    }
-  }
+
+
+
+
 
   closeModal(): void {
     try {
@@ -1172,7 +1172,7 @@ export class ShowtimeManagementComponent implements OnInit, OnDestroy {
     this.filterShowtimes();
   }
 
-  getShowtimeStatus(startTime: Date, endTime: Date): { class: string, text: string} {
+  getShowtimeStatus(startTime: Date, endTime: Date): { class: string, text: string } {
     try {
       const now = new Date();
       const start = new Date(startTime);
@@ -1450,7 +1450,6 @@ export class ShowtimeManagementComponent implements OnInit, OnDestroy {
 
 
   calculateEndTime(cinemaIndex?: number, roomIndex?: number): void {
-
     if (cinemaIndex !== undefined && roomIndex !== undefined) {
       const cinema = this.cinemaList[cinemaIndex];
       const room = cinema.rooms[roomIndex];
@@ -1485,33 +1484,139 @@ export class ShowtimeManagementComponent implements OnInit, OnDestroy {
 
       // Cập nhật thời gian kết thúc
       room.endTime = this.formatDateTimeForInput(endTime);
-    } else {
-      // Trường hợp gọi từ form controls
-      const startTimeValue = this.showtimeForm.get('startTime')?.value;
-      if (!startTimeValue) return;
 
-      const movieId = this.showtimeForm.get('movieId')?.value;
-      const selectedMovie = this.movies.find(m => m.id === movieId);
-      if (!selectedMovie) return;
-
-      const movieDuration = selectedMovie.duration;
-      const introTime = this.showtimeForm.get('introTime')?.value || 10;
-      const cleanupTime = this.showtimeForm.get('cleanupTime')?.value || 15;
-      const totalDuration = movieDuration + introTime + cleanupTime;
-
-      const startTime = new Date(startTimeValue);
-      const endTime = new Date(startTime.getTime() + totalDuration * 60000);
-
-      // Format ISO string và cắt thành định dạng datetime-local
-      this.showtimeForm.get('endTime')?.setValue(endTime.toISOString().slice(0, 16));
+      // Kiểm tra xem có đang ở chế độ edit không
+      if (this.isEditing) {
+        // Trigger kiểm tra lịch chiếu
+        this.onRoomChange(cinemaIndex, roomIndex);
+      }
     }
   }
 
-  // get selectedMovieName(): string {
-  //   const movieId = this.showtimeForm.get('movieId')?.value;
-  //   const movie = this.movies.find(m => m.id === movieId);
-  //   return movie ? movie.movieName : '';
-  // }
+  get selectedMovieNames(): string {
+    const movieId = this.showtimeForm.get('movieId')?.value;
+    const movie = this.movies.find(m => m.id === movieId);
+    return movie ? movie.movieName : '';
+  }
+
+
+
+
+
+
+
+
+
+
+
+
+  editShowtime(showtime: Showtime) {
+    if (!this.canEditShowtime(showtime)) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Không thể sửa!',
+        text: 'Chỉ có thể sửa suất chiếu chưa bắt đầu hoặc sắp bán vé.',
+        confirmButtonText: 'OK'
+      });
+      return;
+    }
+
+    try {
+      // Clean up any existing modal effects
+      this.cleanupModalEffects();
+
+      this.isEditing = true;
+      this.selectedShowtime = showtime;
+
+      // Reset the form to update defaults
+      this.initForm();
+
+      // Get detailed showtime information
+      this.showtimeService.getShowtimeById(showtime.id).subscribe({
+        next: async (response: any) => {
+          if (response.responseCode === 200 && response.data) {
+            const detailedShowtime = response.data;
+
+            // Update the form with movie and date details first
+            this.showtimeForm.patchValue({
+              movieId: detailedShowtime.movieId,
+              showtimeDate: new Date(detailedShowtime.startTime).toISOString().split('T')[0],
+              introTime: 10,
+              cleanupTime: 15
+            });
+
+            // Initialize cinema list with the cinema containing this room
+            this.cinemaList = [{
+              id: detailedShowtime.cinemasId,
+              name: '',
+              availableRooms: [],
+              rooms: [{
+                id: detailedShowtime.roomId,
+                name: detailedShowtime.roomName,
+                startTime: this.formatDateTimeForInput(new Date(detailedShowtime.startTime)),
+                endTime: this.formatDateTimeForInput(new Date(detailedShowtime.endTime)),
+                loading: false,
+                errorMessage: '',
+                successMessage: ''
+              }]
+            }];
+
+            try {
+              // Load rooms for the cinema
+              const rooms = await this.loadRoomsForCinema(detailedShowtime.cinemasId);
+              this.cinemaList[0].availableRooms = rooms;
+
+              // Find cinema name
+              const cinema = this.cinemas.find(c => c.cinemasId === detailedShowtime.cinemasId);
+              if (cinema) {
+                this.cinemaList[0].name = cinema.name;
+              }
+
+              // Open the modal after data is loaded
+              const modalEl = document.getElementById('showtimeModal');
+              if (modalEl) {
+                this.modalInstance = new bootstrap.Modal(modalEl, {
+                  backdrop: 'static',
+                  keyboard: true,
+                  focus: true
+                });
+
+                modalEl.addEventListener('shown.bs.modal', () => {
+                  modalEl.removeAttribute('aria-hidden');
+                }, { once: true });
+
+                modalEl.addEventListener('hidden.bs.modal', () => {
+                  modalEl.setAttribute('aria-hidden', 'true');
+                  this.cleanupModalEffects();
+                }, { once: true });
+
+                this.modalInstance.show();
+              }
+            } catch (error) {
+              console.error('Error loading rooms:', error);
+              Swal.fire({
+                icon: 'error',
+                title: 'Lỗi!',
+                text: 'Không thể tải danh sách phòng cho rạp này.'
+              });
+            }
+          }
+        },
+        error: (error: any) => {
+          console.error('Error fetching showtime details:', error);
+          Swal.fire({
+            icon: 'error',
+            title: 'Lỗi!',
+            text: 'Không thể tải thông tin chi tiết của suất chiếu.'
+          });
+        }
+      });
+    } catch (error) {
+      console.error('Error in editShowtime:', error);
+      this.cleanupModalEffects();
+    }
+  }
+
 
 
 

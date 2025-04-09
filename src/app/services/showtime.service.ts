@@ -77,7 +77,7 @@ export class ShowtimeService {
   }
 
   updateShowtime(id: string, showtimeData: any): Observable<any> {
-    return this.http.post(`${this.apiUrl}ShowTime/Update?ShowTimeId=${id}`, showtimeData);
+    return this.http.post(`${this.apiUrl}ShowTime/Update/${id}`, showtimeData);
   }
 
   deleteShowtime(id: string): Observable<any> {
@@ -94,9 +94,14 @@ export class ShowtimeService {
 
 
 
-  // Then update the method
   showtimeAutoDate(request: ShowtimeAutoDateRequest): Observable<ShowtimeAutoDateResponse> {
     return this.http.get<ShowtimeAutoDateResponse>(`${this.apiUrl}ShowTime/GetAutoDate?CinemasId=${request.cinemasId}&RoomId=${request.roomId}&Date=${request.date}&MovieId=${request.movieId}`);
+  }
+
+
+
+  getShowtimeById(id: string): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}ShowTime/GetById/${id}`);
   }
 
 

@@ -106,7 +106,9 @@
                       <i class="fas fa-history"></i>
                     </button>
                     <button type="button" class="btn btn-outline-warning btn-rounded me-2"
-                      (click)="editVoucher(voucher)" data-bs-toggle="modal" data-bs-target="#voucherModal">
+                      (click)="editVoucher(voucher)" data-bs-toggle="modal" data-bs-target="#voucherModal"
+                      [disabled]="voucher.status === 2"
+                      [title]="voucher.status === 2 ? 'Không thể chỉnh sửa voucher đã hết hạn' : ''">
                       <i class="fas fa-edit"></i>
                     </button>
                     <button type="button" class="btn btn-outline-danger btn-rounded"
@@ -125,27 +127,50 @@
             </table>
           </div>
 
+
+
           <!-- Pagination -->
-          <nav *ngIf="totalPages > 1" aria-label="Page navigation" class="d-flex justify-content-center mt-4">
-            <ul class="pagination">
+
+          <!-- Pagination -->
+          <nav aria-label="Voucher pagination" *ngIf="totalRecords > 0">
+            <ul class="pagination justify-content-center">
+              <!-- Previous button -->
               <li class="page-item" [class.disabled]="currentPage === 1">
-                <a class="page-link" (click)="onPageChange(currentPage - 1)">Trước</a>
+                <a class="page-link" href="javascript:void(0)" (click)="onPageChange(currentPage - 1)">
+                  Trước
+                </a>
               </li>
+
+              <!-- Page numbers -->
               <li class="page-item" *ngFor="let page of pages" [class.active]="page === currentPage">
-                <a class="page-link" (click)="onPageChange(page)">{{ page }}</a>
+                <a class="page-link" href="javascript:void(0)" (click)="onPageChange(page)">
+                  {{page}}
+                </a>
               </li>
+
+              <!-- Next button -->
               <li class="page-item" [class.disabled]="currentPage === totalPages">
-                <a class="page-link" (click)="onPageChange(currentPage + 1)">Sau</a>
+                <a class="page-link" href="javascript:void(0)" (click)="onPageChange(currentPage + 1)">
+                  Sau
+                </a>
               </li>
             </ul>
           </nav>
 
+
           <!-- Page info -->
-          <div *ngIf="totalRecords > 0" class="text-center mt-2">
+          <!-- <div *ngIf="totalRecords > 0" class="text-center mt-2">
             <small>Hiển thị {{ (currentPage - 1) * recordPerPage + 1 }} đến
               {{ Math.min(currentPage * recordPerPage, totalRecords) }} của {{ totalRecords }} voucher</small>
-          </div>
+          </div> -->
+
+
+
+
         </div>
+
+
+
       </div>
     </div>
   </div>
@@ -163,7 +188,7 @@
         <div class="modal-body">
           <form [formGroup]="voucherForm" (ngSubmit)="onSubmit()">
             <!-- Mã voucher -->
-            <div class="col-md-6 mb-3">
+            <div class=" mb-3">
               <div class="form-group">
                 <label for="code" class="form-label">Mã Voucher <span class="text-danger">*</span></label>
                 <input type="text" class="form-control" id="code" formControlName="code" [readOnly]="isEditing">
@@ -176,7 +201,7 @@
             </div>
 
             <!-- Loại giảm giá -->
-            <div class="col-md-6 mb-3">
+            <div class=" mb-3">
               <div class="form-group">
                 <label for="discountType" class="form-label">Loại Giảm Giá <span class="text-danger">*</span></label>
                 <select class="form-select" id="discountType" formControlName="discountType">
@@ -187,7 +212,7 @@
             </div>
 
             <!-- Giá trị giảm giá -->
-            <div class="col-md-6 mb-3">
+            <div class=" mb-3">
               <div class="form-group">
                 <label for="discountValue" class="form-label">Giá Trị Giảm Giá <span
                     class="text-danger">*</span></label>
@@ -208,7 +233,7 @@
             </div>
 
             <!-- Mô tả -->
-            <div class="col-md-6 mb-3">
+            <div class=" mb-3">
               <div class="form-group">
                 <label for="description" class="form-label">Mô Tả</label>
                 <textarea class="form-control" id="description" formControlName="description" rows="1"></textarea>
@@ -216,7 +241,7 @@
             </div>
 
             <!-- Ngày bắt đầu -->
-            <div class="col-md-6 mb-3">
+            <div class=" mb-3">
               <div class="form-group">
                 <label for="startDate" class="form-label">Ngày Bắt Đầu <span class="text-danger">*</span></label>
                 <input type="date" class="form-control" id="startDate" formControlName="startDate">
@@ -232,7 +257,7 @@
             </div>
 
             <!-- Ngày kết thúc -->
-            <div class="col-md-6 mb-3">
+            <div class=" mb-3">
               <div class="form-group">
                 <label for="endDate" class="form-label">Ngày Kết Thúc <span class="text-danger">*</span></label>
                 <input type="date" class="form-control" id="endDate" formControlName="endDate">
@@ -252,7 +277,7 @@
             </div>
 
             <!-- Lượt sử dụng tối đa -->
-            <div class="col-md-6 mb-3">
+            <div class=" mb-3">
               <div class="form-group">
                 <label for="maxUsage" class="form-label">Lượt Sử Dụng Tối Đa <span class="text-danger">*</span></label>
                 <input type="number" class="form-control" id="maxUsage" formControlName="maxUsage">

@@ -44,6 +44,15 @@ export interface StatisticRevenueByCinemaRes {
   totalOrders: number;
 }
 
+// Doanh thu theo rạp (SP_Statistic_RevenueByCinema)
+export interface CinemaRevenueData {
+  cinemasId: string;
+  name: string;
+  totalRooms: number;
+  totalRevenue: number;
+  totalTickets: number;
+}
+
 // Thể loại phim phổ biến
 export interface StatisticPopularGenresRes {
   genreName: string;
@@ -64,12 +73,14 @@ export interface StatisticCustomerGenderRes {
   totalSpent: number;
 }
 
+
 // Dịch vụ gói
 export interface StatisticBundledServicesRes {
   serviceName: string;
   totalOrders: number;
   totalQuantitySold: number;
 }
+
 
 // Response chung
 export interface CommonResponse<T> {
@@ -78,6 +89,49 @@ export interface CommonResponse<T> {
   data: T;
   totalRecord?: number;
 }
+
+
+
+
+
+
+// tổng doanh thu theo thời gian
+export interface StatisticSummaryDateRange {
+  date: string;
+  totalRevenue: number;
+  totalOrders: number;
+  totalTickets: number;
+  totalServices: number;
+}
+
+
+// Phim top?
+export interface MovieStatisticSummaryDateRange {
+  date: string;
+  movieName: string;
+  banner: string;
+  totalRevenue: number;
+  totalTickets: number;
+  totalServices: number;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 @Injectable({
   providedIn: 'root'
@@ -94,18 +148,18 @@ export class StatisticService {
    */
   private formatDate(date?: Date): string | null {
     if (!date) return null;
-    
+
     // Format thủ công thành YYYY-MM-DD mà không chuyển đổi múi giờ
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, '0');
     const day = String(date.getDate()).padStart(2, '0');
-    
+
     // Sử dụng định dạng 'YYYY-MM-DD' để tránh vấn đề múi giờ
     const formattedDate = `${year}-${month}-${day}`;
-    
+
     // Log để debug
     console.log(`Ngày gốc: ${date.toLocaleString()}, Ngày sau format: ${formattedDate}`);
-    
+
     return formattedDate;
   }
 
@@ -114,15 +168,15 @@ export class StatisticService {
    */
   private createDateRangeParams(startDate?: Date, endDate?: Date): HttpParams {
     let params = new HttpParams();
-    
+
     if (startDate) {
       params = params.set('startDate', this.formatDate(startDate) || '');
     }
-    
+
     if (endDate) {
       params = params.set('endDate', this.formatDate(endDate) || '');
     }
-    
+
     console.log(`[API Params] startDate: ${params.get('startDate')}, endDate: ${params.get('endDate')}`);
     return params;
   }
@@ -133,7 +187,7 @@ export class StatisticService {
   getTopServices(startDate?: Date, endDate?: Date): Observable<CommonResponse<StatisticTopServicesRes[]>> {
     const params = this.createDateRangeParams(startDate, endDate);
     return this.http.get<CommonResponse<StatisticTopServicesRes[]>>(
-      `${this.baseUrl}Statistic/GetTopServices`, 
+      `${this.baseUrl}Statistic/GetTopServices`,
       { params }
     );
   }
@@ -144,7 +198,7 @@ export class StatisticService {
   getSeatProfitability(startDate?: Date, endDate?: Date): Observable<CommonResponse<StatisticSeatProfitabilityRes[]>> {
     const params = this.createDateRangeParams(startDate, endDate);
     return this.http.get<CommonResponse<StatisticSeatProfitabilityRes[]>>(
-      `${this.baseUrl}Statistic/GetSeatProfitability`, 
+      `${this.baseUrl}Statistic/GetSeatProfitability`,
       { params }
     );
   }
@@ -155,7 +209,7 @@ export class StatisticService {
   getSeatOccupancy(startDate?: Date, endDate?: Date): Observable<CommonResponse<StatisticSeatOccupancyRes[]>> {
     const params = this.createDateRangeParams(startDate, endDate);
     return this.http.get<CommonResponse<StatisticSeatOccupancyRes[]>>(
-      `${this.baseUrl}Statistic/GetSeatOccupancy`, 
+      `${this.baseUrl}Statistic/GetSeatOccupancy`,
       { params }
     );
   }
@@ -166,7 +220,7 @@ export class StatisticService {
   getRevenueByTime(startDate?: Date, endDate?: Date): Observable<CommonResponse<StatisticRevenueByTimeRes[]>> {
     const params = this.createDateRangeParams(startDate, endDate);
     return this.http.get<CommonResponse<StatisticRevenueByTimeRes[]>>(
-      `${this.baseUrl}Statistic/GetRevenueByTime`, 
+      `${this.baseUrl}Statistic/GetRevenueByTime`,
       { params }
     );
   }
@@ -177,7 +231,26 @@ export class StatisticService {
   getRevenueByCinema(startDate?: Date, endDate?: Date): Observable<CommonResponse<StatisticRevenueByCinemaRes[]>> {
     const params = this.createDateRangeParams(startDate, endDate);
     return this.http.get<CommonResponse<StatisticRevenueByCinemaRes[]>>(
-      `${this.baseUrl}Statistic/GetRevenueByCinema`, 
+      `${this.baseUrl}Statistic/GetRevenueByCinema`,
+      { params }
+    );
+  }
+
+  /**
+   * Lấy thống kê doanh thu theo rạp từ SP_Statistic_RevenueByCinema
+   */
+  getCinemaRevenue(startDate?: Date, endDate?: Date): Observable<CommonResponse<CinemaRevenueData[]>> {
+    let params = new HttpParams();
+
+    // Mặc định lấy tất cả dữ liệu nếu không có ngày
+    const start = startDate ? (this.formatDate(startDate) || '01-01-1900') : '01-01-1900';
+    const end = endDate ? (this.formatDate(endDate) || '12-31-2999') : '12-31-2999';
+
+    params = params.set('Start', start);
+    params = params.set('End', end);
+
+    return this.http.get<CommonResponse<CinemaRevenueData[]>>(
+      `${this.baseUrl}Statistic/GetRevenueByCinema`,
       { params }
     );
   }
@@ -188,7 +261,7 @@ export class StatisticService {
   getPopularGenres(startDate?: Date, endDate?: Date): Observable<CommonResponse<StatisticPopularGenresRes[]>> {
     const params = this.createDateRangeParams(startDate, endDate);
     return this.http.get<CommonResponse<StatisticPopularGenresRes[]>>(
-      `${this.baseUrl}Statistic/GetPopularGenres`, 
+      `${this.baseUrl}Statistic/GetPopularGenres`,
       { params }
     );
   }
@@ -200,7 +273,7 @@ export class StatisticService {
     const params = this.createDateRangeParams(startDate, endDate);
     console.log(`[getPeakHours] Gọi API với startDate=${startDate?.toLocaleString()}, endDate=${endDate?.toLocaleString()}`);
     return this.http.get<CommonResponse<StatisticPeakHoursRes[]>>(
-      `${this.baseUrl}Statistic/GetPeakHours`, 
+      `${this.baseUrl}Statistic/GetPeakHours`,
       { params }
     );
   }
@@ -211,7 +284,7 @@ export class StatisticService {
   getCustomerGender(startDate?: Date, endDate?: Date): Observable<CommonResponse<StatisticCustomerGenderRes[]>> {
     const params = this.createDateRangeParams(startDate, endDate);
     return this.http.get<CommonResponse<StatisticCustomerGenderRes[]>>(
-      `${this.baseUrl}Statistic/GetCustomerGender`, 
+      `${this.baseUrl}Statistic/GetCustomerGender`,
       { params }
     );
   }
@@ -222,8 +295,68 @@ export class StatisticService {
   getBundledServices(startDate?: Date, endDate?: Date): Observable<CommonResponse<StatisticBundledServicesRes[]>> {
     const params = this.createDateRangeParams(startDate, endDate);
     return this.http.get<CommonResponse<StatisticBundledServicesRes[]>>(
-      `${this.baseUrl}Statistic/GetBundledServices`, 
+      `${this.baseUrl}Statistic/GetBundledServices`,
       { params }
     );
   }
-} 
+
+
+
+  /**
+   * Lấy tổng hợp thống kê
+   */
+  getSummaryDateRange(startDate?: Date, endDate?: Date): Observable<CommonResponse<StatisticSummaryDateRange[]>> {
+    let params = new HttpParams();
+
+    // Mặc định lấy tất cả dữ liệu nếu không có ngày
+    const start = startDate ? (this.formatDate(startDate) || '01-01-1900') : '01-01-1900';
+    const end = endDate ? (this.formatDate(endDate) || '12-31-2999') : '12-31-2999';
+
+    params = params.set('Start', start);
+    params = params.set('End', end);
+
+    return this.http.get<CommonResponse<StatisticSummaryDateRange[]>>(
+      `${this.baseUrl}Statistic/GetSummary_DateRange`,
+      { params }
+    );
+  }
+
+
+
+
+
+  /**
+   * Lấy tổng hợp thống kê phim
+   */
+  getMovieSummaryDateRange(startDate?: Date, endDate?: Date): Observable<CommonResponse<MovieStatisticSummaryDateRange[]>> {
+    let params = new HttpParams();
+
+    // Mặc định lấy tất cả dữ liệu nếu không có ngày
+    const start = startDate ? (this.formatDate(startDate) || '01-01-1900') : '01-01-1900';
+    const end = endDate ? (this.formatDate(endDate) || '12-31-2999') : '12-31-2999';
+
+    params = params.set('Start', start);
+    params = params.set('End', end);
+
+    return this.http.get<CommonResponse<MovieStatisticSummaryDateRange[]>>(
+      `${this.baseUrl}Statistic/GetMovieSummary_DateRange`,
+      { params }
+    );
+  }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+}

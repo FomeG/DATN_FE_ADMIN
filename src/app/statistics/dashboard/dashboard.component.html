@@ -1,16 +1,16 @@
 <div class="dashboard-container">
   <!-- Header -->
-  <div class="dashboard-header">
+  <div class="dashboard-header p-0">
     <div class="row align-items-center">
       <div class="col-md-6">
         <h2 class="mb-0 text-gradient">Thống kê</h2>
-        <p class="text-muted">Thông tin chi tiết về hoạt động của rạp chiếu phim</p>
+        <p class="text-muted">Thông tin chi tiết về hoạt động của các rạp chiếu phim</p>
       </div>
       <div class="col-md-6 text-md-end">
         <div class="d-flex justify-content-md-end flex-wrap gap-2">
           <!-- Date Range Picker -->
           <app-date-range-picker></app-date-range-picker>
-          
+
           <!-- Export Buttons -->
           <div class="btn-group">
             <button class="btn btn-outline-primary" (click)="exportAllToExcel()">
@@ -27,82 +27,221 @@
     </div>
   </div>
 
+
+
+
+
+
+
+
+
+  <div class="row">
+    <div class="col-xl-3 col-sm-6 grid-margin stretch-card">
+      <div class="card">
+        <div class="card-body">
+          <h5>Tổng doanh thu</h5>
+          <div class="row">
+            <div class="col-8 col-sm-12 col-xl-8 my-auto">
+              <div class="d-flex d-sm-block d-md-flex align-items-center">
+                <h2 class="mb-0">{{ summaryData ? summaryData.totalRevenue : '--' }}</h2>
+                <p class="text-success ml-2 mb-0 font-weight-medium">+3.5%</p>
+              </div>
+              <h6 class="text-muted font-weight-normal">11.38% Since last month</h6>
+            </div>
+            <div class="col-4 col-sm-12 col-xl-4 text-center text-xl-right">
+              <i class="icon-lg mdi mdi-codepen text-primary ml-auto"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-xl-3 col-sm-6 grid-margin stretch-card">
+      <div class="card">
+        <div class="card-body">
+          <h5>Tổng số order</h5>
+          <div class="row">
+            <div class="col-8 col-sm-12 col-xl-8 my-auto">
+              <div class="d-flex d-sm-block d-md-flex align-items-center">
+                <h2 class="mb-0">{{ summaryData ? summaryData.totalOrders : '--' }}</h2>
+                <p class="text-success ml-2 mb-0 font-weight-medium">+8.3%</p>
+              </div>
+              <h6 class="text-muted font-weight-normal"> 9.61% Since last month</h6>
+            </div>
+            <div class="col-4 col-sm-12 col-xl-4 text-center text-xl-right">
+              <i class="icon-lg mdi mdi-wallet-travel text-danger ml-auto"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-xl-3 col-sm-6 grid-margin stretch-card">
+      <div class="card">
+        <div class="card-body">
+          <h5>Tổng số vé bán ra</h5>
+          <div class="row">
+            <div class="col-8 col-sm-12 col-xl-8 my-auto">
+              <div class="d-flex d-sm-block d-md-flex align-items-center">
+                <h2 class="mb-0">{{ summaryData ? summaryData.totalTickets : '--' }}</h2>
+                <p class="text-success ml-2 mb-0 font-weight-medium">+8.3%</p>
+              </div>
+              <h6 class="text-muted font-weight-normal"> 9.61% Since last month</h6>
+            </div>
+            <div class="col-4 col-sm-12 col-xl-4 text-center text-xl-right">
+              <i class="icon-lg mdi mdi-wallet-travel text-danger ml-auto"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-xl-3 col-sm-6 grid-margin stretch-card">
+      <div class="card">
+        <div class="card-body">
+          <h5>Tổng số dịch vụ bán ra</h5>
+          <div class="row">
+            <div class="col-8 col-sm-12 col-xl-8 my-auto">
+              <div class="d-flex d-sm-block d-md-flex align-items-center">
+                <h2 class="mb-0">{{ summaryData ? summaryData.totalServices : '--' }}</h2>
+                <p class="text-success ml-2 mb-0 font-weight-medium">+8.3%</p>
+              </div>
+              <h6 class="text-muted font-weight-normal"> 9.61% Since last month</h6>
+            </div>
+            <div class="col-4 col-sm-12 col-xl-4 text-center text-xl-right">
+              <i class="icon-lg mdi mdi-wallet-travel text-danger ml-auto"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+
+
+
+
+
   <!-- Tabs -->
   <ul class="nav nav-tabs mb-4">
     <li class="nav-item">
       <a [class]="getTabClass('revenue')" (click)="changeTab('revenue')" role="button">
         <i class="mdi mdi-cash-multiple"></i>
-        Doanh thu
+        Rạp chiếu phim
       </a>
     </li>
-    <li class="nav-item">
-      <a [class]="getTabClass('customer')" (click)="changeTab('customer')" role="button">
-        <i class="mdi mdi-account-group"></i>
-        Khách hàng
-      </a>
-    </li>
+
     <li class="nav-item">
       <a [class]="getTabClass('content')" (click)="changeTab('content')" role="button">
-        <i class="mdi mdi-movie-open"></i>
-        Dịch vụ & Nội dung
+        <i class="mdi mdi-account-group"></i>
+        test
       </a>
     </li>
+
+
+
   </ul>
+  <!-- Rạp chiếu phim Tab -->
+  <div *ngIf="activeTab === 'revenue'" class="tab-pane fade show active">
+    <div class="container-fluid p-0">
 
-  <!-- Tab content -->
-  <div class="tab-content">
-    <!-- Doanh thu Tab -->
-    <div *ngIf="activeTab === 'revenue'" class="tab-pane fade show active">
-      <app-revenue-chart></app-revenue-chart>
-      
-      <div class="row">
-        <!-- Lợi nhuận ghế -->
-        <div class="col-lg-12 mb-4">
-          <app-seat-profitability-chart></app-seat-profitability-chart>
+
+      <div class="d-flex p-0" style="gap: 10px">
+
+
+        <div class="card" style="width: 60%;">
+          <div class="card-body">
+            <h4 class="card-title">Thống kê doanh thu theo rạp chiếu phim</h4>
+            <div class="table-responsive">
+              <table class="table table-hover">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Tên rạp</th>
+                    <th>Số phòng chiếu</th>
+                    <th>Doanh thu</th>
+                    <th>Số vé bán ra</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let cinema of cinemaData; let i = index">
+                    <td style="color: white !important">{{ i + 1 }}</td>
+                    <td style="color: white !important">{{ cinema.name }}</td>
+                    <td style="color: white !important">{{ cinema.totalRooms }}</td>
+                    <td style="color: white !important">{{ formatCurrency(cinema.totalRevenue) }}</td>
+                    <td style="color: white !important">{{ cinema.totalTickets }}</td>
+                  </tr>
+                  <tr *ngIf="cinemaData.length === 0">
+                    <td colspan="5" class="text-center">Không có dữ liệu</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
         </div>
+
+
+        <div class="card justify-content-end" style="width: 40%;">
+          <div class="card-body">
+            <h4 class="card-title">Bảng xếp hạng phim theo doanh thu</h4>
+
+            <div class="table-responsive">
+              <table class="table table-hover align-middle">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Poster</th>
+                    <th>Tên phim</th>
+                    <th>Doanh thu</th>
+                    <th>Số vé bán ra</th>
+                    <!-- <th>Dịch vụ đi kèm</th> -->
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let movie of movieData; let i = index">
+                    <td style="color: white !important">{{ i + 1 }}</td>
+                    <td style="color: white !important">
+                      <img [src]="movie.banner" alt="Movie banner" class="movie-thumbnail"
+                        style="width: 60px; height: 40px; object-fit: cover; border-radius: 4px;">
+                    </td>
+                    <td style="color: white !important">{{ movie.movieName }}</td>
+                    <td style="color: white !important">{{ formatCurrency(movie.totalRevenue) }}</td>
+                    <td style="color: white !important">{{ movie.totalTickets }}</td>
+                    <!-- <td>{{ movie.totalServices }}</td> -->
+                  </tr>
+                  <tr *ngIf="movieData.length === 0">
+                    <td colspan="6" class="text-center">Không có dữ liệu</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+
+          </div>
+
+        </div>
+
+
+
       </div>
-    </div>
 
-    <!-- Khách hàng Tab -->
-    <div *ngIf="activeTab === 'customer'" class="tab-pane fade show active">
-      <div class="row">
-        <!-- Giới tính khách hàng -->
-        <div class="col-lg-4 mb-4">
-          <app-customer-gender-chart></app-customer-gender-chart>
-        </div>
 
-        <!-- Giờ cao điểm -->
-        <div class="col-lg-8 mb-4">
-          <app-peak-hours-chart></app-peak-hours-chart>
-        </div>
-        
-        <!-- Tỷ lệ lấp đầy ghế -->
-        <div class="col-lg-12 mb-4">
-          <app-seat-occupancy-chart></app-seat-occupancy-chart>
-        </div>
-      </div>
-    </div>
-
-    <!-- Dịch vụ & Nội dung Tab -->
-    <div *ngIf="activeTab === 'content'" class="tab-pane fade show active">
-      <div class="row">
-        <!-- Top dịch vụ -->
-        <div class="col-lg-6 mb-4">
-          <app-top-services-chart></app-top-services-chart>
-        </div>
-
-        <!-- Thể loại phổ biến -->
-        <div class="col-lg-6 mb-4">
-          <app-popular-genres-chart></app-popular-genres-chart>
-        </div>
-
-        <!-- Dịch vụ gói -->
-        <div class="col-lg-12 mb-4">
-          <app-bundled-services-chart></app-bundled-services-chart>
-        </div>
-      </div>
     </div>
   </div>
+
+  <!-- Phim Tab -->
+  <div *ngIf="activeTab === 'content'" class="tab-pane fade show active">
+    <div class="container-fluid p-0">
+
+
+
+    </div>
+
+  </div>
+
+
+
+
+
+
 
   <!-- Loading Overlay -->
   <div *ngIf="isLoading" class="loading-overlay">
@@ -110,4 +249,6 @@
       <span class="visually-hidden">Đang tải...</span>
     </div>
   </div>
-</div> 
+
+
+</div>

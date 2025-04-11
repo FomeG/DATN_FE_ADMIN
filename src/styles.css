@@ -239,3 +239,14 @@ body.auth.login-bg {
     margin-top: 30px !important;
     justify-content: center !important;
 }
+
+
+
+
+.table tbody tr:hover {
+    background-color: rgba(146, 146, 146, 0.05) !important;
+}
+
+.table tr:hover td {
+    color: #ffffff !important;
+}

@@ -44,6 +44,7 @@ export interface StatisticRevenueByCinemaRes {
   totalOrders: number;
 }
 
+
 // Doanh thu theo rạp (SP_Statistic_RevenueByCinema)
 export interface CinemaRevenueData {
   cinemasId: string;
@@ -52,6 +53,7 @@ export interface CinemaRevenueData {
   totalRevenue: number;
   totalTickets: number;
 }
+
 
 // Thể loại phim phổ biến
 export interface StatisticPopularGenresRes {
@@ -89,6 +91,7 @@ export interface CommonResponse<T> {
   data: T;
   totalRecord?: number;
 }
+
 
 
 
@@ -141,6 +144,7 @@ export interface MovieStatisticSummaryDateRange {
 
 
 
+
 @Injectable({
   providedIn: 'root'
 })
@@ -162,6 +166,7 @@ export class StatisticService {
     const month = String(date.getMonth() + 1).padStart(2, '0');
     const day = String(date.getDate()).padStart(2, '0');
 
+
     // Sử dụng định dạng 'YYYY-MM-DD' để tránh vấn đề múi giờ
     const formattedDate = `${year}-${month}-${day}`;
 
@@ -177,6 +182,7 @@ export class StatisticService {
   private createDateRangeParams(startDate?: Date, endDate?: Date): HttpParams {
     let params = new HttpParams();
 
+
     if (startDate) {
       params = params.set('startDate', this.formatDate(startDate) || '');
     }
@@ -184,6 +190,7 @@ export class StatisticService {
     if (endDate) {
       params = params.set('endDate', this.formatDate(endDate) || '');
     }
+
 
     console.log(`[API Params] startDate: ${params.get('startDate')}, endDate: ${params.get('endDate')}`);
     return params;
@@ -195,7 +202,9 @@ export class StatisticService {
   getTopServices(startDate?: Date, endDate?: Date): Observable<CommonResponse<StatisticTopServicesRes[]>> {
     const params = this.createDateRangeParams(startDate, endDate);
     return this.http.get<CommonResponse<StatisticTopServicesRes[]>>(
+
       `${this.baseUrl}Statistic/GetTopServices`,
+
       { params }
     );
   }
@@ -206,7 +215,9 @@ export class StatisticService {
   getSeatProfitability(startDate?: Date, endDate?: Date): Observable<CommonResponse<StatisticSeatProfitabilityRes[]>> {
     const params = this.createDateRangeParams(startDate, endDate);
     return this.http.get<CommonResponse<StatisticSeatProfitabilityRes[]>>(
+
       `${this.baseUrl}Statistic/GetSeatProfitability`,
+
       { params }
     );
   }
@@ -217,7 +228,9 @@ export class StatisticService {
   getSeatOccupancy(startDate?: Date, endDate?: Date): Observable<CommonResponse<StatisticSeatOccupancyRes[]>> {
     const params = this.createDateRangeParams(startDate, endDate);
     return this.http.get<CommonResponse<StatisticSeatOccupancyRes[]>>(
+
       `${this.baseUrl}Statistic/GetSeatOccupancy`,
+
       { params }
     );
   }
@@ -228,7 +241,9 @@ export class StatisticService {
   getRevenueByTime(startDate?: Date, endDate?: Date): Observable<CommonResponse<StatisticRevenueByTimeRes[]>> {
     const params = this.createDateRangeParams(startDate, endDate);
     return this.http.get<CommonResponse<StatisticRevenueByTimeRes[]>>(
+
       `${this.baseUrl}Statistic/GetRevenueByTime`,
+
       { params }
     );
   }
@@ -239,6 +254,7 @@ export class StatisticService {
   getRevenueByCinema(startDate?: Date, endDate?: Date): Observable<CommonResponse<StatisticRevenueByCinemaRes[]>> {
     const params = this.createDateRangeParams(startDate, endDate);
     return this.http.get<CommonResponse<StatisticRevenueByCinemaRes[]>>(
+
       `${this.baseUrl}Statistic/GetRevenueByCinema`,
       { params }
     );
@@ -259,6 +275,7 @@ export class StatisticService {
 
     return this.http.get<CommonResponse<CinemaRevenueData[]>>(
       `${this.baseUrl}Statistic/GetRevenueByCinema`,
+
       { params }
     );
   }
@@ -269,7 +286,9 @@ export class StatisticService {
   getPopularGenres(startDate?: Date, endDate?: Date): Observable<CommonResponse<StatisticPopularGenresRes[]>> {
     const params = this.createDateRangeParams(startDate, endDate);
     return this.http.get<CommonResponse<StatisticPopularGenresRes[]>>(
+
       `${this.baseUrl}Statistic/GetPopularGenres`,
+
       { params }
     );
   }
@@ -281,7 +300,9 @@ export class StatisticService {
     const params = this.createDateRangeParams(startDate, endDate);
     console.log(`[getPeakHours] Gọi API với startDate=${startDate?.toLocaleString()}, endDate=${endDate?.toLocaleString()}`);
     return this.http.get<CommonResponse<StatisticPeakHoursRes[]>>(
+
       `${this.baseUrl}Statistic/GetPeakHours`,
+
       { params }
     );
   }
@@ -292,7 +313,9 @@ export class StatisticService {
   getCustomerGender(startDate?: Date, endDate?: Date): Observable<CommonResponse<StatisticCustomerGenderRes[]>> {
     const params = this.createDateRangeParams(startDate, endDate);
     return this.http.get<CommonResponse<StatisticCustomerGenderRes[]>>(
+
       `${this.baseUrl}Statistic/GetCustomerGender`,
+
       { params }
     );
   }
@@ -303,6 +326,7 @@ export class StatisticService {
   getBundledServices(startDate?: Date, endDate?: Date): Observable<CommonResponse<StatisticBundledServicesRes[]>> {
     const params = this.createDateRangeParams(startDate, endDate);
     return this.http.get<CommonResponse<StatisticBundledServicesRes[]>>(
+
       `${this.baseUrl}Statistic/GetBundledServices`,
       { params }
     );
@@ -371,3 +395,4 @@ export class StatisticService {
     );
   }
 }
+

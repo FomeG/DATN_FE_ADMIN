@@ -264,7 +264,6 @@ export class DashboardComponent implements OnInit {
         'Doanh thu theo rạp': cinemaRevenueData,
         'Lợi nhuận ghế': seatProfitabilityData
       };
-
       // Tạo metadata thông tin báo cáo
       const reportInfo = [
         { 'Thông tin báo cáo': 'Giá trị' },
@@ -300,7 +299,6 @@ export class DashboardComponent implements OnInit {
     if (!this.revenueChartComponent || !this.revenueChartComponent.chartOptions || !this.revenueChartComponent.hasData) {
       return [{ 'Thông báo': 'Không có dữ liệu doanh thu theo thời gian để xuất' }];
     }
-
     return this.revenueChartComponent.chartOptions.series[0].data.map((value, index) => {
       return {
         'Thời gian': this.revenueChartComponent.chartOptions.xaxis.categories[index],
@@ -308,7 +306,6 @@ export class DashboardComponent implements OnInit {
       };
     });
   }
-
   /**
    * Lấy dữ liệu doanh thu theo rạp
    */
@@ -316,7 +313,6 @@ export class DashboardComponent implements OnInit {
     if (!this.revenueChartComponent || !this.revenueChartComponent.cinemaChartOptions || !this.revenueChartComponent.hasCinemaData) {
       return [{ 'Thông báo': 'Không có dữ liệu doanh thu theo rạp để xuất' }];
     }
-
     return this.revenueChartComponent.cinemaChartOptions.series[0].data.map((value, index) => {
       return {
         'Rạp chiếu phim': this.revenueChartComponent.cinemaChartOptions.xaxis.categories[index],
@@ -332,7 +328,6 @@ export class DashboardComponent implements OnInit {
     if (!this.seatProfitabilityChartComponent || !this.seatProfitabilityChartComponent.chartOptions || !this.seatProfitabilityChartComponent.hasData) {
       return [{ 'Thông báo': 'Không có dữ liệu lợi nhuận ghế để xuất' }];
     }
-
     return this.seatProfitabilityChartComponent.chartOptions.xaxis.categories.map((category: string, index: number) => {
       return {
         'Loại ghế': category,
@@ -362,7 +357,6 @@ export class DashboardComponent implements OnInit {
         'Giờ cao điểm': peakHoursData,
         'Tỷ lệ lấp đầy ghế': seatOccupancyData
       };
-
       // Tạo metadata thông tin báo cáo
       const reportInfo = [
         { 'Thông tin báo cáo': 'Giá trị' },
@@ -398,7 +392,6 @@ export class DashboardComponent implements OnInit {
     if (!this.customerGenderChartComponent || !this.customerGenderChartComponent.chartOptions || !this.customerGenderChartComponent.hasData) {
       return [{ 'Thông báo': 'Không có dữ liệu giới tính khách hàng để xuất' }];
     }
-
     return this.customerGenderChartComponent.chartOptions.labels.map((label, index) => {
       return {
         'Giới tính': label,
@@ -406,7 +399,6 @@ export class DashboardComponent implements OnInit {
       };
     });
   }
-
   /**
    * Lấy dữ liệu thống kê giờ cao điểm
    */
@@ -414,7 +406,6 @@ export class DashboardComponent implements OnInit {
     if (!this.peakHoursChartComponent || !this.peakHoursChartComponent.chartOptions || !this.peakHoursChartComponent.hasData) {
       return [{ 'Thông báo': 'Không có dữ liệu giờ cao điểm để xuất' }];
     }
-
     return this.peakHoursChartComponent.chartOptions.xaxis.categories.map((hour: string, index: number) => {
       return {
         'Giờ': hour,
@@ -430,7 +421,6 @@ export class DashboardComponent implements OnInit {
     if (!this.seatOccupancyChartComponent || !this.seatOccupancyChartComponent.chartOptions || !this.seatOccupancyChartComponent.hasData) {
       return [{ 'Thông báo': 'Không có dữ liệu tỷ lệ lấp đầy ghế để xuất' }];
     }
-
     return this.seatOccupancyChartComponent.chartOptions.xaxis.categories.map((movie: string, index: number) => {
       return {
         'Suất chiếu': movie,

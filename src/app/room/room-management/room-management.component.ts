@@ -21,6 +21,7 @@ import { Modal } from 'bootstrap';
 export class RoomManagementComponent implements OnInit {
   @ViewChild(EditRoomComponent) editRoomComponent!: EditRoomComponent;
   @ViewChild(EditRoomInfoComponent) editRoomInfoComponent!: EditRoomInfoComponent;
+
   Math = Math;
   rooms: Room[] = [];
   allRooms: Room[] = [];
@@ -61,6 +62,7 @@ export class RoomManagementComponent implements OnInit {
     }, 30 * 1000);
   }
 
+
   loadRooms(): void {
     this.isLoading = true;
 
@@ -71,6 +73,7 @@ export class RoomManagementComponent implements OnInit {
           this.rooms = response.data;
           this.totalRecords = response.totalRecord;
           this.calculatePagination();
+
         }
         this.isLoading = false;
       },
@@ -192,12 +195,14 @@ export class RoomManagementComponent implements OnInit {
       filteredRooms = filteredRooms.filter(room => room.roomTypeId === this.roomTypeFilter);
     }
 
+
     this.totalRecords = filteredRooms.length;
     this.calculateTotalPages();
 
     if (this.currentPage > this.totalPages && this.totalPages > 0) {
       this.currentPage = 1;
     }
+
 
     const startIndex = (this.currentPage - 1) * this.recordPerPage;
     const endIndex = startIndex + this.recordPerPage;
@@ -349,6 +354,7 @@ export class RoomManagementComponent implements OnInit {
 
 
 
+
   calculatePagination(): void {
     this.totalPages = Math.ceil(this.totalRecords / this.recordPerPage);
     this.pages = [];
@@ -380,9 +386,6 @@ export class RoomManagementComponent implements OnInit {
     this.loadRooms();
     this.applyFilters();
   }
-
-
-
 
 
 }

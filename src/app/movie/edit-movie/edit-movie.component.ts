@@ -5,7 +5,9 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { MovieService } from '../../services/movie.service';
 import { ActorService, Actor } from '../../services/actor.service';
 import { GenreService, Genre } from '../../services/genre.service';
+
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
+
 
 
 import Swal from 'sweetalert2';
@@ -201,6 +203,7 @@ export class EditMovieComponent implements OnInit {
   onFileSelect(event: any, type: string) {
     const file = event.target.files[0];
     if (file) {
+
       switch (type) {
         case 'thumbnail':
           this.selectedThumbnail = file;
@@ -217,6 +220,7 @@ export class EditMovieComponent implements OnInit {
           // Tạo URL xem trước
           this.bannerPreviewUrl = URL.createObjectURL(file);
           break;
+
       }
     }
   }
@@ -268,8 +272,10 @@ export class EditMovieComponent implements OnInit {
             this.filterGenres();
 
 
+
             this.loadActors();
             this.loadGenres();
+
           }
         },
         error: (error) => {
@@ -435,10 +441,6 @@ export class EditMovieComponent implements OnInit {
 
 
 
-
-
-
-
   // Thêm phương thức ngOnDestroy để dọn dẹp các URL đã tạo
   ngOnDestroy() {
     // Dọn dẹp các URL đã tạo
@@ -452,5 +454,6 @@ export class EditMovieComponent implements OnInit {
       URL.revokeObjectURL(this.bannerPreviewUrl);
     }
   }
+
 
 }

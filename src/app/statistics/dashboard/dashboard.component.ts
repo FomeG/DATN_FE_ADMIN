@@ -11,6 +11,9 @@ import { SeatOccupancyChartComponent } from '../charts/customer-chart/seat-occup
 import { TopServicesChartComponent } from '../charts/service-chart/top-services-chart.component';
 import { PopularGenresChartComponent } from '../charts/service-chart/popular-genres-chart.component';
 import { BundledServicesChartComponent } from '../charts/service-chart/bundled-services-chart.component';
+import { TicketStatisticsChartComponent } from '../charts/ticket-chart/ticket-statistics-chart.component';
+import { SyncChartsComponent } from '../charts/sync-charts/sync-charts.component';
+import { SeatOccupancyHeatmapComponent } from '../charts/seat-occupancy-heatmap/seat-occupancy-heatmap.component';
 import { ExportService } from '../shared/services/export.service';
 import { StatisticService, StatisticSummaryDateRange, MovieStatisticSummaryDateRange, CinemaRevenueData } from '../../services/statistic.service';
 
@@ -29,7 +32,10 @@ import { StatisticService, StatisticSummaryDateRange, MovieStatisticSummaryDateR
     SeatOccupancyChartComponent,
     TopServicesChartComponent,
     PopularGenresChartComponent,
-    BundledServicesChartComponent
+    BundledServicesChartComponent,
+    TicketStatisticsChartComponent,
+    SyncChartsComponent,
+    SeatOccupancyHeatmapComponent
   ],
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.css']
@@ -53,6 +59,7 @@ export class DashboardComponent implements OnInit {
   @ViewChild(TopServicesChartComponent) topServicesChartComponent!: TopServicesChartComponent;
   @ViewChild(PopularGenresChartComponent) popularGenresChartComponent!: PopularGenresChartComponent;
   @ViewChild(BundledServicesChartComponent) bundledServicesChartComponent!: BundledServicesChartComponent;
+  @ViewChild(TicketStatisticsChartComponent) ticketStatisticsChartComponent!: TicketStatisticsChartComponent;
 
   private dashboardService = inject(DashboardService);
   private exportService = inject(ExportService);
@@ -437,20 +444,12 @@ export class DashboardComponent implements OnInit {
    */
   private exportAllContentData(): void {
     try {
-      // Thu thập dữ liệu từ biểu đồ top dịch vụ bán chạy
-      const topServicesData = this.getTopServicesData();
-
-      // Thu thập dữ liệu từ biểu đồ thể loại phim phổ biến
-      const popularGenresData = this.getPopularGenresData();
-
-      // Thu thập dữ liệu từ biểu đồ dịch vụ gói
-      const bundledServicesData = this.getBundledServicesData();
+      // Thu thập dữ liệu từ biểu đồ thống kê vé
+      const ticketStatisticsData = this.getTicketStatisticsData();
 
       // Tạo sheets khác nhau cho từng loại dữ liệu
       const workbookData: Record<string, any[]> = {
-        'Top dịch vụ bán chạy': topServicesData,
-        'Thể loại phim phổ biến': popularGenresData,
-        'Dịch vụ gói': bundledServicesData
+        'Thống kê vé theo thời gian': ticketStatisticsData
       };
 
       // Tạo metadata thông tin báo cáo
@@ -482,51 +481,19 @@ export class DashboardComponent implements OnInit {
   }
 
   /**
-   * Lấy dữ liệu top dịch vụ bán chạy
+   * Lấy dữ liệu thống kê vé
    */
-  private getTopServicesData(): any[] {
-    if (!this.topServicesChartComponent || !this.topServicesChartComponent.chartOptions || !this.topServicesChartComponent.hasData) {
-      return [{ 'Thông báo': 'Không có dữ liệu top dịch vụ bán chạy để xuất' }];
+  private getTicketStatisticsData(): any[] {
+    if (!this.ticketStatisticsChartComponent || !this.ticketStatisticsChartComponent.chartOptions || !this.ticketStatisticsChartComponent.hasData) {
+      return [{ 'Thông báo': 'Không có dữ liệu thống kê vé để xuất' }];
     }
 
-    return this.topServicesChartComponent.chartOptions.xaxis.categories.map((service: string, index: number) => {
+    return this.ticketStatisticsChartComponent.chartOptions.xaxis.categories.map((date: string, index: number) => {
       return {
-        'Dịch vụ': service,
-        'Số lượng bán': this.topServicesChartComponent.chartOptions.series[0].data[index],
-        'Doanh thu (nghìn đồng)': this.topServicesChartComponent.chartOptions.series[1].data[index]
-      };
-    });
-  }
-
-  /**
-   * Lấy dữ liệu thể loại phim phổ biến
-   */
-  private getPopularGenresData(): any[] {
-    if (!this.popularGenresChartComponent || !this.popularGenresChartComponent.chartOptions || !this.popularGenresChartComponent.hasData) {
-      return [{ 'Thông báo': 'Không có dữ liệu thể loại phim phổ biến để xuất' }];
-    }
-
-    return this.popularGenresChartComponent.chartOptions.labels.map((genre: string, index: number) => {
-      return {
-        'Thể loại': genre,
-        'Doanh thu (triệu đồng)': this.popularGenresChartComponent.chartOptions.series[index]
-      };
-    });
-  }
-
-  /**
-   * Lấy dữ liệu dịch vụ gói
-   */
-  private getBundledServicesData(): any[] {
-    if (!this.bundledServicesChartComponent || !this.bundledServicesChartComponent.chartOptions || !this.bundledServicesChartComponent.hasData) {
-      return [{ 'Thông báo': 'Không có dữ liệu dịch vụ gói để xuất' }];
-    }
-
-    return this.bundledServicesChartComponent.chartOptions.xaxis.categories.map((service: string, index: number) => {
-      return {
-        'Dịch vụ gói': service,
-        'Số lượng đơn hàng': this.bundledServicesChartComponent.chartOptions.series[0].data[index],
-        'Số lượng bán ra': this.bundledServicesChartComponent.chartOptions.series[1].data[index]
+        'Thời gian': date,
+        'Vé đã nhận': this.ticketStatisticsChartComponent.chartOptions.series[0].data[index],
+        'Vé đã giải quyết': this.ticketStatisticsChartComponent.chartOptions.series[1].data[index],
+        'Vé chưa giải quyết': this.ticketStatisticsChartComponent.chartOptions.series[2].data[index]
       };
     });
   }

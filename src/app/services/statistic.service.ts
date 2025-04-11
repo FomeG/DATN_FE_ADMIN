@@ -104,6 +104,14 @@ export interface StatisticSummaryDateRange {
   totalServices: number;
 }
 
+// Chi tiết tổng doanh thu theo thời gian
+export interface StatisticSummaryDateRangeDetail {
+  date: string;
+  totalRevenue: number;
+  totalOrders: number;
+  totalTickets: number;
+  totalServices: number;
+}
 
 // Phim top?
 export interface MovieStatisticSummaryDateRange {
@@ -344,19 +352,22 @@ export class StatisticService {
     );
   }
 
+  /**
+   * Lấy chi tiết tổng hợp thống kê theo khoảng thời gian
+   */
+  getSummaryDateRangeDetail(startDate?: Date, endDate?: Date): Observable<CommonResponse<StatisticSummaryDateRangeDetail[]>> {
+    let params = new HttpParams();
 
+    // Mặc định lấy tất cả dữ liệu nếu không có ngày
+    const start = startDate ? (this.formatDate(startDate) || '01-01-1900') : '01-01-1900';
+    const end = endDate ? (this.formatDate(endDate) || '12-31-2999') : '12-31-2999';
 
+    params = params.set('Start', start);
+    params = params.set('End', end);
 
-
-
-
-
-
-
-
-
-
-
-
-
+    return this.http.get<CommonResponse<StatisticSummaryDateRangeDetail[]>>(
+      `${this.baseUrl}Statistic/GetSummary_DateRange_Detail`,
+      { params }
+    );
+  }
 }

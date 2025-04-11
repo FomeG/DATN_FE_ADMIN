@@ -122,6 +122,15 @@
 
   <!-- Tabs -->
   <ul class="nav nav-tabs mb-4">
+
+    <li class="nav-item">
+      <a [class]="getTabClass('content2')" (click)="changeTab('content2')" role="button">
+        <i class="mdi mdi-account-group"></i>
+        Thống kê chi tiết theo thời gian
+      </a>
+    </li>
+
+
     <li class="nav-item">
       <a [class]="getTabClass('revenue')" (click)="changeTab('revenue')" role="button">
         <i class="mdi mdi-cash-multiple"></i>
@@ -135,6 +144,17 @@
         test
       </a>
     </li>
+
+    <li class="nav-item">
+      <a [class]="getTabClass('content3')" (click)="changeTab('content3')" role="button">
+        <i class="mdi mdi-grid"></i>
+        Tỷ lệ lấp đầy ghế
+      </a>
+    </li>
+
+
+
+
 
 
 
@@ -164,7 +184,8 @@
                 <tbody>
                   <tr *ngFor="let cinema of cinemaData; let i = index">
                     <td style="color: white !important">{{ i + 1 }}</td>
-                    <td style="color: white !important">{{ cinema.name }}</td>
+                    <td style="color: white !important"> <a class="btn" href="{{cinema.cinemasId}}">{{ cinema.name
+                        }}</a></td>
                     <td style="color: white !important">{{ cinema.totalRooms }}</td>
                     <td style="color: white !important">{{ formatCurrency(cinema.totalRevenue) }}</td>
                     <td style="color: white !important">{{ cinema.totalTickets }}</td>
@@ -227,14 +248,30 @@
     </div>
   </div>
 
-  <!-- Phim Tab -->
+  <!-- Test Tab (Thống kê vé) -->
   <div *ngIf="activeTab === 'content'" class="tab-pane fade show active">
     <div class="container-fluid p-0">
-
-
-
+      <app-ticket-statistics-chart></app-ticket-statistics-chart>
     </div>
+  </div>
 
+
+
+  <!-- Test Tab 2 - Biểu đồ đồng bộ -->
+  <div *ngIf="activeTab === 'content2'" class="tab-pane fade show active">
+    <div class="container-fluid p-0">
+      <app-sync-charts></app-sync-charts>
+    </div>
+  </div>
+
+
+
+
+  <!-- Test Tab 3 - Biểu đồ Heatmap -->
+  <div *ngIf="activeTab === 'content3'" class="tab-pane fade show active">
+    <div class="container-fluid p-0">
+      <app-seat-occupancy-heatmap></app-seat-occupancy-heatmap>
+    </div>
   </div>
 
 

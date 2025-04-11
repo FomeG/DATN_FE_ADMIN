@@ -10,6 +10,7 @@ export interface Showtime {
   startTime: string;
   endTime: string;
   movieName: string;
+  duration: number;
   roomName: string;
   status: number;
   isDeleted?: boolean;
@@ -30,6 +31,28 @@ export interface ShowtimeParams {
   recordPerPage: number;
 }
 
+
+export interface ShowtimeAutoDateRequest {
+  cinemasId: string;
+  roomId: string;
+  date: string;
+  movieId: string;
+}
+
+export interface ShowtimeAutoDateResponse {
+  responseCode: number;
+  message: string;
+  data: {
+    id: string;
+    cinemasId: string;
+    roomId: string;
+    name: string;
+    startTime: string;
+    endTime: string;
+    movieId: string;
+  };
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -43,9 +66,9 @@ export class ShowtimeService {
     recordPerPage: number;
   }): Observable<ShowtimeResponse> {
     const url = `${this.apiUrl}ShowTime/GetList?currentPage=${params.currentPage}&recordPerPage=${params.recordPerPage}`;
-    
+
     console.log('Calling API with URL:', url);
-    
+
     return this.http.get<ShowtimeResponse>(url);
   }
 
@@ -54,7 +77,7 @@ export class ShowtimeService {
   }
 
   updateShowtime(id: string, showtimeData: any): Observable<any> {
-    return this.http.post(`${this.apiUrl}ShowTime/Update?ShowTimeId=${id}`, showtimeData);
+    return this.http.post(`${this.apiUrl}ShowTime/Update/${id}`, showtimeData);
   }
 
   deleteShowtime(id: string): Observable<any> {
@@ -68,4 +91,22 @@ export class ShowtimeService {
   getShowtimesByStatus(status: number): Observable<ShowtimeResponse> {
     return this.http.get<ShowtimeResponse>(`${this.apiUrl}ShowTime/GetByStatus/${status}`);
   }
+
+
+
+  showtimeAutoDate(request: ShowtimeAutoDateRequest): Observable<ShowtimeAutoDateResponse> {
+    return this.http.get<ShowtimeAutoDateResponse>(`${this.apiUrl}ShowTime/GetAutoDate?CinemasId=${request.cinemasId}&RoomId=${request.roomId}&Date=${request.date}&MovieId=${request.movieId}`);
+  }
+
+
+
+  getShowtimeById(id: string): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}ShowTime/GetById/${id}`);
+  }
+
+
+  showtimeCronJob(): Observable<any> {
+    return this.http.post(`${this.apiUrl}ShowTime/ShowtimeCronjob`, {});
+  }
+
 }

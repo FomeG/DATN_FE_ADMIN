@@ -1,0 +1,77 @@
+
+  <!-- Tabs -->
+  <ul class="nav nav-tabs mb-4">
+    <li class="nav-item">
+      <a [class]="getTabClass('revenue')" (click)="changeTab('revenue')" role="button">
+        <i class="mdi mdi-cash-multiple"></i>
+        Doanh thu
+      </a>
+    </li>
+    <li class="nav-item">
+      <a [class]="getTabClass('customer')" (click)="changeTab('customer')" role="button">
+        <i class="mdi mdi-account-group"></i>
+        Khách hàng
+      </a>
+    </li>
+    <li class="nav-item">
+      <a [class]="getTabClass('content')" (click)="changeTab('content')" role="button">
+        <i class="mdi mdi-movie-open"></i>
+        Dịch vụ & Nội dung
+      </a>
+    </li>
+  </ul>
+
+  <!-- Tab content -->
+  <div class="tab-content">
+    <!-- Doanh thu Tab -->
+    <div *ngIf="activeTab === 'revenue'" class="tab-pane fade show active">
+      <app-revenue-chart></app-revenue-chart>
+
+      <div class="row">
+        <!-- Lợi nhuận ghế -->
+        <div class="col-lg-12 mb-4">
+          <app-seat-profitability-chart></app-seat-profitability-chart>
+        </div>
+      </div>
+    </div>
+
+    <!-- Khách hàng Tab -->
+    <div *ngIf="activeTab === 'customer'" class="tab-pane fade show active">
+      <div class="row">
+        <!-- Giới tính khách hàng -->
+        <div class="col-lg-4 mb-4">
+          <app-customer-gender-chart></app-customer-gender-chart>
+        </div>
+
+        <!-- Giờ cao điểm -->
+        <div class="col-lg-8 mb-4">
+          <app-peak-hours-chart></app-peak-hours-chart>
+        </div>
+
+        <!-- Tỷ lệ lấp đầy ghế -->
+        <div class="col-lg-12 mb-4">
+          <app-seat-occupancy-chart></app-seat-occupancy-chart>
+        </div>
+      </div>
+    </div>
+
+    <!-- Dịch vụ & Nội dung Tab -->
+    <div *ngIf="activeTab === 'content'" class="tab-pane fade show active">
+      <div class="row">
+        <!-- Top dịch vụ -->
+        <div class="col-lg-6 mb-4">
+          <app-top-services-chart></app-top-services-chart>
+        </div>
+
+        <!-- Thể loại phổ biến -->
+        <div class="col-lg-6 mb-4">
+          <app-popular-genres-chart></app-popular-genres-chart>
+        </div>
+
+        <!-- Dịch vụ gói -->
+        <div class="col-lg-12 mb-4">
+          <app-bundled-services-chart></app-bundled-services-chart>
+        </div>
+      </div>
+    </div>
+  </div>

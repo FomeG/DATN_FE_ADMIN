@@ -4,15 +4,13 @@ import { MovieDetailComponent } from './movie/movie-detail/movie-detail.componen
 import { EditMovieComponent } from './movie/edit-movie/edit-movie.component';
 import { EmpManagementComponent } from './emp-management/emp-management.component';
 import { ActorManagementComponent } from './actor-management/actor-management.component';
-import { ShowtimeManagementComponent } from './showtime-management/showtime-management.component';
+import { ShowtimeManagementComponent } from './showtime/showtime-management/showtime-management.component';
 import { MembershipManagementComponent } from './membership-management/membership-management.component';
 import { RoomManagementComponent } from './room/room-management/room-management.component';
 import { PricingRuleComponent } from './pricing-rule/pricing-rule.component';
 import { LogManagementComponent } from './log-management/log-management.component';
 import { LoginComponent } from './login/login.component';
 import { authGuard } from './auth/auth.guard';
-import { PaymentCallbackComponent } from './VNPAY/payment-callback/payment-callback.component';
-import { PaymentLayoutComponent } from './VNPAY/payment-layout/payment-layout.component';
 import { VoucherManagementComponent } from './voucher/voucher-management/voucher-management.component';
 import { VoucherUsageManagementComponent } from './voucher/voucher-usage-management/voucher-usage-management.component';
 import { CinemaManagementComponent } from './cinema-management/cinema-management.component';
@@ -33,7 +31,7 @@ export const routes: Routes = [
     path: '',
     canActivate: [authGuard],
     children: [
-      { path: '', redirectTo: 'statistics/bundled-services', pathMatch: 'full' },
+      { path: '', redirectTo: 'statistics', pathMatch: 'full' },
       { path: 'movies', component: MovieManagementComponent },
       { path: 'movies/edit/:id', component: EditMovieComponent },
       { path: 'movies/detail/:id', component: MovieDetailComponent },
@@ -51,7 +49,6 @@ export const routes: Routes = [
 
       { path: 'voucher', component: VoucherManagementComponent },
       { path: 'voucher-usage', component: VoucherUsageManagementComponent },
-      { path: 'payment-callback', component: PaymentCallbackComponent },
       { path: 'cinemas', component: CinemaManagementComponent },
       { path: 'statistics', component: DashboardComponent }
     ]

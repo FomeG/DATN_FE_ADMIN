@@ -60,6 +60,12 @@
             <label for="banner" class="form-label">Ảnh Banner</label>
             <input type="file" class="form-control" id="banner" (change)="onFileSelect($event, 'banner')"
               accept="image/*">
+            <!-- Xem trước banner -->
+            <div *ngIf="movie?.banner || bannerPreviewUrl" class="mt-2">
+              <img [src]="bannerPreviewUrl || movie?.banner" alt="Banner Preview" class="img-fluid img-thumbnail"
+                style="max-height: 200px">
+            </div>
+
           </div>
         </div>
 
@@ -69,6 +75,11 @@
             <label for="thumbnail" class="form-label">Ảnh thumbnail</label>
             <input type="file" class="form-control" id="thumbnail" (change)="onFileSelect($event, 'thumbnail')"
               accept="image/*">
+            <!-- Xem trước thumbnail -->
+            <div *ngIf="movie?.thumbnail || thumbnailPreviewUrl" class="mt-2">
+              <img [src]="thumbnailPreviewUrl || movie?.thumbnail" alt="Thumbnail Preview"
+                class="img-fluid img-thumbnail" style="max-height: 200px">
+            </div>
           </div>
         </div>
 
@@ -78,6 +89,24 @@
             <label for="trailer" class="form-label">Trailer</label>
             <input type="file" class="form-control" id="trailer" (change)="onFileSelect($event, 'trailer')"
               accept="video/*">
+            <!-- Xem trước trailer từ file -->
+            <div *ngIf="trailerPreviewUrl" class="mt-3">
+              <label>Xem trước trailer mới:</label>
+              <video width="100%" controls class="mt-2">
+                <source [src]="trailerPreviewUrl" type="video/mp4">
+                Trình duyệt của bạn không hỗ trợ xem trước video.
+              </video>
+            </div>
+            <!-- Hiển thị trailer hiện tại từ YouTube hoặc URL khác -->
+            <div *ngIf="movie?.trailer && !trailerPreviewUrl" class="mt-3">
+              <label>Trailer hiện tại:</label>
+              <div class="ratio ratio-16x9 mt-2">
+                <iframe *ngIf="safeTrailerUrl" [src]="safeTrailerUrl" allowfullscreen></iframe>
+                <div *ngIf="!safeTrailerUrl" class="alert alert-info">
+                  Trailer đã được lưu nhưng không thể hiển thị trước.
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 

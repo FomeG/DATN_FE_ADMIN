@@ -1,11 +1,41 @@
-/* Thêm shadow cho card */
 .card {
-  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+  background-color: #191c24;
+  border: none;
+  border-radius: 10px;
+  margin-bottom: 30px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+  transition: transform 0.3s ease-in-out;
 }
 
-/* Thêm padding cho card-body */
+.card-header {
+  background-color: #191c24;
+  border-bottom: 1px solid #2c2e33;
+  padding: 15px 20px;
+  border-radius: 10px 10px 0 0;
+}
+
+.card-title {
+  color: #ffffff;
+  font-weight: 500;
+  margin-bottom: 0;
+  font-size: 1.25rem;
+  display: flex;
+  align-items: center;
+  transition: color 0.3s ease;
+}
+
+.card-title::before {
+  content: "";
+  display: inline-block;
+  width: 5px;
+  height: 25px;
+  background: linear-gradient(to bottom, #0090e7, #0077b5);
+  margin-right: 15px;
+  border-radius: 3px;
+}
+
 .card-body {
-  padding: 1.5rem;
+  padding: 25px;
 }
 
 /* Thêm hover effect cho button */
@@ -16,24 +46,7 @@
 
 /* Thêm hover effect cho table row */
 .table-hover tbody tr:hover {
-  background-color: #f8f9fa;
-  transform: translateY(-2px);
-  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
-}
-
-/* Thêm animation cho pagination */
-.page-link {
-  transition: all 0.3s ease;
-}
-
-.page-link:hover {
-  background-color: #f8f9fa;
-  transform: translateY(-2px);
-}
-
-.page-item.active .page-link {
-  background-color: #007bff;
-  border-color: #007bff;
+  background-color: rgba(146, 146, 146, 0.05);
 }
 
 /* Thêm gradient background cho button primary */
@@ -47,11 +60,16 @@
   background-image: linear-gradient(to right, #0056b3, #004a8f);
 }
 
-/* Tùy chỉnh bảng */
-.table th {
-  font-weight: 600;
-  background-color: #f8f9fa;
-  white-space: nowrap;
+.table thead th {
+  border-top: none;
+  border-bottom: 1px solid #2c2e33;
+  font-weight: 500;
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  padding: 15px 12px;
+  color: #6c7293;
+  letter-spacing: 0.5px;
+  vertical-align: middle;
 }
 
 .table td {
@@ -65,14 +83,6 @@
   font-size: 0.85rem;
 }
 
-/* Page Title */
-.page-title {
-  color: #ffffff;
-  font-weight: 500;
-  font-size: 1.5rem;
-  margin-bottom: 0;
-  line-height: 42px;
-}
 
 /* Header Controls */
 .header-button {
@@ -215,25 +225,12 @@
 }
 
 /* Pagination Styles */
+/* Pagination styling - Matched with movie management */
 .pagination {
-  margin-bottom: 0;
+  margin-top: 30px;
+  justify-content: center;
 }
 
-.page-link {
-  color: #0d6efd;
-  font-size: 0.85rem;
-  padding: 0.4rem 0.6rem;
-  cursor: pointer;
-}
-
-.page-link:hover {
-  background-color: #e9ecef;
-}
-
-.page-item.active .page-link {
-  background-color: #0d6efd;
-  border-color: #0d6efd;
-}
 
 /* Responsive Adjustments */
 @media (max-width: 768px) {
@@ -244,4 +241,23 @@
   .modal-dialog {
     margin: 0.4rem;
   }
+}
+
+
+.table tbody tr {
+  color:  white !important;
+}
+
+.form-select {
+  background-color: #2A3038 !important;
+  border: 1px solid #2c2e33 !important;
+  color: #ffffff !important;
+  border-radius: 8px;
+  padding: 10px 15px;
+  transition: all 0.3s ease;
+}
+
+.form-select:focus {
+  border-color: #0090e7 !important;
+  box-shadow: 0 0 0 0.2rem rgba(0, 144, 231, 0.25) !important;
 }

@@ -1,0 +1,86 @@
+<div class="card" style="background-color: #191c24;">
+  <div class="card-header" style="background-color: #191c24; border-bottom: 1px solid #2c2e33;">
+    <h5 class="card-title">Thống kê chi tiết theo thời gian</h5>
+  </div>
+  <div class="card-body" style="padding: 0.75rem; padding-top: 0; padding-bottom: 0;">
+    <div *ngIf="isLoading" class="d-flex justify-content-center">
+      <div class="spinner-border text-primary" role="status">
+        <span class="sr-only">Đang tải...</span>
+      </div>
+    </div>
+
+    <div *ngIf="!isLoading && hasData">
+      <div *ngIf="isSampleData" class="alert alert-warning mb-3">
+        <i class="fas fa-info-circle mr-2"></i> Đang hiển thị dữ liệu mẫu do không có dữ liệu thực.
+      </div>
+
+
+
+
+      <div class="chart-container">
+
+
+
+        <div class="row mt-4">
+          <!-- Biểu đồ doanh thu -->
+          <div class="chart-box col-6">
+            <apx-chart [series]="revenueChartOptions.series!" [chart]="revenueChartOptions.chart!"
+              [xaxis]="commonOptions.xaxis!" [yaxis]="revenueChartOptions.yaxis!" [title]="revenueChartOptions.title!"
+              [colors]="revenueChartOptions.colors!" [stroke]="commonOptions.stroke!"
+              [dataLabels]="commonOptions.dataLabels!" [tooltip]="commonOptions.tooltip!"
+              [markers]="commonOptions.markers!" [grid]="commonOptions.grid!"></apx-chart>
+          </div>
+
+          <!-- Biểu đồ số đơn hàng -->
+          <div class="chart-box col-6">
+            <apx-chart [series]="ordersChartOptions.series!" [chart]="ordersChartOptions.chart!"
+              [xaxis]="commonOptions.xaxis!" [yaxis]="ordersChartOptions.yaxis!" [title]="ordersChartOptions.title!"
+              [colors]="ordersChartOptions.colors!" [stroke]="commonOptions.stroke!"
+              [dataLabels]="commonOptions.dataLabels!" [tooltip]="commonOptions.tooltip!"
+              [markers]="commonOptions.markers!" [grid]="commonOptions.grid!"></apx-chart>
+          </div>
+
+          <!-- Biểu đồ số vé -->
+          <div class="chart-box col-6">
+            <apx-chart [series]="ticketsChartOptions.series!" [chart]="ticketsChartOptions.chart!"
+              [xaxis]="commonOptions.xaxis!" [yaxis]="ticketsChartOptions.yaxis!" [title]="ticketsChartOptions.title!"
+              [colors]="ticketsChartOptions.colors!" [stroke]="commonOptions.stroke!"
+              [dataLabels]="commonOptions.dataLabels!" [tooltip]="commonOptions.tooltip!"
+              [markers]="commonOptions.markers!" [grid]="commonOptions.grid!"></apx-chart>
+          </div>
+
+          <!-- Biểu đồ số dịch vụ -->
+          <div class="chart-box col-6">
+            <apx-chart [series]="servicesChartOptions.series!" [chart]="servicesChartOptions.chart!"
+              [xaxis]="commonOptions.xaxis!" [yaxis]="servicesChartOptions.yaxis!" [title]="servicesChartOptions.title!"
+              [colors]="servicesChartOptions.colors!" [stroke]="commonOptions.stroke!"
+              [dataLabels]="commonOptions.dataLabels!" [tooltip]="commonOptions.tooltip!"
+              [markers]="commonOptions.markers!" [grid]="commonOptions.grid!"></apx-chart>
+          </div>
+
+
+
+
+
+        </div>
+
+
+
+      </div>
+
+    </div>
+
+
+
+
+
+
+
+
+
+
+    <div *ngIf="!isLoading && !hasData" class="alert alert-info">
+      <i class="fas fa-info-circle mr-2"></i> Không có dữ liệu thống kê cho khoảng thời gian đã chọn.
+    </div>
+  </div>
+</div>

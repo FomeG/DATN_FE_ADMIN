@@ -127,7 +127,7 @@ export class VoucherUsageManagementComponent implements OnInit {
 
   clearVoucherFilter(): void {
     // Navigate to the same page without the voucher ID parameter
-    this.router.navigate(['/voucher-usage']);
+    this.router.navigate(['/voucher']);
   }
 
   formatDate(dateString: string): string {

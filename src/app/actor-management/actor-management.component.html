@@ -16,15 +16,15 @@
         </div>
         <div class="card-body">
           <div class="table-responsive">
-            <table class="table table-bordered table-hover" style="border-top: 1px solid #2c2e33;">
+            <table class="table table-hover align-middle" style="border-top: 1px solid #2c2e33;">
               <thead>
                 <tr>
-                  <th>Photo</th>
-                  <th>Name</th>
-                  <th>Date of Birth</th>
-                  <th>Biography</th>
+                  <th>Ảnh</th>
+                  <th>Tên</th>
+                  <th>Ngày sinh</th>
+                  <th>Tiểu sử</th>
                   <!-- <th>Status</th> -->
-                  <th>Actions</th>
+                  <th>Thao tác</th>
                 </tr>
               </thead>
               <tbody>
@@ -48,11 +48,14 @@
 
 
                   <td>
-                    <button type="button" class="btn btn-outline-primary btn-rounded">Chi tiết</button>
+                    <button type="button" class="btn btn-outline-primary btn-rounded"><i
+                        class="mdi mdi-information-outline"></i></button>
                     <button class="btn btn-outline-warning btn-rounded" data-bs-toggle="modal"
-                      data-bs-target="#actorModal" (click)="editActor(actor)">Sửa</button>
+                      data-bs-target="#actorModal" (click)="editActor(actor)"><i class="fas fa-edit"></i></button>
 
-                    <button class="btn btn-outline-danger btn-rounded" (click)="deleteActor(actor.id)">Xóa</button>
+                    <button type="button" class="btn btn-outline-danger btn-rounded" (click)="deleteActor(actor.id)"><i
+                        class="fas fa-trash"></i></button>
+
                   </td>
 
 

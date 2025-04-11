@@ -122,6 +122,17 @@
             <label for="trailer">Video trailer</label>
             <input type="file" class="dropify" id="trailer" (change)="onFileSelect($event, 'trailer')"
               accept="video/*" data-default-file="" data-allowed-file-extensions="mp4 mov avi mkv">
+
+
+               <!-- Xem trước trailer -->
+  <div *ngIf="trailerPreviewUrl" class="mt-3">
+    <label>Xem trước trailer:</label>
+    <video width="100%" controls>
+      <source [src]="trailerPreviewUrl" type="video/mp4">
+      Trình duyệt của bạn không hỗ trợ xem trước video.
+    </video>
+  </div>
+
           </div>
 
           <div class="modal-footer">

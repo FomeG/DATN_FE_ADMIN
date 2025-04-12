@@ -5,9 +5,9 @@
         <div class="modal-content">
 
             <!-- Header -->
-            <div class="modal-header bg-primary text-white">
+            <div class="modal-header">
                 <h5 class="modal-title" id="EditRoomModalLabel">Chỉnh sửa phòng</h5>
-                <button type="button" class="close text-white" data-bs-dismiss="modal" aria-label="Close">
+                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
@@ -17,7 +17,7 @@
                 <div class="row">
 
                     <!-- Cột trái: hiển thị ghế -->
-                    <div class="col-8 border border-dark rounded p-3">
+                    <div class="col-8 border rounded p-3">
                         <div class="screen bg-dark text-white text-center py-2 mb-3">MÀN HÌNH</div>
 
                         <div class="seat-container" style="max-height: 500px; overflow-y: auto;">
@@ -84,11 +84,11 @@
                     </div>
 
                     <!-- Cột phải: form chỉnh sửa ghế -->
-                    <div class="col-4 border border-dark rounded p-3 d-flex flex-column">
-                        <h4 class="mb-3 text-primary">Sửa ghế</h4>
+                    <div class="col-4 border   rounded p-3 d-flex flex-column">
+                        <h4 class="mb-3 text-info">Sửa ghế</h4>
 
                         <!-- Thông báo số lượng ghế đang được chọn -->
-                        <p *ngIf="selectedSeats.length > 0" class="text-primary">
+                        <p *ngIf="selectedSeats.length > 0" class="text-info">
                             Đang chọn {{ selectedSeats.length }} ghế.
                         </p>
                         <p *ngIf="selectedSeats.length === 0" class="text-muted">
@@ -99,8 +99,8 @@
                         <div class="flex-grow-1">
                             <!-- Tên ghế -->
                             <div class="form-group">
-                                <label class="font-weight-bold">Tên ghế</label>
-                                <p class="form-control-static">
+                                <label class="font-weight-bold text-white">Tên ghế</label>
+                                <p class="form-control-static text-white">
                                     {{ selectedSeat ? selectedSeat.seatName : 'Chưa chọn ghế' }}
                                 </p>
                             </div>
@@ -116,11 +116,11 @@
                                         </option>
                                     </select>
                                     <!-- Biểu tượng dấu cộng -->
-                                    <button class="btn btn-outline-light" (click)="openAddSeatTypeModal()">
+                                    <button class="btn btn-outline-info" (click)="openAddSeatTypeModal()">
                                         <i class="fas fa-plus"></i> <!-- Icon dấu cộng -->
                                     </button>
                                     <!-- Biểu tượng răng cưa -->
-                                    <button class="btn btn-outline-light" (click)="openSeatTypeDetailModal()">
+                                    <button class="btn btn-outline-info" (click)="openSeatTypeDetailModal()">
                                         <i class="fas fa-cog"></i> <!-- Icon răng cưa -->
                                     </button>
                                 </div>
@@ -204,7 +204,7 @@
                                                     <h5>Cập nhật hệ số nhân</h5>
                                                     <form (ngSubmit)="updateSeatTypeMultiplier()">
                                                         <div class="form-group">
-                                                            <label class="form-label">Hệ số nhân</label>
+                                                            <!-- <label class="form-label">Hệ số nhân</label> -->
                                                             <input type="number" class="custom-input"
                                                                 [(ngModel)]="selectedSeatType.multiplier"
                                                                 name="multiplier" required>
@@ -234,39 +234,44 @@
 
                             <!-- Giá ghế -->
                             <div class="form-group">
-                                <label class="font-weight-bold">Giá ghế</label>
+                                <label class="font-weight-bold text-white">Giá ghế</label>
                                 <div *ngIf="selectedSeat" class="mt-2">
                                     <!-- Ghế đôi hiển thị tổng giá -->
                                     <div *ngIf="selectedSeat.isDouble" class="price-info">
-                                        <span class="fw-bold fs-5 text-dark">{{ selectedSeat.seatPrice | currency:'VND' }}</span>
+                                        <span class="fw-bold fs-5 text-white">{{ selectedSeat.seatPrice | currency:'VND'
+                                            }}</span>
                                         <span class="text-muted ms-2">(Tổng giá ghế đôi)</span>
                                     </div>
-                                    
+
                                     <!-- Ghế thường hiển thị chi tiết tính giá -->
                                     <div *ngIf="!selectedSeat.isDouble" class="price-info">
                                         <div class="price-breakdown">
                                             <div class="d-flex justify-content-between mb-1">
                                                 <span>Giá cơ bản:</span>
-                                                <span class="text-dark">{{ selectedSeat.originalPrice | currency:'VND' }}</span>
+                                                <span class="text-white">{{ selectedSeat.originalPrice | currency:'VND'
+                                                    }}</span>
                                             </div>
                                             <div class="d-flex justify-content-between mb-1">
                                                 <span>Hệ số nhân:</span>
-                                                <span class="text-dark">+ {{ getSeatTypeMultiplier(selectedSeat.seatTypeId) | currency:'VND' }}</span>
+                                                <span class="text-white">+ {{
+                                                    getSeatTypeMultiplier(selectedSeat.seatTypeId) | currency:'VND'
+                                                    }}</span>
                                             </div>
                                             <hr class="my-1">
                                             <div class="d-flex justify-content-between fw-bold">
                                                 <span>Giá cuối:</span>
-                                                <span class="text-dark">{{ selectedSeat.seatPrice | currency:'VND' }}</span>
+                                                <span class="text-white">{{ selectedSeat.seatPrice | currency:'VND'
+                                                    }}</span>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
-                                <p *ngIf="!selectedSeat" class="form-control-plaintext">Chưa chọn ghế</p>
+                                <p *ngIf="!selectedSeat" class="form-control-plaintext text-white">Chưa chọn ghế</p>
                             </div>
 
                             <!-- Ghế đôi -->
                             <div class="form-group">
-                                <label class="font-weight-bold">Ghế đôi</label>
+                                <label class="font-weight-bold text-white">Ghế đôi</label>
                                 <div *ngIf="selectedSeat?.isDouble; else notDouble">
                                     <button class="btn btn-danger w-100 mb-2" (click)="unsetupPairSeats()">Hủy setup ghế
                                         đôi</button>

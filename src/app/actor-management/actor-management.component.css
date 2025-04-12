@@ -288,14 +288,6 @@
   border-radius: 5px;
 }
 
-/* Header styling */
-.container-fluid h2 {
-  color: #ffffff;
-  font-weight: 500;
-  margin-bottom: 25px;
-  padding-bottom: 15px;
-  border-bottom: 1px solid #2c2e33;
-}
 
 .d-flex {
   margin-bottom: 25px;

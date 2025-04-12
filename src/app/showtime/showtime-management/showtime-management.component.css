@@ -160,15 +160,6 @@
 }
 
 
-/* Cải tiến header và action buttons */
-.container-fluid h2 {
-  color: #ffffff;
-  font-weight: 500;
-  margin-bottom: 25px;
-  padding-bottom: 15px;
-  border-bottom: 1px solid #2c2e33;
-}
-
 .d-flex {
   margin-bottom: 25px;
 }
@@ -1122,7 +1113,8 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator:hover {
 
 #showtimeModal .modal-dialog {
   max-width: 70%;
-  margin: 1.75rem auto; /* Adjustable for vertical spacing */
+  margin: 1.75rem auto;
+  /* Adjustable for vertical spacing */
 }
 
 /* Button styling */
@@ -1189,4 +1181,14 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator:hover {
 .btn-outline-danger:hover {
   background-color: #fc424a;
   box-shadow: 0 5px 15px rgba(252, 66, 74, 0.3);
+}
+
+
+/* Tiêu đề trang */
+.page-title {
+  font-weight: 600;
+  margin-bottom: 0;
+  font-size: 1.75rem;
+  color: #ffffff;
+  line-height: 42px;
 }

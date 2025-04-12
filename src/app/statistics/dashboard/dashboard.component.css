@@ -3,18 +3,6 @@
   position: relative;
 }
 
-.dashboard-header {
-  margin-bottom: 2rem;
-  padding-bottom: 1.5rem;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-}
-
-.text-gradient {
-  background: linear-gradient(90deg, #4e73df 0%, #36b9cc 100%);
-  background-clip: text;
-  -webkit-background-clip: text;
-  color: transparent;
-}
 
 .nav-tabs {
   border-bottom: 1px solid #e3e6f0;
@@ -100,9 +88,6 @@
     color: #e2e8f0;
   }
 
-  .dashboard-header {
-    border-bottom-color: rgba(255, 255, 255, 0.1);
-  }
 
   .text-muted {
     color: #a0aec0 !important;

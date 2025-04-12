@@ -250,3 +250,22 @@ body.auth.login-bg {
 .table tr:hover td {
     color: #ffffff !important;
 }
+
+
+
+.text-gradient {
+    background: linear-gradient(90deg, #4e73df 0%, #36b9cc 100%) !important;
+    background-clip: text !important;
+    -webkit-background-clip: text;
+    color: transparent !important;
+}
+
+
+
+
+.dashboard-header {
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid rgba(60, 60, 60, 0.866)!important;
+    /* border: 10px solid white !important; */
+}

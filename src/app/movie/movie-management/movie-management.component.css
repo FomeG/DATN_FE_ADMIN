@@ -262,15 +262,6 @@
   justify-content: center;
 }
 
-/* Header styling */
-.container-fluid h2 {
-  color: #ffffff;
-  font-weight: 500;
-  margin-bottom: 25px;
-  padding-bottom: 15px;
-  border-bottom: 1px solid #2c2e33;
-}
-
 .d-flex {
   margin-bottom: 25px;
 }
@@ -421,6 +412,14 @@ label:hover {
 }
 
 
+/* Tiêu đề trang */
+.page-title {
+  font-weight: 600;
+  margin-bottom: 0;
+  font-size: 1.75rem;
+  color: #ffffff;
+  line-height: 42px;
+}
 
 
 .custom-header-select {
@@ -572,4 +571,77 @@ label:hover {
   background: linear-gradient(to right, #0077b5, #005f92);
   transform: translateY(-2px);
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
+}
+
+
+.dashboard-header {
+  margin-bottom: 2rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+
+
+.text-gradient {
+  background: linear-gradient(90deg, #4e73df 0%, #36b9cc 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+}
+
+
+
+/* Dark Mode Support */
+@media (prefers-color-scheme: dark) {
+  .dashboard-container {
+    /* background-color: #1a202c; */
+    color: #e2e8f0;
+  }
+
+  .dashboard-header {
+    border-bottom-color: rgba(255, 255, 255, 0.1);
+  }
+
+  .text-muted {
+    color: #a0aec0 !important;
+  }
+
+  .text-gradient {
+    background: linear-gradient(90deg, #63b3ed 0%, #4fd1c5 100%);
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+  }
+
+  .nav-tabs {
+    border-bottom: 1px solid #4a5568;
+  }
+
+  .nav-tabs .nav-link {
+    color: #a0aec0;
+  }
+
+  .nav-tabs .nav-link.active {
+    color: #63b3ed;
+    border-color: #4a5568 #4a5568 #2d3748;
+    background-color: #2d3748;
+  }
+
+  .nav-tabs .nav-link:hover:not(.active) {
+    border-color: #fefeff;
+    background-color: #2d3748;
+  }
+
+  .card {
+    background-color: #191c24 !important;
+  }
+
+  .placeholder {
+    background-color: #4a5568;
+    background: linear-gradient(to right, #333 0%, #3a3a3a 20%, #333 40%, #333 100%);
+  }
+
+  .loading-overlay {
+    background-color: rgba(0, 0, 0, 0.7);
+  }
 }

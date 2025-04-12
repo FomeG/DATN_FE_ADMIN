@@ -25,14 +25,6 @@ import { StatisticService, StatisticSummaryDateRange, MovieStatisticSummaryDateR
     CommonModule,
     FormsModule,
     DateRangePickerComponent,
-    RevenueChartComponent,
-    SeatProfitabilityChartComponent,
-    CustomerGenderChartComponent,
-    PeakHoursChartComponent,
-    SeatOccupancyChartComponent,
-    TopServicesChartComponent,
-    PopularGenresChartComponent,
-    BundledServicesChartComponent,
     TicketStatisticsChartComponent,
     SyncChartsComponent,
     SeatOccupancyHeatmapComponent
@@ -41,7 +33,7 @@ import { StatisticService, StatisticSummaryDateRange, MovieStatisticSummaryDateR
   styleUrls: ['./dashboard.component.css']
 })
 export class DashboardComponent implements OnInit {
-  activeTab: string = 'revenue'; // 'revenue', 'customer', 'content'
+  activeTab: string = 'content2'; // 'revenue', 'customer', 'content', 'content2'
   dateRange: DateRange;
   isLoading: boolean = false;
 
@@ -82,6 +74,7 @@ export class DashboardComponent implements OnInit {
       } else if (this.activeTab === 'content') {
         this.loadMovieData();
       }
+      // Tab content2 (Thống kê chi tiết theo thời gian) không cần tải dữ liệu đặc biệt
     });
 
     // Initial load
@@ -196,6 +189,8 @@ export class DashboardComponent implements OnInit {
     } else if (tabId === 'content') {
       this.loadMovieData();
     }
+    // Tab content2 (Thống kê chi tiết theo thời gian) và content3 (Tỷ lệ lấp đầy ghế)
+    // không cần tải dữ liệu đặc biệt, các component con sẽ tự tải dữ liệu
 
     // Khi chuyển tab, kích hoạt việc cập nhật dữ liệu
     // bằng cách sử dụng lại khoảng thời gian hiện tại

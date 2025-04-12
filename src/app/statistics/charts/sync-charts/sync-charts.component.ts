@@ -1,5 +1,6 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { NgApexchartsModule } from 'ng-apexcharts';
 import { Subscription } from 'rxjs';
 import {
@@ -15,8 +16,9 @@ import {
   ApexChart
 } from "ng-apexcharts";
 
-import { StatisticService, StatisticSummaryDateRangeDetail, CommonResponse } from '../../../services/statistic.service';
+import { StatisticService, StatisticRevenueDetail, CommonResponse } from '../../../services/statistic.service';
 import { DashboardService, DateRange } from '../../shared/services/dashboard.service';
+import { CinemaService, Cinema } from '../../../services/cinema.service';
 
 export type ChartOptions = {
   series: ApexAxisChartSeries;
@@ -37,7 +39,7 @@ export type ChartOptions = {
 @Component({
   selector: 'app-sync-charts',
   standalone: true,
-  imports: [CommonModule, NgApexchartsModule],
+  imports: [CommonModule, NgApexchartsModule, FormsModule],
   templateUrl: './sync-charts.component.html',
   styleUrls: ['./sync-charts.component.css']
 })
@@ -122,20 +124,51 @@ export class SyncChartsComponent implements OnInit, OnDestroy {
   isLoading = true;
   hasData = false;
   isSampleData = false;
-  chartData: StatisticSummaryDateRangeDetail[] = [];
+  chartData: StatisticRevenueDetail[] = [];
+
+  // Danh sách rạp
+  cinemas: Cinema[] = [];
+  selectedCinemaId: string | null = null;
+  isLoadingCinemas = false;
 
   constructor(
     private statisticService: StatisticService,
-    private dashboardService: DashboardService
+    private dashboardService: DashboardService,
+    private cinemaService: CinemaService
   ) {
     this.initCharts();
   }
 
   ngOnInit(): void {
+    // Lấy danh sách rạp
+    this.loadCinemas();
+
     this.dateRangeSubscription = this.dashboardService.dateRange$.subscribe(dateRange => {
       this.currentDateRange = dateRange;
       this.loadChartData();
     });
+  }
+
+  // Lấy danh sách rạp
+  loadCinemas(): void {
+    this.isLoadingCinemas = true;
+    this.cinemaService.getCinemas(1, 100).subscribe({
+      next: (response) => {
+        this.isLoadingCinemas = false;
+        if (response && response.data) {
+          this.cinemas = response.data;
+        }
+      },
+      error: (error) => {
+        this.isLoadingCinemas = false;
+        console.error('Lỗi khi tải danh sách rạp:', error);
+      }
+    });
+  }
+
+  // Khi thay đổi rạp
+  onCinemaChange(): void {
+    this.loadChartData();
   }
 
   ngOnDestroy(): void {
@@ -325,10 +358,11 @@ export class SyncChartsComponent implements OnInit, OnDestroy {
     const start = startDate || undefined;
     const end = endDate || undefined;
 
-    this.statisticService.getSummaryDateRangeDetail(start, end).subscribe({
-      next: (response: CommonResponse<StatisticSummaryDateRangeDetail[]>) => {
+    // Gọi API mới với tham số CinemasID (nếu có)
+    this.statisticService.getRevenueDetail(this.selectedCinemaId || undefined, start, end).subscribe({
+      next: (response: CommonResponse<StatisticRevenueDetail[]>) => {
         this.isLoading = false;
-        console.log('Kết quả API chi tiết thống kê:', response);
+        console.log('Kết quả API chi tiết doanh thu:', response);
 
         if (response && response.data && response.data.length > 0) {
           this.hasData = true;
@@ -336,7 +370,7 @@ export class SyncChartsComponent implements OnInit, OnDestroy {
           this.chartData = response.data;
           this.updateCharts(response.data);
         } else {
-          console.log('Không có dữ liệu chi tiết thống kê, hiển thị dữ liệu mẫu');
+          console.log('Không có dữ liệu chi tiết doanh thu, hiển thị dữ liệu mẫu');
           this.hasData = true;
           this.isSampleData = true;
           this.updateChartsWithSampleData();
@@ -344,7 +378,7 @@ export class SyncChartsComponent implements OnInit, OnDestroy {
       },
       error: (error: any) => {
         this.isLoading = false;
-        console.error('Lỗi khi tải dữ liệu chi tiết thống kê:', error);
+        console.error('Lỗi khi tải dữ liệu chi tiết doanh thu:', error);
         this.hasData = true;
         this.isSampleData = true;
         this.updateChartsWithSampleData();
@@ -352,12 +386,56 @@ export class SyncChartsComponent implements OnInit, OnDestroy {
     });
   }
 
-  private updateCharts(data: StatisticSummaryDateRangeDetail[]): void {
+  private updateCharts(data: StatisticRevenueDetail[]): void {
     // Chuẩn bị dữ liệu cho các biểu đồ
     const revenueData: [number, number][] = [];
     const ordersData: [number, number][] = [];
     const ticketsData: [number, number][] = [];
     const servicesData: [number, number][] = [];
+
+    // Cập nhật tiêu đề biểu đồ dựa trên rạp được chọn
+    const cinemaName = data.length > 0 && data[0].cinemaName ? data[0].cinemaName : 'Tất cả rạp';
+
+    // Cập nhật tiêu đề các biểu đồ
+    this.revenueChartOptions.title = {
+      text: `Doanh thu - ${cinemaName}`,
+      align: "left",
+      style: {
+        fontSize: '14px',
+        fontWeight: 'bold',
+        color: '#ffffff'
+      }
+    };
+
+    this.ordersChartOptions.title = {
+      text: `Số đơn hàng - ${cinemaName}`,
+      align: "left",
+      style: {
+        fontSize: '14px',
+        fontWeight: 'bold',
+        color: '#ffffff'
+      }
+    };
+
+    this.ticketsChartOptions.title = {
+      text: `Số vé - ${cinemaName}`,
+      align: "left",
+      style: {
+        fontSize: '14px',
+        fontWeight: 'bold',
+        color: '#ffffff'
+      }
+    };
+
+    this.servicesChartOptions.title = {
+      text: `Số dịch vụ - ${cinemaName}`,
+      align: "left",
+      style: {
+        fontSize: '14px',
+        fontWeight: 'bold',
+        color: '#ffffff'
+      }
+    };
 
     data.forEach(item => {
       const timestamp = new Date(item.date).getTime();

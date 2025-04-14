@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, ViewChild } from '@angular/core';
+import { Component, OnInit, inject, ViewChild, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { DateRangePickerComponent } from '../shared/components/date-range-picker/date-range-picker.component';
@@ -16,6 +16,9 @@ import { SyncChartsComponent } from '../charts/sync-charts/sync-charts.component
 import { SeatOccupancyHeatmapComponent } from '../charts/seat-occupancy-heatmap/seat-occupancy-heatmap.component';
 import { ExportService } from '../shared/services/export.service';
 import { StatisticService, StatisticSummaryDateRange, MovieStatisticSummaryDateRange, CinemaRevenueData } from '../../services/statistic.service';
+import { CinemaFilterService } from '../shared/services/cinema-filter.service';
+import { Subscription } from 'rxjs';
+import { NgApexchartsModule } from 'ng-apexcharts';
 
 
 @Component({
@@ -27,12 +30,13 @@ import { StatisticService, StatisticSummaryDateRange, MovieStatisticSummaryDateR
     DateRangePickerComponent,
     TicketStatisticsChartComponent,
     SyncChartsComponent,
-    SeatOccupancyHeatmapComponent
+    SeatOccupancyHeatmapComponent,
+    NgApexchartsModule
   ],
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.css']
 })
-export class DashboardComponent implements OnInit {
+export class DashboardComponent implements OnInit, OnDestroy {
   activeTab: string = 'content2'; // 'revenue', 'customer', 'content', 'content2'
   dateRange: DateRange;
   isLoading: boolean = false;
@@ -42,6 +46,114 @@ export class DashboardComponent implements OnInit {
   movieData: MovieStatisticSummaryDateRange[] = [];
   cinemaData: CinemaRevenueData[] = [];
 
+  // Subscription để theo dõi sự thay đổi của rạp được chọn
+  private cinemaFilterSubscription: Subscription | null = null;
+  private selectedCinemaId: string | null = null;
+
+  // Biểu đồ cột cho rạp chiếu phim
+  cinemaChartOptions: any = {
+    series: [{
+      name: 'Doanh thu',
+      data: []
+    }],
+    chart: {
+      type: 'bar',
+      height: 250,
+      toolbar: {
+        show: false
+      },
+      background: '#191c24'
+    },
+    plotOptions: {
+      bar: {
+        horizontal: false,
+        columnWidth: '55%',
+        borderRadius: 2
+      },
+    },
+    dataLabels: {
+      enabled: false
+    },
+    stroke: {
+      show: true,
+      width: 2,
+      colors: ['transparent']
+    },
+    xaxis: {
+      categories: [],
+      labels: {
+        style: {
+          colors: '#ffffff'
+        }
+      }
+    },
+    yaxis: {
+      title: {
+        text: 'Doanh thu (VND)',
+        style: {
+          color: '#ffffff'
+        }
+      },
+      labels: {
+        formatter: (value: number) => {
+          return this.formatCurrencyShort(value);
+        },
+        style: {
+          colors: ['#ffffff']
+        }
+      }
+    },
+    fill: {
+      opacity: 1
+    },
+    tooltip: {
+      y: {
+        formatter: (val: number) => {
+          return this.formatCurrency(val);
+        }
+      }
+    },
+    colors: ['#00E396']
+  };
+
+  // Biểu đồ tròn cho phim
+  movieChartOptions: any = {
+    series: [],
+    chart: {
+      type: 'donut',
+      height: 250,
+      background: '#191c24'
+    },
+    labels: [],
+    responsive: [{
+      breakpoint: 480,
+      options: {
+        chart: {
+          width: 200
+        },
+        legend: {
+          position: 'bottom'
+        }
+      }
+    }],
+    colors: ['#008FFB', '#00E396', '#FEB019', '#FF4560', '#775DD0'],
+    dataLabels: {
+      enabled: false
+    },
+    legend: {
+      position: 'bottom',
+      labels: {
+        colors: '#ffffff'
+      }
+    },
+    tooltip: {
+      y: {
+        formatter: (val: number) => {
+          return this.formatCurrency(val);
+        }
+      }
+    }
+  };
 
   @ViewChild(RevenueChartComponent) revenueChartComponent!: RevenueChartComponent;
   @ViewChild(SeatProfitabilityChartComponent) seatProfitabilityChartComponent!: SeatProfitabilityChartComponent;
@@ -55,6 +167,7 @@ export class DashboardComponent implements OnInit {
 
   private dashboardService = inject(DashboardService);
   private exportService = inject(ExportService);
+  private cinemaFilterService = inject(CinemaFilterService);
 
   constructor(
     private statisticService: StatisticService
@@ -77,22 +190,62 @@ export class DashboardComponent implements OnInit {
       // Tab content2 (Thống kê chi tiết theo thời gian) không cần tải dữ liệu đặc biệt
     });
 
+    // Đăng ký lắng nghe sự thay đổi của rạp được chọn
+    this.cinemaFilterSubscription = this.cinemaFilterService.selectedCinemaId$.subscribe(cinemaId => {
+      this.selectedCinemaId = cinemaId;
+      // Cập nhật lại dữ liệu tổng hợp khi rạp được chọn thay đổi
+      this.loadSummaryData();
+    });
+
     // Initial load
     this.loadSummaryData();
     this.loadMovieData();
     this.loadCinemaData();
   }
 
+  ngOnDestroy(): void {
+    // Hủy đăng ký các subscription khi component bị hủy
+    if (this.cinemaFilterSubscription) {
+      this.cinemaFilterSubscription.unsubscribe();
+    }
+  }
+
   loadSummaryData(): void {
     this.isLoading = true;
-    this.statisticService.getSummaryDateRange(
+
+    // Sử dụng selectedCinemaId để lọc dữ liệu theo rạp nếu có
+    // Gọi API getRevenueDetail thay vì getSummaryDateRange để có thể lọc theo rạp
+    this.statisticService.getRevenueDetail(
+      this.selectedCinemaId || undefined,
       this.dateRange.startDate || undefined,
       this.dateRange.endDate || undefined
     ).subscribe({
       next: (response) => {
         this.isLoading = false;
         if (response && response.data && response.data.length > 0) {
-          this.summaryData = response.data[0];
+          // Tổng hợp dữ liệu từ các ngày để tạo thành dữ liệu tổng hợp
+          const totalRevenue = response.data.reduce((sum, item) => sum + item.totalRevenue, 0);
+          const totalOrders = response.data.reduce((sum, item) => sum + item.totalOrders, 0);
+          const totalTickets = response.data.reduce((sum, item) => sum + item.totalTickets, 0);
+          const totalServices = response.data.reduce((sum, item) => sum + item.totalServices, 0);
+
+          // Tạo đối tượng summaryData mới
+          this.summaryData = {
+            date: '',
+            totalRevenue,
+            totalOrders,
+            totalTickets,
+            totalServices
+          };
+        } else {
+          // Reset dữ liệu nếu không có kết quả
+          this.summaryData = {
+            date: '',
+            totalRevenue: 0,
+            totalOrders: 0,
+            totalTickets: 0,
+            totalServices: 0
+          };
         }
       },
       error: (error) => {
@@ -114,6 +267,9 @@ export class DashboardComponent implements OnInit {
           this.movieData = response.data;
           // Sort movies by revenue in descending order
           this.movieData.sort((a, b) => b.totalRevenue - a.totalRevenue);
+
+          // Cập nhật dữ liệu cho biểu đồ tròn
+          this.updateMovieChart();
         }
         this.isLoading = false;
       },
@@ -122,6 +278,18 @@ export class DashboardComponent implements OnInit {
         this.isLoading = false;
       }
     });
+  }
+
+  /**
+   * Cập nhật dữ liệu cho biểu đồ tròn phim
+   */
+  private updateMovieChart(): void {
+    // Lấy 5 phim có doanh thu cao nhất
+    const top5Movies = this.movieData.slice(0, 5);
+
+    // Cập nhật labels và dữ liệu
+    this.movieChartOptions.labels = top5Movies.map(movie => movie.movieName);
+    this.movieChartOptions.series = top5Movies.map(movie => movie.totalRevenue);
   }
 
   loadCinemaData(): void {
@@ -135,6 +303,9 @@ export class DashboardComponent implements OnInit {
           this.cinemaData = response.data;
           // Sort cinemas by revenue in descending order
           this.cinemaData.sort((a, b) => b.totalRevenue - a.totalRevenue);
+
+          // Cập nhật dữ liệu cho biểu đồ cột
+          this.updateCinemaChart();
         }
         this.isLoading = false;
       },
@@ -145,6 +316,18 @@ export class DashboardComponent implements OnInit {
     });
   }
 
+  /**
+   * Cập nhật dữ liệu cho biểu đồ cột rạp chiếu phim
+   */
+  private updateCinemaChart(): void {
+    // Lấy 5 rạp có doanh thu cao nhất
+    const top5Cinemas = this.cinemaData.slice(0, 5);
+
+    // Cập nhật categories và dữ liệu
+    this.cinemaChartOptions.xaxis.categories = top5Cinemas.map(cinema => cinema.name);
+    this.cinemaChartOptions.series[0].data = top5Cinemas.map(cinema => cinema.totalRevenue);
+  }
+
 
   formatCurrency(value: number): string {
     return new Intl.NumberFormat('vi-VN', {
@@ -152,6 +335,21 @@ export class DashboardComponent implements OnInit {
       currency: 'VND',
       maximumFractionDigits: 0
     }).format(value);
+  }
+
+  /**
+   * Định dạng số tiền dạng rút gọn (triệu, tỷ)
+   */
+  formatCurrencyShort(value: number): string {
+    if (value >= 1000000000) {
+      return (value / 1000000000).toFixed(1) + ' tỷ';
+    } else if (value >= 1000000) {
+      return (value / 1000000).toFixed(1) + ' tr';
+    } else if (value >= 1000) {
+      return (value / 1000).toFixed(1) + ' K';
+    } else {
+      return value.toString();
+    }
   }
 
 

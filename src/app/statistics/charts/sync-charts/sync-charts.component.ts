@@ -19,6 +19,7 @@ import {
 import { StatisticService, StatisticRevenueDetail, CommonResponse } from '../../../services/statistic.service';
 import { DashboardService, DateRange } from '../../shared/services/dashboard.service';
 import { CinemaService, Cinema } from '../../../services/cinema.service';
+import { CinemaFilterService } from '../../shared/services/cinema-filter.service';
 
 export type ChartOptions = {
   series: ApexAxisChartSeries;
@@ -134,7 +135,8 @@ export class SyncChartsComponent implements OnInit, OnDestroy {
   constructor(
     private statisticService: StatisticService,
     private dashboardService: DashboardService,
-    private cinemaService: CinemaService
+    private cinemaService: CinemaService,
+    private cinemaFilterService: CinemaFilterService
   ) {
     this.initCharts();
   }
@@ -143,6 +145,13 @@ export class SyncChartsComponent implements OnInit, OnDestroy {
     // Lấy danh sách rạp
     this.loadCinemas();
 
+    // Kiểm tra xem có rạp nào đã được chọn trước đó không
+    const currentSelectedCinemaId = this.cinemaFilterService.getCurrentSelectedCinemaId();
+    if (currentSelectedCinemaId) {
+      this.selectedCinemaId = currentSelectedCinemaId;
+    }
+
+    // Đăng ký lắng nghe sự thay đổi khoảng thời gian
     this.dateRangeSubscription = this.dashboardService.dateRange$.subscribe(dateRange => {
       this.currentDateRange = dateRange;
       this.loadChartData();
@@ -168,6 +177,10 @@ export class SyncChartsComponent implements OnInit, OnDestroy {
 
   // Khi thay đổi rạp
   onCinemaChange(): void {
+    // Cập nhật giá trị vào service để chia sẻ với các component khác
+    this.cinemaFilterService.updateSelectedCinemaId(this.selectedCinemaId);
+
+    // Tải lại dữ liệu biểu đồ
     this.loadChartData();
   }
 

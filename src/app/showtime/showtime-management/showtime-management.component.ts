@@ -88,8 +88,8 @@ export class ShowtimeManagementComponent implements OnInit, OnDestroy {
   };
 
   readonly SHOWTIME_STATUS = {
+    UPCOMING: 1,
     UPCOMING_SALE: 1,
-    UPCOMING: 2,
     PLAYING: 3,
     ENDED: 4,
     MAINTENANCE: 5
@@ -887,26 +887,66 @@ export class ShowtimeManagementComponent implements OnInit, OnDestroy {
   }
 
   filterShowtimes(): void {
+    console.log('Filtering showtimes with status:', this.selectedStatus);
     // Bắt đầu với dữ liệu gốc từ API
     let filtered = [...this.originalShowtimes];
 
     // Lọc theo phim
     if (this.selectedMovieId) {
+      console.log('Filtering by movie ID:', this.selectedMovieId);
       filtered = filtered.filter(s => s.movieId === this.selectedMovieId);
     }
 
     // Lọc theo phòng
     if (this.selectedRoomId) {
+      console.log('Filtering by room ID:', this.selectedRoomId);
       filtered = filtered.filter(s => s.roomId === this.selectedRoomId);
     }
 
     // Lọc theo trạng thái
-    if (this.selectedStatus !== this.STATUS_TYPES.ALL) {
-      filtered = filtered.filter(s => s.status === this.selectedStatus);
+    if (this.selectedStatus !== -1) {
+      console.log('Filtering by status:', this.selectedStatus);
+
+      // Trường hợp đặc biệt: nếu selectedStatus = 4, đây là trạng thái MAINTENANCE trong STATUS_TYPES
+      // nhưng cũng có thể là trạng thái ENDED trong SHOWTIME_STATUS
+      if (this.selectedStatus === 4) {
+        console.log('Special case: filtering for status 4 (could be ENDED or MAINTENANCE)');
+        // Kiểm tra xem có phải là MAINTENANCE hay không
+        const isMaintenance = this.selectedStatus === this.STATUS_TYPES.MAINTENANCE;
+
+        if (isMaintenance) {
+          // Nếu là MAINTENANCE, lọc theo MAINTENANCE
+          filtered = filtered.filter(s => s.status === this.SHOWTIME_STATUS.MAINTENANCE); // 5
+        } else {
+          // Nếu không, giữ nguyên giá trị 4 (ENDED)
+          filtered = filtered.filter(s => s.status === 4);
+        }
+      } else {
+        // Xử lý các trường hợp khác
+        let statusToFilter;
+
+        switch (this.selectedStatus) {
+          case this.STATUS_TYPES.UPCOMING: // 1
+            statusToFilter = this.SHOWTIME_STATUS.UPCOMING_SALE; // 1
+            break;
+          case this.STATUS_TYPES.PLAYING: // 2
+            statusToFilter = this.SHOWTIME_STATUS.PLAYING; // 3
+            break;
+          case this.STATUS_TYPES.ENDED: // 3
+            statusToFilter = this.SHOWTIME_STATUS.ENDED; // 4
+            break;
+          default:
+            statusToFilter = this.selectedStatus;
+        }
+
+        console.log('Mapped status for filtering:', statusToFilter);
+        filtered = filtered.filter(s => s.status === statusToFilter);
+      }
     }
 
     // Lọc theo từ khóa tìm kiếm
     if (this.searchTerm && this.searchTerm.trim() !== '') {
+      console.log('Filtering by search term:', this.searchTerm);
       const term = this.searchTerm.toLowerCase().trim();
       filtered = filtered.filter(s =>
         (s.movieName && s.movieName.toLowerCase().includes(term)) ||
@@ -916,17 +956,21 @@ export class ShowtimeManagementComponent implements OnInit, OnDestroy {
 
     // Lọc theo khoảng thời gian
     if (this.startDateFilter) {
+      console.log('Filtering by start date:', this.startDateFilter);
       const startDate = new Date(this.startDateFilter).getTime();
       filtered = filtered.filter(s => new Date(s.startTime).getTime() >= startDate);
     }
 
     if (this.endDateFilter) {
+      console.log('Filtering by end date:', this.endDateFilter);
       const endDate = new Date(this.endDateFilter).getTime();
       filtered = filtered.filter(s => new Date(s.startTime).getTime() <= endDate);
     }
 
     // Cập nhật danh sách hiển thị với kết quả đã lọc
     this.showtimes = filtered;
+    console.log('Filtered showtimes count:', this.showtimes.length);
+    console.log('Original showtimes count:', this.originalShowtimes.length);
   }
 
   loadMovies() {
@@ -1107,7 +1151,7 @@ export class ShowtimeManagementComponent implements OnInit, OnDestroy {
 
   canDeleteShowtime(showtime: Showtime): boolean {
     return showtime.status !== this.SHOWTIME_STATUS.PLAYING &&
-      showtime.status !== this.SHOWTIME_STATUS.UPCOMING;
+      showtime.status !== this.SHOWTIME_STATUS.UPCOMING_SALE;
   }
 
   deleteShowtime(id: string): void {
@@ -1178,6 +1222,11 @@ export class ShowtimeManagementComponent implements OnInit, OnDestroy {
     this.loadShowtimes();
   }
 
+  onRecordsPerPageChange(): void {
+    this.currentPage = 1; // Reset về trang đầu tiên khi thay đổi số bản ghi mỗi trang
+    this.loadShowtimes();
+  }
+
   onMovieChange(): void {
     this.filterShowtimes();
     // this.onRoomChange();
@@ -1243,24 +1292,59 @@ export class ShowtimeManagementComponent implements OnInit, OnDestroy {
   }
 
   showtimeMatchesStatusFilter(showtime: Showtime): boolean {
-    if (!this.selectedStatus || this.selectedStatus === this.STATUS_TYPES.ALL) {
+    if (!this.selectedStatus || this.selectedStatus === -1) {
       return true;
     }
 
-    switch (this.selectedStatus) {
-      case this.STATUS_TYPES.UPCOMING:
-        return showtime.status === this.SHOWTIME_STATUS.UPCOMING; // Thay NOT_STARTED bằng UPCOMING
-      case this.STATUS_TYPES.PLAYING:
-        return showtime.status === this.SHOWTIME_STATUS.PLAYING; // Thay ON_SALE bằng PLAYING
-      case this.STATUS_TYPES.ENDED:
-        return showtime.status === this.SHOWTIME_STATUS.ENDED;
-      default:
-        return true;
+    // Trường hợp đặc biệt: nếu selectedStatus = 4, đây là trạng thái MAINTENANCE trong STATUS_TYPES
+    // nhưng cũng có thể là trạng thái ENDED trong SHOWTIME_STATUS
+    if (this.selectedStatus === 4) {
+      // Kiểm tra xem có phải là MAINTENANCE hay không
+      const isMaintenance = this.selectedStatus === this.STATUS_TYPES.MAINTENANCE;
+
+      if (isMaintenance) {
+        // Nếu là MAINTENANCE, so sánh với MAINTENANCE
+        return showtime.status === this.SHOWTIME_STATUS.MAINTENANCE; // 5
+      } else {
+        // Nếu không, giữ nguyên giá trị 4 (ENDED)
+        return showtime.status === 4;
+      }
+    } else {
+      // Xử lý các trường hợp khác
+      let statusToFilter;
+
+      switch (this.selectedStatus) {
+        case this.STATUS_TYPES.UPCOMING: // 1
+          statusToFilter = this.SHOWTIME_STATUS.UPCOMING_SALE; // 1
+          break;
+        case this.STATUS_TYPES.PLAYING: // 2
+          statusToFilter = this.SHOWTIME_STATUS.PLAYING; // 3
+          break;
+        case this.STATUS_TYPES.ENDED: // 3
+          statusToFilter = this.SHOWTIME_STATUS.ENDED; // 4
+          break;
+        default:
+          statusToFilter = this.selectedStatus;
+      }
+
+      // Trả về true nếu trạng thái của showtime khớp với trạng thái đã chọn
+      return showtime.status === statusToFilter;
     }
   }
 
   onStatusChange(): void {
-    this.filterShowtimes();
+    console.log('Status changed to:', this.selectedStatus);
+    if (this.selectedStatus === -1) {
+      // Nếu chọn "Tất cả trạng thái", sử dụng lại toàn bộ dữ liệu gốc
+      this.showtimes = [...this.originalShowtimes];
+
+      // Sau đó áp dụng các bộ lọc khác nếu có
+      if (this.selectedMovieId || this.selectedRoomId || this.searchTerm || this.startDateFilter || this.endDateFilter) {
+        this.filterShowtimes();
+      }
+    } else {
+      this.filterShowtimes();
+    }
   }
 
   onDateFilterChange(): void {
@@ -1274,14 +1358,26 @@ export class ShowtimeManagementComponent implements OnInit, OnDestroy {
   }
 
   clearAllFilters(): void {
+    console.log('Clearing all filters');
     this.searchTerm = '';
     this.selectedMovieId = '';
     this.selectedRoomId = '';
-    this.selectedStatus = this.STATUS_TYPES.ALL;
+    this.selectedStatus = -1; // Tất cả trạng thái
     this.startDateFilter = null;
     this.endDateFilter = null;
+
     // Sử dụng dữ liệu gốc đã có thay vì gọi lại API
     this.showtimes = [...this.originalShowtimes];
+
+    // Thông báo cho người dùng
+    Swal.fire({
+      icon: 'success',
+      title: 'Đã xóa tất cả bộ lọc',
+      toast: true,
+      position: 'top-end',
+      showConfirmButton: false,
+      timer: 1500
+    });
   }
 
   openReportIssueModal(): void {
@@ -1307,9 +1403,11 @@ export class ShowtimeManagementComponent implements OnInit, OnDestroy {
       .subscribe({
         next: (response) => {
           if (response.responseCode === 200) {
-            // Lọc các suất chiếu có status là NOT_STARTED
+            // Lọc các suất chiếu có status là UPCOMING hoặc UPCOMING_SALE
             this.upcomingShowtimes = response.data.filter(showtime =>
-              showtime.status === this.SHOWTIME_STATUS.UPCOMING && !showtime.isDeleted
+              (showtime.status === this.SHOWTIME_STATUS.UPCOMING ||
+                showtime.status === this.SHOWTIME_STATUS.UPCOMING_SALE) &&
+              !showtime.isDeleted
             );
           }
         },
@@ -1329,9 +1427,9 @@ export class ShowtimeManagementComponent implements OnInit, OnDestroy {
       .subscribe({
         next: (response) => {
           if (response.responseCode === 200) {
-            // Lọc các suất chiếu có status là ON_SALE
+            // Lọc các suất chiếu có status là PLAYING
             this.playingShowtimes = response.data.filter(showtime =>
-              showtime.status === this.SHOWTIME_STATUS.UPCOMING_SALE && !showtime.isDeleted
+              showtime.status === this.SHOWTIME_STATUS.PLAYING && !showtime.isDeleted
             );
           }
         },

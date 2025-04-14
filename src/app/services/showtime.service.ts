@@ -29,6 +29,12 @@ export interface ShowtimeParams {
   search?: string;
   currentPage: number;
   recordPerPage: number;
+  startDate?: string;
+  endDate?: string;
+  status?: number;
+  startTimeFilter?: string;
+  endTimeFilter?: string;
+  [key: string]: any; // Cho phép thêm các tham số khác
 }
 
 
@@ -61,11 +67,42 @@ export class ShowtimeService {
 
   constructor(private http: HttpClient) { }
 
-  getShowtimes(params: {
-    currentPage: number;
-    recordPerPage: number;
-  }): Observable<ShowtimeResponse> {
-    const url = `${this.apiUrl}ShowTime/GetList?currentPage=${params.currentPage}&recordPerPage=${params.recordPerPage}`;
+  getShowtimes(params: ShowtimeParams): Observable<ShowtimeResponse> {
+    let url = `${this.apiUrl}ShowTime/GetList?currentPage=${params.currentPage}&recordPerPage=${params.recordPerPage}`;
+
+    // Thêm các tham số lọc nếu có
+    if (params.movieId) {
+      url += `&movieId=${params.movieId}`;
+    }
+
+    if (params.roomId) {
+      url += `&roomId=${params.roomId}`;
+    }
+
+    if (params.search) {
+      url += `&search=${encodeURIComponent(params.search)}`;
+    }
+
+    if (params.status !== undefined && params.status !== -1) {
+      url += `&status=${params.status}`;
+    }
+
+    if (params.startDate) {
+      url += `&startDate=${encodeURIComponent(params.startDate)}`;
+    }
+
+    if (params.endDate) {
+      url += `&endDate=${encodeURIComponent(params.endDate)}`;
+    }
+
+    // Thêm các tham số thời gian cụ thể hơn
+    if (params.startTimeFilter) {
+      url += `&startTimeFilter=${encodeURIComponent(params.startTimeFilter)}`;
+    }
+
+    if (params.endTimeFilter) {
+      url += `&endTimeFilter=${encodeURIComponent(params.endTimeFilter)}`;
+    }
 
     console.log('Calling API with URL:', url);
 
@@ -107,6 +144,13 @@ export class ShowtimeService {
 
   showtimeCronJob(): Observable<any> {
     return this.http.post(`${this.apiUrl}ShowTime/ShowtimeCronjob`, {});
+  }
+
+  // Phương thức kiểm tra API lọc theo ngày
+  testDateFilter(startDate: string, endDate: string): Observable<ShowtimeResponse> {
+    const url = `${this.apiUrl}ShowTime/GetList?currentPage=1&recordPerPage=100&startDate=${encodeURIComponent(startDate)}&endDate=${encodeURIComponent(endDate)}`;
+    console.log('Testing date filter with URL:', url);
+    return this.http.get<ShowtimeResponse>(url);
   }
 
 }

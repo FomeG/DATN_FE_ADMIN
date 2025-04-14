@@ -9,11 +9,11 @@
     </div>
 
 
-    
+
   </div>
 
   <div class="row mb-4">
-    <div class="col-md-4">
+    <div class="col-md-2">
       <select class="form-select header-select" [(ngModel)]="statusFilter" (change)="filterCinemas()">
         <option value="-1">Tất cả trạng thái</option>
         <option value="1">Đang hoạt động</option>
@@ -21,15 +21,10 @@
         <option value="3">Đã đóng</option>
       </select>
     </div>
-    <div class="col-md-4">
+    <div class="col-md-2">
       <button class="btn btn-outline-secondary clear-filter-btn" (click)="clearAllFilters()">
         <i class="fas fa-times me-1"></i>Xóa tất cả bộ lọc
       </button>
-    </div>
-    <div class="col-md-4">
-      <div class="d-flex justify-content-end">
-        <span class="records-info">Hiển thị {{cinemas.length}} / {{totalRecords}} rạp</span>
-      </div>
     </div>
   </div>
 

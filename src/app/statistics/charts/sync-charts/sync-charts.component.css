@@ -11,12 +11,8 @@
   margin-bottom: 10px !important;
 }
 
-.card-title {
-  margin-bottom: 0;
-  font-size: 1.1rem;
-  font-weight: 600;
-  color: #ffffff;
-}
+
+
 
 .spinner-border {
   width: 3rem;
@@ -94,4 +90,26 @@
   -webkit-appearance: none;
   -moz-appearance: none;
   appearance: none;
+}
+
+
+
+/* Định nghĩa class n-title */
+.card-title {
+  color: #ffffff;
+  font-weight: 500;
+  margin-bottom: 0;
+  font-size: 1.25rem;
+  display: flex;
+  align-items: center;
+  transition: color 0.3s ease;
+}
+
+.card-title::before {
+  content: "";
+  width: 5px;
+  height: 25px;
+  background: linear-gradient(to bottom, #0090e7, #0077b5);
+  margin-right: 15px;
+  border-radius: 3px;
 }

@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MovieService } from '../../services/movie.service';
 import { RoomService } from '../../services/room.service';
-import { ShowtimeService, Showtime, ShowtimeResponse, ShowtimeAutoDateRequest } from '../../services/showtime.service';
+import { ShowtimeService, Showtime, ShowtimeResponse, ShowtimeAutoDateRequest, ShowtimeParams } from '../../services/showtime.service';
 import { CinemaService } from '../../services/cinema.service';
 import { DatePipe } from '@angular/common';
 
@@ -88,8 +88,8 @@ export class ShowtimeManagementComponent implements OnInit, OnDestroy {
   };
 
   readonly SHOWTIME_STATUS = {
-    UPCOMING: 1,
     UPCOMING_SALE: 1,
+    UPCOMING: 2,
     PLAYING: 3,
     ENDED: 4,
     MAINTENANCE: 5
@@ -347,7 +347,9 @@ export class ShowtimeManagementComponent implements OnInit, OnDestroy {
 
   // Phương thức lọc theo phòng
   onFilterRoomChange(): void {
-    this.filterShowtimes();
+    // Đặt lại trang về 1 khi thay đổi bộ lọc
+    this.currentPage = 1;
+    this.loadShowtimes();
   }
 
   // Phương thức xử lý khi chọn phòng trong form thêm/sửa suất chiếu
@@ -850,10 +852,64 @@ export class ShowtimeManagementComponent implements OnInit, OnDestroy {
   }
 
   loadShowtimes(): void {
-    const params = {
+    // Tạo đối tượng params với các tham số lọc
+    const params: ShowtimeParams = {
       currentPage: this.currentPage,
       recordPerPage: this.recordPerPage
     };
+
+    // Thêm các tham số lọc nếu có
+    if (this.selectedMovieId) {
+      params.movieId = this.selectedMovieId;
+    }
+
+    if (this.selectedRoomId) {
+      params.roomId = this.selectedRoomId;
+    }
+
+    if (this.searchTerm && this.searchTerm.trim() !== '') {
+      params.search = this.searchTerm.trim();
+    }
+
+    if (this.selectedStatus !== -1) {
+      params.status = this.selectedStatus;
+    }
+
+    if (this.startDateFilter) {
+      // Chuyển đổi định dạng ngày tháng sang ISO format (YYYY-MM-DD)
+      try {
+        const startDate = new Date(this.startDateFilter);
+        // Format: YYYY-MM-DD
+        params.startDate = startDate.toISOString().split('T')[0];
+        console.log('Formatted start date:', params.startDate);
+
+        // Thêm tham số thời gian bắt đầu và kết thúc cụ thể hơn
+        params['startTimeFilter'] = startDate.toISOString();
+      } catch (error) {
+        console.error('Error formatting start date:', error);
+        params.startDate = this.startDateFilter;
+      }
+    }
+
+    if (this.endDateFilter) {
+      // Chuyển đổi định dạng ngày tháng sang ISO format (YYYY-MM-DD)
+      try {
+        const endDate = new Date(this.endDateFilter);
+        // Đặt thời gian kết thúc là cuối ngày (23:59:59.999)
+        endDate.setHours(23, 59, 59, 999);
+        // Format: YYYY-MM-DD
+        params.endDate = endDate.toISOString().split('T')[0];
+        console.log('Formatted end date:', params.endDate);
+
+        // Thêm tham số thời gian kết thúc cụ thể hơn
+        params['endTimeFilter'] = endDate.toISOString();
+      } catch (error) {
+        console.error('Error formatting end date:', error);
+        params.endDate = this.endDateFilter;
+      }
+    }
+
+    console.log('Loading showtimes with params:', params);
 
     this.showtimeService.getShowtimes(params).subscribe({
       next: (response: ShowtimeResponse) => {
@@ -873,9 +929,6 @@ export class ShowtimeManagementComponent implements OnInit, OnDestroy {
 
           this.maintenanceShowtimes = this.originalShowtimes.filter(s =>
             s.status === this.SHOWTIME_STATUS.MAINTENANCE);
-
-          // Áp dụng bộ lọc nếu có
-          this.filterShowtimes();
         } else {
           console.error('Error loading showtimes:', response.message);
         }
@@ -955,16 +1008,50 @@ export class ShowtimeManagementComponent implements OnInit, OnDestroy {
     }
 
     // Lọc theo khoảng thời gian
-    if (this.startDateFilter) {
-      console.log('Filtering by start date:', this.startDateFilter);
-      const startDate = new Date(this.startDateFilter).getTime();
-      filtered = filtered.filter(s => new Date(s.startTime).getTime() >= startDate);
-    }
+    if (this.startDateFilter || this.endDateFilter) {
+      console.log('Filtering by date range - Start:', this.startDateFilter, 'End:', this.endDateFilter);
 
-    if (this.endDateFilter) {
-      console.log('Filtering by end date:', this.endDateFilter);
-      const endDate = new Date(this.endDateFilter).getTime();
-      filtered = filtered.filter(s => new Date(s.startTime).getTime() <= endDate);
+      // Lọc theo ngày bắt đầu
+      if (this.startDateFilter) {
+        try {
+          const startDate = new Date(this.startDateFilter);
+          console.log('Start date for filtering:', startDate);
+
+          filtered = filtered.filter(s => {
+            try {
+              const showtimeStartTime = new Date(s.startTime);
+              return showtimeStartTime >= startDate;
+            } catch (error) {
+              console.error('Error parsing showtime start time:', s.startTime, error);
+              return false;
+            }
+          });
+        } catch (error) {
+          console.error('Error parsing start date filter:', this.startDateFilter, error);
+        }
+      }
+
+      // Lọc theo ngày kết thúc
+      if (this.endDateFilter) {
+        try {
+          const endDate = new Date(this.endDateFilter);
+          // Đặt thời gian kết thúc là cuối ngày (23:59:59.999)
+          endDate.setHours(23, 59, 59, 999);
+          console.log('End date for filtering:', endDate);
+
+          filtered = filtered.filter(s => {
+            try {
+              const showtimeStartTime = new Date(s.startTime);
+              return showtimeStartTime <= endDate;
+            } catch (error) {
+              console.error('Error parsing showtime start time:', s.startTime, error);
+              return false;
+            }
+          });
+        } catch (error) {
+          console.error('Error parsing end date filter:', this.endDateFilter, error);
+        }
+      }
     }
 
     // Cập nhật danh sách hiển thị với kết quả đã lọc
@@ -1228,14 +1315,15 @@ export class ShowtimeManagementComponent implements OnInit, OnDestroy {
   }
 
   onMovieChange(): void {
-    this.filterShowtimes();
-    // this.onRoomChange();
-
-
+    // Đặt lại trang về 1 khi thay đổi bộ lọc
+    this.currentPage = 1;
+    this.loadShowtimes();
   }
 
   onSearch(): void {
-    this.filterShowtimes();
+    // Đặt lại trang về 1 khi thay đổi bộ lọc
+    this.currentPage = 1;
+    this.loadShowtimes();
   }
 
   getShowtimeStatus(startTime: Date, endTime: Date): { class: string, text: string } {
@@ -1334,27 +1422,154 @@ export class ShowtimeManagementComponent implements OnInit, OnDestroy {
 
   onStatusChange(): void {
     console.log('Status changed to:', this.selectedStatus);
-    if (this.selectedStatus === -1) {
-      // Nếu chọn "Tất cả trạng thái", sử dụng lại toàn bộ dữ liệu gốc
-      this.showtimes = [...this.originalShowtimes];
-
-      // Sau đó áp dụng các bộ lọc khác nếu có
-      if (this.selectedMovieId || this.selectedRoomId || this.searchTerm || this.startDateFilter || this.endDateFilter) {
-        this.filterShowtimes();
-      }
-    } else {
-      this.filterShowtimes();
-    }
+    // Đặt lại trang về 1 khi thay đổi bộ lọc
+    this.currentPage = 1;
+    this.loadShowtimes();
   }
 
   onDateFilterChange(): void {
-    this.filterShowtimes();
+    console.log('Date filter changed - Start:', this.startDateFilter, 'End:', this.endDateFilter);
+
+    // Kiểm tra định dạng ngày tháng
+    if (this.startDateFilter) {
+      try {
+        const startDate = new Date(this.startDateFilter);
+        console.log('Parsed start date:', startDate);
+        console.log('Start date year:', startDate.getFullYear());
+      } catch (error) {
+        console.error('Error parsing start date:', error);
+      }
+    }
+
+    if (this.endDateFilter) {
+      try {
+        const endDate = new Date(this.endDateFilter);
+        console.log('Parsed end date:', endDate);
+        console.log('End date year:', endDate.getFullYear());
+      } catch (error) {
+        console.error('Error parsing end date:', error);
+      }
+    }
+
+    // Kiểm tra API lọc theo ngày
+    this.testDateFilter();
+
+    // Đặt lại trang về 1 khi thay đổi bộ lọc
+    this.currentPage = 1;
+    this.loadShowtimes();
   }
 
   clearDateFilters(): void {
     this.startDateFilter = null;
     this.endDateFilter = null;
-    this.filterShowtimes();
+    // Đặt lại trang về 1 khi thay đổi bộ lọc
+    this.currentPage = 1;
+    this.loadShowtimes();
+  }
+
+  // Phương thức kiểm tra API lọc theo ngày
+  testDateFilter(): void {
+    if (!this.startDateFilter && !this.endDateFilter) {
+      console.log('No date filters to test');
+      return;
+    }
+
+    let startDateStr = '';
+    let endDateStr = '';
+    let startTimeStr = '';
+    let endTimeStr = '';
+
+    if (this.startDateFilter) {
+      try {
+        const startDate = new Date(this.startDateFilter);
+        startDateStr = startDate.toISOString().split('T')[0]; // YYYY-MM-DD
+        startTimeStr = startDate.toISOString(); // Full ISO datetime
+      } catch (error) {
+        console.error('Error formatting start date for test:', error);
+        return;
+      }
+    }
+
+    if (this.endDateFilter) {
+      try {
+        const endDate = new Date(this.endDateFilter);
+        // Đặt thời gian kết thúc là cuối ngày (23:59:59.999)
+        endDate.setHours(23, 59, 59, 999);
+        endDateStr = endDate.toISOString().split('T')[0]; // YYYY-MM-DD
+        endTimeStr = endDate.toISOString(); // Full ISO datetime
+      } catch (error) {
+        console.error('Error formatting end date for test:', error);
+        return;
+      }
+    }
+
+    console.log('Testing date filter with:', startDateStr, endDateStr);
+    console.log('Testing time filter with:', startTimeStr, endTimeStr);
+
+    // Kiểm tra lọc theo ngày (YYYY-MM-DD)
+    this.showtimeService.testDateFilter(startDateStr, endDateStr).subscribe({
+      next: (response) => {
+        console.log('Date filter test response:', response);
+        if (response.data && response.data.length > 0) {
+          console.log('First showtime in response:', response.data[0]);
+          console.log('Last showtime in response:', response.data[response.data.length - 1]);
+
+          // Kiểm tra xem có suất chiếu nào nằm ngoài khoảng thời gian không
+          if (startTimeStr && endTimeStr) {
+            const startTime = new Date(startTimeStr).getTime();
+            const endTime = new Date(endTimeStr).getTime();
+
+            const outsideRange = response.data.filter(showtime => {
+              const showtimeStart = new Date(showtime.startTime).getTime();
+              return showtimeStart < startTime || showtimeStart > endTime;
+            });
+
+            if (outsideRange.length > 0) {
+              console.log('WARNING: Found showtimes outside the specified time range:', outsideRange.length);
+              console.log('Example outside range:', outsideRange[0]);
+            } else {
+              console.log('All showtimes are within the specified time range');
+            }
+          }
+        } else {
+          console.log('No showtimes found with date filter');
+        }
+      },
+      error: (error) => {
+        console.error('Error testing date filter:', error);
+      }
+    });
+
+    // Kiểm tra lọc theo thời gian đầy đủ (ISO datetime)
+    if (startTimeStr || endTimeStr) {
+      const params: ShowtimeParams = {
+        currentPage: 1,
+        recordPerPage: 100
+      };
+
+      if (startTimeStr) {
+        params.startTimeFilter = startTimeStr;
+      }
+
+      if (endTimeStr) {
+        params.endTimeFilter = endTimeStr;
+      }
+
+      this.showtimeService.getShowtimes(params).subscribe({
+        next: (response) => {
+          console.log('Time filter test response:', response);
+          if (response.data && response.data.length > 0) {
+            console.log('First showtime in time filter response:', response.data[0]);
+            console.log('Last showtime in time filter response:', response.data[response.data.length - 1]);
+          } else {
+            console.log('No showtimes found with time filter');
+          }
+        },
+        error: (error) => {
+          console.error('Error testing time filter:', error);
+        }
+      });
+    }
   }
 
   clearAllFilters(): void {
@@ -1366,8 +1581,9 @@ export class ShowtimeManagementComponent implements OnInit, OnDestroy {
     this.startDateFilter = null;
     this.endDateFilter = null;
 
-    // Sử dụng dữ liệu gốc đã có thay vì gọi lại API
-    this.showtimes = [...this.originalShowtimes];
+    // Đặt lại trang về 1 và tải lại dữ liệu
+    this.currentPage = 1;
+    this.loadShowtimes();
 
     // Thông báo cho người dùng
     Swal.fire({

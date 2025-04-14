@@ -110,7 +110,7 @@
                                 <label class="form-label">Loại ghế</label>
                                 <div class="d-flex align-items-center gap-2">
                                     <select class="form-select" [ngModel]="selectedSeat?.seatTypeId"
-                                        (ngModelChange)="updateSelectedSeat('seatTypeId', $event)">
+                                        (ngModelChange)="updateSelectedSeat('seatTypeId', $event)" style="border: 1px solid rgba(89, 89, 89, 0.634) !important">
                                         <option *ngFor="let t of seatTypes" [value]="t.id" [disabled]="t.isDoubleType">
                                             {{ t.seatTypeName }} ({{ t.multiplier | currency:'VND' }})
                                         </option>
@@ -227,7 +227,7 @@
                             <div class="form-group">
                                 <label class="form-label">Trạng thái</label>
                                 <select class="form-select" [ngModel]="selectedSeat?.status"
-                                    (ngModelChange)="updateSelectedSeat('status', $event)">
+                                    (ngModelChange)="updateSelectedSeat('status', $event)" style="border: 1px solid rgba(89, 89, 89, 0.634) !important">
                                     <option *ngFor="let s of seatStatuses" [value]="s.value">{{ s.label }}</option>
                                 </select>
                             </div>
@@ -237,14 +237,14 @@
                                 <label class="font-weight-bold text-white">Giá ghế</label>
                                 <div *ngIf="selectedSeat" class="mt-2">
                                     <!-- Ghế đôi hiển thị tổng giá -->
-                                    <div *ngIf="selectedSeat.isDouble" class="price-info">
+                                    <div *ngIf="selectedSeat.isDouble" class="price-info" style="border: 1px solid rgba(89, 89, 89, 0.634) !important">
                                         <span class="fw-bold fs-5 text-white">{{ selectedSeat.seatPrice | currency:'VND'
                                             }}</span>
                                         <span class="text-muted ms-2">(Tổng giá ghế đôi)</span>
                                     </div>
 
                                     <!-- Ghế thường hiển thị chi tiết tính giá -->
-                                    <div *ngIf="!selectedSeat.isDouble" class="price-info">
+                                    <div *ngIf="!selectedSeat.isDouble" class="price-info" style="border: 1px solid rgba(89, 89, 89, 0.634) !important">
                                         <div class="price-breakdown">
                                             <div class="d-flex justify-content-between mb-1">
                                                 <span>Giá cơ bản:</span>

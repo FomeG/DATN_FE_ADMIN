@@ -1,6 +1,6 @@
 <div class="container-fluid">
   <!-- Header -->
-  <div class="dashboard-header p-0">
+  <div class="dashboard-header p-0" style="margin-bottom: 20px;">
     <div class="row align-items-center">
       <div class="col-md-6">
         <h2 class="mb-0 text-gradient">Thống kê</h2>
@@ -35,7 +35,7 @@
 
 
   <div class="row">
-    <div class="col-xl-3 col-sm-6 grid-margin stretch-card">
+    <div class="col-xl-3 col-sm-6 grid-margin stretch-card m-0">
       <div class="card">
         <div class="card-body">
           <h5>Tổng doanh thu</h5>
@@ -54,7 +54,7 @@
         </div>
       </div>
     </div>
-    <div class="col-xl-3 col-sm-6 grid-margin stretch-card">
+    <div class="col-xl-3 col-sm-6 grid-margin stretch-card m-0">
       <div class="card">
         <div class="card-body">
           <h5>Tổng số order</h5>
@@ -73,7 +73,7 @@
         </div>
       </div>
     </div>
-    <div class="col-xl-3 col-sm-6 grid-margin stretch-card">
+    <div class="col-xl-3 col-sm-6 grid-margin stretch-card m-0">
       <div class="card">
         <div class="card-body">
           <h5>Tổng số vé bán ra</h5>
@@ -92,7 +92,7 @@
         </div>
       </div>
     </div>
-    <div class="col-xl-3 col-sm-6 grid-margin stretch-card">
+    <div class="col-xl-3 col-sm-6 grid-margin stretch-card m-0">
       <div class="card">
         <div class="card-body">
           <h5>Tổng số dịch vụ bán ra</h5>
@@ -140,7 +140,7 @@
     <li class="nav-item">
       <a [class]="getTabClass('content')" (click)="changeTab('content')" role="button">
         <i class="mdi mdi-account-group"></i>
-        test
+        Test
       </a>
     </li>
 
@@ -150,7 +150,16 @@
         Tỷ lệ lấp đầy ghế
       </a>
     </li>
+    
 
+
+
+    <li class="nav-item">
+      <a [class]="getTabClass('test')" (click)="changeTab('test')" role="button">
+        <i class="mdi mdi-grid"></i>
+        test222
+      </a>
+    </li>
 
 
 
@@ -166,9 +175,11 @@
       <div class="d-flex p-0 mb-0" style="gap: 20px">
 
 
-        <div class="card p-0" style="width: 60%;">
+        <div class="card p-0" style="width: 60%; ">
+          <div class="card-header" style="border-bottom: 1px solid #2c2e33;">
+            <h5 class="card-title">Thống kê doanh thu theo rạp chiếu phim</h5>
+          </div>
           <div class="card-body">
-            <h4 class="card-title">Thống kê doanh thu theo rạp chiếu phim</h4>
 
             <!-- Biểu đồ cột cho rạp chiếu phim -->
             <div class="chart-container mb-4" style="height: 250px;">
@@ -185,8 +196,139 @@
 
 
         <div class="card p-0" style="width: 40%;">
+          <div class="card-header" style="border-bottom: 1px solid #2c2e33;">
+            <h6 class="card-title">Bảng xếp hạng phim</h6>
+          </div>
           <div class="card-body">
-            <h4 class="card-title">Bảng xếp hạng phim</h4>
+
+            <!-- Biểu đồ tròn cho phim -->
+            <div class="chart-container mb-4">
+              <apx-chart [series]="movieChartOptions.series" [chart]="movieChartOptions.chart"
+                [labels]="movieChartOptions.labels" [responsive]="movieChartOptions.responsive"
+                [dataLabels]="movieChartOptions.dataLabels" [legend]="movieChartOptions.legend"
+                [colors]="movieChartOptions.colors" [tooltip]="movieChartOptions.tooltip">
+              </apx-chart>
+            </div>
+
+
+
+          </div>
+        </div>
+
+
+
+      </div>
+
+
+
+
+
+
+      <div class="d-flex p-0 mt-0" style="gap: 20px">
+
+
+        <div class="card" style="width: 60%;">
+          <div class="card-body">
+            <!-- Bảng dữ liệu chi tiết -->
+            <div class="table-responsive">
+              <table class="table table-hover">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Tên rạp</th>
+                    <th>Số phòng chiếu</th>
+                    <th>Doanh thu</th>
+                    <th>Số vé bán ra</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let cinema of cinemaData; let i = index">
+                    <td style="color: white !important">{{ i + 1 }}</td>
+                    <td style="color: white !important"> <a class="btn" href="{{cinema.cinemasId}}">{{ cinema.name
+                        }}</a> </td>
+                    <td style="color: white !important">{{ cinema.totalRooms }}</td>
+                    <td style="color: #00E396 !important">{{ formatCurrency(cinema.totalRevenue) }}</td>
+                    <td style="color: #FEB019 !important">{{ cinema.totalTickets }} vé</td>
+                  </tr>
+                  <tr *ngIf="cinemaData.length === 0">
+                    <td colspan="5" class="text-center">Không có dữ liệu</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+
+        <div class="card" style="width: 40%;">
+          <div class="card-body">
+            <!-- Danh sách phim với hình ảnh -->
+            <div class="movie-list">
+              <div *ngFor="let movie of movieData.slice(0, 5); let i = index"
+                class="d-flex align-items-center mb-3 p-2 border-bottom">
+                <span style="color: white !important; margin-right: 15px !important; font-weight: bold">{{ i + 1
+                  }}</span>
+                <img [src]="movie.banner" alt="Movie banner" class="me-3"
+                  style="width: 80px; height: 50px; object-fit: cover; border-radius: 4px;">
+
+                <div class="flex-grow-1" style="margin-left: 15px !important">
+                  <h6 class="mb-0" style="color: white !important">{{ movie.movieName }}</h6>
+                  <div class="d-flex justify-content-between">
+                    <small style="color: #00E396 !important">{{ formatCurrency(movie.totalRevenue) }}</small>
+                    <small style="color: #FEB019 !important">{{ movie.totalTickets }} vé</small>
+                  </div>
+                </div>
+              </div>
+              <div *ngIf="movieData.length === 0" class="text-center p-3">
+                Không có dữ liệu
+              </div>
+            </div>
+
+
+          </div>
+        </div>
+
+
+
+      </div>
+    </div>
+  </div>
+
+
+
+  <!-- PHIM + DỊCH VỤ TAB -->
+  <div *ngIf="activeTab === 'test'" class="tab-pane fade show active">
+    <div class="container-fluid p-0">
+
+
+      <div class="d-flex p-0 mb-0" style="gap: 20px">
+
+
+        <div class="card p-0" style="width: 60%; ">
+          <div class="card-header" style="border-bottom: 1px solid #2c2e33;">
+            <h5 class="card-title">Thống kê doanh thu theo rạp chiếu phim</h5>
+          </div>
+          <div class="card-body">
+
+            <!-- Biểu đồ cột cho rạp chiếu phim -->
+            <div class="chart-container mb-4" style="height: 250px;">
+              <apx-chart [series]="cinemaChartOptions.series" [chart]="cinemaChartOptions.chart"
+                [xaxis]="cinemaChartOptions.xaxis" [yaxis]="cinemaChartOptions.yaxis"
+                [plotOptions]="cinemaChartOptions.plotOptions" [dataLabels]="cinemaChartOptions.dataLabels"
+                [stroke]="cinemaChartOptions.stroke" [fill]="cinemaChartOptions.fill"
+                [tooltip]="cinemaChartOptions.tooltip" [colors]="cinemaChartOptions.colors">
+              </apx-chart>
+            </div>
+
+          </div>
+        </div>
+
+
+        <div class="card p-0" style="width: 40%;">
+          <div class="card-header" style="border-bottom: 1px solid #2c2e33;">
+            <h6 class="card-title">Bảng xếp hạng phim</h6>
+          </div>
+          <div class="card-body">
 
             <!-- Biểu đồ tròn cho phim -->
             <div class="chart-container mb-4">

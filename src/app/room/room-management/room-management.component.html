@@ -15,7 +15,20 @@
     </div>
 
     <div class="row mb-4">
-        <div class="col-md-3">
+
+        <div class="col-md-2">
+            <select class="form-select header-select" [(ngModel)]="cinemaFilter" (change)="applyFilters()">
+                <option value="-1">Tất cả rạp phim</option>
+                <option *ngFor="let cinema of cinemas" [value]="cinema.cinemasId">{{ cinema.name }}</option>
+            </select>
+        </div>
+        <div class="col-md-2">
+            <select class="form-select header-select" [(ngModel)]="roomTypeFilter" (change)="applyFilters()">
+                <option value="-1">Tất cả loại phòng</option>
+                <option *ngFor="let type of roomTypes" [value]="type.roomTypeId">{{ type.name }}</option>
+            </select>
+        </div>
+        <div class="col-md-2">
             <select class="form-select header-select" [(ngModel)]="statusFilter" (change)="applyFilters()">
                 <option value="-1">Tất cả trạng thái</option>
                 <option value="1">Có sẵn</option>
@@ -24,19 +37,7 @@
                 <option value="4">Đang sử dụng</option>
             </select>
         </div>
-        <div class="col-md-3">
-            <select class="form-select header-select" [(ngModel)]="cinemaFilter" (change)="applyFilters()">
-                <option value="-1">Tất cả rạp phim</option>
-                <option *ngFor="let cinema of cinemas" [value]="cinema.cinemasId">{{ cinema.name }}</option>
-            </select>
-        </div>
-        <div class="col-md-3">
-            <select class="form-select header-select" [(ngModel)]="roomTypeFilter" (change)="applyFilters()">
-                <option value="-1">Tất cả loại phòng</option>
-                <option *ngFor="let type of roomTypes" [value]="type.roomTypeId">{{ type.name }}</option>
-            </select>
-        </div>
-        <div class="col-md-3">
+        <div class="col-md-2">
             <div class="d-flex justify-content-between">
                 <button class="btn btn-outline-secondary clear-filter-btn" (click)="clearFilters()">
                     <i class="fas fa-times me-1"></i> Xóa bộ lọc
@@ -44,6 +45,8 @@
                 <!-- <span class="records-info">Hiển thị {{rooms.length}} / {{totalRecords}} phòng</span> -->
             </div>
         </div>
+
+
     </div>
 
 

@@ -39,11 +39,6 @@
 }
 
 
-.card-header {
-  background-color: transparent;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-  padding: 1rem 1.5rem;
-}
 
 .card-body {
   padding: 1.5rem;
@@ -133,6 +128,26 @@
   }
 }
 
+/* Định nghĩa class n-title */
+.card-title {
+  color: #ffffff;
+  font-weight: 500;
+  margin-bottom: 0;
+  font-size: 1.25rem;
+  display: flex;
+  align-items: center;
+  transition: color 0.3s ease;
+}
+
+.card-title::before {
+  content: "";
+  width: 5px;
+  height: 25px;
+  background: linear-gradient(to bottom, #0090e7, #0077b5);
+  margin-right: 15px;
+  border-radius: 3px;
+}
+
 /* Responsive adjustments */
 @media (max-width: 768px) {
   .dashboard-container {
@@ -148,10 +163,6 @@
     font-size: 0.9rem;
   }
 
-  .card-header {
-    padding: 0.75rem 1rem;
-  }
-
   .card-body {
     padding: 1rem;
   }
@@ -161,4 +172,29 @@
   td {
     color: white !important;
   }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 }

@@ -1,17 +1,29 @@
-import { Component, OnInit, Output, EventEmitter, HostListener, AfterViewInit } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter, HostListener, AfterViewInit, Inject } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { MovieService } from '../../services/movie.service';
 import { ActorService, Actor } from '../../services/actor.service';
 import { GenreService, Genre } from '../../services/genre.service';
-import Swal from 'sweetalert2'; // Thêm import này
+import { AgeRatingService, AgeRating } from '../../services/age-rating.service';
+import { MovieFormatService, MovieFormat } from '../../services/movie-format.service';
+import Swal from 'sweetalert2';
+
+// Import Material Dialog
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { AgeRatingDialogComponent } from '../../age-rating/age-rating-dialog/age-rating-dialog.component';
+import { MovieFormatDialogComponent } from '../../movie-format/movie-format-dialog/movie-format-dialog.component';
 
 declare var $: any; // Để sử dụng jQuery với Dropify
 
 @Component({
   selector: 'app-add-movie-modal',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, FormsModule],
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    FormsModule,
+    MatDialogModule
+  ],
   templateUrl: './add-movie-modal.component.html',
   styleUrls: ['./add-movie-modal.component.css']
 })
@@ -32,6 +44,17 @@ export class AddMovieModalComponent implements OnInit, AfterViewInit {
   genreSearchTerm: string = '';
   showGenreDropdown: boolean = false;
 
+  // Age Rating properties
+  ageRatings: AgeRating[] = [];
+  selectedAgeRatingId: string = '';
+
+  // Movie Format properties
+  movieFormats: MovieFormat[] = [];
+  selectedFormats: MovieFormat[] = [];
+  filteredFormats: MovieFormat[] = [];
+  formatSearchTerm: string = '';
+  showFormatDropdown: boolean = false;
+
   selectedThumbnail: File | null = null;
   selectedBanner: File | null = null;
   selectedTrailer: File | null = null;
@@ -45,7 +68,10 @@ export class AddMovieModalComponent implements OnInit, AfterViewInit {
     private fb: FormBuilder,
     private movieService: MovieService,
     private actorService: ActorService,
-    private genreService: GenreService
+    private genreService: GenreService,
+    private ageRatingService: AgeRatingService,
+    private movieFormatService: MovieFormatService,
+    @Inject(MatDialog) private dialog: MatDialog
   ) {
     this.movieForm = this.fb.group({
       movieName: ['', Validators.required],
@@ -54,7 +80,9 @@ export class AddMovieModalComponent implements OnInit, AfterViewInit {
       releaseDate: ['', Validators.required],
       status: [1],
       listActorID: [[]],
-      listGenreID: [[]]
+      listGenreID: [[]],
+      ageRatingId: [''],
+      listFormatID: [[]]
     });
   }
 
@@ -62,6 +90,39 @@ export class AddMovieModalComponent implements OnInit, AfterViewInit {
     this.initForm();
     this.loadActors();
     this.loadGenres();
+    this.loadAgeRatings();
+    this.loadMovieFormats();
+  }
+
+  // Load age ratings
+  loadAgeRatings() {
+    this.ageRatingService.getAgeRatingList(1, 100).subscribe({
+      next: (response) => {
+        if (response.responseCode === 200) {
+          this.ageRatings = response.data;
+        }
+      },
+      error: (error) => {
+        console.error('Error loading age ratings:', error);
+        this.errorMessage = 'Không thể tải danh sách xếp hạng độ tuổi';
+      }
+    });
+  }
+
+  // Load movie formats
+  loadMovieFormats() {
+    this.movieFormatService.getMovieFormatList(1, 100).subscribe({
+      next: (response) => {
+        if (response.responseCode === 200) {
+          this.movieFormats = response.data;
+          this.filterFormats();
+        }
+      },
+      error: (error) => {
+        console.error('Error loading movie formats:', error);
+        this.errorMessage = 'Không thể tải danh sách định dạng phim';
+      }
+    });
   }
 
   loadGenres() {
@@ -182,10 +243,13 @@ export class AddMovieModalComponent implements OnInit, AfterViewInit {
   onClickOutside(event: Event) {
     const element = event.target as HTMLElement;
     if (!element.closest('.actor-dropdown') && !element.closest('.genre-dropdown') &&
-      !element.closest('input[placeholder="Tìm kiếm diễn viên..."]') &&
-      !element.closest('input[placeholder="Tìm kiếm thể loại..."]')) {
+        !element.closest('.format-dropdown') &&
+        !element.closest('input[placeholder="Tìm kiếm diễn viên..."]') &&
+        !element.closest('input[placeholder="Tìm kiếm thể loại..."]') &&
+        !element.closest('input[placeholder="Tìm kiếm định dạng phim..."]')) {
       this.showDropdown = false;
       this.showGenreDropdown = false;
+      this.showFormatDropdown = false;
     }
   }
 
@@ -207,6 +271,44 @@ export class AddMovieModalComponent implements OnInit, AfterViewInit {
   private updateFormActorIds() {
     const actorIds = this.selectedActors.map(actor => actor.id);
     this.movieForm.patchValue({ listActorID: actorIds });
+  }
+
+  // Filter formats
+  filterFormats() {
+    if (!this.formatSearchTerm) {
+      this.filteredFormats = this.movieFormats.filter(format =>
+        !this.selectedFormats.some(selected => selected.formatId === format.formatId)
+      );
+    } else {
+      this.filteredFormats = this.movieFormats.filter(format =>
+        format.name.toLowerCase().includes(this.formatSearchTerm.toLowerCase()) &&
+        !this.selectedFormats.some(selected => selected.formatId === format.formatId)
+      );
+    }
+    this.showFormatDropdown = this.filteredFormats.length > 0;
+  }
+
+  // Select a format
+  selectFormat(format: MovieFormat) {
+    if (!this.selectedFormats.some(selected => selected.formatId === format.formatId)) {
+      this.selectedFormats.push(format);
+      this.formatSearchTerm = '';
+      this.filterFormats();
+      this.updateFormFormatIds();
+    }
+  }
+
+  // Remove a format
+  removeFormat(format: MovieFormat) {
+    this.selectedFormats = this.selectedFormats.filter(f => f.formatId !== format.formatId);
+    this.filterFormats();
+    this.updateFormFormatIds();
+  }
+
+  // Update form format IDs
+  private updateFormFormatIds() {
+    const formatIds = this.selectedFormats.map(format => format.formatId);
+    this.movieForm.patchValue({ listFormatID: formatIds });
   }
 
   onFileSelect(event: any, type: string) {
@@ -257,6 +359,11 @@ export class AddMovieModalComponent implements OnInit, AfterViewInit {
       formData.append('releaseDate', this.movieForm.value.releaseDate);
       formData.append('status', this.movieForm.value.status);
 
+      // Add AgeRatingId if selected
+      if (this.movieForm.value.ageRatingId) {
+        formData.append('ageRatingId', this.movieForm.value.ageRatingId);
+      }
+
       // Add files if selected
       if (this.selectedThumbnail) {
         formData.append('thumbnail', this.selectedThumbnail);
@@ -295,6 +402,13 @@ export class AddMovieModalComponent implements OnInit, AfterViewInit {
       if (this.selectedGenres && this.selectedGenres.length > 0) {
         this.selectedGenres.forEach(genre => {
           formData.append('listGenreID', genre.id);
+        });
+      }
+
+      // Add format IDs
+      if (this.selectedFormats && this.selectedFormats.length > 0) {
+        this.selectedFormats.forEach(format => {
+          formData.append('listFormatID', format.formatId);
         });
       }
 
@@ -366,7 +480,9 @@ export class AddMovieModalComponent implements OnInit, AfterViewInit {
       releaseDate: ['', Validators.required],
       status: [1],
       listActorID: [[]],
-      listGenreID: [[]]
+      listGenreID: [[]],
+      ageRatingId: [''],
+      listFormatID: [[]]
     });
   }
 
@@ -386,4 +502,45 @@ export class AddMovieModalComponent implements OnInit, AfterViewInit {
       URL.revokeObjectURL(this.trailerPreviewUrl);
     }
   }
+
+  // Mở dialog quản lý Age Rating sử dụng Angular Material
+  openAgeRatingModal(mode: 'add' | 'list') {
+    const dialogRef = this.dialog.open(AgeRatingDialogComponent, {
+      width: '900px',
+      disableClose: false,
+      data: { mode: mode }
+    });
+
+    dialogRef.afterClosed().subscribe((result: boolean | undefined) => {
+      if (result) {
+        // Nếu có thay đổi, tải lại danh sách age rating
+        this.loadAgeRatings();
+      }
+    });
+  }
+
+  // Mở dialog quản lý Movie Format sử dụng Angular Material
+  openMovieFormatModal(mode: 'add' | 'list') {
+    const dialogRef = this.dialog.open(MovieFormatDialogComponent, {
+      width: '900px',
+      disableClose: false,
+      data: { mode: mode }
+    });
+
+    dialogRef.afterClosed().subscribe((result: boolean | undefined) => {
+      if (result) {
+        // Nếu có thay đổi, tải lại danh sách movie format
+        this.loadMovieFormats();
+      }
+    });
+  }
+
+
+
+
+
+
+
+
+
 }

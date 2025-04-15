@@ -1,61 +1,78 @@
 <div class="container-fluid">
   <!-- Header section with title, search, and add button -->
-  <div class="row mb-4 align-items-center">
-    <div class="col-md-4">
-      <h3 class="page-title m-0">Quản lý suất chiếu (còn cột hiển thị thời lượng phim)</h3>
+
+  <div class="dashboard-header p-0">
+    <div class="row align-items-center">
+      <div class="col-md-6">
+        <h2 class="mb-0 text-gradient">Quản lý suất chiếu</h2>
+        <p class="text-muted">Thông tin chi tiết về dữ liệu suất chiếu</p>
+      </div>
     </div>
+
+
 
   </div>
 
-  <div class="page-header">
+
+  <div class="page-header m-0 p-0">
     <!-- Search and filter controls -->
-    <div class="row align-items-center mb-3">
-      <div class="col-md-3">
+    <div class="row" style="width: 100% !important">
+
+      <!-- Bộ lọc phim -->
+      <div class="col-md-2">
         <select class="custom-header-select" [(ngModel)]="selectedMovieId" (change)="onMovieChange()">
           <option [value]="''">Tất cả phim</option>
           <option *ngFor="let movie of movies" [value]="movie.id">{{ movie.movieName }}</option>
         </select>
       </div>
 
-      <div class="col-md-3">
-        <select class="custom-header-select" [(ngModel)]="selectedRoomId" (change)="onRoomChange()">
+      <!-- Bộ lọc phòng -->
+      <div class="col-md-2">
+        <select class="custom-header-select" [(ngModel)]="selectedRoomId" (change)="onFilterRoomChange()">
           <option value="">Tất cả phòng</option>
           <option *ngFor="let room of rooms" [value]="room.id">{{ room.name }}</option>
         </select>
       </div>
 
-      <div class="col-md-3">
+      <!-- Bộ lọc trạng thái -->
+      <div class="col-md-2">
         <select class="custom-header-select" [(ngModel)]="selectedStatus" (change)="onStatusChange()">
-          <option [value]="STATUS_TYPES.ALL">Tất cả trạng thái</option>
-          <option [value]="STATUS_TYPES.UPCOMING">Sắp chiếu</option>
-          <option [value]="STATUS_TYPES.PLAYING">Đang chiếu</option>
-          <option [value]="STATUS_TYPES.ENDED">Đã chiếu</option>
+          <option [value]="-1">Tất cả trạng thái</option>
+          <option [value]="1">Sắp chiếu</option>
+          <option [value]="2">Chuẩn bị chiếu</option>
+          <option [value]="3">Đang chiếu</option>
+          <option [value]="4">Đã kết thúc</option>
+          <option [value]="5">Đang bảo trì</option>
         </select>
       </div>
 
-      <div class="col-md-3">
-        <button class="btn btn-outline-secondary clear-filter-btn" (click)="clearAllFilters()">
+      <!-- Nút xóa bộ lọc -->
+      <div class="col-2">
+        <button class="btn btn-outline-secondary clear-filter-btn w-100" (click)="clearAllFilters()">
           <i class="fas fa-times me-1"></i>Xóa tất cả bộ lọc
         </button>
       </div>
-    </div>
 
-    <!-- Date Range Filter -->
-    <div class="row align-items-center">
-      <div class="col-md-6">
+      <!-- Date Range Filter -->
+      <div class="col-md-2">
         <div class="d-flex align-items-center">
           <label class="text-white me-2 mb-0">Từ:</label>
           <input type="datetime-local" class="form-control custom-header-select" [(ngModel)]="startDateFilter"
             (change)="onDateFilterChange()">
         </div>
       </div>
-      <div class="col-md-6">
+
+
+      <div class="col-md-2">
         <div class="d-flex align-items-center">
           <label class="text-white me-2 mb-0">Đến:</label>
           <input type="datetime-local" class="form-control custom-header-select" [(ngModel)]="endDateFilter"
             (change)="onDateFilterChange()">
         </div>
       </div>
+
+
+
     </div>
   </div>
 
@@ -89,7 +106,8 @@
               </div>
 
               <div>
-                <select class="form-select form-select-sm">
+                <select class="form-select form-select-sm" [(ngModel)]="recordPerPage"
+                  (change)="onRecordsPerPageChange()">
                   <option [value]="10">10 bản ghi</option>
                   <option [value]="20">20 bản ghi</option>
                   <option [value]="50">50 bản ghi</option>

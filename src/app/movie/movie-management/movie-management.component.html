@@ -1,6 +1,20 @@
 <div class="container-fluid">
 
-  <h2 class="mb-4">Quản lý phim</h2>
+
+  <div class="dashboard-header p-0">
+
+    <div class="row align-items-center">
+      <div class="col-md-6">
+        <h2 class="mb-0 text-gradient">Quản lý phim</h2>
+        <p class="text-muted">Thông tin chi tiết về dữ liệu phim</p>
+      </div>
+    </div>
+
+
+  </div>
+
+
+
 
 
   <div class="d-flex">
@@ -100,6 +114,10 @@
                       <div class="d-flex align-items-center">
                         <div class="ms-3">
                           <p class="fw-bold mb-1">{{movie.movieName}}</p>
+                          <span *ngIf="movie.ageRatingCode" class="badge bg-warning text-dark">{{movie.ageRatingCode}}</span>
+                          <span class="badge" [ngClass]="{'bg-success': movie.status === 1, 'bg-danger': movie.status !== 1}">
+                            {{movie.status === 1 ? 'Đang chiếu' : 'Ngừng chiếu'}}
+                          </span>
                         </div>
                       </div>
                     </td>

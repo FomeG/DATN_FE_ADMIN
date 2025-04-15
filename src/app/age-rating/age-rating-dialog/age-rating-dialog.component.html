@@ -1,0 +1,151 @@
+<div class="age-rating-dialog">
+  <div class="dialog-header">
+    <h2 mat-dialog-title>Quản lý xếp hạng độ tuổi</h2>
+  </div>
+
+  <mat-dialog-content>
+    <mat-tab-group [selectedIndex]="activeTab" (selectedIndexChange)="onTabChange($event)">
+      <!-- Tab danh sách -->
+      <mat-tab label="Danh sách">
+        <div class="mt-3">
+          <div *ngIf="isLoading" class="d-flex justify-content-center my-3">
+            <mat-spinner diameter="40"></mat-spinner>
+          </div>
+
+          <div *ngIf="!isLoading && ageRatings.length === 0" class="alert alert-info">
+            Không có dữ liệu xếp hạng độ tuổi.
+          </div>
+
+          <div *ngIf="!isLoading && ageRatings.length > 0">
+            <div class="mb-3 d-flex justify-content-end">
+              <button mat-raised-button color="primary" (click)="activeTab = 1; resetForm()">
+                <mat-icon>add</mat-icon> Thêm mới
+              </button>
+            </div>
+
+            <div class="table-container">
+              <div class="loading-shade" *ngIf="isLoading">
+                <mat-spinner diameter="40"></mat-spinner>
+              </div>
+              <table mat-table [dataSource]="ageRatings" class="w-100">
+              <!-- STT Column -->
+              <ng-container matColumnDef="position">
+                <th mat-header-cell *matHeaderCellDef>STT</th>
+                <td mat-cell *matCellDef="let element; let i = index">{{ (currentPage - 1) * recordPerPage + i + 1 }}</td>
+              </ng-container>
+
+              <!-- Mã Column -->
+              <ng-container matColumnDef="code">
+                <th mat-header-cell *matHeaderCellDef>Mã</th>
+                <td mat-cell *matCellDef="let element">
+                  <span class="badge bg-primary">{{ element.code }}</span>
+                </td>
+              </ng-container>
+
+              <!-- Độ tuổi Column -->
+              <ng-container matColumnDef="minAge">
+                <th mat-header-cell *matHeaderCellDef>Độ tuổi</th>
+                <td mat-cell *matCellDef="let element">{{ element.minAge }}+</td>
+              </ng-container>
+
+              <!-- Mô tả Column -->
+              <ng-container matColumnDef="description">
+                <th mat-header-cell *matHeaderCellDef>Mô tả</th>
+                <td mat-cell *matCellDef="let element">{{ element.description }}</td>
+              </ng-container>
+
+              <!-- Thao tác Column -->
+              <ng-container matColumnDef="actions">
+                <th mat-header-cell *matHeaderCellDef>Thao tác</th>
+                <td mat-cell *matCellDef="let element" class="action-cell">
+                  <button mat-icon-button color="primary" (click)="editAgeRating(element)" matTooltip="Sửa">
+                    <mat-icon>edit</mat-icon>
+                  </button>
+                  <button mat-icon-button color="warn" (click)="deleteAgeRating(element.ageRatingId)" matTooltip="Xóa">
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                </td>
+              </ng-container>
+
+              <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+              <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+            </table>
+            </div>
+
+            <mat-paginator
+              [length]="totalRecords"
+              [pageSize]="recordPerPage"
+              [pageSizeOptions]="[5, 10, 25, 100]"
+              (page)="changePage($event)"
+              showFirstLastButtons>
+            </mat-paginator>
+          </div>
+        </div>
+      </mat-tab>
+
+      <!-- Tab thêm/sửa -->
+      <mat-tab label="{{ isEditing ? 'Cập nhật' : 'Thêm mới' }}">
+        <div class="mt-3">
+          <div class="form-container">
+            <form [formGroup]="ageRatingForm" (ngSubmit)="onSubmit()">
+              <div class="form-row">
+                <div class="form-field">
+                  <mat-form-field appearance="outline" class="w-100">
+                    <mat-label>Mã xếp hạng</mat-label>
+                    <input matInput formControlName="code" placeholder="Ví dụ: P, C13, C16, C18">
+                    <mat-error *ngIf="ageRatingForm.get('code')?.hasError('required')">
+                      Mã xếp hạng là bắt buộc
+                    </mat-error>
+                    <mat-error *ngIf="ageRatingForm.get('code')?.hasError('maxlength')">
+                      Mã xếp hạng không được vượt quá 10 ký tự
+                    </mat-error>
+                  </mat-form-field>
+                </div>
+                <div class="form-field">
+                  <mat-form-field appearance="outline" class="w-100">
+                    <mat-label>Độ tuổi tối thiểu</mat-label>
+                    <input matInput type="number" formControlName="minimumAge" min="0" max="21">
+                    <mat-error *ngIf="ageRatingForm.get('minimumAge')?.hasError('required')">
+                      Độ tuổi tối thiểu là bắt buộc
+                    </mat-error>
+                    <mat-error *ngIf="ageRatingForm.get('minimumAge')?.hasError('min')">
+                      Độ tuổi tối thiểu không được nhỏ hơn 0
+                    </mat-error>
+                    <mat-error *ngIf="ageRatingForm.get('minimumAge')?.hasError('max')">
+                      Độ tuổi tối thiểu không được lớn hơn 21
+                    </mat-error>
+                  </mat-form-field>
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-field">
+                  <mat-form-field appearance="outline" class="w-100">
+                    <mat-label>Mô tả</mat-label>
+                    <textarea matInput formControlName="description" rows="3" placeholder="Mô tả về xếp hạng độ tuổi"></textarea>
+                    <mat-error *ngIf="ageRatingForm.get('description')?.hasError('required')">
+                      Mô tả là bắt buộc
+                    </mat-error>
+                    <mat-error *ngIf="ageRatingForm.get('description')?.hasError('maxlength')">
+                      Mô tả không được vượt quá 200 ký tự
+                    </mat-error>
+                  </mat-form-field>
+                </div>
+              </div>
+              <div class="action-buttons">
+                <button type="button" mat-button (click)="resetForm(); activeTab = 0" *ngIf="isEditing">Hủy</button>
+                <button type="submit" mat-raised-button color="primary" [disabled]="isLoading">
+                  <mat-spinner diameter="20" *ngIf="isLoading" class="me-2"></mat-spinner>
+                  {{ isEditing ? 'Cập nhật' : 'Thêm mới' }}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </mat-tab>
+    </mat-tab-group>
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    <button mat-button (click)="onCancel()">Đóng</button>
+  </mat-dialog-actions>
+</div>

@@ -15,6 +15,8 @@
             {{ errorMessage }}
           </div>
 
+
+
           <div class="form-group">
             <label for="movieName">Tên phim *</label>
             <input type="text" class="form-control" id="movieName" formControlName="movieName">
@@ -50,6 +52,26 @@
             </div>
           </div>
 
+          <div class="form-group">
+            <label for="ageRatingId">Xếp hạng độ tuổi</label>
+            <div class="input-group">
+              <select class="form-control" id="ageRatingId" formControlName="ageRatingId">
+                <option value="">-- Chọn xếp hạng độ tuổi --</option>
+                <option *ngFor="let rating of ageRatings" [value]="rating.ageRatingId">
+                  {{rating.code}} - {{rating.description}} ({{rating.minAge}}+)
+                </option>
+              </select>
+              <div class="input-group-append">
+                <button type="button" class="btn btn-outline-primary" (click)="openAgeRatingModal('add')">
+                  <i class="fas fa-plus"></i>
+                </button>
+                <button type="button" class="btn btn-outline-secondary" (click)="openAgeRatingModal('list')">
+                  <i class="fas fa-cog"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+
           <!-- Actor Selection -->
           <div class="mb-3 position-relative">
             <label class="form-label">Diễn viên</label>
@@ -65,7 +87,7 @@
               <input type="text" class="form-control" [(ngModel)]="searchTerm" [ngModelOptions]="{standalone: true}"
                 (input)="filterActors()" (focus)="showDropdown = true" placeholder="Tìm kiếm diễn viên...">
             </div>
-          
+
             <!-- Dropdown list -->
             <div class="actor-dropdown shadow" *ngIf="showDropdown && filteredActors.length > 0">
               <div class="list-group">
@@ -92,13 +114,50 @@
               <input type="text" class="form-control" [(ngModel)]="genreSearchTerm" [ngModelOptions]="{standalone: true}"
                 (input)="filterGenres()" (focus)="showGenreDropdown = true" placeholder="Tìm kiếm thể loại...">
             </div>
-          
+
             <!-- Dropdown list cho thể loại -->
             <div class="genre-dropdown shadow" *ngIf="showGenreDropdown && filteredGenres.length > 0">
               <div class="list-group">
                 <button type="button" *ngFor="let genre of filteredGenres" class="list-group-item list-group-item-action"
                   (click)="selectGenre(genre)">
                   {{genre.genreName}}
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Định dạng phim -->
+          <div class="mb-3 position-relative">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <label class="form-label mb-0">Định dạng phim</label>
+              <div>
+                <button type="button" class="btn btn-sm btn-outline-primary me-2" (click)="openMovieFormatModal('add')">
+                  <i class="fas fa-plus"></i>
+                </button>
+                <button type="button" class="btn btn-sm btn-outline-secondary" (click)="openMovieFormatModal('list')">
+                  <i class="fas fa-cog"></i>
+                </button>
+              </div>
+            </div>
+            <div class="selected-formats mb-2">
+              <span *ngFor="let format of selectedFormats" class="badge bg-secondary me-2 mb-2">
+                {{format.name}}
+                <button type="button" class="btn-close btn-close-white ms-2" (click)="removeFormat(format)"
+                  style="font-size: 0.5rem;">
+                </button>
+              </span>
+            </div>
+            <div class="input-group">
+              <input type="text" class="form-control" [(ngModel)]="formatSearchTerm" [ngModelOptions]="{standalone: true}"
+                (input)="filterFormats()" (focus)="showFormatDropdown = true" placeholder="Tìm kiếm định dạng phim...">
+            </div>
+
+            <!-- Dropdown list cho định dạng phim -->
+            <div class="format-dropdown shadow" *ngIf="showFormatDropdown && filteredFormats.length > 0">
+              <div class="list-group">
+                <button type="button" *ngFor="let format of filteredFormats" class="list-group-item list-group-item-action"
+                  (click)="selectFormat(format)">
+                  {{format.name}} - {{format.description}}
                 </button>
               </div>
             </div>

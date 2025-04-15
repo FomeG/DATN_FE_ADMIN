@@ -261,3 +261,13 @@
   border-color: #0090e7 !important;
   box-shadow: 0 0 0 0.2rem rgba(0, 144, 231, 0.25) !important;
 }
+
+
+/* Tiêu đề trang */
+.page-title {
+  font-weight: 600;
+  margin-bottom: 0;
+  font-size: 1.75rem;
+  color: #ffffff;
+  line-height: 42px;
+}

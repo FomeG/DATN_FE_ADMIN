@@ -13,7 +13,7 @@ import { LoginComponent } from './login/login.component';
 import { authGuard } from './auth/auth.guard';
 import { VoucherManagementComponent } from './voucher/voucher-management/voucher-management.component';
 import { VoucherUsageManagementComponent } from './voucher/voucher-usage-management/voucher-usage-management.component';
-import { CinemaManagementComponent } from './cinema-management/cinema-management.component';
+import { CinemaManagementComponent } from './cinema/cinema-management/cinema-management.component';
 import { ServiceManagementComponent } from './dichvu/service-management/service-management.component';
 import { ServiceTypeManagementComponent } from './dichvu/service-type-management/service-type-management.component';
 // import { STATISTICS_ROUTES } from './statistics/statistics-routing';

@@ -5,11 +5,12 @@ import { AddMovieModalComponent } from '../add-movie-modal/add-movie-modal.compo
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import Swal from 'sweetalert2';
+import { MatDialogModule } from '@angular/material/dialog';
 
 @Component({
   selector: 'app-movie-management',
   standalone: true,
-  imports: [CommonModule, AddMovieModalComponent, FormsModule],
+  imports: [CommonModule, FormsModule, MatDialogModule, AddMovieModalComponent],
   templateUrl: './movie-management.component.html',
   styleUrls: ['./movie-management.component.css']
 })
@@ -238,7 +239,7 @@ export class MovieManagementComponent implements OnInit {
   // Phương thức xử lý khi thay đổi số bản ghi mỗi trang
   onRecordsPerPageChange() {
     this.currentPage = 1; // Reset về trang đầu tiên
-    
+
     if (this.searchTerm || this.sortColumn) {
       // Nếu đang tìm kiếm hoặc sắp xếp (client-side), cập nhật lại kết quả
       this.applyFilters();

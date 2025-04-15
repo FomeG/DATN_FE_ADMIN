@@ -3,6 +3,9 @@
 @import './assets/vendors/css/vendor.bundle.base.css';
 @import './assets/css/style.css';
 
+/* Import Angular Material theme */
+@import '@angular/material/prebuilt-themes/purple-green.css';
+
 /* Import các thư viện bổ sung */
 @import './assets/vendors/select2/select2.min.css';
 @import './assets/vendors/select2-bootstrap-theme/select2-bootstrap.min.css';
@@ -249,4 +252,185 @@ body.auth.login-bg {
 
 .table tr:hover td {
     color: #ffffff !important;
+}
+
+
+
+.text-gradient {
+    background: linear-gradient(90deg, #4e73df 0%, #36b9cc 100%) !important;
+    background-clip: text !important;
+    -webkit-background-clip: text;
+    color: transparent !important;
+}
+
+
+
+
+.dashboard-header {
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid rgba(60, 60, 60, 0.866)!important;
+    /* border: 10px solid white !important; */
+}
+
+/* Angular Material Dialog Customization */
+.mat-mdc-dialog-container {
+  --mdc-dialog-container-color: #191c24 !important;
+  --mdc-dialog-with-divider-divider-color: rgba(255, 255, 255, 0.12) !important;
+  --mdc-dialog-subhead-color: #ffffff !important;
+  --mdc-dialog-supporting-text-color: #d0d0d0 !important;
+  color: #ffffff !important;
+}
+
+.mat-mdc-dialog-container .mdc-dialog__surface {
+  background-color: #191c24 !important;
+  color: #ffffff !important;
+  border-radius: 10px !important;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5) !important;
+}
+
+.mat-mdc-dialog-title {
+  color: #ffffff !important;
+  font-size: 1.5rem !important;
+  font-weight: 500 !important;
+}
+
+.mat-mdc-dialog-content {
+  color: #d0d0d0 !important;
+}
+
+.mat-mdc-dialog-actions {
+  padding: 16px 24px !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.12) !important;
+}
+
+/* Ensure dialog appears on top of everything */
+.cdk-overlay-container {
+  z-index: 9999 !important;
+}
+
+.cdk-overlay-backdrop.cdk-overlay-backdrop-showing {
+  opacity: 0.85 !important;
+}
+
+/* Material Form Field Customization */
+.mat-mdc-form-field {
+  width: 100% !important;
+}
+
+.mat-mdc-text-field-wrapper {
+  background-color: #2A3038 !important;
+  border-radius: 5px !important;
+}
+
+.mat-mdc-form-field-focus-overlay {
+  background-color: rgba(255, 255, 255, 0.05) !important;
+}
+
+.mat-mdc-text-field-wrapper.mdc-text-field--focused {
+  background-color: #2d3748 !important;
+}
+
+.mat-mdc-form-field-label {
+  color: #bbb !important;
+}
+
+.mat-mdc-input-element {
+  color: #ffffff !important;
+}
+
+/* Material Button Customization */
+.mat-mdc-raised-button.mat-primary {
+  background: linear-gradient(to right, #0090e7, #0077b5) !important;
+}
+
+.mat-mdc-raised-button.mat-accent {
+  background-color: #00d25b !important;
+}
+
+.mat-mdc-raised-button.mat-warn {
+  background-color: #fc424a !important;
+}
+
+/* Material Table Customization */
+.mat-mdc-table {
+  background-color: #191c24 !important;
+  color: #ffffff !important;
+}
+
+.mat-mdc-header-row {
+  background-color: #2A3038 !important;
+}
+
+.mat-mdc-header-cell {
+  color: #ffffff !important;
+  font-weight: 500 !important;
+}
+
+.mat-mdc-row:hover {
+  background-color: rgba(255, 255, 255, 0.05) !important;
+}
+
+.mat-mdc-cell {
+  color: #d0d0d0 !important;
+  border-bottom-color: rgba(255, 255, 255, 0.12) !important;
+}
+
+/* Material Tabs Customization */
+.mat-mdc-tab-header {
+  background-color: #2A3038 !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12) !important;
+}
+
+.mat-mdc-tab {
+  color: #bbb !important;
+}
+
+.mat-mdc-tab.mdc-tab--active {
+  color: #0090e7 !important;
+}
+
+.mat-mdc-tab-body-content {
+  color: #ffffff !important;
+}
+
+/* Material Paginator Customization */
+.mat-mdc-paginator {
+  background-color: #191c24 !important;
+  color: #ffffff !important;
+}
+
+.mat-mdc-paginator-page-size-select {
+  background-color: #2A3038 !important;
+  color: #ffffff !important;
+}
+
+.mat-mdc-paginator-range-label {
+  color: #bbb !important;
+}
+
+.mat-mdc-paginator-navigation-previous,
+.mat-mdc-paginator-navigation-next {
+  color: #ffffff !important;
+}
+
+/* Material Select Customization */
+.mat-mdc-select-panel {
+  background-color: #2A3038 !important;
+  color: #ffffff !important;
+  border-radius: 5px !important;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3) !important;
+}
+
+.mat-mdc-option {
+  color: #d0d0d0 !important;
+}
+
+.mat-mdc-option:hover:not(.mdc-list-item--disabled) {
+  background-color: rgba(255, 255, 255, 0.05) !important;
+}
+
+.mat-mdc-option.mdc-list-item--selected:not(.mdc-list-item--disabled) {
+  background-color: rgba(0, 144, 231, 0.2) !important;
+  color: #ffffff !important;
 }

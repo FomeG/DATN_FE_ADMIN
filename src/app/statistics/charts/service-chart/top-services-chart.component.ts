@@ -16,7 +16,7 @@ import {
   NgApexchartsModule
 } from 'ng-apexcharts';
 
-import { StatisticService, StatisticTopServicesRes } from '../../../services/statistic.service';
+import { StatisticService, ServiceStatisticSummaryDateRange } from '../../../services/statistic.service';
 import { DashboardService, DateRange } from '../../shared/services/dashboard.service';
 import { ExportService } from '../../shared/services/export.service';
 
@@ -66,18 +66,18 @@ interface CommonResponse<T> {
             <span class="visually-hidden">Đang tải...</span>
           </div>
         </div>
-        
+
         <div *ngIf="!isLoading && !hasData" class="text-center p-5">
           <p class="text-muted">Không có dữ liệu trong khoảng thời gian đã chọn</p>
         </div>
-        
+
         <div *ngIf="isSampleData" class="sample-data-warning">
           <div class="alert alert-warning mb-3">
             <i class="mdi mdi-information-outline me-2"></i>
             Đang hiển thị dữ liệu mẫu do không có dữ liệu thực từ API
           </div>
         </div>
-        
+
         <div *ngIf="!isLoading && hasData">
           <div id="top-services-chart">
             <apx-chart
@@ -103,50 +103,50 @@ interface CommonResponse<T> {
       display: block;
       margin-bottom: 1.5rem;
     }
-    
+
     .card {
       border-radius: 10px;
       box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
       overflow: hidden;
     }
-    
+
     .card-header {
       border-bottom: 1px solid rgba(0, 0, 0, 0.05);
       background-color: transparent;
     }
-    
+
     .card-title {
       margin-bottom: 0;
       color: #333;
       font-weight: 600;
     }
-    
+
     .btn-group .btn {
       border-radius: 4px;
       margin-left: 5px;
       transition: all 0.2s;
     }
-    
+
     .btn-group .btn:hover {
       transform: translateY(-2px);
       box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
     }
-    
+
     .btn-group .btn-outline-primary {
       color: #4e73df;
       border-color: #4e73df;
     }
-    
+
     .btn-group .btn-outline-primary:hover {
       background-color: #4e73df;
       color: white;
     }
-    
+
     .btn-group .btn-outline-secondary {
       color: #6c757d;
       border-color: #6c757d;
     }
-    
+
     .btn-group .btn-outline-secondary:hover {
       background-color: #6c757d;
       color: white;
@@ -160,7 +160,7 @@ interface CommonResponse<T> {
       padding: 12px !important;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6) !important;
     }
-    
+
     :global(.tooltip-title) {
       color: #90cdf4 !important;
       font-weight: bold !important;
@@ -169,14 +169,14 @@ interface CommonResponse<T> {
       margin-bottom: 8px !important;
       text-align: left !important;
     }
-    
+
     :global(.tooltip-value) {
       color: #f7fafc !important;
       font-size: 16px !important;
       font-weight: 600 !important;
       text-align: left !important;
     }
-    
+
     /* CSS cho menu xuất dữ liệu của ApexCharts */
     :global(.apexcharts-menu) {
       background-color: #1a202c !important;
@@ -186,7 +186,7 @@ interface CommonResponse<T> {
       padding: 8px 4px !important;
       z-index: 999999 !important;
     }
-    
+
     :global(.apexcharts-menu-item) {
       color: white !important;
       font-weight: 500 !important;
@@ -196,62 +196,62 @@ interface CommonResponse<T> {
       transition: all 0.2s ease !important;
       font-size: 14px !important;
     }
-    
+
     :global(.apexcharts-menu-item:hover) {
       background-color: #4299e1 !important;
       color: white !important;
       transform: translateX(4px) !important;
     }
-    
+
     /* CSS dark mode */
     @media (prefers-color-scheme: dark) {
       .card {
         background-color: #2d3748;
         color: #e2e8f0;
       }
-      
+
       .card-header {
         border-bottom: 1px solid rgba(255, 255, 255, 0.05);
       }
-      
+
       .card-title {
         color: #e2e8f0;
       }
-      
+
       .text-muted {
         color: #a0aec0 !important;
       }
-      
+
       .btn-group .btn-outline-primary {
         color: #90cdf4;
         border-color: #90cdf4;
       }
-      
+
       .btn-group .btn-outline-primary:hover {
         background-color: #90cdf4;
         color: #1a202c;
       }
-      
+
       .btn-group .btn-outline-secondary {
         color: #cbd5e0;
         border-color: #cbd5e0;
       }
-      
+
       .btn-group .btn-outline-secondary:hover {
         background-color: #cbd5e0;
         color: #1a202c;
       }
-      
+
       /* Dark mode tooltip styles */
       :global(.custom-tooltip) {
         background: #2d3748 !important;
         border: 1px solid #4a5568 !important;
       }
-      
+
       :global(.tooltip-title) {
         color: #90cdf4 !important;
       }
-      
+
       :global(.tooltip-value) {
         color: #f7fafc !important;
       }
@@ -261,34 +261,34 @@ interface CommonResponse<T> {
         background-color: #2d3748 !important;
         border: 1px solid #4a5568 !important;
       }
-      
+
       :global(.apexcharts-menu-item) {
         color: #f7fafc !important;
       }
-      
+
       :global(.apexcharts-menu-item:hover) {
         background-color: #4a5568 !important;
         color: #90cdf4 !important;
       }
-      
+
       /* ApexCharts dark mode styling */
       :global(.apexcharts-canvas) {
         background-color: #2d3748 !important;
       }
-      
+
       :global(.apexcharts-text) {
         fill: #e2e8f0 !important;
       }
-      
+
       :global(.apexcharts-legend-text) {
         color: #e2e8f0 !important;
       }
-      
+
       :global(.apexcharts-tooltip) {
         background: #2d3748 !important;
         border: 1px solid #4a5568 !important;
       }
-      
+
       :global(.apexcharts-tooltip-title) {
         background: #1a202c !important;
         border-bottom: 1px solid #4a5568 !important;
@@ -334,12 +334,12 @@ export class TopServicesChartComponent implements OnInit, OnDestroy {
     this.isLoading = true;
     this.hasData = false;
     this.isSampleData = false;
-    
+
     const startDate = this.currentDateRange?.startDate ?? undefined;
     const endDate = this.currentDateRange?.endDate ?? undefined;
-    
-    this.statisticService.getTopServices(startDate, endDate).subscribe({
-      next: (response: CommonResponse<StatisticTopServicesRes[]>) => {
+
+    this.statisticService.getServiceSummaryDateRange(startDate, endDate).subscribe({
+      next: (response: CommonResponse<ServiceStatisticSummaryDateRange[]>) => {
         this.isLoading = false;
         console.log('Kết quả API top dịch vụ bán chạy:', response);
 
@@ -364,22 +364,22 @@ export class TopServicesChartComponent implements OnInit, OnDestroy {
     });
   }
 
-  private updateChart(data: StatisticTopServicesRes[]): void {
+  private updateChart(data: ServiceStatisticSummaryDateRange[]): void {
     // Giới hạn số lượng dịch vụ hiển thị (top 10)
     data.sort((a, b) => b.totalSold - a.totalSold);
     const topData = data.slice(0, 10);
-    
+
     const categories: string[] = [];
     const quantitySeries: number[] = [];
     const revenueSeries: number[] = [];
-    
+
     // Xử lý từng dịch vụ
     topData.forEach(item => {
       categories.push(item.serviceName);
       quantitySeries.push(item.totalSold);
       revenueSeries.push(Math.round(item.totalRevenue / 1000)); // Chuyển đổi sang nghìn đồng
     });
-    
+
     // Đảo ngược thứ tự để hiển thị từ trên xuống
     categories.reverse();
     quantitySeries.reverse();
@@ -402,19 +402,19 @@ export class TopServicesChartComponent implements OnInit, OnDestroy {
    * Cập nhật biểu đồ với dữ liệu mẫu khi không có dữ liệu thực
    */
   private updateChartWithSampleData(): void {
-    const sampleData: StatisticTopServicesRes[] = [
-      { serviceName: 'Bắp Caramel', totalSold: 250, totalRevenue: 25000000 },
-      { serviceName: 'Combo Bắp + Coca', totalSold: 220, totalRevenue: 22000000 },
-      { serviceName: 'Coca Cola', totalSold: 200, totalRevenue: 10000000 },
-      { serviceName: 'Combo Gia Đình', totalSold: 180, totalRevenue: 27000000 },
-      { serviceName: 'Bắp Phô Mai', totalSold: 150, totalRevenue: 15000000 },
-      { serviceName: 'Pepsi', totalSold: 140, totalRevenue: 7000000 },
-      { serviceName: 'Trà Đào', totalSold: 120, totalRevenue: 8400000 },
-      { serviceName: 'Combo Đôi', totalSold: 100, totalRevenue: 15000000 },
-      { serviceName: 'Snack Khoai Tây', totalSold: 90, totalRevenue: 5400000 },
-      { serviceName: 'Nước Suối', totalSold: 70, totalRevenue: 2100000 }
+    const sampleData: ServiceStatisticSummaryDateRange[] = [
+      { serviceId: '1', serviceName: 'Bắp Caramel', imageUrl: '', totalSold: 250, totalRevenue: 25000000 },
+      { serviceId: '2', serviceName: 'Combo Bắp + Coca', imageUrl: '', totalSold: 220, totalRevenue: 22000000 },
+      { serviceId: '3', serviceName: 'Coca Cola', imageUrl: '', totalSold: 200, totalRevenue: 10000000 },
+      { serviceId: '4', serviceName: 'Combo Gia Đình', imageUrl: '', totalSold: 180, totalRevenue: 27000000 },
+      { serviceId: '5', serviceName: 'Bắp Phô Mai', imageUrl: '', totalSold: 150, totalRevenue: 15000000 },
+      { serviceId: '6', serviceName: 'Pepsi', imageUrl: '', totalSold: 140, totalRevenue: 7000000 },
+      { serviceId: '7', serviceName: 'Trà Đào', imageUrl: '', totalSold: 120, totalRevenue: 8400000 },
+      { serviceId: '8', serviceName: 'Combo Đôi', imageUrl: '', totalSold: 100, totalRevenue: 15000000 },
+      { serviceId: '9', serviceName: 'Snack Khoai Tây', imageUrl: '', totalSold: 90, totalRevenue: 5400000 },
+      { serviceId: '10', serviceName: 'Nước Suối', imageUrl: '', totalSold: 70, totalRevenue: 2100000 }
     ];
-    
+
     this.updateChart(sampleData);
   }
 
@@ -580,4 +580,4 @@ export class TopServicesChartComponent implements OnInit, OnDestroy {
 
     this.exportService.exportToExcel(exportData, 'top_dich_vu_ban_chay', 'Top dịch vụ bán chạy', this.currentDateRange);
   }
-} 
+}

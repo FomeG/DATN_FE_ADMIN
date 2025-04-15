@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { CinemaService, Cinema, CreateCinemaRequest, UpdateCinemaRequest } from '../services/cinema.service';
+import { CinemaService, Cinema, CreateCinemaRequest, UpdateCinemaRequest } from '../../services/cinema.service';
 import Swal from 'sweetalert2';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { NgxPaginationModule } from 'ngx-pagination';

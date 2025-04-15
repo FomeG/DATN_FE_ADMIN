@@ -29,6 +29,34 @@ export interface ShowtimeParams {
   search?: string;
   currentPage: number;
   recordPerPage: number;
+  startDate?: string;
+  endDate?: string;
+  status?: number;
+  startTimeFilter?: string;
+  endTimeFilter?: string;
+  [key: string]: any; // Cho phép thêm các tham số khác
+}
+
+
+export interface ShowtimeAutoDateRequest {
+  cinemasId: string;
+  roomId: string;
+  date: string;
+  movieId: string;
+}
+
+export interface ShowtimeAutoDateResponse {
+  responseCode: number;
+  message: string;
+  data: {
+    id: string;
+    cinemasId: string;
+    roomId: string;
+    name: string;
+    startTime: string;
+    endTime: string;
+    movieId: string;
+  };
 }
 
 
@@ -61,11 +89,42 @@ export class ShowtimeService {
 
   constructor(private http: HttpClient) { }
 
-  getShowtimes(params: {
-    currentPage: number;
-    recordPerPage: number;
-  }): Observable<ShowtimeResponse> {
-    const url = `${this.apiUrl}ShowTime/GetList?currentPage=${params.currentPage}&recordPerPage=${params.recordPerPage}`;
+  getShowtimes(params: ShowtimeParams): Observable<ShowtimeResponse> {
+    let url = `${this.apiUrl}ShowTime/GetList?currentPage=${params.currentPage}&recordPerPage=${params.recordPerPage}`;
+
+    // Thêm các tham số lọc nếu có
+    if (params.movieId) {
+      url += `&movieId=${params.movieId}`;
+    }
+
+    if (params.roomId) {
+      url += `&roomId=${params.roomId}`;
+    }
+
+    if (params.search) {
+      url += `&search=${encodeURIComponent(params.search)}`;
+    }
+
+    if (params.status !== undefined && params.status !== -1) {
+      url += `&status=${params.status}`;
+    }
+
+    if (params.startDate) {
+      url += `&startDate=${encodeURIComponent(params.startDate)}`;
+    }
+
+    if (params.endDate) {
+      url += `&endDate=${encodeURIComponent(params.endDate)}`;
+    }
+
+    // Thêm các tham số thời gian cụ thể hơn
+    if (params.startTimeFilter) {
+      url += `&startTimeFilter=${encodeURIComponent(params.startTimeFilter)}`;
+    }
+
+    if (params.endTimeFilter) {
+      url += `&endTimeFilter=${encodeURIComponent(params.endTimeFilter)}`;
+    }
 
     console.log('Calling API with URL:', url);
 
@@ -107,6 +166,21 @@ export class ShowtimeService {
 
   showtimeCronJob(): Observable<any> {
     return this.http.post(`${this.apiUrl}ShowTime/ShowtimeCronjob`, {});
+  }
+
+  // Phương thức kiểm tra API lọc theo ngày
+  testDateFilter(startDate: string, endDate: string): Observable<ShowtimeResponse> {
+    const url = `${this.apiUrl}ShowTime/GetList?currentPage=1&recordPerPage=100&startDate=${encodeURIComponent(startDate)}&endDate=${encodeURIComponent(endDate)}`;
+    console.log('Testing date filter with URL:', url);
+    return this.http.get<ShowtimeResponse>(url);
+  }
+
+  // Phương thức lấy tất cả dữ liệu showtime (không phân trang)
+  getAllShowtimes(): Observable<ShowtimeResponse> {
+    // Lấy số lượng lớn để đảm bảo lấy tất cả dữ liệu
+    const url = `${this.apiUrl}ShowTime/GetList?currentPage=1&recordPerPage=1000`;
+    console.log('Getting all showtimes with URL:', url);
+    return this.http.get<ShowtimeResponse>(url);
   }
 
 }

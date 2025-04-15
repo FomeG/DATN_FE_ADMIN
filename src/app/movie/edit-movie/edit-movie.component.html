@@ -47,6 +47,18 @@
           </div>
         </div>
 
+        <div class="col-md-6">
+          <div class="form-group">
+            <label for="ageRatingId" class="form-label">Xếp hạng độ tuổi</label>
+            <select class="form-control" id="ageRatingId" formControlName="ageRatingId">
+              <option value="">-- Chọn xếp hạng độ tuổi --</option>
+              <option *ngFor="let rating of ageRatings" [value]="rating.ageRatingId">
+                {{rating.code}} - {{rating.description}} ({{rating.minAge}}+)
+              </option>
+            </select>
+          </div>
+        </div>
+
         <div class="col-12">
           <div class="form-group">
             <label for="description" class="form-label">Mô tả <span class="text-danger">*</span></label>
@@ -178,6 +190,33 @@
                 <button type="button" *ngFor="let genre of filteredGenres"
                   class="list-group-item list-group-item-action" (click)="selectGenre(genre)">
                   {{genre.genreName}}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Phần Định dạng phim trong form -->
+        <div class="mb-3 col-12">
+          <label class="form-label">Định dạng phim</label>
+          <div class="selected-formats mb-2">
+            <span *ngFor="let format of selectedFormats" class="badge bg-info me-2 mb-2">
+              {{format.name}}
+              <button type="button" class="btn-close btn-close-white ms-2" (click)="removeFormat(format)"
+                style="font-size: 0.5rem;">
+              </button>
+            </span>
+          </div>
+          <div class="format-search-container position-relative">
+            <input type="text" class="form-control" [(ngModel)]="formatSearchTerm" [ngModelOptions]="{standalone: true}"
+              (input)="filterFormats()" (focus)="showFormatDropdown = true" placeholder="Tìm kiếm định dạng phim...">
+
+            <!-- Dropdown list -->
+            <div class="format-dropdown shadow" *ngIf="showFormatDropdown && filteredFormats.length > 0">
+              <div class="list-group">
+                <button type="button" *ngFor="let format of filteredFormats"
+                  class="list-group-item list-group-item-action" (click)="selectFormat(format)">
+                  {{format.name}} - {{format.description}}
                 </button>
               </div>
             </div>

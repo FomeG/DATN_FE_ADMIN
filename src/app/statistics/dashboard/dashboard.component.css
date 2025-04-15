@@ -3,18 +3,6 @@
   position: relative;
 }
 
-.dashboard-header {
-  margin-bottom: 2rem;
-  padding-bottom: 1.5rem;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-}
-
-.text-gradient {
-  background: linear-gradient(90deg, #4e73df 0%, #36b9cc 100%);
-  background-clip: text;
-  -webkit-background-clip: text;
-  color: transparent;
-}
 
 .nav-tabs {
   border-bottom: 1px solid #e3e6f0;
@@ -51,11 +39,6 @@
 }
 
 
-.card-header {
-  background-color: transparent;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-  padding: 1rem 1.5rem;
-}
 
 .card-body {
   padding: 1.5rem;
@@ -100,9 +83,6 @@
     color: #e2e8f0;
   }
 
-  .dashboard-header {
-    border-bottom-color: rgba(255, 255, 255, 0.1);
-  }
 
   .text-muted {
     color: #a0aec0 !important;
@@ -148,6 +128,26 @@
   }
 }
 
+/* Định nghĩa class n-title */
+.card-title {
+  color: #ffffff;
+  font-weight: 500;
+  margin-bottom: 0;
+  font-size: 1.25rem;
+  display: flex;
+  align-items: center;
+  transition: color 0.3s ease;
+}
+
+.card-title::before {
+  content: "";
+  width: 5px;
+  height: 25px;
+  background: linear-gradient(to bottom, #0090e7, #0077b5);
+  margin-right: 15px;
+  border-radius: 3px;
+}
+
 /* Responsive adjustments */
 @media (max-width: 768px) {
   .dashboard-container {
@@ -163,10 +163,6 @@
     font-size: 0.9rem;
   }
 
-  .card-header {
-    padding: 0.75rem 1rem;
-  }
-
   .card-body {
     padding: 1rem;
   }
@@ -176,4 +172,29 @@
   td {
     color: white !important;
   }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 }

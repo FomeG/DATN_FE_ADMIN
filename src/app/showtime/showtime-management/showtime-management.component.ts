@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MovieService } from '../../services/movie.service';
 import { RoomService } from '../../services/room.service';
-import { ShowtimeService, Showtime, ShowtimeResponse, ShowtimeAutoDateRequest } from '../../services/showtime.service';
+import { ShowtimeService, Showtime, ShowtimeResponse, ShowtimeAutoDateRequest, ShowtimeParams } from '../../services/showtime.service';
 import { CinemaService } from '../../services/cinema.service';
 import { DatePipe } from '@angular/common';
 
@@ -54,7 +54,10 @@ interface RoomShowtime {
   providers: [DatePipe]
 })
 export class ShowtimeManagementComponent implements OnInit, OnDestroy {
-  showtimes: Showtime[] = [];
+  showtimes: Showtime[] = []; // Dữ liệu hiển thị sau khi phân trang
+  originalShowtimes: Showtime[] = []; // Lưu trữ dữ liệu gốc từ API
+  allShowtimes: Showtime[] = []; // Lưu trữ tất cả dữ liệu
+  filteredShowtimes: Showtime[] = []; // Dữ liệu sau khi lọc
   movies: any[] = [];
   rooms: any[] = [];
   cinemas: any[] = [];
@@ -74,9 +77,6 @@ export class ShowtimeManagementComponent implements OnInit, OnDestroy {
   upcomingShowtimes: Showtime[] = [];
   playingShowtimes: Showtime[] = [];
   maintenanceShowtimes: Showtime[] = [];
-  private reportIssueModalInstance: any;
-
-
 
   cinemaList: CinemaItem[] = [];
 
@@ -113,7 +113,6 @@ export class ShowtimeManagementComponent implements OnInit, OnDestroy {
   isSubmitting = false;
   private updateInterval: any;
 
-  private lastRoomChangeCall = 0;
 
   constructor(
     private showtimeService: ShowtimeService,
@@ -153,7 +152,7 @@ export class ShowtimeManagementComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.loadMovies();
     this.loadRooms();
-    this.loadShowtimes();
+    this.loadAllShowtimes(); // Thay đổi từ loadShowtimes() sang loadAllShowtimes()
     this.addBackdropFixStylesheet();
     this.initForm();
     this.loadCinemas();
@@ -347,19 +346,19 @@ export class ShowtimeManagementComponent implements OnInit, OnDestroy {
 
 
 
-  async onRoomChange(cinemaIndex?: number, roomIndex?: number): Promise<void> {
-    // Nếu không có tham số, áp dụng bộ lọc và trả về
-    if (cinemaIndex === undefined || roomIndex === undefined) {
-      this.filterShowtimes();
-      return;
-    }
+  // Phương thức lọc theo phòng
+  onFilterRoomChange(): void {
+    // Đặt lại trang về 1 khi thay đổi bộ lọc
+    this.currentPage = 1;
+    this.filterAndPaginate();
+  }
 
-
-
+  // Phương thức xử lý khi chọn phòng trong form thêm/sửa suất chiếu
+  async onRoomChange(cinemaIndex: number, roomIndex: number): Promise<void> {
     const cinema = this.cinemaList[cinemaIndex];
     const room = cinema.rooms[roomIndex];
 
-    // Clear any previous messages
+    // Xóa các thông báo trước đó
     room.errorMessage = '';
     room.successMessage = '';
 
@@ -371,27 +370,25 @@ export class ShowtimeManagementComponent implements OnInit, OnDestroy {
       room.name = selectedRoom.name;
     }
 
-    // Get movie ID
+    // Lấy ID phim từ form
     const movieId = this.showtimeForm.get('movieId')?.value;
     if (!movieId) {
       room.errorMessage = 'Vui lòng chọn phim trước.';
       return;
     }
 
-    // Get date
+    // Lấy ngày chiếu từ form
     const date = this.showtimeForm.get('showtimeDate')?.value;
     if (!date) {
       room.errorMessage = 'Vui lòng chọn ngày chiếu trước.';
       return;
     }
 
-    // Reset previous messages
-    room.errorMessage = '';
-    room.successMessage = '';
+    // Đặt trạng thái đang tải
     room.loading = true;
 
     try {
-      // Call API to get auto date
+      // Gọi API để lấy thời gian tự động
       const request: ShowtimeAutoDateRequest = {
         cinemasId: cinema.id,
         roomId: room.id,
@@ -405,7 +402,7 @@ export class ShowtimeManagementComponent implements OnInit, OnDestroy {
 
           if (response.responseCode === 200 || response.responseCode === -999901) {
             if (response.responseCode === 200) {
-              // Success
+              // Thành công
               room.successMessage = 'Có thể tạo suất chiếu cho phòng này.';
               let startTimeDate: Date;
 
@@ -421,7 +418,7 @@ export class ShowtimeManagementComponent implements OnInit, OnDestroy {
                 startTimeDate.setHours(9, 0, 0, 0);
               }
 
-              // Format as yyyy-MM-ddTHH:mm
+              // Định dạng thời gian
               room.startTime = this.formatDateTimeForInput(startTimeDate);
 
             } else if (response.responseCode === -999901) {
@@ -432,7 +429,7 @@ export class ShowtimeManagementComponent implements OnInit, OnDestroy {
               room.startTime = '';
               room.endTime = '';
 
-              // Hiển thị Swal alert
+              // Hiển thị thông báo
               Swal.fire({
                 icon: 'warning',
                 title: 'Không thể tạo suất chiếu!',
@@ -440,20 +437,20 @@ export class ShowtimeManagementComponent implements OnInit, OnDestroy {
                 confirmButtonText: 'Đồng ý'
               });
 
-              // Return early to prevent calculating end time
+              // Trả về sớm để tránh tính toán thời gian kết thúc
               return;
             }
 
-            // Calculate end time if we have a start time
+            // Tính thời gian kết thúc nếu có thời gian bắt đầu
             if (room.startTime) {
               this.calculateEndTime(cinemaIndex, roomIndex);
             }
 
           } else {
-            // Other errors
+            // Lỗi khác
             room.errorMessage = response.message || 'Không thể tạo suất chiếu cho phòng này.';
 
-            // Reset times
+            // Đặt lại thời gian
             room.startTime = '';
             room.endTime = '';
           }
@@ -485,8 +482,6 @@ export class ShowtimeManagementComponent implements OnInit, OnDestroy {
       // Tính thời gian kết thúc
       this.calculateEndTime(cinemaIndex, roomIndex);
     }
-
-
 
     this.changeDetectorRef.detectChanges();
   }
@@ -667,9 +662,7 @@ export class ShowtimeManagementComponent implements OnInit, OnDestroy {
 
 
 
-  onFilterRoomChange(): void {
-    this.filterShowtimes();
-  }
+  // Đã được chuyển lên trên
 
 
   onMovieFormChange(movieId: string): void {
@@ -818,107 +811,221 @@ export class ShowtimeManagementComponent implements OnInit, OnDestroy {
   private updateShowtimeStatuses(): void {
     const now = new Date();
 
-    this.showtimes.forEach(showtime => {
+    // Cập nhật trạng thái cho cả dữ liệu gốc và dữ liệu đã lọc
+    const updateStatus = (showtime: Showtime) => {
       if (showtime.status === this.SHOWTIME_STATUS.MAINTENANCE) {
-        return;
+        return; // Không cập nhật trạng thái cho suất chiếu đang bảo trì
       }
 
       try {
         const startTime = new Date(showtime.startTime);
         const endTime = new Date(showtime.endTime);
-        let newStatus: number;
 
+        // Xác định trạng thái mới dựa trên thời gian hiện tại
         if (now.getTime() < startTime.getTime()) {
-          newStatus = this.SHOWTIME_STATUS.UPCOMING_SALE;
+          showtime.status = this.SHOWTIME_STATUS.UPCOMING_SALE;
         } else if (now.getTime() > endTime.getTime()) {
-          newStatus = this.SHOWTIME_STATUS.ENDED;
+          showtime.status = this.SHOWTIME_STATUS.ENDED;
         } else {
-          newStatus = this.SHOWTIME_STATUS.PLAYING; // Thay ON_SALE bằng PLAYING
+          showtime.status = this.SHOWTIME_STATUS.PLAYING;
         }
-
-        // Phần còn lại giữ nguyên
       } catch (error) {
         console.error(`Error processing showtime ${showtime.id}:`, error);
       }
-    });
-  }
-
-  loadShowtimes(): void {
-    const params = {
-      currentPage: this.currentPage,
-      recordPerPage: this.recordPerPage
     };
 
-    this.showtimeService.getShowtimes(params).subscribe({
+    // Cập nhật trạng thái cho tất cả các suất chiếu
+    this.allShowtimes.forEach(updateStatus);
+
+    // Cập nhật trạng thái cho các suất chiếu đã lọc
+    this.filteredShowtimes.forEach(updateStatus);
+
+    // Cập nhật trạng thái cho các suất chiếu đang hiển thị
+    this.showtimes.forEach(updateStatus);
+
+    // Lọc và phân trang lại để cập nhật giao diện
+    this.filterAndPaginate();
+
+    // Cập nhật các danh sách cho modal báo cáo sự cố
+    this.updateReportModalLists();
+  }
+
+  // Phương thức lấy tất cả dữ liệu showtime
+  loadAllShowtimes(): void {
+    console.log('Loading all showtimes...');
+
+    this.showtimeService.getAllShowtimes().subscribe({
       next: (response: ShowtimeResponse) => {
         if (response.responseCode === 200) {
-          this.showtimes = response.data;
-          this.totalRecords = response.totalRecord;
-          this.filterShowtimes();
+          // Lưu trữ tất cả dữ liệu
+          this.allShowtimes = [...response.data];
+          console.log(`Loaded ${this.allShowtimes.length} showtimes`);
+
+          // Lọc và phân trang dữ liệu
+          this.filterAndPaginate();
+
+          // Phân loại các suất chiếu cho modal báo cáo sự cố
+          this.updateReportModalLists();
         } else {
-          console.error('Error loading showtimes:', response.message);
+          console.error('Error loading all showtimes:', response.message);
         }
       },
       error: (error) => {
-        console.error('Error loading showtimes:', error);
+        console.error('Error loading all showtimes:', error);
       }
     });
   }
 
-  filterShowtimes(): void {
-    // Filter by movie
-    let filtered = [...this.showtimes];
+  // Phương thức cập nhật danh sách cho modal báo cáo sự cố
+  updateReportModalLists(): void {
+    // Sử dụng dữ liệu đã lọc để cập nhật các danh sách
+    this.upcomingShowtimes = this.filteredShowtimes.filter(s =>
+      s.status === this.SHOWTIME_STATUS.UPCOMING ||
+      s.status === this.SHOWTIME_STATUS.UPCOMING_SALE);
 
+    this.playingShowtimes = this.filteredShowtimes.filter(s =>
+      s.status === this.SHOWTIME_STATUS.PLAYING);
+
+    this.maintenanceShowtimes = this.filteredShowtimes.filter(s =>
+      s.status === this.SHOWTIME_STATUS.MAINTENANCE);
+  }
+
+  // Phương thức lọc và phân trang dữ liệu ở client
+  filterAndPaginate(): void {
+    console.log('Filtering and paginating data...');
+
+    // Bắt đầu với tất cả dữ liệu
+    let filtered = [...this.allShowtimes];
+
+    // Lọc theo phim
     if (this.selectedMovieId) {
+      console.log('Filtering by movie ID:', this.selectedMovieId);
       filtered = filtered.filter(s => s.movieId === this.selectedMovieId);
     }
 
-    // Filter by room
+    // Lọc theo phòng
     if (this.selectedRoomId) {
+      console.log('Filtering by room ID:', this.selectedRoomId);
       filtered = filtered.filter(s => s.roomId === this.selectedRoomId);
     }
 
-    // Filter by status
-    if (this.selectedStatus !== this.STATUS_TYPES.ALL) {
-      filtered = filtered.filter(s => s.status === this.selectedStatus);
+    // Lọc theo trạng thái
+    if (this.selectedStatus !== -1) {
+      console.log('Filtering by status:', this.selectedStatus);
+
+      // Xử lý các trường hợp đặc biệt
+      if (this.selectedStatus === 4) {
+        // Kiểm tra xem có phải là MAINTENANCE hay không
+        const isMaintenance = this.selectedStatus === this.STATUS_TYPES.MAINTENANCE;
+
+        if (isMaintenance) {
+          filtered = filtered.filter(s => s.status === this.SHOWTIME_STATUS.MAINTENANCE); // 5
+        } else {
+          filtered = filtered.filter(s => s.status === 4); // ENDED
+        }
+      } else {
+        // Xử lý các trường hợp khác
+        let statusToFilter;
+
+        switch (this.selectedStatus) {
+          case this.STATUS_TYPES.UPCOMING: // 1
+            statusToFilter = this.SHOWTIME_STATUS.UPCOMING_SALE; // 1
+            break;
+          case this.STATUS_TYPES.PLAYING: // 2
+            statusToFilter = this.SHOWTIME_STATUS.PLAYING; // 3
+            break;
+          case this.STATUS_TYPES.ENDED: // 3
+            statusToFilter = this.SHOWTIME_STATUS.ENDED; // 4
+            break;
+          default:
+            statusToFilter = this.selectedStatus;
+        }
+
+        filtered = filtered.filter(s => s.status === statusToFilter);
+      }
     }
 
-    // Filter by search term
-    if (this.searchTerm) {
-      const term = this.searchTerm.toLowerCase();
+    // Lọc theo từ khóa tìm kiếm
+    if (this.searchTerm && this.searchTerm.trim() !== '') {
+      console.log('Filtering by search term:', this.searchTerm);
+      const term = this.searchTerm.toLowerCase().trim();
       filtered = filtered.filter(s =>
-        s.movieName.toLowerCase().includes(term) ||
-        s.roomName.toLowerCase().includes(term)
+        (s.movieName && s.movieName.toLowerCase().includes(term)) ||
+        (s.roomName && s.roomName.toLowerCase().includes(term))
       );
     }
 
-    // Filter by date range
+    // Lọc theo khoảng thời gian
     if (this.startDateFilter) {
-      const startDate = new Date(this.startDateFilter).getTime();
-      filtered = filtered.filter(s => new Date(s.startTime).getTime() >= startDate);
+      try {
+        const startDate = new Date(this.startDateFilter);
+        console.log('Filtering by start date:', startDate);
+        filtered = filtered.filter(s => {
+          try {
+            const showtimeStart = new Date(s.startTime);
+            return showtimeStart >= startDate;
+          } catch (error) {
+            console.error('Error parsing showtime start time:', s.startTime, error);
+            return false;
+          }
+        });
+      } catch (error) {
+        console.error('Error parsing start date filter:', this.startDateFilter, error);
+      }
     }
 
     if (this.endDateFilter) {
-      const endDate = new Date(this.endDateFilter).getTime();
-      filtered = filtered.filter(s => new Date(s.startTime).getTime() <= endDate);
+      try {
+        const endDate = new Date(this.endDateFilter);
+        // Đặt thời gian kết thúc là cuối ngày (23:59:59.999)
+        endDate.setHours(23, 59, 59, 999);
+        console.log('Filtering by end date:', endDate);
+        filtered = filtered.filter(s => {
+          try {
+            const showtimeStart = new Date(s.startTime);
+            return showtimeStart <= endDate;
+          } catch (error) {
+            console.error('Error parsing showtime start time:', s.startTime, error);
+            return false;
+          }
+        });
+      } catch (error) {
+        console.error('Error parsing end date filter:', this.endDateFilter, error);
+      }
     }
 
-    // Separate showtimes based on status for the issue reporting modal
-    this.upcomingShowtimes = this.showtimes.filter(s => s.status === this.SHOWTIME_STATUS.UPCOMING || s.status === this.SHOWTIME_STATUS.UPCOMING_SALE);
-    this.playingShowtimes = this.showtimes.filter(s => s.status === this.SHOWTIME_STATUS.PLAYING);
-    this.maintenanceShowtimes = this.showtimes.filter(s => s.status === this.SHOWTIME_STATUS.MAINTENANCE);
+    // Lưu kết quả lọc
+    this.filteredShowtimes = filtered;
 
-    // Replace this.showtimes with filtered result
-    this.showtimes = filtered;
+    // Cập nhật tổng số bản ghi
+    this.totalRecords = filtered.length;
+    console.log('Total filtered records:', this.totalRecords);
+
+    // Phân trang
+    const startIndex = (this.currentPage - 1) * this.recordPerPage;
+    const endIndex = Math.min(startIndex + this.recordPerPage, filtered.length);
+    this.showtimes = filtered.slice(startIndex, endIndex);
+    console.log(`Showing records ${startIndex + 1} to ${endIndex} of ${filtered.length}`);
+
+    // Lưu trữ dữ liệu gốc cho các tính năng khác
+    this.originalShowtimes = [...this.filteredShowtimes];
   }
+
+  // Giữ lại phương thức loadShowtimes cũ để tương thích ngược
+  loadShowtimes(): void {
+    // Chuyển hướng sang phương thức mới
+    this.loadAllShowtimes();
+  }
+
+  // Phương thức filterShowtimes cũ đã được thay thế bằng filterAndPaginate
 
   loadMovies() {
     this.movieService.getMovies(1, 100).subscribe({
       next: (response) => {
         this.movies = response.data;
       },
-      error: (error) => {
-        // Handle error
+      error: () => {
+        console.error('Lỗi khi tải danh sách phim');
       }
     });
   }
@@ -928,8 +1035,8 @@ export class ShowtimeManagementComponent implements OnInit, OnDestroy {
       next: (response) => {
         this.rooms = response.data;
       },
-      error: (error) => {
-        // Handle error
+      error: () => {
+        console.error('Lỗi khi tải danh sách phòng');
       }
     });
   }
@@ -1090,7 +1197,7 @@ export class ShowtimeManagementComponent implements OnInit, OnDestroy {
 
   canDeleteShowtime(showtime: Showtime): boolean {
     return showtime.status !== this.SHOWTIME_STATUS.PLAYING &&
-      showtime.status !== this.SHOWTIME_STATUS.UPCOMING;
+      showtime.status !== this.SHOWTIME_STATUS.UPCOMING_SALE;
   }
 
   deleteShowtime(id: string): void {
@@ -1158,18 +1265,25 @@ export class ShowtimeManagementComponent implements OnInit, OnDestroy {
     if (page < 1 || (page - 1) * this.recordPerPage >= this.totalRecords) return;
 
     this.currentPage = page;
-    this.loadShowtimes();
+    // Chỉ cần phân trang lại, không cần lọc lại
+    this.filterAndPaginate();
+  }
+
+  onRecordsPerPageChange(): void {
+    this.currentPage = 1; // Reset về trang đầu tiên khi thay đổi số bản ghi mỗi trang
+    this.filterAndPaginate();
   }
 
   onMovieChange(): void {
-    this.filterShowtimes();
-    // this.onRoomChange();
-
-
+    // Đặt lại trang về 1 khi thay đổi bộ lọc
+    this.currentPage = 1;
+    this.filterAndPaginate();
   }
 
   onSearch(): void {
-    this.filterShowtimes();
+    // Đặt lại trang về 1 khi thay đổi bộ lọc
+    this.currentPage = 1;
+    this.filterAndPaginate();
   }
 
   getShowtimeStatus(startTime: Date, endTime: Date): { class: string, text: string } {
@@ -1226,44 +1340,217 @@ export class ShowtimeManagementComponent implements OnInit, OnDestroy {
   }
 
   showtimeMatchesStatusFilter(showtime: Showtime): boolean {
-    if (!this.selectedStatus || this.selectedStatus === this.STATUS_TYPES.ALL) {
+    if (!this.selectedStatus || this.selectedStatus === -1) {
       return true;
     }
 
-    switch (this.selectedStatus) {
-      case this.STATUS_TYPES.UPCOMING:
-        return showtime.status === this.SHOWTIME_STATUS.UPCOMING; // Thay NOT_STARTED bằng UPCOMING
-      case this.STATUS_TYPES.PLAYING:
-        return showtime.status === this.SHOWTIME_STATUS.PLAYING; // Thay ON_SALE bằng PLAYING
-      case this.STATUS_TYPES.ENDED:
-        return showtime.status === this.SHOWTIME_STATUS.ENDED;
-      default:
-        return true;
+    // Trường hợp đặc biệt: nếu selectedStatus = 4, đây là trạng thái MAINTENANCE trong STATUS_TYPES
+    // nhưng cũng có thể là trạng thái ENDED trong SHOWTIME_STATUS
+    if (this.selectedStatus === 4) {
+      // Kiểm tra xem có phải là MAINTENANCE hay không
+      const isMaintenance = this.selectedStatus === this.STATUS_TYPES.MAINTENANCE;
+
+      if (isMaintenance) {
+        // Nếu là MAINTENANCE, so sánh với MAINTENANCE
+        return showtime.status === this.SHOWTIME_STATUS.MAINTENANCE; // 5
+      } else {
+        // Nếu không, giữ nguyên giá trị 4 (ENDED)
+        return showtime.status === 4;
+      }
+    } else {
+      // Xử lý các trường hợp khác
+      let statusToFilter;
+
+      switch (this.selectedStatus) {
+        case this.STATUS_TYPES.UPCOMING: // 1
+          statusToFilter = this.SHOWTIME_STATUS.UPCOMING_SALE; // 1
+          break;
+        case this.STATUS_TYPES.PLAYING: // 2
+          statusToFilter = this.SHOWTIME_STATUS.PLAYING; // 3
+          break;
+        case this.STATUS_TYPES.ENDED: // 3
+          statusToFilter = this.SHOWTIME_STATUS.ENDED; // 4
+          break;
+        default:
+          statusToFilter = this.selectedStatus;
+      }
+
+      // Trả về true nếu trạng thái của showtime khớp với trạng thái đã chọn
+      return showtime.status === statusToFilter;
     }
   }
 
   onStatusChange(): void {
-    this.filterShowtimes();
+    console.log('Status changed to:', this.selectedStatus);
+    // Đặt lại trang về 1 khi thay đổi bộ lọc
+    this.currentPage = 1;
+    this.filterAndPaginate();
   }
 
   onDateFilterChange(): void {
-    this.filterShowtimes();
+    console.log('Date filter changed - Start:', this.startDateFilter, 'End:', this.endDateFilter);
+
+    // Kiểm tra định dạng ngày tháng
+    if (this.startDateFilter) {
+      try {
+        const startDate = new Date(this.startDateFilter);
+        console.log('Parsed start date:', startDate);
+        console.log('Start date year:', startDate.getFullYear());
+      } catch (error) {
+        console.error('Error parsing start date:', error);
+      }
+    }
+
+    if (this.endDateFilter) {
+      try {
+        const endDate = new Date(this.endDateFilter);
+        console.log('Parsed end date:', endDate);
+        console.log('End date year:', endDate.getFullYear());
+      } catch (error) {
+        console.error('Error parsing end date:', error);
+      }
+    }
+
+    // Đặt lại trang về 1 khi thay đổi bộ lọc
+    this.currentPage = 1;
+    this.filterAndPaginate();
   }
 
   clearDateFilters(): void {
-    this.startDateFilter = '';
-    this.endDateFilter = '';
-    this.loadShowtimes();
+    this.startDateFilter = null;
+    this.endDateFilter = null;
+    // Đặt lại trang về 1 khi thay đổi bộ lọc
+    this.currentPage = 1;
+    this.filterAndPaginate();
+  }
+
+  // Phương thức kiểm tra API lọc theo ngày
+  testDateFilter(): void {
+    if (!this.startDateFilter && !this.endDateFilter) {
+      console.log('No date filters to test');
+      return;
+    }
+
+    let startDateStr = '';
+    let endDateStr = '';
+    let startTimeStr = '';
+    let endTimeStr = '';
+
+    if (this.startDateFilter) {
+      try {
+        const startDate = new Date(this.startDateFilter);
+        startDateStr = startDate.toISOString().split('T')[0]; // YYYY-MM-DD
+        startTimeStr = startDate.toISOString(); // Full ISO datetime
+      } catch (error) {
+        console.error('Error formatting start date for test:', error);
+        return;
+      }
+    }
+
+    if (this.endDateFilter) {
+      try {
+        const endDate = new Date(this.endDateFilter);
+        // Đặt thời gian kết thúc là cuối ngày (23:59:59.999)
+        endDate.setHours(23, 59, 59, 999);
+        endDateStr = endDate.toISOString().split('T')[0]; // YYYY-MM-DD
+        endTimeStr = endDate.toISOString(); // Full ISO datetime
+      } catch (error) {
+        console.error('Error formatting end date for test:', error);
+        return;
+      }
+    }
+
+    console.log('Testing date filter with:', startDateStr, endDateStr);
+    console.log('Testing time filter with:', startTimeStr, endTimeStr);
+
+    // Kiểm tra lọc theo ngày (YYYY-MM-DD)
+    this.showtimeService.testDateFilter(startDateStr, endDateStr).subscribe({
+      next: (response) => {
+        console.log('Date filter test response:', response);
+        if (response.data && response.data.length > 0) {
+          console.log('First showtime in response:', response.data[0]);
+          console.log('Last showtime in response:', response.data[response.data.length - 1]);
+
+          // Kiểm tra xem có suất chiếu nào nằm ngoài khoảng thời gian không
+          if (startTimeStr && endTimeStr) {
+            const startTime = new Date(startTimeStr).getTime();
+            const endTime = new Date(endTimeStr).getTime();
+
+            const outsideRange = response.data.filter(showtime => {
+              const showtimeStart = new Date(showtime.startTime).getTime();
+              return showtimeStart < startTime || showtimeStart > endTime;
+            });
+
+            if (outsideRange.length > 0) {
+              console.log('WARNING: Found showtimes outside the specified time range:', outsideRange.length);
+              console.log('Example outside range:', outsideRange[0]);
+            } else {
+              console.log('All showtimes are within the specified time range');
+            }
+          }
+        } else {
+          console.log('No showtimes found with date filter');
+        }
+      },
+      error: (error) => {
+        console.error('Error testing date filter:', error);
+      }
+    });
+
+    // Kiểm tra lọc theo thời gian đầy đủ (ISO datetime)
+    if (startTimeStr || endTimeStr) {
+      const params: ShowtimeParams = {
+        currentPage: 1,
+        recordPerPage: 100
+      };
+
+      if (startTimeStr) {
+        params.startTimeFilter = startTimeStr;
+      }
+
+      if (endTimeStr) {
+        params.endTimeFilter = endTimeStr;
+      }
+
+      this.showtimeService.getShowtimes(params).subscribe({
+        next: (response) => {
+          console.log('Time filter test response:', response);
+          if (response.data && response.data.length > 0) {
+            console.log('First showtime in time filter response:', response.data[0]);
+            console.log('Last showtime in time filter response:', response.data[response.data.length - 1]);
+          } else {
+            console.log('No showtimes found with time filter');
+          }
+        },
+        error: (error) => {
+          console.error('Error testing time filter:', error);
+        }
+      });
+    }
   }
 
   clearAllFilters(): void {
+    console.log('Clearing all filters');
     this.searchTerm = '';
     this.selectedMovieId = '';
     this.selectedRoomId = '';
-    this.selectedStatus = this.STATUS_TYPES.ALL;
+    this.selectedStatus = -1; // Tất cả trạng thái
     this.startDateFilter = null;
     this.endDateFilter = null;
-    this.loadShowtimes();
+
+    // Đặt lại trang về 1 và lọc/phân trang lại dữ liệu
+    this.currentPage = 1;
+    this.filterAndPaginate();
+
+    // Thông báo cho người dùng
+    Swal.fire({
+      icon: 'success',
+      title: 'Đã xóa tất cả bộ lọc',
+      toast: true,
+      position: 'top-end',
+      showConfirmButton: false,
+      timer: 1500
+    });
   }
 
   openReportIssueModal(): void {
@@ -1289,9 +1576,11 @@ export class ShowtimeManagementComponent implements OnInit, OnDestroy {
       .subscribe({
         next: (response) => {
           if (response.responseCode === 200) {
-            // Lọc các suất chiếu có status là NOT_STARTED
+            // Lọc các suất chiếu có status là UPCOMING hoặc UPCOMING_SALE
             this.upcomingShowtimes = response.data.filter(showtime =>
-              showtime.status === this.SHOWTIME_STATUS.UPCOMING && !showtime.isDeleted
+              (showtime.status === this.SHOWTIME_STATUS.UPCOMING ||
+                showtime.status === this.SHOWTIME_STATUS.UPCOMING_SALE) &&
+              !showtime.isDeleted
             );
           }
         },
@@ -1311,9 +1600,9 @@ export class ShowtimeManagementComponent implements OnInit, OnDestroy {
       .subscribe({
         next: (response) => {
           if (response.responseCode === 200) {
-            // Lọc các suất chiếu có status là ON_SALE
+            // Lọc các suất chiếu có status là PLAYING
             this.playingShowtimes = response.data.filter(showtime =>
-              showtime.status === this.SHOWTIME_STATUS.UPCOMING_SALE && !showtime.isDeleted
+              showtime.status === this.SHOWTIME_STATUS.PLAYING && !showtime.isDeleted
             );
           }
         },

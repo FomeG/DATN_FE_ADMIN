@@ -1,8 +1,13 @@
 <div class="container-fluid">
-    <!-- Header và bộ lọc -->
-    <div class="row mb-4">
-        <div class="col-md-4">
-            <h2 class="page-title">Quản lý phòng chiếu</h2>
+
+
+
+    <div class="dashboard-header p-0">
+        <div class="row align-items-center">
+            <div class="col-md-6">
+                <h2 class="mb-0 text-gradient">Quản lý phòng chiếu</h2>
+                <p class="text-muted">Thông tin chi tiết về dữ liệu các phòng chiếu</p>
+            </div>
         </div>
 
 
@@ -10,7 +15,20 @@
     </div>
 
     <div class="row mb-4">
-        <div class="col-md-3">
+
+        <div class="col-md-2">
+            <select class="form-select header-select" [(ngModel)]="cinemaFilter" (change)="applyFilters()">
+                <option value="-1">Tất cả rạp phim</option>
+                <option *ngFor="let cinema of cinemas" [value]="cinema.cinemasId">{{ cinema.name }}</option>
+            </select>
+        </div>
+        <div class="col-md-2">
+            <select class="form-select header-select" [(ngModel)]="roomTypeFilter" (change)="applyFilters()">
+                <option value="-1">Tất cả loại phòng</option>
+                <option *ngFor="let type of roomTypes" [value]="type.roomTypeId">{{ type.name }}</option>
+            </select>
+        </div>
+        <div class="col-md-2">
             <select class="form-select header-select" [(ngModel)]="statusFilter" (change)="applyFilters()">
                 <option value="-1">Tất cả trạng thái</option>
                 <option value="1">Có sẵn</option>
@@ -19,19 +37,7 @@
                 <option value="4">Đang sử dụng</option>
             </select>
         </div>
-        <div class="col-md-3">
-            <select class="form-select header-select" [(ngModel)]="cinemaFilter" (change)="applyFilters()">
-                <option value="-1">Tất cả rạp phim</option>
-                <option *ngFor="let cinema of cinemas" [value]="cinema.cinemasId">{{ cinema.name }}</option>
-            </select>
-        </div>
-        <div class="col-md-3">
-            <select class="form-select header-select" [(ngModel)]="roomTypeFilter" (change)="applyFilters()">
-                <option value="-1">Tất cả loại phòng</option>
-                <option *ngFor="let type of roomTypes" [value]="type.roomTypeId">{{ type.name }}</option>
-            </select>
-        </div>
-        <div class="col-md-3">
+        <div class="col-md-2">
             <div class="d-flex justify-content-between">
                 <button class="btn btn-outline-secondary clear-filter-btn" (click)="clearFilters()">
                     <i class="fas fa-times me-1"></i> Xóa bộ lọc
@@ -39,6 +45,8 @@
                 <!-- <span class="records-info">Hiển thị {{rooms.length}} / {{totalRecords}} phòng</span> -->
             </div>
         </div>
+
+
     </div>
 
 
@@ -172,6 +180,8 @@
             </div>
         </div>
     </div>
+
+
 
 
 

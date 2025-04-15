@@ -10,12 +10,11 @@ import { PeakHoursChartComponent } from '../charts/customer-chart/peak-hours-cha
 import { SeatOccupancyChartComponent } from '../charts/customer-chart/seat-occupancy-chart.component';
 import { TopServicesChartComponent } from '../charts/service-chart/top-services-chart.component';
 import { PopularGenresChartComponent } from '../charts/service-chart/popular-genres-chart.component';
-import { BundledServicesChartComponent } from '../charts/service-chart/bundled-services-chart.component';
 import { TicketStatisticsChartComponent } from '../charts/ticket-chart/ticket-statistics-chart.component';
 import { SyncChartsComponent } from '../charts/sync-charts/sync-charts.component';
 import { SeatOccupancyHeatmapComponent } from '../charts/seat-occupancy-heatmap/seat-occupancy-heatmap.component';
 import { ExportService } from '../shared/services/export.service';
-import { StatisticService, StatisticSummaryDateRange, MovieStatisticSummaryDateRange, CinemaRevenueData } from '../../services/statistic.service';
+import { StatisticService, StatisticSummaryDateRange, MovieStatisticSummaryDateRange, ServiceStatisticSummaryDateRange, CinemaRevenueData } from '../../services/statistic.service';
 import { CinemaFilterService } from '../shared/services/cinema-filter.service';
 import { Subscription } from 'rxjs';
 import { NgApexchartsModule } from 'ng-apexcharts';
@@ -44,6 +43,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   // Add to your component class
   summaryData: StatisticSummaryDateRange | null = null;
   movieData: MovieStatisticSummaryDateRange[] = [];
+  serviceData: ServiceStatisticSummaryDateRange[] = [];
   cinemaData: CinemaRevenueData[] = [];
 
   // Subscription để theo dõi sự thay đổi của rạp được chọn
@@ -155,6 +155,45 @@ export class DashboardComponent implements OnInit, OnDestroy {
     }
   };
 
+  // Biểu đồ tròn cho dịch vụ
+  serviceChartOptions: any = {
+    series: [],
+    chart: {
+      type: 'donut',
+      height: 250,
+      background: '#191c24'
+    },
+    labels: [],
+    responsive: [{
+      breakpoint: 480,
+      options: {
+        chart: {
+          width: 200
+        },
+        legend: {
+          position: 'bottom'
+        }
+      }
+    }],
+    colors: ['#FF4560', '#775DD0', '#FEB019', '#00E396', '#008FFB'],
+    dataLabels: {
+      enabled: false
+    },
+    legend: {
+      position: 'bottom',
+      labels: {
+        colors: '#ffffff'
+      }
+    },
+    tooltip: {
+      y: {
+        formatter: (val: number) => {
+          return this.formatCurrency(val);
+        }
+      }
+    }
+  };
+
   @ViewChild(RevenueChartComponent) revenueChartComponent!: RevenueChartComponent;
   @ViewChild(SeatProfitabilityChartComponent) seatProfitabilityChartComponent!: SeatProfitabilityChartComponent;
   @ViewChild(CustomerGenderChartComponent) customerGenderChartComponent!: CustomerGenderChartComponent;
@@ -162,7 +201,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   @ViewChild(SeatOccupancyChartComponent) seatOccupancyChartComponent!: SeatOccupancyChartComponent;
   @ViewChild(TopServicesChartComponent) topServicesChartComponent!: TopServicesChartComponent;
   @ViewChild(PopularGenresChartComponent) popularGenresChartComponent!: PopularGenresChartComponent;
-  @ViewChild(BundledServicesChartComponent) bundledServicesChartComponent!: BundledServicesChartComponent;
+
   @ViewChild(TicketStatisticsChartComponent) ticketStatisticsChartComponent!: TicketStatisticsChartComponent;
 
   private dashboardService = inject(DashboardService);
@@ -200,6 +239,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     // Initial load
     this.loadSummaryData();
     this.loadMovieData();
+    this.loadServiceData();
     this.loadCinemaData();
   }
 
@@ -280,6 +320,30 @@ export class DashboardComponent implements OnInit, OnDestroy {
     });
   }
 
+  loadServiceData(): void {
+    this.isLoading = true;
+    this.statisticService.getServiceSummaryDateRange(
+      this.dateRange.startDate || undefined,
+      this.dateRange.endDate || undefined
+    ).subscribe({
+      next: (response) => {
+        if (response && response.data) {
+          this.serviceData = response.data;
+          // Sort services by total sold in descending order
+          this.serviceData.sort((a, b) => b.totalSold - a.totalSold);
+
+          // Cập nhật dữ liệu cho biểu đồ tròn
+          this.updateServiceChart();
+        }
+        this.isLoading = false;
+      },
+      error: (error) => {
+        console.error('Error loading service data:', error);
+        this.isLoading = false;
+      }
+    });
+  }
+
   /**
    * Cập nhật dữ liệu cho biểu đồ tròn phim
    */
@@ -290,6 +354,18 @@ export class DashboardComponent implements OnInit, OnDestroy {
     // Cập nhật labels và dữ liệu
     this.movieChartOptions.labels = top5Movies.map(movie => movie.movieName);
     this.movieChartOptions.series = top5Movies.map(movie => movie.totalRevenue);
+  }
+
+  /**
+   * Cập nhật dữ liệu cho biểu đồ tròn dịch vụ
+   */
+  private updateServiceChart(): void {
+    // Lấy 5 dịch vụ bán chạy nhất
+    const top5Services = this.serviceData.slice(0, 5);
+
+    // Cập nhật labels và dữ liệu
+    this.serviceChartOptions.labels = top5Services.map(service => service.serviceName);
+    this.serviceChartOptions.series = top5Services.map(service => service.totalRevenue);
   }
 
   loadCinemaData(): void {
@@ -386,6 +462,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
       this.loadCinemaData();
     } else if (tabId === 'content') {
       this.loadMovieData();
+    } else if (tabId === 'test') {
+      this.loadMovieData();
+      this.loadServiceData();
     }
     // Tab content2 (Thống kê chi tiết theo thời gian) và content3 (Tỷ lệ lấp đầy ghế)
     // không cần tải dữ liệu đặc biệt, các component con sẽ tự tải dữ liệu

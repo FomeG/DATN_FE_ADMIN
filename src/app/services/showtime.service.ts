@@ -153,4 +153,12 @@ export class ShowtimeService {
     return this.http.get<ShowtimeResponse>(url);
   }
 
+  // Phương thức lấy tất cả dữ liệu showtime (không phân trang)
+  getAllShowtimes(): Observable<ShowtimeResponse> {
+    // Lấy số lượng lớn để đảm bảo lấy tất cả dữ liệu
+    const url = `${this.apiUrl}ShowTime/GetList?currentPage=1&recordPerPage=1000`;
+    console.log('Getting all showtimes with URL:', url);
+    return this.http.get<ShowtimeResponse>(url);
+  }
+
 }

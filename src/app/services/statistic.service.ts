@@ -5,12 +5,6 @@ import { environment } from '../../environments/environment';
 
 // Interfaces cho dữ liệu trả về
 
-// Top dịch vụ bán chạy
-export interface StatisticTopServicesRes {
-  serviceName: string;
-  totalSold: number;
-  totalRevenue: number;
-}
 
 // Lợi nhuận ghế
 export interface StatisticSeatProfitabilityRes {
@@ -76,12 +70,6 @@ export interface StatisticCustomerGenderRes {
 }
 
 
-// Dịch vụ gói
-export interface StatisticBundledServicesRes {
-  serviceName: string;
-  totalOrders: number;
-  totalQuantitySold: number;
-}
 
 
 // Response chung
@@ -127,14 +115,22 @@ export interface StatisticRevenueDetail {
   totalServices: number;
 }
 
-// Phim top?
+// Phim top
 export interface MovieStatisticSummaryDateRange {
-  date: string;
+  movieId: string;
   movieName: string;
   banner: string;
   totalRevenue: number;
   totalTickets: number;
-  totalServices: number;
+}
+
+// Dịch vụ top
+export interface ServiceStatisticSummaryDateRange {
+  serviceId: string;
+  serviceName: string;
+  imageUrl: string;
+  totalRevenue: number;
+  totalSold: number;
 }
 
 
@@ -207,18 +203,7 @@ export class StatisticService {
     return params;
   }
 
-  /**
-   * Lấy thống kê dịch vụ bán chạy nhất
-   */
-  getTopServices(startDate?: Date, endDate?: Date): Observable<CommonResponse<StatisticTopServicesRes[]>> {
-    const params = this.createDateRangeParams(startDate, endDate);
-    return this.http.get<CommonResponse<StatisticTopServicesRes[]>>(
 
-      `${this.baseUrl}Statistic/GetTopServices`,
-
-      { params }
-    );
-  }
 
   /**
    * Lấy thống kê lợi nhuận ghế
@@ -331,17 +316,7 @@ export class StatisticService {
     );
   }
 
-  /**
-   * Lấy thống kê dịch vụ gói
-   */
-  getBundledServices(startDate?: Date, endDate?: Date): Observable<CommonResponse<StatisticBundledServicesRes[]>> {
-    const params = this.createDateRangeParams(startDate, endDate);
-    return this.http.get<CommonResponse<StatisticBundledServicesRes[]>>(
 
-      `${this.baseUrl}Statistic/GetBundledServices`,
-      { params }
-    );
-  }
 
 
 
@@ -383,6 +358,25 @@ export class StatisticService {
 
     return this.http.get<CommonResponse<MovieStatisticSummaryDateRange[]>>(
       `${this.baseUrl}Statistic/GetMovieSummary_DateRange`,
+      { params }
+    );
+  }
+
+  /**
+   * Lấy tổng hợp thống kê dịch vụ
+   */
+  getServiceSummaryDateRange(startDate?: Date, endDate?: Date): Observable<CommonResponse<ServiceStatisticSummaryDateRange[]>> {
+    let params = new HttpParams();
+
+    // Mặc định lấy tất cả dữ liệu nếu không có ngày
+    const start = startDate ? (this.formatDate(startDate) || '01-01-1900') : '01-01-1900';
+    const end = endDate ? (this.formatDate(endDate) || '12-31-2999') : '12-31-2999';
+
+    params = params.set('Start', start);
+    params = params.set('End', end);
+
+    return this.http.get<CommonResponse<ServiceStatisticSummaryDateRange[]>>(
+      `${this.baseUrl}Statistic/GetServiceSummary_DateRange`,
       { params }
     );
   }

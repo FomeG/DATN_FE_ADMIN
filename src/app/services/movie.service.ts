@@ -8,10 +8,39 @@ export interface Movie {
   movieName: string;
   description: string;
   thumbnail: string;
+  banner: string;
   trailer: string;
   duration: number;
   status: number;
   releaseDate: Date;
+  listdienvien: Actor[];
+  genres: Genre[];
+  averageRating: number;
+  ageRatingId?: string;
+  ageRatingCode?: string;
+  formats: MovieFormat[];
+}
+
+export interface Actor {
+  id: string;
+  name: string;
+  dateOfBirth: Date;
+  biography: string;
+  photo: string;
+  status: number;
+  movieId: string;
+}
+
+export interface Genre {
+  id: string;
+  genreName: string;
+  status: number;
+}
+
+export interface MovieFormat {
+  formatId: string;
+  name: string;
+  description: string;
 }
 
 export interface MovieListResponse {
@@ -19,6 +48,12 @@ export interface MovieListResponse {
   message: string;
   responseCode: number;
   totalRecord: number;
+}
+
+export interface MovieDetailResponse {
+  data: Movie;
+  message: string;
+  responseCode: number;
 }
 
 @Injectable({
@@ -41,8 +76,8 @@ export class MovieService {
     return this.http.post(`${this.apiUrl}Movie/DeleteMovie?id=${id}`, {});
   }
 
-  getMovieById(id: string): Observable<any> {
-    return this.http.get(`${this.apiUrl}Movie/GetMovieDetail?Id=${id}`);
+  getMovieById(id: string): Observable<MovieDetailResponse> {
+    return this.http.get<MovieDetailResponse>(`${this.apiUrl}Movie/GetMovieDetail?Id=${id}`);
   }
 
   updateMovie(id: string, movieData: FormData): Observable<any> {

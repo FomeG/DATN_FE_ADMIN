@@ -16,7 +16,7 @@
 
 
 
-  
+
   <div class="d-flex">
 
     <!-- <button class="btn btn-primary mb-4" style="border-radius: 15px" data-bs-toggle="modal"
@@ -114,6 +114,10 @@
                       <div class="d-flex align-items-center">
                         <div class="ms-3">
                           <p class="fw-bold mb-1">{{movie.movieName}}</p>
+                          <span *ngIf="movie.ageRatingCode" class="badge bg-warning text-dark">{{movie.ageRatingCode}}</span>
+                          <span class="badge" [ngClass]="{'bg-success': movie.status === 1, 'bg-danger': movie.status !== 1}">
+                            {{movie.status === 1 ? 'Đang chiếu' : 'Ngừng chiếu'}}
+                          </span>
                         </div>
                       </div>
                     </td>

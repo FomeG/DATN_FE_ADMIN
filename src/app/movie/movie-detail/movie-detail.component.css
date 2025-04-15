@@ -119,6 +119,41 @@
   color: #fff;
 }
 
+.movie-status-badge.age-rating {
+  background: #ffab00;
+  color: #000;
+  font-weight: bold;
+}
+
+.age-rating-badge {
+  background: #ffab00;
+  color: #000;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-weight: bold;
+  font-size: 0.85rem;
+  margin-left: 5px;
+}
+
+.age-rating-value {
+  color: #ffab00;
+  font-weight: bold;
+}
+
+.format-tag {
+  display: inline-block;
+  background: linear-gradient(to right, rgba(255, 171, 0, 0.1), rgba(255, 140, 0, 0.1));
+  color: #ffab00;
+  padding: 4px 10px;
+  border-radius: 20px;
+  margin-right: 6px;
+  margin-bottom: 6px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  border: 1px solid rgba(255, 171, 0, 0.2);
+}
+
 /* Movie info card */
 .movie-info-card {
   background-color: #191c24;
@@ -281,7 +316,7 @@
   .banner-wrapper {
     height: 300px;
   }
-  
+
   .movie-title-banner h1 {
     font-size: 2rem;
   }
@@ -291,11 +326,11 @@
   .banner-wrapper {
     height: 250px;
   }
-  
+
   .movie-title-banner h1 {
     font-size: 1.8rem;
   }
-  
+
   .movie-stats {
     font-size: 0.9rem;
     gap: 10px;
@@ -306,12 +341,12 @@
   .banner-wrapper {
     height: 200px;
   }
-  
+
   .movie-title-banner {
     left: 15px;
     bottom: 15px;
   }
-  
+
   .movie-title-banner h1 {
     font-size: 1.5rem;
   }

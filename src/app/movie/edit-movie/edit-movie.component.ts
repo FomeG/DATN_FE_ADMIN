@@ -5,6 +5,8 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { MovieService } from '../../services/movie.service';
 import { ActorService, Actor } from '../../services/actor.service';
 import { GenreService, Genre } from '../../services/genre.service';
+import { AgeRatingService, AgeRating } from '../../services/age-rating.service';
+import { MovieFormatService, MovieFormat } from '../../services/movie-format.service';
 
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 
@@ -39,6 +41,17 @@ export class EditMovieComponent implements OnInit {
   genreSearchTerm: string = '';
   showGenreDropdown: boolean = false;
 
+  // Age Rating properties
+  ageRatings: AgeRating[] = [];
+  selectedAgeRatingId: string = '';
+
+  // Movie Format properties
+  movieFormats: MovieFormat[] = [];
+  selectedFormats: MovieFormat[] = [];
+  filteredFormats: MovieFormat[] = [];
+  formatSearchTerm: string = '';
+  showFormatDropdown: boolean = false;
+
   searchTerm: string = '';
   showDropdown: boolean = false;
 
@@ -59,6 +72,8 @@ export class EditMovieComponent implements OnInit {
     private movieService: MovieService,
     private actorService: ActorService,
     private genreService: GenreService,
+    private ageRatingService: AgeRatingService,
+    private movieFormatService: MovieFormatService,
     private sanitizer: DomSanitizer
   ) {
     this.movieForm = this.fb.group({
@@ -68,12 +83,16 @@ export class EditMovieComponent implements OnInit {
       releaseDate: ['', Validators.required],
       status: [1],
       listActorID: [[]],
-      listGenreID: [[]]
+      listGenreID: [[]],
+      ageRatingId: [''],
+      listFormatID: [[]]
     });
   }
 
   ngOnInit() {
     this.initForm();
+    this.loadAgeRatings();
+    this.loadMovieFormats();
 
     // Đầu tiên, tải chi tiết phim
     this.route.params.subscribe(params => {
@@ -88,8 +107,9 @@ export class EditMovieComponent implements OnInit {
               movieName: movieData.movieName,
               description: movieData.description,
               duration: movieData.duration,
-              releaseDate: movieData.releaseDate.split('T')[0],
-              status: movieData.status
+              releaseDate: movieData.releaseDate instanceof Date ? movieData.releaseDate.toISOString().split('T')[0] : String(movieData.releaseDate).split('T')[0],
+              status: movieData.status,
+              ageRatingId: movieData.ageRatingId || ''
             });
 
             // Cập nhật danh sách diễn viên từ listdienvien
@@ -97,6 +117,14 @@ export class EditMovieComponent implements OnInit {
               id: dv.id,
               name: dv.name,
               photo: dv.photo
+            })) : [];
+
+            // Cập nhật danh sách định dạng phim từ formats
+            this.selectedFormats = movieData.formats ? movieData.formats.map((f: any) => ({
+              formatId: f.formatId,
+              name: f.name,
+              description: f.description,
+              status: 1
             })) : [];
 
             // Update listActorID control
@@ -112,9 +140,13 @@ export class EditMovieComponent implements OnInit {
             // Update listGenreID control
             this.updateFormGenreIds();
 
+            // Update listFormatID control
+            this.updateFormFormatIds();
+
             // Sau khi có dữ liệu phim, mới tải diễn viên và thể loại
             this.loadActors();
             this.loadGenres();
+            this.filterFormats();
 
           }
         },
@@ -127,7 +159,7 @@ export class EditMovieComponent implements OnInit {
 
 
 
-    
+
   }
 
   // Initialize form
@@ -139,7 +171,40 @@ export class EditMovieComponent implements OnInit {
       releaseDate: ['', Validators.required],
       status: [1],
       listActorID: [[]],
-      listGenreID: [[]]
+      listGenreID: [[]],
+      ageRatingId: [''],
+      listFormatID: [[]]
+    });
+  }
+
+  // Load age ratings
+  loadAgeRatings() {
+    this.ageRatingService.getAgeRatingList(1, 100).subscribe({
+      next: (response) => {
+        if (response.responseCode === 200) {
+          this.ageRatings = response.data;
+        }
+      },
+      error: (error) => {
+        console.error('Error loading age ratings:', error);
+        Swal.fire('Lỗi!', 'Không thể tải danh sách xếp hạng độ tuổi', 'error');
+      }
+    });
+  }
+
+  // Load movie formats
+  loadMovieFormats() {
+    this.movieFormatService.getMovieFormatList(1, 100).subscribe({
+      next: (response) => {
+        if (response.responseCode === 200) {
+          this.movieFormats = response.data;
+          this.filterFormats();
+        }
+      },
+      error: (error) => {
+        console.error('Error loading movie formats:', error);
+        Swal.fire('Lỗi!', 'Không thể tải danh sách định dạng phim', 'error');
+      }
     });
   }
 
@@ -236,7 +301,7 @@ export class EditMovieComponent implements OnInit {
               movieName: movieData.movieName,
               description: movieData.description,
               duration: movieData.duration,
-              releaseDate: movieData.releaseDate.split('T')[0],
+              releaseDate: movieData.releaseDate instanceof Date ? movieData.releaseDate.toISOString().split('T')[0] : String(movieData.releaseDate).split('T')[0],
               status: movieData.status
             });
 
@@ -352,10 +417,13 @@ export class EditMovieComponent implements OnInit {
   onClickOutside(event: Event) {
     const element = event.target as HTMLElement;
     if (!element.closest('.actor-dropdown') && !element.closest('.genre-dropdown') &&
-      !element.closest('input[placeholder="Tìm kiếm diễn viên..."]') &&
-      !element.closest('input[placeholder="Tìm kiếm thể loại..."]')) {
+        !element.closest('.format-dropdown') &&
+        !element.closest('input[placeholder="Tìm kiếm diễn viên..."]') &&
+        !element.closest('input[placeholder="Tìm kiếm thể loại..."]') &&
+        !element.closest('input[placeholder="Tìm kiếm định dạng phim..."]')) {
       this.showDropdown = false;
       this.showGenreDropdown = false;
+      this.showFormatDropdown = false;
     }
   }
 
@@ -379,6 +447,44 @@ export class EditMovieComponent implements OnInit {
     this.movieForm.patchValue({ listActorID: actorIds });
   }
 
+  // Filter formats
+  filterFormats() {
+    if (!this.formatSearchTerm) {
+      this.filteredFormats = this.movieFormats.filter(format =>
+        !this.selectedFormats.some(selected => selected.formatId === format.formatId)
+      );
+    } else {
+      this.filteredFormats = this.movieFormats.filter(format =>
+        format.name.toLowerCase().includes(this.formatSearchTerm.toLowerCase()) &&
+        !this.selectedFormats.some(selected => selected.formatId === format.formatId)
+      );
+    }
+    this.showFormatDropdown = false;
+  }
+
+  // Select a format
+  selectFormat(format: MovieFormat) {
+    if (!this.selectedFormats.some(selected => selected.formatId === format.formatId)) {
+      this.selectedFormats.push(format);
+      this.formatSearchTerm = '';
+      this.filterFormats();
+      this.updateFormFormatIds();
+    }
+  }
+
+  // Remove a format
+  removeFormat(format: MovieFormat) {
+    this.selectedFormats = this.selectedFormats.filter(f => f.formatId !== format.formatId);
+    this.filterFormats();
+    this.updateFormFormatIds();
+  }
+
+  // Update form format IDs
+  private updateFormFormatIds() {
+    const formatIds = this.selectedFormats.map(format => format.formatId);
+    this.movieForm.patchValue({ listFormatID: formatIds });
+  }
+
   goBack() {
     this.router.navigate(['/movies']);
   }
@@ -396,12 +502,19 @@ export class EditMovieComponent implements OnInit {
       formData.append('ReleaseDate', this.movieForm.get('releaseDate')?.value);
       formData.append('Status', this.movieForm.get('status')?.value);
 
+      // Thêm AgeRatingId nếu có
+      if (this.movieForm.get('ageRatingId')?.value) {
+        formData.append('AgeRatingId', this.movieForm.get('ageRatingId')?.value);
+      }
+
       // Thêm danh sách diễn viên và thể loại
       const actorIds = this.selectedActors.map(actor => actor.id);
       const genreIds = this.selectedGenres.map(genre => genre.id);
+      const formatIds = this.selectedFormats.map(format => format.formatId);
 
       formData.append('ListActorID', JSON.stringify(actorIds));
       formData.append('ListGenreID', JSON.stringify(genreIds));
+      formData.append('ListFormatID', JSON.stringify(formatIds));
 
       // Thêm các file
       if (this.selectedThumbnail) {

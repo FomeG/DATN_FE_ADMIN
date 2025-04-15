@@ -59,6 +59,28 @@ export interface ShowtimeAutoDateResponse {
   };
 }
 
+
+export interface ShowtimeAutoDateRequest {
+  cinemasId: string;
+  roomId: string;
+  date: string;
+  movieId: string;
+}
+
+export interface ShowtimeAutoDateResponse {
+  responseCode: number;
+  message: string;
+  data: {
+    id: string;
+    cinemasId: string;
+    roomId: string;
+    name: string;
+    startTime: string;
+    endTime: string;
+    movieId: string;
+  };
+}
+
 @Injectable({
   providedIn: 'root'
 })

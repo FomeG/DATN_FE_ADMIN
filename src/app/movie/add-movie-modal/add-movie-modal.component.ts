@@ -534,4 +534,13 @@ export class AddMovieModalComponent implements OnInit, AfterViewInit {
       }
     });
   }
+
+
+
+
+
+
+
+
+
 }

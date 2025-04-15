@@ -114,7 +114,6 @@ export class ShowtimeManagementComponent implements OnInit, OnDestroy {
   private updateInterval: any;
 
 
-
   constructor(
     private showtimeService: ShowtimeService,
     private movieService: MovieService,

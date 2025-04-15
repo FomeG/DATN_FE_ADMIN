@@ -201,7 +201,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
   @ViewChild(SeatOccupancyChartComponent) seatOccupancyChartComponent!: SeatOccupancyChartComponent;
   @ViewChild(TopServicesChartComponent) topServicesChartComponent!: TopServicesChartComponent;
   @ViewChild(PopularGenresChartComponent) popularGenresChartComponent!: PopularGenresChartComponent;
-
   @ViewChild(TicketStatisticsChartComponent) ticketStatisticsChartComponent!: TicketStatisticsChartComponent;
 
   private dashboardService = inject(DashboardService);

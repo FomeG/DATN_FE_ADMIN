@@ -9,8 +9,35 @@
       </div>
     </div>
 
+  <!-- Voucher Modal -->
+  <div class="modal fade" id="voucherModal" tabindex="-1" aria-labelledby="voucherModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="voucherModalLabel">
+            {{ isEditing ? 'Chỉnh sửa Voucher' : 'Thêm Voucher mới' }}
+          </h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form [formGroup]="voucherForm" (ngSubmit)="onSubmit()">
+            <!-- Mã voucher -->
+            <div class=" mb-3">
+              <div class="form-group">
+                <label for="code" class="form-label">Mã Voucher <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" id="code" formControlName="code" [readOnly]="isEditing">
+                <div *ngIf="voucherForm.get('code')?.touched && voucherForm.get('code')?.invalid" class="text-danger">
+                  <small *ngIf="voucherForm.get('code')?.errors?.['required']">Mã voucher là bắt buộc</small>
+                  <small *ngIf="voucherForm.get('code')?.errors?.['maxlength']">Mã voucher không được vượt quá 50 ký
+                    tự</small>
+                </div>
+              </div>
+            </div>
 
-    
+          </form>
+        </div>
+      </div>
+    </div>
   </div>
 
   <div class="d-flex mb-4">

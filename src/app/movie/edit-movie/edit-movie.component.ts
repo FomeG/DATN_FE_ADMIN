@@ -12,6 +12,9 @@ import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 
 
 
+
+
+
 import Swal from 'sweetalert2';
 
 declare var $: any; // Để sử dụng jQuery với Dropify
@@ -156,7 +159,6 @@ export class EditMovieComponent implements OnInit {
         }
       });
     });
-
 
 
 

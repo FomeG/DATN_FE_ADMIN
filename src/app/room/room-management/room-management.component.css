@@ -188,7 +188,7 @@
 }
 
 /* Button styles */
-.btn-outline-primary, 
+.btn-outline-primary,
 .btn-outline-danger {
   border-width: 2px;
   font-weight: 500;
@@ -237,7 +237,7 @@
   .table-responsive {
     margin-bottom: 0.8rem;
   }
-  
+
   .modal-dialog {
     margin: 0.4rem;
   }
@@ -245,7 +245,7 @@
 
 
 .table tbody tr {
-  color:  white !important;
+  color: white !important;
 }
 
 .form-select {

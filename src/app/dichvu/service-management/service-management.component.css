@@ -263,16 +263,16 @@
     margin-bottom: 30px;
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
     transition: transform 0.3s ease-in-out;
-  }
-  
-  .card-header {
+}
+
+.card-header {
     background-color: #191c24;
     border-bottom: 1px solid #2c2e33;
     padding: 15px 20px;
     border-radius: 10px 10px 0 0;
-  }
-  
-  .card-title {
+}
+
+.card-title {
     color: #ffffff;
     font-weight: 500;
     margin-bottom: 0;
@@ -280,9 +280,9 @@
     display: flex;
     align-items: center;
     transition: color 0.3s ease;
-  }
-  
-  .card-title::before {
+}
+
+.card-title::before {
     content: "";
     display: inline-block;
     width: 5px;
@@ -290,21 +290,21 @@
     background: linear-gradient(to bottom, #0090e7, #0077b5);
     margin-right: 15px;
     border-radius: 3px;
-  }
-  
-  .card-body {
-    padding: 25px;
-  }
+}
 
-  .custom-header-button:hover {
+.card-body {
+    padding: 25px;
+}
+
+.custom-header-button:hover {
     background: linear-gradient(to right, #0077b5, #005f92);
     box-shadow: 0 8px 15px rgba(0, 144, 231, 0.4);
     transform: translateY(-2px);
-  }
-  
-  
-  /* Add button styling */
-  .custom-header-button {
+}
+
+
+/* Add button styling */
+.custom-header-button {
     height: 42px;
     border-radius: 8px;
     border: none;
@@ -316,42 +316,42 @@
     justify-content: center;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     transition: all 0.2s ease;
-  }
-  
-  .custom-header-button:hover {
+}
+
+.custom-header-button:hover {
     background: linear-gradient(to right, #0077b5, #005f92);
     transform: translateY(-2px);
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
-  }
+}
 
 
 
-  .custom-header-search {
+.custom-header-search {
     display: flex;
     width: 100%;
-  }
-  
-  .custom-header-search-btn:hover {
+}
+
+.custom-header-search-btn:hover {
     background: linear-gradient(to right, #0077b5, #0090e7);
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
     transform: translateY(-2px);
-  }
-  
-  .custom-header-search-btn i {
+}
+
+.custom-header-search-btn i {
     margin-right: 8px;
-  }
-  
-  
-  /* Search input styling */
-  .custom-header-search {
+}
+
+
+/* Search input styling */
+.custom-header-search {
     display: flex;
     width: 100%;
     border-radius: 8px;
     overflow: hidden;
-  }
-  
-  
-  .custom-header-search-btn {
+}
+
+
+.custom-header-search-btn {
     height: 42px;
     border-radius: 0 8px 8px 0;
     border: none;
@@ -361,4 +361,4 @@
     display: flex;
     align-items: center;
     justify-content: center;
-  }
+}

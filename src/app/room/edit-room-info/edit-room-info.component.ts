@@ -66,7 +66,7 @@ export class EditRoomInfoComponent implements OnInit {
   openModal(roomId: string, totalSeats: number) {
     this.roomId = roomId;
     this.totalSeats = totalSeats;
-    
+
     // Find room in the list
     const room = this.roomService.getRooms(1, 1000).subscribe({
       next: (response) => {

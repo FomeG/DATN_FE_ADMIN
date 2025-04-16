@@ -20,7 +20,7 @@ export class EmpManagementComponent implements OnInit {
   totalRecords = 0;
   totalPages = 0;
   pages: number[] = [];
-  
+
   employeeForm: FormGroup;
   isSubmitting = false;
 
@@ -62,7 +62,7 @@ export class EmpManagementComponent implements OnInit {
 
   calculateTotalPages() {
     this.totalPages = Math.ceil(this.totalRecords / this.recordPerPage);
-    this.pages = Array.from({length: this.totalPages}, (_, i) => i + 1);
+    this.pages = Array.from({ length: this.totalPages }, (_, i) => i + 1);
   }
 
   onPageChange(page: number) {
@@ -142,13 +142,13 @@ export class EmpManagementComponent implements OnInit {
     }
 
     this.isSubmitting = true;
-    
+
     // Call the API to add an employee
     this.employeeService.createEmployee(this.employeeForm.value)
       .subscribe({
         next: (response) => {
           this.isSubmitting = false;
-          
+
           if (response.responseCode === 200 || response.responseCode === 0) {
             // Success
             Swal.fire({
@@ -157,7 +157,7 @@ export class EmpManagementComponent implements OnInit {
               icon: 'success',
               confirmButtonText: 'Đóng'
             });
-            
+
             // Close the modal
             const modalElement = document.getElementById('addEmployeeModal');
             if (modalElement) {
@@ -166,12 +166,12 @@ export class EmpManagementComponent implements OnInit {
                 modal.hide();
               }
             }
-            
+
             // Reset the form
             this.employeeForm.reset({
               sex: 1
             });
-            
+
             // Reload the employee list
             this.loadEmployees();
           } else {

@@ -1,7 +1,7 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { MovieFormatService, MovieFormat } from '../../services/movie-format.service';
+import { MovieFormatService, MovieFormat } from '../../../services/movie-format.service';
 import Swal from 'sweetalert2';
 
 @Component({

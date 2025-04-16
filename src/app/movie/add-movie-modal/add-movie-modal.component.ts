@@ -243,10 +243,10 @@ export class AddMovieModalComponent implements OnInit, AfterViewInit {
   onClickOutside(event: Event) {
     const element = event.target as HTMLElement;
     if (!element.closest('.actor-dropdown') && !element.closest('.genre-dropdown') &&
-        !element.closest('.format-dropdown') &&
-        !element.closest('input[placeholder="Tìm kiếm diễn viên..."]') &&
-        !element.closest('input[placeholder="Tìm kiếm thể loại..."]') &&
-        !element.closest('input[placeholder="Tìm kiếm định dạng phim..."]')) {
+      !element.closest('.format-dropdown') &&
+      !element.closest('input[placeholder="Tìm kiếm diễn viên..."]') &&
+      !element.closest('input[placeholder="Tìm kiếm thể loại..."]') &&
+      !element.closest('input[placeholder="Tìm kiếm định dạng phim..."]')) {
       this.showDropdown = false;
       this.showGenreDropdown = false;
       this.showFormatDropdown = false;

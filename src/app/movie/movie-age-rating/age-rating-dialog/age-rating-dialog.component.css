@@ -110,7 +110,8 @@ mat-dialog-content {
 }
 
 /* Form control styling */
-.form-control, .form-select {
+.form-control,
+.form-select {
   background-color: #2A3038;
   border-color: #2c2e33;
   color: #ffffff;
@@ -119,7 +120,8 @@ mat-dialog-content {
   transition: all 0.3s ease;
 }
 
-.form-control:focus, .form-select:focus {
+.form-control:focus,
+.form-select:focus {
   border-color: #0090e7;
   box-shadow: 0 0 0 0.2rem rgba(0, 144, 231, 0.25);
   background-color: #2A3038;
@@ -157,7 +159,10 @@ mat-dialog-content {
 }
 
 /* Ensure inputs are clickable */
-input, textarea, select, button {
+input,
+textarea,
+select,
+button {
   pointer-events: auto !important;
 }
 

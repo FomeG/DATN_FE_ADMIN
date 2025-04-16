@@ -30,7 +30,7 @@ export class PricingRuleComponent implements OnInit {
   filterType = 'all';
   filterMonth = 'all';
 
-  constructor(private pricingRuleService: PricingRuleService) {}
+  constructor(private pricingRuleService: PricingRuleService) { }
 
   ngOnInit(): void {
     this.loadRules();
@@ -68,14 +68,14 @@ export class PricingRuleComponent implements OnInit {
     // Lọc theo tên
     if (this.searchTerm.trim() !== '') {
       const searchLower = this.searchTerm.toLowerCase().trim();
-      filtered = filtered.filter(rule => 
+      filtered = filtered.filter(rule =>
         rule.ruleName.toLowerCase().includes(searchLower)
       );
     }
 
     // Lọc theo loại
     if (this.filterType !== 'all') {
-      switch(this.filterType) {
+      switch (this.filterType) {
         case 'time':
           filtered = filtered.filter(rule => rule.startTime && rule.endTime);
           break;
@@ -97,18 +97,18 @@ export class PricingRuleComponent implements OnInit {
       filtered = filtered.filter(rule => {
         // Lọc theo tháng đặc biệt
         if (rule.specialMonth === month) return true;
-        
+
         // Lọc theo ngày bắt đầu hoặc kết thúc
         if (rule.startDate) {
           const startDate = new Date(rule.startDate);
           if (startDate.getMonth() + 1 === month) return true;
         }
-        
+
         if (rule.endDate) {
           const endDate = new Date(rule.endDate);
           if (endDate.getMonth() + 1 === month) return true;
         }
-        
+
         return false;
       });
     }
@@ -118,7 +118,7 @@ export class PricingRuleComponent implements OnInit {
     if (this.filteredRules.length <= this.recordPerPage) {
       this.currentPage = 1;
     }
-    
+
     // Cập nhật lại rules hiển thị theo phân trang
     this.updateDisplayedRules();
     this.calculateTotalPages();

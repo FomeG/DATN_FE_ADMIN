@@ -175,7 +175,8 @@
               <div class="form-group">
                 <label class="form-label">Email <span class="text-danger">*</span></label>
                 <input type="email" class="form-control" formControlName="email">
-                <div *ngIf="employeeForm.get('email')?.touched && employeeForm.get('email')?.invalid" class="text-danger">
+                <div *ngIf="employeeForm.get('email')?.touched && employeeForm.get('email')?.invalid"
+                  class="text-danger">
                   <small *ngIf="employeeForm.get('email')?.errors?.['required']">Email là bắt buộc</small>
                   <small *ngIf="employeeForm.get('email')?.errors?.['email']">Email không hợp lệ</small>
                 </div>
@@ -193,7 +194,8 @@
               <div class="form-group">
                 <label class="form-label">Tên đăng nhập <span class="text-danger">*</span></label>
                 <input type="text" class="form-control" formControlName="userName">
-                <div *ngIf="employeeForm.get('userName')?.touched && employeeForm.get('userName')?.invalid" class="text-danger">
+                <div *ngIf="employeeForm.get('userName')?.touched && employeeForm.get('userName')?.invalid"
+                  class="text-danger">
                   <small *ngIf="employeeForm.get('userName')?.errors?.['required']">Tên đăng nhập là bắt buộc</small>
                 </div>
               </div>
@@ -203,9 +205,11 @@
               <div class="form-group">
                 <label class="form-label">Mật khẩu <span class="text-danger">*</span></label>
                 <input type="password" class="form-control" formControlName="passwordHash">
-                <div *ngIf="employeeForm.get('passwordHash')?.touched && employeeForm.get('passwordHash')?.invalid" class="text-danger">
+                <div *ngIf="employeeForm.get('passwordHash')?.touched && employeeForm.get('passwordHash')?.invalid"
+                  class="text-danger">
                   <small *ngIf="employeeForm.get('passwordHash')?.errors?.['required']">Mật khẩu là bắt buộc</small>
-                  <small *ngIf="employeeForm.get('passwordHash')?.errors?.['minlength']">Mật khẩu phải có ít nhất 6 ký tự</small>
+                  <small *ngIf="employeeForm.get('passwordHash')?.errors?.['minlength']">Mật khẩu phải có ít nhất 6 ký
+                    tự</small>
                 </div>
               </div>
             </div>
@@ -223,25 +227,3 @@
     </div>
   </div>
 </div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

@@ -20,7 +20,8 @@
                                 {{ cinema.name }}
                             </option>
                         </select>
-                        <div class="text-danger" *ngIf="roomForm.get('cinemaId')?.touched && roomForm.get('cinemaId')?.invalid">
+                        <div class="text-danger"
+                            *ngIf="roomForm.get('cinemaId')?.touched && roomForm.get('cinemaId')?.invalid">
                             <small *ngIf="roomForm.get('cinemaId')?.errors?.['required']">Vui lòng chọn rạp</small>
                         </div>
                     </div>
@@ -34,8 +35,10 @@
                                 {{ type.name }}
                             </option>
                         </select>
-                        <div class="text-danger" *ngIf="roomForm.get('roomTypeId')?.touched && roomForm.get('roomTypeId')?.invalid">
-                            <small *ngIf="roomForm.get('roomTypeId')?.errors?.['required']">Vui lòng chọn loại phòng</small>
+                        <div class="text-danger"
+                            *ngIf="roomForm.get('roomTypeId')?.touched && roomForm.get('roomTypeId')?.invalid">
+                            <small *ngIf="roomForm.get('roomTypeId')?.errors?.['required']">Vui lòng chọn loại
+                                phòng</small>
                         </div>
                     </div>
 
@@ -51,32 +54,41 @@
                     <!-- Số cột -->
                     <div class="form-group mb-3">
                         <label for="totalColNumber" class="form-label">Số cột <span class="text-danger">*</span></label>
-                        <input type="number" class="form-control" id="totalColNumber" formControlName="totalColNumber" 
-                               (change)="calculateTotalSeats()">
-                        <div class="text-danger" *ngIf="roomForm.get('totalColNumber')?.touched && roomForm.get('totalColNumber')?.invalid">
-                            <small *ngIf="roomForm.get('totalColNumber')?.errors?.['required']">Vui lòng nhập số cột</small>
+                        <input type="number" class="form-control" id="totalColNumber" formControlName="totalColNumber"
+                            (change)="calculateTotalSeats()">
+                        <div class="text-danger"
+                            *ngIf="roomForm.get('totalColNumber')?.touched && roomForm.get('totalColNumber')?.invalid">
+                            <small *ngIf="roomForm.get('totalColNumber')?.errors?.['required']">Vui lòng nhập số
+                                cột</small>
                             <small *ngIf="roomForm.get('totalColNumber')?.errors?.['min']">Số cột phải lớn hơn 0</small>
                         </div>
                     </div>
 
                     <!-- Số hàng -->
                     <div class="form-group mb-3">
-                        <label for="totalRowNumber" class="form-label">Số hàng <span class="text-danger">*</span></label>
+                        <label for="totalRowNumber" class="form-label">Số hàng <span
+                                class="text-danger">*</span></label>
                         <input type="number" class="form-control" id="totalRowNumber" formControlName="totalRowNumber"
-                               (change)="calculateTotalSeats()">
-                        <div class="text-danger" *ngIf="roomForm.get('totalRowNumber')?.touched && roomForm.get('totalRowNumber')?.invalid">
-                            <small *ngIf="roomForm.get('totalRowNumber')?.errors?.['required']">Vui lòng nhập số hàng</small>
-                            <small *ngIf="roomForm.get('totalRowNumber')?.errors?.['min']">Số hàng phải lớn hơn 0</small>
+                            (change)="calculateTotalSeats()">
+                        <div class="text-danger"
+                            *ngIf="roomForm.get('totalRowNumber')?.touched && roomForm.get('totalRowNumber')?.invalid">
+                            <small *ngIf="roomForm.get('totalRowNumber')?.errors?.['required']">Vui lòng nhập số
+                                hàng</small>
+                            <small *ngIf="roomForm.get('totalRowNumber')?.errors?.['min']">Số hàng phải lớn hơn
+                                0</small>
                         </div>
                     </div>
 
                     <!-- Giá ghế -->
                     <div class="form-group mb-3">
-                        <label for="seatPrice" class="form-label">Giá ghế (VNĐ) <span class="text-danger">*</span></label>
+                        <label for="seatPrice" class="form-label">Giá ghế (VNĐ) <span
+                                class="text-danger">*</span></label>
                         <input type="number" class="form-control" id="seatPrice" formControlName="seatPrice">
-                        <div class="text-danger" *ngIf="roomForm.get('seatPrice')?.touched && roomForm.get('seatPrice')?.invalid">
+                        <div class="text-danger"
+                            *ngIf="roomForm.get('seatPrice')?.touched && roomForm.get('seatPrice')?.invalid">
                             <small *ngIf="roomForm.get('seatPrice')?.errors?.['required']">Vui lòng nhập giá ghế</small>
-                            <small *ngIf="roomForm.get('seatPrice')?.errors?.['min']">Giá ghế phải lớn hơn hoặc bằng 0</small>
+                            <small *ngIf="roomForm.get('seatPrice')?.errors?.['min']">Giá ghế phải lớn hơn hoặc bằng
+                                0</small>
                         </div>
                     </div>
 
@@ -89,7 +101,8 @@
 
             <div class="modal-footer">
                 <button #closeBtn type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
-                <button type="button" class="btn btn-primary" (click)="createRoom()" [disabled]="roomForm.invalid || isLoading">
+                <button type="button" class="btn btn-primary" (click)="createRoom()"
+                    [disabled]="roomForm.invalid || isLoading">
                     <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-1"></span>
                     Thêm phòng
                 </button>

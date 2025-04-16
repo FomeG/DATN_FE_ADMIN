@@ -27,10 +27,9 @@
             </div>
             <div class="col-md-6">
               <div class="form-group">
-                <label for="minimumAge" class="form-label">Độ tuổi tối thiểu <span
-                    class="text-danger">*</span></label>
-                <input type="number" class="form-control" id="minimumAge" name="minimumAge" formControlName="minimumAge" min="0"
-                  max="21" autocomplete="off">
+                <label for="minimumAge" class="form-label">Độ tuổi tối thiểu <span class="text-danger">*</span></label>
+                <input type="number" class="form-control" id="minimumAge" name="minimumAge" formControlName="minimumAge"
+                  min="0" max="21" autocomplete="off">
                 <div
                   *ngIf="ageRatingForm.get('minimumAge')?.invalid && (ageRatingForm.get('minimumAge')?.dirty || ageRatingForm.get('minimumAge')?.touched)"
                   class="text-danger mt-1">
@@ -48,8 +47,8 @@
             <div class="col-12">
               <div class="form-group">
                 <label for="description" class="form-label">Mô tả <span class="text-danger">*</span></label>
-                <textarea class="form-control" id="description" name="description" formControlName="description" rows="4"
-                  placeholder="Mô tả về xếp hạng độ tuổi" autocomplete="off"></textarea>
+                <textarea class="form-control" id="description" name="description" formControlName="description"
+                  rows="4" placeholder="Mô tả về xếp hạng độ tuổi" autocomplete="off"></textarea>
                 <div
                   *ngIf="ageRatingForm.get('description')?.invalid && (ageRatingForm.get('description')?.dirty || ageRatingForm.get('description')?.touched)"
                   class="text-danger mt-1">

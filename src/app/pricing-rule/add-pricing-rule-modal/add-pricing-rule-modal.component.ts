@@ -217,7 +217,7 @@ export class AddPricingRuleModalComponent implements OnDestroy, AfterViewInit {
   @ViewChild('startDatePicker') startDatePicker!: ElementRef<HTMLInputElement>;
   @ViewChild('endDatePicker') endDatePicker!: ElementRef<HTMLInputElement>;
   @ViewChild('specificDatePicker') specificDatePicker!: ElementRef<HTMLInputElement>;
-  
+
   ruleForm: FormGroup;
 
   constructor(
@@ -330,12 +330,12 @@ export class AddPricingRuleModalComponent implements OnDestroy, AfterViewInit {
     const endTime = control.get('endTime')?.value;
 
     // Kiểm tra có ít nhất một điều kiện được chọn
-    const hasDateCondition = date !== null || 
-                             (startDate !== null && endDate !== null) || 
-                             (specialDay !== null && specialMonth !== null) || 
-                             dayOfWeek !== null;
+    const hasDateCondition = date !== null ||
+      (startDate !== null && endDate !== null) ||
+      (specialDay !== null && specialMonth !== null) ||
+      dayOfWeek !== null;
     const hasTimeCondition = startTime !== null && endTime !== null;
-    
+
     if (!hasDateCondition && !hasTimeCondition) {
       return { noCondition: true };
     }
@@ -376,62 +376,62 @@ export class AddPricingRuleModalComponent implements OnDestroy, AfterViewInit {
 
   private validateFormData(formData: any): string[] {
     const errors: string[] = [];
-    
+
     // 1. Kiểm tra các trường bắt buộc
     if (!formData.ruleName || formData.multiplier === null || formData.isDiscount === null) {
       errors.push('Thiếu thông tin bắt buộc (Tên quy tắc, Hệ số, hoặc Loại giảm giá)');
     }
 
     // 2. Kiểm tra có ít nhất một điều kiện
-    if (formData.startTime === null && formData.endTime === null && 
-        formData.startDate === null && formData.endDate === null && 
-        formData.date === null && formData.specialDay === null && 
-        formData.specialMonth === null && formData.dayOfWeek === null) {
+    if (formData.startTime === null && formData.endTime === null &&
+      formData.startDate === null && formData.endDate === null &&
+      formData.date === null && formData.specialDay === null &&
+      formData.specialMonth === null && formData.dayOfWeek === null) {
       errors.push('Phải có ít nhất một điều kiện về thời gian hoặc ngày');
     }
 
     // 3. Kiểm tra các cặp thời gian
-    if ((formData.startTime !== null && formData.endTime === null) || 
-        (formData.startTime === null && formData.endTime !== null)) {
+    if ((formData.startTime !== null && formData.endTime === null) ||
+      (formData.startTime === null && formData.endTime !== null)) {
       errors.push('Thời gian bắt đầu và kết thúc phải được nhập đầy đủ');
     }
 
     // 4. Kiểm tra cặp ngày
-    if ((formData.startDate !== null && formData.endDate === null) || 
-        (formData.startDate === null && formData.endDate !== null)) {
+    if ((formData.startDate !== null && formData.endDate === null) ||
+      (formData.startDate === null && formData.endDate !== null)) {
       errors.push('Ngày bắt đầu và kết thúc phải được nhập đầy đủ');
     }
 
     // 5. Kiểm tra cặp ngày/tháng đặc biệt
-    if ((formData.specialDay !== null && formData.specialMonth === null) || 
-        (formData.specialDay === null && formData.specialMonth !== null)) {
+    if ((formData.specialDay !== null && formData.specialMonth === null) ||
+      (formData.specialDay === null && formData.specialMonth !== null)) {
       errors.push('Ngày và tháng đặc biệt phải được nhập đầy đủ');
     }
 
     // 6. Kiểm tra điều kiện loại trừ cho ngày cụ thể
-    if (formData.date !== null && (formData.specialDay !== null || formData.specialMonth !== null || 
-        formData.startDate !== null || formData.endDate !== null || formData.dayOfWeek !== null)) {
+    if (formData.date !== null && (formData.specialDay !== null || formData.specialMonth !== null ||
+      formData.startDate !== null || formData.endDate !== null || formData.dayOfWeek !== null)) {
       errors.push('Ngày cụ thể không thể kết hợp với các điều kiện ngày khác');
     }
 
     // 7. Kiểm tra điều kiện loại trừ cho khoảng ngày
-    if ((formData.startDate !== null || formData.endDate !== null) && 
-        (formData.specialDay !== null || formData.specialMonth !== null || 
-         formData.date !== null || formData.dayOfWeek !== null)) {
+    if ((formData.startDate !== null || formData.endDate !== null) &&
+      (formData.specialDay !== null || formData.specialMonth !== null ||
+        formData.date !== null || formData.dayOfWeek !== null)) {
       errors.push('Khoảng ngày không thể kết hợp với các điều kiện ngày khác');
     }
 
     // 8. Kiểm tra điều kiện loại trừ cho ngày/tháng đặc biệt
-    if ((formData.specialDay !== null || formData.specialMonth !== null) && 
-        (formData.startDate !== null || formData.endDate !== null || 
-         formData.date !== null || formData.dayOfWeek !== null)) {
+    if ((formData.specialDay !== null || formData.specialMonth !== null) &&
+      (formData.startDate !== null || formData.endDate !== null ||
+        formData.date !== null || formData.dayOfWeek !== null)) {
       errors.push('Ngày/tháng đặc biệt không thể kết hợp với các điều kiện ngày khác');
     }
 
     // 9. Kiểm tra điều kiện loại trừ cho ngày trong tuần
-    if (formData.dayOfWeek !== null && 
-        (formData.startDate !== null || formData.endDate !== null || 
-         formData.date !== null || formData.specialDay !== null || formData.specialMonth !== null)) {
+    if (formData.dayOfWeek !== null &&
+      (formData.startDate !== null || formData.endDate !== null ||
+        formData.date !== null || formData.specialDay !== null || formData.specialMonth !== null)) {
       errors.push('Ngày trong tuần không thể kết hợp với các điều kiện ngày khác');
     }
 
@@ -479,14 +479,14 @@ export class AddPricingRuleModalComponent implements OnDestroy, AfterViewInit {
   private safeCloseModal(): void {
     const modalElement = document.getElementById('addPricingRuleModal');
     if (!modalElement) return;
-    
+
     // Xóa tất cả các class và style liên quan đến modal
     modalElement.classList.remove('show');
     modalElement.style.display = 'none';
     modalElement.setAttribute('aria-hidden', 'true');
     modalElement.removeAttribute('aria-modal');
     modalElement.removeAttribute('role');
-    
+
     // Xóa backdrop
     const backdrops = document.getElementsByClassName('modal-backdrop');
     while (backdrops.length > 0) {
@@ -502,7 +502,7 @@ export class AddPricingRuleModalComponent implements OnDestroy, AfterViewInit {
   onSubmit(): void {
     if (this.ruleForm.valid && !this.ruleForm.errors?.['noCondition']) {
       const formValue = this.ruleForm.value;
-      
+
       // Chuẩn hóa dữ liệu để đảm bảo gửi null thay vì chuỗi rỗng hoặc số 0
       // Điều này đặc biệt quan trọng vì SP_PricingRule_Create yêu cầu các tham số
       // không được chọn phải là NULL, không phải chuỗi rỗng hoặc số 0
@@ -510,16 +510,16 @@ export class AddPricingRuleModalComponent implements OnDestroy, AfterViewInit {
         ruleName: formValue.ruleName.trim() || null,
         multiplier: formValue.multiplier,
         isDiscount: formValue.isDiscount ?? false,
-        
+
         // Đảm bảo thời gian là null nếu không có giá trị
         startTime: formValue.startTime || null,
         endTime: formValue.endTime || null,
-        
+
         // Đảm bảo ngày là null nếu không có giá trị
         startDate: formValue.startDate || null,
         endDate: formValue.endDate || null,
         date: formValue.date || null,
-        
+
         // Đảm bảo các số là null khi không có giá trị hoặc bằng 0
         specialDay: formValue.specialDay ? (formValue.specialDay > 0 ? formValue.specialDay : null) : null,
         specialMonth: formValue.specialMonth ? (formValue.specialMonth > 0 ? formValue.specialMonth : null) : null,
@@ -528,7 +528,7 @@ export class AddPricingRuleModalComponent implements OnDestroy, AfterViewInit {
 
       // Kiểm tra validation
       const validationErrors = this.validateFormData(formData);
-      
+
       if (validationErrors.length > 0) {
         console.log('Validation Errors:', validationErrors);
         Swal.fire({
@@ -624,12 +624,12 @@ export class AddPricingRuleModalComponent implements OnDestroy, AfterViewInit {
   confirmTimeSelection(field: 'startTime' | 'endTime'): void {
     // Lấy giá trị hiện tại từ form control
     const value = this.ruleForm.get(field)?.value;
-    
+
     // Cập nhật lại control để trigger validation
     if (value) {
       this.ruleForm.get(field)?.setValue(value);
       this.ruleForm.get(field)?.markAsTouched();
-      
+
       // Đóng dropdown picker (nếu có)
       if (field === 'startTime' && this.startTimePicker) {
         this.startTimePicker.nativeElement.blur();
@@ -637,7 +637,7 @@ export class AddPricingRuleModalComponent implements OnDestroy, AfterViewInit {
         this.endTimePicker.nativeElement.blur();
       }
     }
-    
+
     // Hiển thị thông báo nhỏ
     if (value) {
       this.showToast(`Đã chọn thời gian: ${value}`);
@@ -648,12 +648,12 @@ export class AddPricingRuleModalComponent implements OnDestroy, AfterViewInit {
   confirmDateSelection(field: 'startDate' | 'endDate' | 'date'): void {
     // Lấy giá trị hiện tại từ form control
     const value = this.ruleForm.get(field)?.value;
-    
+
     // Cập nhật lại control để trigger validation
     if (value) {
       this.ruleForm.get(field)?.setValue(value);
       this.ruleForm.get(field)?.markAsTouched();
-      
+
       // Đóng dropdown picker (nếu có)
       if (field === 'startDate' && this.startDatePicker) {
         this.startDatePicker.nativeElement.blur();
@@ -663,7 +663,7 @@ export class AddPricingRuleModalComponent implements OnDestroy, AfterViewInit {
         this.specificDatePicker.nativeElement.blur();
       }
     }
-    
+
     // Hiển thị thông báo nhỏ
     if (value) {
       // Định dạng ngày sang dạng thân thiện hơn

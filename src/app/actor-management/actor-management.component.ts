@@ -95,7 +95,7 @@ export class ActorManagementComponent implements OnInit {
   onPageChange(page: number) {
     if (page !== this.currentPage && page >= 1 && page <= this.totalPages) {
       this.currentPage = page;
-      
+
       if (this.searchTerm || this.sortColumn) {
         // If filtering or sorting, use client-side pagination
         this.applyFilters();
@@ -115,47 +115,47 @@ export class ActorManagementComponent implements OnInit {
       this.sortColumn = column;
       this.sortDirection = 'asc';
     }
-    
+
     this.applyFilters();
   }
-  
+
   // Search function
   search() {
     this.currentPage = 1; // Reset to first page
     this.applyFilters();
   }
-  
+
   // Combined filter, sort and paginate
   applyFilters() {
     // 1. Filter by search term
     let result = [...this.allActors];
-    
+
     if (this.searchTerm) {
       const term = this.searchTerm.toLowerCase();
-      result = result.filter(actor => 
-        actor.name.toLowerCase().includes(term) || 
+      result = result.filter(actor =>
+        actor.name.toLowerCase().includes(term) ||
         actor.biography.toLowerCase().includes(term)
       );
     }
-    
+
     // 2. Sort if needed
     if (this.sortColumn) {
       result.sort((a: any, b: any) => {
         let valueA = a[this.sortColumn];
         let valueB = b[this.sortColumn];
-        
+
         // Handle dates
         if (this.sortColumn === 'dateOfBirth') {
           valueA = new Date(valueA).getTime();
           valueB = new Date(valueB).getTime();
         }
-        
+
         // Handle string comparison
         if (typeof valueA === 'string') {
           valueA = valueA.toLowerCase();
           valueB = valueB.toLowerCase();
         }
-        
+
         // Compare values based on sort direction
         if (valueA < valueB) {
           return this.sortDirection === 'asc' ? -1 : 1;
@@ -166,16 +166,16 @@ export class ActorManagementComponent implements OnInit {
         return 0;
       });
     }
-    
+
     // 3. Update total records for pagination
     this.totalRecords = result.length;
     this.calculateTotalPages();
-    
+
     // 4. Apply pagination
     const startIndex = (this.currentPage - 1) * this.recordPerPage;
     this.filteredActors = result.slice(startIndex, startIndex + this.recordPerPage);
   }
-  
+
   // Helper method to get column sort icon
   getSortIcon(column: string): string {
     if (this.sortColumn !== column) {
@@ -187,7 +187,7 @@ export class ActorManagementComponent implements OnInit {
   // Records per page change handler
   onRecordsPerPageChange() {
     this.currentPage = 1; // Reset to first page
-    
+
     if (this.searchTerm || this.sortColumn) {
       // If filtering or sorting, update client-side pagination
       this.applyFilters();
@@ -231,7 +231,7 @@ export class ActorManagementComponent implements OnInit {
       formData.append('dateOfBirth', this.actorForm.get('dateOfBirth')?.value);
       formData.append('biography', this.actorForm.get('biography')?.value);
       formData.append('status', this.actorForm.get('status')?.value);
-      
+
       if (this.selectedPhoto) {
         formData.append('photo', this.selectedPhoto);
       }

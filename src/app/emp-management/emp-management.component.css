@@ -372,7 +372,7 @@ label:hover {
   .table td:nth-child(2) {
     width: 20%;
   }
-  
+
   .table td:nth-child(3) {
     width: 35%;
   }
@@ -383,15 +383,16 @@ label:hover {
     display: block;
     overflow-x: auto;
   }
-  
-  .table td, .table th {
+
+  .table td,
+  .table th {
     white-space: normal;
   }
-  
+
   .table td:nth-child(3) {
     max-width: 250px;
   }
-  
+
   .description-text {
     max-height: 80px;
   }

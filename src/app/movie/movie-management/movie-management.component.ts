@@ -149,6 +149,10 @@ export class MovieManagementComponent implements OnInit {
     this.router.navigate([`/movies/detail/${movieId}`]);
   }
 
+  navigateToSettings() {
+    this.router.navigate(['/movies/settings']);
+  }
+
   // Sort function
   sort(column: string) {
     if (this.sortColumn === column) {

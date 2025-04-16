@@ -6,12 +6,9 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
-import { MatTableModule } from '@angular/material/table';
-import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatIconModule } from '@angular/material/icon';
-import { MatTabsModule } from '@angular/material/tabs';
-import { MovieFormatService, MovieFormat } from '../../services/movie-format.service';
+import { MovieFormatService, MovieFormat } from '../../../services/movie-format.service';
 import Swal from 'sweetalert2';
 
 export interface MovieFormatDialogData {
@@ -30,26 +27,17 @@ export interface MovieFormatDialogData {
     MatFormFieldModule,
     MatInputModule,
     MatSelectModule,
-    MatTableModule,
-    MatPaginatorModule,
     MatProgressSpinnerModule,
-    MatIconModule,
-    MatTabsModule
+    MatIconModule
   ],
   templateUrl: './movie-format-dialog.component.html',
   styleUrl: './movie-format-dialog.component.css'
 })
 export class MovieFormatDialogComponent implements OnInit {
-  movieFormats: MovieFormat[] = [];
   formatForm: FormGroup;
   isLoading = false;
   isEditing = false;
-  currentPage = 1;
-  recordPerPage = 10;
-  totalRecords = 0;
   editingFormatId: string | null = null;
-  displayedColumns: string[] = ['position', 'name', 'description', 'actions'];
-  activeTab = 0; // 0 for list, 1 for add/edit
 
   constructor(
     private fb: FormBuilder,
@@ -64,34 +52,10 @@ export class MovieFormatDialogComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.loadMovieFormats();
-
-    // Set active tab based on mode
+    // Khởi tạo form với giá trị mặc định hoặc giá trị chỉnh sửa
     if (this.data.mode === 'add') {
-      this.activeTab = 1;
-    } else {
-      this.activeTab = 0;
+      this.isEditing = false;
     }
-  }
-
-  loadMovieFormats(): void {
-    this.isLoading = true;
-    this.movieFormatService.getMovieFormatList(this.currentPage, this.recordPerPage).subscribe({
-      next: (response) => {
-        if (response.responseCode === 200) {
-          this.movieFormats = response.data;
-          this.totalRecords = response.totalRecord;
-        } else {
-          Swal.fire('Lỗi', 'Không thể tải danh sách định dạng phim', 'error');
-        }
-        this.isLoading = false;
-      },
-      error: (error) => {
-        console.error('Error loading movie formats:', error);
-        Swal.fire('Lỗi', 'Không thể tải danh sách định dạng phim', 'error');
-        this.isLoading = false;
-      }
-    });
   }
 
   onSubmit(): void {
@@ -117,8 +81,6 @@ export class MovieFormatDialogComponent implements OnInit {
           if (response.responseCode === 200) {
             Swal.fire('Thành công', 'Cập nhật định dạng phim thành công', 'success');
             this.resetForm();
-            this.loadMovieFormats();
-            this.activeTab = 0; // Switch to list tab
             this.dialogRef.close(true); // Close with success
           } else {
             Swal.fire('Lỗi', response.message || 'Không thể cập nhật định dạng phim', 'error');
@@ -143,8 +105,6 @@ export class MovieFormatDialogComponent implements OnInit {
           if (response.responseCode === 200) {
             Swal.fire('Thành công', 'Thêm định dạng phim thành công', 'success');
             this.resetForm();
-            this.loadMovieFormats();
-            this.activeTab = 0; // Switch to list tab
             this.dialogRef.close(true); // Close with success
           } else {
             Swal.fire('Lỗi', response.message || 'Không thể thêm định dạng phim', 'error');
@@ -160,6 +120,8 @@ export class MovieFormatDialogComponent implements OnInit {
     }
   }
 
+  // Phương thức này không còn cần thiết vì không còn tab danh sách
+  // Chỉ giữ lại để tương thích với các component khác nếu cần
   editMovieFormat(format: MovieFormat): void {
     this.isEditing = true;
     this.editingFormatId = format.formatId;
@@ -167,9 +129,10 @@ export class MovieFormatDialogComponent implements OnInit {
       name: format.name,
       description: format.description
     });
-    this.activeTab = 1; // Switch to edit tab
   }
 
+  // Phương thức này không còn cần thiết vì không còn tab danh sách
+  // Chỉ giữ lại để tương thích với các component khác nếu cần
   deleteMovieFormat(formatId: string): void {
     Swal.fire({
       title: 'Xác nhận xóa',
@@ -185,7 +148,7 @@ export class MovieFormatDialogComponent implements OnInit {
           next: (response) => {
             if (response.responseCode === 200) {
               Swal.fire('Thành công', 'Xóa định dạng phim thành công', 'success');
-              this.loadMovieFormats();
+              this.dialogRef.close(true); // Đóng dialog và trả về kết quả thành công
             } else {
               Swal.fire('Lỗi', response.message || 'Không thể xóa định dạng phim', 'error');
             }
@@ -208,19 +171,6 @@ export class MovieFormatDialogComponent implements OnInit {
     });
     this.isEditing = false;
     this.editingFormatId = null;
-  }
-
-  changePage(event: any): void {
-    this.currentPage = event.pageIndex + 1;
-    this.recordPerPage = event.pageSize;
-    this.loadMovieFormats();
-  }
-
-  onTabChange(index: number): void {
-    this.activeTab = index;
-    if (index === 0) {
-      this.loadMovieFormats();
-    }
   }
 
   onCancel(): void {

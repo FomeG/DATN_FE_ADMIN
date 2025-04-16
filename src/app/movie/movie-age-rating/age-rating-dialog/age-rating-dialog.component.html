@@ -1,0 +1,75 @@
+<div class="age-rating-dialog">
+  <div class="dialog-header">
+    <h2 mat-dialog-title>{{ isEditing ? 'Cập nhật xếp hạng độ tuổi' : 'Thêm xếp hạng độ tuổi mới' }}</h2>
+    <button mat-icon-button (click)="onCancel()" aria-label="Đóng">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <mat-dialog-content>
+    <div class="card">
+      <div class="card-body">
+        <form [formGroup]="ageRatingForm" (ngSubmit)="onSubmit()">
+          <div class="row mb-3">
+            <div class="col-md-6">
+              <div class="form-group">
+                <label for="code" class="form-label">Mã xếp hạng <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" id="code" name="code" formControlName="code"
+                  placeholder="Ví dụ: P, C13, C16, C18" autocomplete="off">
+                <div
+                  *ngIf="ageRatingForm.get('code')?.invalid && (ageRatingForm.get('code')?.dirty || ageRatingForm.get('code')?.touched)"
+                  class="text-danger mt-1">
+                  <small *ngIf="ageRatingForm.get('code')?.hasError('required')">Mã xếp hạng là bắt buộc</small>
+                  <small *ngIf="ageRatingForm.get('code')?.hasError('maxlength')">Mã xếp hạng không được vượt quá
+                    10 ký tự</small>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group">
+                <label for="minimumAge" class="form-label">Độ tuổi tối thiểu <span
+                    class="text-danger">*</span></label>
+                <input type="number" class="form-control" id="minimumAge" name="minimumAge" formControlName="minimumAge" min="0"
+                  max="21" autocomplete="off">
+                <div
+                  *ngIf="ageRatingForm.get('minimumAge')?.invalid && (ageRatingForm.get('minimumAge')?.dirty || ageRatingForm.get('minimumAge')?.touched)"
+                  class="text-danger mt-1">
+                  <small *ngIf="ageRatingForm.get('minimumAge')?.hasError('required')">Độ tuổi tối thiểu là bắt
+                    buộc</small>
+                  <small *ngIf="ageRatingForm.get('minimumAge')?.hasError('min')">Độ tuổi tối thiểu không được nhỏ
+                    hơn 0</small>
+                  <small *ngIf="ageRatingForm.get('minimumAge')?.hasError('max')">Độ tuổi tối thiểu không được lớn
+                    hơn 21</small>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="row mb-3">
+            <div class="col-12">
+              <div class="form-group">
+                <label for="description" class="form-label">Mô tả <span class="text-danger">*</span></label>
+                <textarea class="form-control" id="description" name="description" formControlName="description" rows="4"
+                  placeholder="Mô tả về xếp hạng độ tuổi" autocomplete="off"></textarea>
+                <div
+                  *ngIf="ageRatingForm.get('description')?.invalid && (ageRatingForm.get('description')?.dirty || ageRatingForm.get('description')?.touched)"
+                  class="text-danger mt-1">
+                  <small *ngIf="ageRatingForm.get('description')?.hasError('required')">Mô tả là bắt buộc</small>
+                  <small *ngIf="ageRatingForm.get('description')?.hasError('maxlength')">Mô tả không được vượt quá
+                    200 ký tự</small>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="d-flex justify-content-end gap-2 mt-4">
+            <button type="button" class="btn btn-secondary" (click)="onCancel()">Hủy</button>
+            <button type="submit" class="btn btn-primary" [disabled]="isLoading">
+              <span class="spinner-border spinner-border-sm me-2" *ngIf="isLoading" role="status"
+                aria-hidden="true"></span>
+              {{ isEditing ? 'Cập nhật' : 'Thêm mới' }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </mat-dialog-content>
+</div>

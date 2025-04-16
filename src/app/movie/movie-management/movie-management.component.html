@@ -45,10 +45,14 @@
         <div class="card-header">
           <div class="d-flex justify-content-between align-items-center m-0">
 
-            <div class="col-md-4 text-end">
+            <div class="col-md-4 text-end d-flex" style="gap: 30px">
               <button class="custom-header-button" style="width: 200px;" data-bs-toggle="modal"
                 data-bs-target="#addMovieModal">
                 <i class="fas fa-plus"></i> Thêm phim mới
+              </button>
+
+              <button class="custom-header-button" style="width: 200px;" (click)="navigateToSettings()">
+                <i class="fas fa-cog"></i> Cài đặt
               </button>
             </div>
 
@@ -114,10 +118,8 @@
                       <div class="d-flex align-items-center">
                         <div class="ms-3">
                           <p class="fw-bold mb-1">{{movie.movieName}}</p>
-                          <span *ngIf="movie.ageRatingCode" class="badge bg-warning text-dark">{{movie.ageRatingCode}}</span>
-                          <span class="badge" [ngClass]="{'bg-success': movie.status === 1, 'bg-danger': movie.status !== 1}">
-                            {{movie.status === 1 ? 'Đang chiếu' : 'Ngừng chiếu'}}
-                          </span>
+                          <span *ngIf="movie.ageRatingCode"
+                            class="badge bg-warning text-dark">{{movie.ageRatingCode}}</span>
                         </div>
                       </div>
                     </td>

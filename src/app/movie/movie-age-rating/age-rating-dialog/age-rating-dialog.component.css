@@ -1,0 +1,169 @@
+.age-rating-dialog {
+  min-width: 500px;
+  max-width: 600px;
+}
+
+mat-dialog-content {
+  max-height: 70vh;
+  min-height: 300px;
+  padding: 20px;
+}
+
+/* Dialog header styling */
+.dialog-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  border-bottom: 1px solid #2c2e33;
+  padding-bottom: 15px;
+}
+
+.dialog-header h2 {
+  margin: 0;
+  color: #ffffff;
+  font-size: 1.5rem;
+  font-weight: 500;
+  position: relative;
+  padding-left: 15px;
+}
+
+.dialog-header h2::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 4px;
+  height: 24px;
+  background: linear-gradient(to bottom, #0090e7, #0077b5);
+  border-radius: 3px;
+}
+
+/* Bootstrap overrides and custom styles */
+.card {
+  background-color: #191c24;
+  border: none;
+  border-radius: 10px;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.card-body {
+  padding: 1.5rem;
+  position: relative;
+  z-index: 1;
+}
+
+.badge {
+  font-size: 0.9rem;
+  padding: 5px 10px;
+}
+
+.form-control {
+  background-color: #2A3038;
+  border: 1px solid #2c2e33;
+  color: #fff;
+  position: relative;
+  z-index: 5;
+}
+
+.form-control:focus {
+  background-color: #2A3038;
+  border-color: #0d6efd;
+  color: #fff;
+  box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+  z-index: 5;
+}
+
+.form-label {
+  color: #fff;
+  margin-bottom: 0.5rem;
+}
+
+.btn-primary {
+  background-color: #0d6efd;
+  border-color: #0d6efd;
+}
+
+.btn-secondary {
+  background-color: #6c757d;
+  border-color: #6c757d;
+}
+
+.btn-outline-secondary {
+  color: #6c757d;
+  border-color: #6c757d;
+}
+
+.btn-outline-secondary:hover {
+  color: #fff;
+  background-color: #6c757d;
+  border-color: #6c757d;
+}
+
+/* Form fixes */
+.form-group {
+  position: relative;
+  z-index: 5;
+  margin-bottom: 1rem;
+}
+
+/* Form control styling */
+.form-control, .form-select {
+  background-color: #2A3038;
+  border-color: #2c2e33;
+  color: #ffffff;
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  transition: all 0.3s ease;
+}
+
+.form-control:focus, .form-select:focus {
+  border-color: #0090e7;
+  box-shadow: 0 0 0 0.2rem rgba(0, 144, 231, 0.25);
+  background-color: #2A3038;
+}
+
+/* Button styling */
+.btn-primary {
+  background: linear-gradient(to right, #0090e7, #0077b5);
+  border: none;
+  padding: 0.75rem 1.5rem;
+  font-weight: 500;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: linear-gradient(to right, #0077b5, #005f92);
+  box-shadow: 0 8px 15px rgba(0, 144, 231, 0.3);
+  transform: translateY(-2px);
+}
+
+.btn-secondary {
+  background-color: #6c7293;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  font-weight: 500;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.btn-secondary:hover {
+  background-color: #5a6075;
+  box-shadow: 0 8px 15px rgba(108, 114, 147, 0.3);
+  transform: translateY(-2px);
+}
+
+/* Ensure inputs are clickable */
+input, textarea, select, button {
+  pointer-events: auto !important;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .age-rating-dialog {
+    min-width: 90vw;
+  }
+}

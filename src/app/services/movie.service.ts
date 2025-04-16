@@ -81,7 +81,8 @@ export class MovieService {
   }
 
   updateMovie(id: string, movieData: FormData): Observable<any> {
-    return this.http.post(`${this.apiUrl}Movie/UpdateMovie?MovieID=${id}`, movieData);
+    // Không cần thêm MovieID vào URL vì đã có trong FormData
+    return this.http.post(`${this.apiUrl}Movie/UpdateMovie`, movieData);
   }
 
 

@@ -10,8 +10,8 @@ import Swal from 'sweetalert2';
 
 // Import Material Dialog
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
-import { AgeRatingDialogComponent } from '../../age-rating/age-rating-dialog/age-rating-dialog.component';
-import { MovieFormatDialogComponent } from '../../movie-format/movie-format-dialog/movie-format-dialog.component';
+import { AgeRatingDialogComponent } from '../movie-age-rating/age-rating-dialog/age-rating-dialog.component';
+import { MovieFormatDialogComponent } from '../movie-format/movie-format-dialog/movie-format-dialog.component';
 
 declare var $: any; // Để sử dụng jQuery với Dropify
 
@@ -380,28 +380,14 @@ export class AddMovieModalComponent implements OnInit, AfterViewInit {
       // Add actor IDs
       if (this.selectedActors && this.selectedActors.length > 0) {
         this.selectedActors.forEach(actor => {
-          formData.append('listActorID', actor.id);
+          formData.append('ListActorID', actor.id);
         });
       }
 
       // Add genre IDs
       if (this.selectedGenres && this.selectedGenres.length > 0) {
         this.selectedGenres.forEach(genre => {
-          formData.append('listGenreID', genre.id);
-        });
-      }
-
-      // Add actor IDs
-      if (this.selectedActors && this.selectedActors.length > 0) {
-        this.selectedActors.forEach(actor => {
-          formData.append('listActorID', actor.id);
-        });
-      }
-
-      // Add genre IDs
-      if (this.selectedGenres && this.selectedGenres.length > 0) {
-        this.selectedGenres.forEach(genre => {
-          formData.append('listGenreID', genre.id);
+          formData.append('ListGenreID', genre.id);
         });
       }
 

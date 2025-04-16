@@ -514,9 +514,20 @@ export class EditMovieComponent implements OnInit {
       const genreIds = this.selectedGenres.map(genre => genre.id);
       const formatIds = this.selectedFormats.map(format => format.formatId);
 
-      formData.append('ListActorID', JSON.stringify(actorIds));
-      formData.append('ListGenreID', JSON.stringify(genreIds));
-      formData.append('ListFormatID', JSON.stringify(formatIds));
+      // Thêm từng ID diễn viên riêng biệt
+      actorIds.forEach(actorId => {
+        formData.append('ListActorID', actorId);
+      });
+
+      // Thêm từng ID thể loại riêng biệt
+      genreIds.forEach(genreId => {
+        formData.append('ListGenreID', genreId);
+      });
+
+      // Thêm từng ID định dạng phim riêng biệt
+      formatIds.forEach(formatId => {
+        formData.append('ListFormatID', formatId);
+      });
 
       // Thêm các file
       if (this.selectedThumbnail) {

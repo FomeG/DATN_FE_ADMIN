@@ -6,12 +6,10 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
-import { MatTableModule } from '@angular/material/table';
-import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatIconModule } from '@angular/material/icon';
-import { MatTabsModule } from '@angular/material/tabs';
-import { AgeRatingService, AgeRating } from '../../services/age-rating.service';
+import { NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
+import { AgeRatingService, AgeRating } from '../../../services/age-rating.service';
 import Swal from 'sweetalert2';
 
 export interface AgeRatingDialogData {
@@ -30,26 +28,18 @@ export interface AgeRatingDialogData {
     MatFormFieldModule,
     MatInputModule,
     MatSelectModule,
-    MatTableModule,
-    MatPaginatorModule,
     MatProgressSpinnerModule,
     MatIconModule,
-    MatTabsModule
+    NgbTooltipModule
   ],
   templateUrl: './age-rating-dialog.component.html',
   styleUrl: './age-rating-dialog.component.css'
 })
 export class AgeRatingDialogComponent implements OnInit {
-  ageRatings: AgeRating[] = [];
   ageRatingForm: FormGroup;
   isLoading = false;
   isEditing = false;
-  currentPage = 1;
-  recordPerPage = 10;
-  totalRecords = 0;
   editingAgeRatingId: string | null = null;
-  displayedColumns: string[] = ['position', 'code', 'minAge', 'description', 'actions'];
-  activeTab = 0; // 0 for list, 1 for add/edit
 
   constructor(
     private fb: FormBuilder,
@@ -65,34 +55,10 @@ export class AgeRatingDialogComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.loadAgeRatings();
-
-    // Set active tab based on mode
+    // Khởi tạo form với giá trị mặc định hoặc giá trị chỉnh sửa
     if (this.data.mode === 'add') {
-      this.activeTab = 1;
-    } else {
-      this.activeTab = 0;
+      this.isEditing = false;
     }
-  }
-
-  loadAgeRatings(): void {
-    this.isLoading = true;
-    this.ageRatingService.getAgeRatingList(this.currentPage, this.recordPerPage).subscribe({
-      next: (response) => {
-        if (response.responseCode === 200) {
-          this.ageRatings = response.data;
-          this.totalRecords = response.totalRecord;
-        } else {
-          Swal.fire('Lỗi', 'Không thể tải danh sách xếp hạng độ tuổi', 'error');
-        }
-        this.isLoading = false;
-      },
-      error: (error) => {
-        console.error('Error loading age ratings:', error);
-        Swal.fire('Lỗi', 'Không thể tải danh sách xếp hạng độ tuổi', 'error');
-        this.isLoading = false;
-      }
-    });
   }
 
   onSubmit(): void {
@@ -119,8 +85,6 @@ export class AgeRatingDialogComponent implements OnInit {
           if (response.responseCode === 200) {
             Swal.fire('Thành công', 'Cập nhật xếp hạng độ tuổi thành công', 'success');
             this.resetForm();
-            this.loadAgeRatings();
-            this.activeTab = 0; // Switch to list tab
             this.dialogRef.close(true); // Close with success
           } else {
             Swal.fire('Lỗi', response.message || 'Không thể cập nhật xếp hạng độ tuổi', 'error');
@@ -146,8 +110,6 @@ export class AgeRatingDialogComponent implements OnInit {
           if (response.responseCode === 200) {
             Swal.fire('Thành công', 'Thêm xếp hạng độ tuổi thành công', 'success');
             this.resetForm();
-            this.loadAgeRatings();
-            this.activeTab = 0; // Switch to list tab
             this.dialogRef.close(true); // Close with success
           } else {
             Swal.fire('Lỗi', response.message || 'Không thể thêm xếp hạng độ tuổi', 'error');
@@ -163,6 +125,8 @@ export class AgeRatingDialogComponent implements OnInit {
     }
   }
 
+  // Phương thức này không còn cần thiết vì không còn tab danh sách
+  // Chỉ giữ lại để tương thích với các component khác nếu cần
   editAgeRating(ageRating: AgeRating): void {
     this.isEditing = true;
     this.editingAgeRatingId = ageRating.ageRatingId;
@@ -171,7 +135,6 @@ export class AgeRatingDialogComponent implements OnInit {
       description: ageRating.description,
       minimumAge: ageRating.minAge
     });
-    this.activeTab = 1; // Switch to edit tab
   }
 
   deleteAgeRating(ageRatingId: string): void {
@@ -189,7 +152,7 @@ export class AgeRatingDialogComponent implements OnInit {
           next: (response) => {
             if (response.responseCode === 200) {
               Swal.fire('Thành công', 'Xóa xếp hạng độ tuổi thành công', 'success');
-              this.loadAgeRatings();
+              this.dialogRef.close(true); // Đóng dialog và trả về kết quả thành công
             } else {
               Swal.fire('Lỗi', response.message || 'Không thể xóa xếp hạng độ tuổi', 'error');
             }
@@ -215,18 +178,7 @@ export class AgeRatingDialogComponent implements OnInit {
     this.editingAgeRatingId = null;
   }
 
-  changePage(event: any): void {
-    this.currentPage = event.pageIndex + 1;
-    this.recordPerPage = event.pageSize;
-    this.loadAgeRatings();
-  }
-
-  onTabChange(index: number): void {
-    this.activeTab = index;
-    if (index === 0) {
-      this.loadAgeRatings();
-    }
-  }
+  // Các phương thức này không còn cần thiết vì không còn tab danh sách
 
   onCancel(): void {
     this.dialogRef.close(false);

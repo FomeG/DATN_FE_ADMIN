@@ -301,11 +301,10 @@
     <div class="container-fluid p-0">
 
       <!-- PHIM -->
-      <h4 class="mb-3">Thống kê phim</h4>
-      <div class="d-flex p-0 mb-4" style="gap: 20px">
+      <div class="d-flex p-0 mb-1" style="gap: 20px">
         <div class="card p-0" style="width: 40%;">
           <div class="card-header" style="border-bottom: 1px solid #2c2e33;">
-            <h6 class="card-title">Bảng xếp hạng phim</h6>
+            <h6 class="card-title">Thống kê doanh thu phim</h6>
           </div>
           <div class="card-body">
             <!-- Biểu đồ tròn cho phim -->
@@ -347,11 +346,10 @@
       </div>
 
       <!-- DỊCH VỤ -->
-      <h4 class="mb-3 mt-4">Thống kê dịch vụ</h4>
       <div class="d-flex p-0 mb-4" style="gap: 20px">
         <div class="card p-0" style="width: 40%;">
           <div class="card-header" style="border-bottom: 1px solid #2c2e33;">
-            <h6 class="card-title">Bảng xếp hạng dịch vụ</h6>
+            <h6 class="card-title">Thống kê doanh thu dịch vụ</h6>
           </div>
           <div class="card-body">
             <!-- Biểu đồ tròn cho dịch vụ -->
@@ -380,7 +378,7 @@
                   <h6 class="mb-0" style="color: white !important">{{ service.serviceName }}</h6>
                   <div class="d-flex justify-content-between">
                     <small style="color: #00E396 !important">{{ formatCurrency(service.totalRevenue) }}</small>
-                    <small style="color: #FEB019 !important">{{ service.totalSold }} sản phẩm</small>
+                    <small style="color: #FEB019 !important">{{ service.totalSold }} đã bán</small>
                   </div>
                 </div>
               </div>

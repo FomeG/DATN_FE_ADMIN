@@ -92,6 +92,11 @@ body.auth.login-bg {
     text-decoration: underline;
 }
 
+/* SweetAlert2 - hiển thị ở cấp độ cao nhất */
+.swal2-container {
+    z-index: 999999 !important; /* Z-index cực cao để hiển thị trên tất cả các phần tử */
+}
+
 /* Sửa lỗi logo SweetAlert2 bị lệch */
 .swal2-icon {
     display: flex !important;

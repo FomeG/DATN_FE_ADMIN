@@ -2,6 +2,7 @@ import { Routes } from '@angular/router';
 import { MovieManagementComponent } from './movie/movie-management/movie-management.component';
 import { MovieDetailComponent } from './movie/movie-detail/movie-detail.component';
 import { EditMovieComponent } from './movie/edit-movie/edit-movie.component';
+import { MovieSettingsComponent } from './movie/movie-settings/movie-settings.component';
 import { EmpManagementComponent } from './emp-management/emp-management.component';
 import { ActorManagementComponent } from './actor-management/actor-management.component';
 import { ShowtimeManagementComponent } from './showtime/showtime-management/showtime-management.component';
@@ -35,6 +36,7 @@ export const routes: Routes = [
       { path: 'movies', component: MovieManagementComponent },
       { path: 'movies/edit/:id', component: EditMovieComponent },
       { path: 'movies/detail/:id', component: MovieDetailComponent },
+      { path: 'movies/settings', component: MovieSettingsComponent },
       { path: 'employees', component: EmpManagementComponent },
       { path: 'actors', component: ActorManagementComponent },
       { path: 'showtimes', component: ShowtimeManagementComponent },

@@ -8,7 +8,7 @@ import { ActorManagementComponent } from './actor-management/actor-management.co
 import { ShowtimeManagementComponent } from './showtime/showtime-management/showtime-management.component';
 import { MembershipManagementComponent } from './membership-management/membership-management.component';
 import { RoomManagementComponent } from './room/room-management/room-management.component';
-import { PricingRuleComponent } from './pricing-rule/pricing-rule.component';
+import { PricingRuleComponent } from './pricing-rule/pricing-rule-management/pricing-rule.component';
 import { LogManagementComponent } from './log-management/log-management.component';
 import { LoginComponent } from './login/login.component';
 import { authGuard } from './auth/auth.guard';

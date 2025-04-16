@@ -1,6 +1,7 @@
 import { Component, EventEmitter, OnInit, Output, OnDestroy, AfterViewInit, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, AbstractControl, ValidationErrors } from '@angular/forms';
+import { FormsModule } from '@angular/forms';
 import { PricingRuleService, PricingRule } from '../../services/pricing-rule.service';
 import Swal from 'sweetalert2';
 
@@ -30,185 +31,9 @@ interface PricingRuleData {
 @Component({
   selector: 'app-add-pricing-rule-modal',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
-  template: `
-    <div class="modal fade" id="addPricingRuleModal" tabindex="-1" aria-hidden="true">
-      <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title">Thêm Quy Tắc Giá Mới</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-          </div>
-          <div class="modal-body">
-            <form [formGroup]="ruleForm" (ngSubmit)="onSubmit()">
-              <div class="row">
-                <!-- Rule Name -->
-                <div class="col-md-6 mb-3">
-                  <label class="form-label required">Tên Quy Tắc</label>
-                  <input type="text" class="form-control" formControlName="ruleName"
-                         [class.is-invalid]="ruleForm.get('ruleName')?.invalid && ruleForm.get('ruleName')?.touched">
-                  <div class="invalid-feedback" *ngIf="ruleForm.get('ruleName')?.invalid && ruleForm.get('ruleName')?.touched">
-                    Vui lòng nhập tên quy tắc
-                  </div>
-                </div>
-
-                <!-- Multiplier -->
-                <div class="col-md-6 mb-3">
-                  <label class="form-label required">Hệ Số</label>
-                  <input type="number" class="form-control" formControlName="multiplier" step="0.01"
-                         [class.is-invalid]="ruleForm.get('multiplier')?.invalid && ruleForm.get('multiplier')?.touched">
-                  <div class="invalid-feedback" *ngIf="ruleForm.get('multiplier')?.invalid && ruleForm.get('multiplier')?.touched">
-                    <div *ngIf="ruleForm.get('multiplier')?.errors?.['required']">Vui lòng nhập hệ số</div>
-                    <div *ngIf="ruleForm.get('multiplier')?.errors?.['min']">Hệ số phải lớn hơn 0</div>
-                  </div>
-                </div>
-
-                <!-- Time Range -->
-                <div class="col-md-6 mb-3 time-picker-container">
-                  <label class="form-label">Thời Gian Bắt Đầu</label>
-                  <div class="input-group">
-                    <input type="time" class="form-control" formControlName="startTime" #startTimePicker
-                           [class.is-invalid]="ruleForm.errors?.['timeRange'] && (ruleForm.get('startTime')?.touched || ruleForm.get('endTime')?.touched)">
-                    <button class="btn btn-outline-secondary" type="button" (click)="confirmTimeSelection('startTime')">OK</button>
-                  </div>
-                </div>
-
-                <div class="col-md-6 mb-3 time-picker-container">
-                  <label class="form-label">Thời Gian Kết Thúc</label>
-                  <div class="input-group">
-                    <input type="time" class="form-control" formControlName="endTime" #endTimePicker
-                           [class.is-invalid]="ruleForm.errors?.['timeRange'] && (ruleForm.get('startTime')?.touched || ruleForm.get('endTime')?.touched)">
-                    <button class="btn btn-outline-secondary" type="button" (click)="confirmTimeSelection('endTime')">OK</button>
-                  </div>
-                  <div class="invalid-feedback" *ngIf="ruleForm.errors?.['timeRange'] && (ruleForm.get('startTime')?.touched || ruleForm.get('endTime')?.touched)">
-                    Thời gian bắt đầu phải nhỏ hơn thời gian kết thúc và phải nhập đủ cả hai
-                  </div>
-                </div>
-
-                <!-- Date Range -->
-                <div class="col-md-6 mb-3 date-picker-container">
-                  <label class="form-label">Ngày Bắt Đầu</label>
-                  <div class="input-group">
-                    <input type="date" class="form-control" formControlName="startDate" #startDatePicker
-                           [class.is-invalid]="(ruleForm.errors?.['dateRange'] || ruleForm.errors?.['startDateFuture']) && (ruleForm.get('startDate')?.touched || ruleForm.get('endDate')?.touched)">
-                    <button class="btn btn-outline-secondary" type="button" (click)="confirmDateSelection('startDate')">OK</button>
-                  </div>
-                </div>
-
-                <div class="col-md-6 mb-3 date-picker-container">
-                  <label class="form-label">Ngày Kết Thúc</label>
-                  <div class="input-group">
-                    <input type="date" class="form-control" formControlName="endDate" #endDatePicker
-                           [class.is-invalid]="ruleForm.errors?.['dateRange'] && (ruleForm.get('startDate')?.touched || ruleForm.get('endDate')?.touched)">
-                    <button class="btn btn-outline-secondary" type="button" (click)="confirmDateSelection('endDate')">OK</button>
-                  </div>
-                  <div class="invalid-feedback" *ngIf="(ruleForm.errors?.['dateRange'] || ruleForm.errors?.['startDateFuture']) && (ruleForm.get('startDate')?.touched || ruleForm.get('endDate')?.touched)">
-                    <div *ngIf="ruleForm.errors?.['dateRange']">Ngày bắt đầu phải nhỏ hơn ngày kết thúc và phải nhập đủ cả hai</div>
-                    <div *ngIf="ruleForm.errors?.['startDateFuture']">Ngày bắt đầu phải là ngày trong tương lai</div>
-                  </div>
-                </div>
-
-                <!-- Specific Date -->
-                <div class="col-md-6 mb-3 date-picker-container">
-                  <label class="form-label">Ngày Cụ Thể</label>
-                  <div class="input-group">
-                    <input type="date" class="form-control" formControlName="date" #specificDatePicker
-                           [class.is-invalid]="(ruleForm.errors?.['dateFuture'] || ruleForm.errors?.['exclusiveDate']) && ruleForm.get('date')?.touched">
-                    <button class="btn btn-outline-secondary" type="button" (click)="confirmDateSelection('date')">OK</button>
-                  </div>
-                  <div class="invalid-feedback" *ngIf="(ruleForm.errors?.['dateFuture'] || ruleForm.errors?.['exclusiveDate']) && ruleForm.get('date')?.touched">
-                    <div *ngIf="ruleForm.errors?.['dateFuture']">Ngày phải là ngày trong tương lai</div>
-                    <div *ngIf="ruleForm.errors?.['exclusiveDate']">Không thể chọn ngày cụ thể cùng với các điều kiện ngày khác</div>
-                  </div>
-                </div>
-
-                <!-- Special Day/Month -->
-                <div class="col-md-6 mb-3">
-                  <label class="form-label">Ngày Đặc Biệt</label>
-                  <input type="number" class="form-control" formControlName="specialDay" min="1" max="31"
-                         [class.is-invalid]="(ruleForm.errors?.['specialDayMonth'] || ruleForm.errors?.['exclusiveSpecial']) && (ruleForm.get('specialDay')?.touched || ruleForm.get('specialMonth')?.touched)">
-                </div>
-
-                <div class="col-md-6 mb-3">
-                  <label class="form-label">Tháng Đặc Biệt</label>
-                  <input type="number" class="form-control" formControlName="specialMonth" min="1" max="12"
-                         [class.is-invalid]="(ruleForm.errors?.['specialDayMonth'] || ruleForm.errors?.['exclusiveSpecial']) && (ruleForm.get('specialDay')?.touched || ruleForm.get('specialMonth')?.touched)">
-                  <div class="invalid-feedback" *ngIf="(ruleForm.errors?.['specialDayMonth'] || ruleForm.errors?.['exclusiveSpecial']) && (ruleForm.get('specialDay')?.touched || ruleForm.get('specialMonth')?.touched)">
-                    <div *ngIf="ruleForm.errors?.['specialDayMonth']">Phải nhập đủ cả ngày và tháng đặc biệt, và ngày phải hợp lệ với tháng</div>
-                    <div *ngIf="ruleForm.errors?.['exclusiveSpecial']">Không thể chọn ngày/tháng đặc biệt cùng với các điều kiện khác</div>
-                  </div>
-                </div>
-
-                <!-- Day of Week -->
-                <div class="col-md-6 mb-3">
-                  <label class="form-label">Ngày Trong Tuần</label>
-                  <select class="form-select" formControlName="dayOfWeek"
-                         [class.is-invalid]="((ruleForm.get('dayOfWeek')?.errors?.['min'] || ruleForm.get('dayOfWeek')?.errors?.['max']) || ruleForm.errors?.['exclusiveDayOfWeek']) && ruleForm.get('dayOfWeek')?.touched">
-                    <option [ngValue]="null">Chọn ngày</option>
-                    <option [ngValue]="1">Chủ Nhật</option>
-                    <option [ngValue]="2">Thứ Hai</option>
-                    <option [ngValue]="3">Thứ Ba</option>
-                    <option [ngValue]="4">Thứ Tư</option>
-                    <option [ngValue]="5">Thứ Năm</option>
-                    <option [ngValue]="6">Thứ Sáu</option>
-                    <option [ngValue]="7">Thứ Bảy</option>
-                  </select>
-                  <div class="invalid-feedback" *ngIf="((ruleForm.get('dayOfWeek')?.errors?.['min'] || ruleForm.get('dayOfWeek')?.errors?.['max']) || ruleForm.errors?.['exclusiveDayOfWeek']) && ruleForm.get('dayOfWeek')?.touched">
-                    <div *ngIf="ruleForm.get('dayOfWeek')?.errors?.['min'] || ruleForm.get('dayOfWeek')?.errors?.['max']">Ngày trong tuần không hợp lệ</div>
-                    <div *ngIf="ruleForm.errors?.['exclusiveDayOfWeek']">Không thể chọn ngày trong tuần cùng với các điều kiện khác</div>
-                  </div>
-                </div>
-
-                <!-- Is Discount -->
-                <div class="col-md-6 mb-3">
-                  <div class="form-check mt-4">
-                    <input type="checkbox" class="form-check-input" formControlName="isDiscount">
-                    <label class="form-check-label required">Là Giảm Giá</label>
-                  </div>
-                </div>
-              </div>
-              <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
-                <button type="submit" class="btn btn-primary" [disabled]="ruleForm.invalid || ruleForm.errors?.['noCondition']">Lưu</button>
-              </div>
-            </form>
-          </div>
-        </div>
-      </div>
-    </div>
-  `,
-  styles: [`
-    .required:after {
-      content: ' *';
-      color: red;
-    }
-    .invalid-feedback {
-      display: block;
-    }
-    @media (max-width: 768px) {
-      .row {
-        flex-direction: column;
-      }
-      .col-md-6 {
-        width: 100%;
-      }
-    }
-    .date-picker-container .input-group,
-    .time-picker-container .input-group {
-      display: flex;
-    }
-    .date-picker-container .btn,
-    .time-picker-container .btn {
-      flex-shrink: 0;
-      width: 50px;
-    }
-    .invalid-feedback {
-      width: 100%;
-      margin-top: 0.25rem;
-      font-size: 0.875em;
-      color: #dc3545;
-    }
-  `]
+  imports: [CommonModule, ReactiveFormsModule, FormsModule],
+  templateUrl: './add-pricing-rule-modal.component.html',
+  styleUrl: './add-pricing-rule-modal.component.css'
 })
 export class AddPricingRuleModalComponent implements OnDestroy, AfterViewInit {
   @Output() ruleAdded = new EventEmitter<void>();
@@ -219,6 +44,7 @@ export class AddPricingRuleModalComponent implements OnDestroy, AfterViewInit {
   @ViewChild('specificDatePicker') specificDatePicker!: ElementRef<HTMLInputElement>;
 
   ruleForm: FormGroup;
+  selectedDiscountType: string | null = null;
 
   constructor(
     private fb: FormBuilder,
@@ -250,6 +76,39 @@ export class AddPricingRuleModalComponent implements OnDestroy, AfterViewInit {
 
   ngAfterViewInit(): void {
     // Thêm bất kỳ logic khởi tạo nào ở đây nếu cần
+  }
+
+  // Reset form fields based on discount type selection
+  resetFormFields(): void {
+    // Reset all fields first
+    this.ruleForm.patchValue({
+      startTime: null,
+      endTime: null,
+      startDate: null,
+      endDate: null,
+      date: null,
+      specialDay: null,
+      specialMonth: null,
+      dayOfWeek: null
+    });
+
+    // Xóa các trạng thái touched để không hiển thị cảnh báo
+    this.ruleForm.get('startTime')?.markAsUntouched();
+    this.ruleForm.get('endTime')?.markAsUntouched();
+    this.ruleForm.get('startDate')?.markAsUntouched();
+    this.ruleForm.get('endDate')?.markAsUntouched();
+    this.ruleForm.get('date')?.markAsUntouched();
+    this.ruleForm.get('specialDay')?.markAsUntouched();
+    this.ruleForm.get('specialMonth')?.markAsUntouched();
+    this.ruleForm.get('dayOfWeek')?.markAsUntouched();
+  }
+
+  // Xử lý khi thay đổi loại giảm giá
+  onDiscountTypeChange(): void {
+    // Reset tất cả các trường trước khi thiết lập loại mới
+    this.resetFormFields();
+
+    // Không cần làm gì thêm vì các trường sẽ hiển thị dựa vào selectedDiscountType trong template
   }
 
   // Kiểm tra thời gian bắt đầu phải nhỏ hơn thời gian kết thúc
@@ -382,94 +241,71 @@ export class AddPricingRuleModalComponent implements OnDestroy, AfterViewInit {
       errors.push('Thiếu thông tin bắt buộc (Tên quy tắc, Hệ số, hoặc Loại giảm giá)');
     }
 
-    // 2. Kiểm tra có ít nhất một điều kiện
-    if (formData.startTime === null && formData.endTime === null &&
-      formData.startDate === null && formData.endDate === null &&
-      formData.date === null && formData.specialDay === null &&
-      formData.specialMonth === null && formData.dayOfWeek === null) {
-      errors.push('Phải có ít nhất một điều kiện về thời gian hoặc ngày');
+    // 2. Kiểm tra có ít nhất một điều kiện dựa vào loại giảm giá đã chọn
+    if (!this.selectedDiscountType) {
+      errors.push('Vui lòng chọn kiểu giảm giá');
+      return errors; // Trả về ngay vì không thể kiểm tra các điều kiện khác nếu chưa chọn loại
     }
 
-    // 3. Kiểm tra các cặp thời gian
-    if ((formData.startTime !== null && formData.endTime === null) ||
-      (formData.startTime === null && formData.endTime !== null)) {
-      errors.push('Thời gian bắt đầu và kết thúc phải được nhập đầy đủ');
+    // Kiểm tra dựa trên loại giảm giá đã chọn
+    switch (this.selectedDiscountType) {
+      case 'hourly':
+        // Kiểm tra thời gian
+        if (!formData.startTime || !formData.endTime) {
+          errors.push('Thời gian bắt đầu và kết thúc phải được nhập đầy đủ');
+        } else if (formData.startTime >= formData.endTime) {
+          errors.push('Thời gian bắt đầu phải nhỏ hơn thời gian kết thúc');
+        }
+        break;
+
+      case 'dateRange':
+        // Kiểm tra khoảng ngày
+        if (!formData.startDate || !formData.endDate) {
+          errors.push('Ngày bắt đầu và kết thúc phải được nhập đầy đủ');
+        } else {
+          if (new Date(formData.startDate) > new Date(formData.endDate)) {
+            errors.push('Ngày bắt đầu phải nhỏ hơn ngày kết thúc');
+          }
+          if (new Date(formData.startDate) < new Date()) {
+            errors.push('Ngày bắt đầu phải là ngày trong tương lai');
+          }
+        }
+        break;
+
+      case 'specificDate':
+        // Kiểm tra ngày cụ thể
+        if (!formData.date) {
+          errors.push('Vui lòng chọn ngày cụ thể');
+        } else if (new Date(formData.date) < new Date()) {
+          errors.push('Ngày cụ thể phải là ngày trong tương lai');
+        }
+        break;
+
+      case 'specialDay':
+        // Kiểm tra ngày/tháng đặc biệt
+        if (!formData.specialDay || !formData.specialMonth) {
+          errors.push('Ngày và tháng đặc biệt phải được nhập đầy đủ');
+        } else {
+          const maxDay = new Date(new Date().getFullYear(), formData.specialMonth, 0).getDate();
+          if (formData.specialDay < 1 || formData.specialDay > maxDay) {
+            errors.push(`Ngày ${formData.specialDay} không hợp lệ với tháng ${formData.specialMonth}`);
+          }
+        }
+        break;
+
+      case 'weekday':
+        // Kiểm tra ngày trong tuần
+        if (!formData.dayOfWeek) {
+          errors.push('Vui lòng chọn ngày trong tuần');
+        } else if (formData.dayOfWeek < 1 || formData.dayOfWeek > 7) {
+          errors.push('Ngày trong tuần phải từ 1 đến 7');
+        }
+        break;
     }
 
-    // 4. Kiểm tra cặp ngày
-    if ((formData.startDate !== null && formData.endDate === null) ||
-      (formData.startDate === null && formData.endDate !== null)) {
-      errors.push('Ngày bắt đầu và kết thúc phải được nhập đầy đủ');
-    }
-
-    // 5. Kiểm tra cặp ngày/tháng đặc biệt
-    if ((formData.specialDay !== null && formData.specialMonth === null) ||
-      (formData.specialDay === null && formData.specialMonth !== null)) {
-      errors.push('Ngày và tháng đặc biệt phải được nhập đầy đủ');
-    }
-
-    // 6. Kiểm tra điều kiện loại trừ cho ngày cụ thể
-    if (formData.date !== null && (formData.specialDay !== null || formData.specialMonth !== null ||
-      formData.startDate !== null || formData.endDate !== null || formData.dayOfWeek !== null)) {
-      errors.push('Ngày cụ thể không thể kết hợp với các điều kiện ngày khác');
-    }
-
-    // 7. Kiểm tra điều kiện loại trừ cho khoảng ngày
-    if ((formData.startDate !== null || formData.endDate !== null) &&
-      (formData.specialDay !== null || formData.specialMonth !== null ||
-        formData.date !== null || formData.dayOfWeek !== null)) {
-      errors.push('Khoảng ngày không thể kết hợp với các điều kiện ngày khác');
-    }
-
-    // 8. Kiểm tra điều kiện loại trừ cho ngày/tháng đặc biệt
-    if ((formData.specialDay !== null || formData.specialMonth !== null) &&
-      (formData.startDate !== null || formData.endDate !== null ||
-        formData.date !== null || formData.dayOfWeek !== null)) {
-      errors.push('Ngày/tháng đặc biệt không thể kết hợp với các điều kiện ngày khác');
-    }
-
-    // 9. Kiểm tra điều kiện loại trừ cho ngày trong tuần
-    if (formData.dayOfWeek !== null &&
-      (formData.startDate !== null || formData.endDate !== null ||
-        formData.date !== null || formData.specialDay !== null || formData.specialMonth !== null)) {
-      errors.push('Ngày trong tuần không thể kết hợp với các điều kiện ngày khác');
-    }
-
-    // 10. Kiểm tra giá trị thời gian
-    if (formData.startTime !== null && formData.endTime !== null && formData.startTime >= formData.endTime) {
-      errors.push('Thời gian bắt đầu phải nhỏ hơn thời gian kết thúc');
-    }
-
-    // 11. Kiểm tra giá trị ngày
-    if (formData.startDate !== null && formData.endDate !== null && formData.startDate > formData.endDate) {
-      errors.push('Ngày bắt đầu phải nhỏ hơn ngày kết thúc');
-    }
-
-    // 12. Kiểm tra ngày trong tương lai
-    if (formData.date !== null && new Date(formData.date) < new Date()) {
-      errors.push('Ngày cụ thể phải là ngày trong tương lai');
-    }
-
-    if (formData.startDate !== null && new Date(formData.startDate) < new Date()) {
-      errors.push('Ngày bắt đầu phải là ngày trong tương lai');
-    }
-
-    // 13. Kiểm tra hệ số
+    // Kiểm tra hệ số
     if (formData.multiplier <= 0) {
       errors.push('Hệ số phải lớn hơn 0');
-    }
-
-    // 14. Kiểm tra ngày trong tuần
-    if (formData.dayOfWeek !== null && (formData.dayOfWeek < 1 || formData.dayOfWeek > 7)) {
-      errors.push('Ngày trong tuần phải từ 1 đến 7');
-    }
-
-    // 15. Kiểm tra ngày hợp lệ với tháng
-    if (formData.specialDay !== null && formData.specialMonth !== null) {
-      const maxDay = new Date(new Date().getFullYear(), formData.specialMonth, 0).getDate();
-      if (formData.specialDay < 1 || formData.specialDay > maxDay) {
-        errors.push(`Ngày ${formData.specialDay} không hợp lệ với tháng ${formData.specialMonth}`);
-      }
     }
 
     return errors;
@@ -500,6 +336,17 @@ export class AddPricingRuleModalComponent implements OnDestroy, AfterViewInit {
   }
 
   onSubmit(): void {
+    // Kiểm tra xem đã chọn loại giảm giá chưa
+    if (!this.selectedDiscountType) {
+      Swal.fire({
+        title: 'Lỗi',
+        text: 'Vui lòng chọn kiểu giảm giá',
+        icon: 'error',
+        confirmButtonText: 'Đóng'
+      });
+      return;
+    }
+
     if (this.ruleForm.valid && !this.ruleForm.errors?.['noCondition']) {
       const formValue = this.ruleForm.value;
 
@@ -512,18 +359,19 @@ export class AddPricingRuleModalComponent implements OnDestroy, AfterViewInit {
         isDiscount: formValue.isDiscount ?? false,
 
         // Đảm bảo thời gian là null nếu không có giá trị
-        startTime: formValue.startTime || null,
-        endTime: formValue.endTime || null,
+        startTime: this.selectedDiscountType === 'hourly' ? formValue.startTime || null : null,
+        endTime: this.selectedDiscountType === 'hourly' ? formValue.endTime || null : null,
 
         // Đảm bảo ngày là null nếu không có giá trị
-        startDate: formValue.startDate || null,
-        endDate: formValue.endDate || null,
-        date: formValue.date || null,
+        startDate: this.selectedDiscountType === 'dateRange' ? formValue.startDate || null : null,
+        endDate: this.selectedDiscountType === 'dateRange' ? formValue.endDate || null : null,
+        date: this.selectedDiscountType === 'specificDate' ? formValue.date || null : null,
 
         // Đảm bảo các số là null khi không có giá trị hoặc bằng 0
-        specialDay: formValue.specialDay ? (formValue.specialDay > 0 ? formValue.specialDay : null) : null,
-        specialMonth: formValue.specialMonth ? (formValue.specialMonth > 0 ? formValue.specialMonth : null) : null,
-        dayOfWeek: formValue.dayOfWeek !== null ? formValue.dayOfWeek : null
+        // Chuyển đổi sang string vì backend yêu cầu kiểu string
+        specialDay: this.selectedDiscountType === 'specialDay' ? (formValue.specialDay > 0 ? formValue.specialDay.toString() : null) : null,
+        specialMonth: this.selectedDiscountType === 'specialDay' ? (formValue.specialMonth > 0 ? formValue.specialMonth.toString() : null) : null,
+        dayOfWeek: this.selectedDiscountType === 'weekday' ? (formValue.dayOfWeek ? formValue.dayOfWeek.toString() : null) : null
       };
 
       // Kiểm tra validation
@@ -559,6 +407,9 @@ export class AddPricingRuleModalComponent implements OnDestroy, AfterViewInit {
                 specialMonth: null,
                 dayOfWeek: null
               });
+
+              // Reset loại giảm giá
+              this.selectedDiscountType = null;
 
               // Đóng modal
               this.safeCloseModal();
@@ -689,4 +540,4 @@ export class AddPricingRuleModalComponent implements OnDestroy, AfterViewInit {
     // Cleanup khi component bị hủy
     this.safeCloseModal();
   }
-} 
+}

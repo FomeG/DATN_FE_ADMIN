@@ -12,9 +12,9 @@ export interface PricingRule {
   startDate: string;
   endDate: string;
   date: string;
-  specialDay: number | null;
-  specialMonth: number | null;
-  dayOfWeek: number | null;
+  specialDay: string | null;
+  specialMonth: string | null;
+  dayOfWeek: string | null;
   isDiscount: boolean | null;
 }
 
@@ -32,7 +32,7 @@ export interface CommonPagination<T> extends CommonResponse<T> {
   providedIn: 'root'
 })
 export class PricingRuleService {
-  private apiUrl = environment.apiUrl.endsWith('/') 
+  private apiUrl = environment.apiUrl.endsWith('/')
     ? `${environment.apiUrl}PricingRule`
     : `${environment.apiUrl}/PricingRule`;
 
@@ -42,7 +42,7 @@ export class PricingRuleService {
     const params = new HttpParams()
       .set('currentPage', currentPage.toString())
       .set('recordPerPage', recordPerPage.toString());
-    
+
     return this.http.get<CommonPagination<PricingRule[]>>(`${this.apiUrl}/GetAllRule`, { params });
   }
 
@@ -60,4 +60,4 @@ export class PricingRuleService {
   deleteRule(pricingRuleId: string): Observable<CommonResponse<null>> {
     return this.http.post<CommonResponse<null>>(`${this.apiUrl}/DeleteRule?id=${pricingRuleId}`, {});
   }
-} 
+}

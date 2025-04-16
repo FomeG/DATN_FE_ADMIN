@@ -141,28 +141,39 @@
 }
 
 .format-tag {
-  display: inline-block;
-  background: linear-gradient(to right, rgba(255, 171, 0, 0.1), rgba(255, 140, 0, 0.1));
+  display: inline-flex;
+  align-items: center;
+  background: linear-gradient(to right, rgba(255, 171, 0, 0.15), rgba(255, 140, 0, 0.15));
   color: #ffab00;
-  padding: 4px 10px;
+  padding: 6px 12px;
   border-radius: 20px;
-  margin-right: 6px;
-  margin-bottom: 6px;
+  margin-right: 8px;
+  margin-bottom: 8px;
   font-size: 0.85rem;
   font-weight: 500;
   transition: all 0.3s ease;
-  border: 1px solid rgba(255, 171, 0, 0.2);
+  border: 1px solid rgba(255, 171, 0, 0.3);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-/* Movie info card */
-.movie-info-card {
-  background-color: #191c24;
-  border: 1px solid #2c2e33;
-  border-radius: 10px;
-  padding: 15px;
-  margin-bottom: 20px;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+.format-tag:hover {
+  background: linear-gradient(to right, rgba(255, 171, 0, 0.25), rgba(255, 140, 0, 0.25));
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
+
+.format-tag i {
+  margin-right: 5px;
+  font-size: 1rem;
+}
+
+.format-container, .genre-container {
+  display: flex;
+  flex-wrap: wrap;
+  margin-top: 5px;
+}
+
+/* Movie info card - Removed as it's defined below */
 
 .info-card-title {
   color: #fff;
@@ -358,8 +369,9 @@
 /* Thêm vào file CSS hiện tại */
 
 .genre-tag {
-  display: inline-block;
-  background: linear-gradient(to right, rgba(0, 144, 231, 0.1), rgba(0, 119, 181, 0.1));
+  display: inline-flex;
+  align-items: center;
+  background: linear-gradient(to right, rgba(0, 144, 231, 0.15), rgba(0, 119, 181, 0.15));
   color: #0090e7;
   padding: 6px 14px;
   border-radius: 20px;
@@ -368,29 +380,41 @@
   font-size: 0.9rem;
   font-weight: 500;
   transition: all 0.3s ease;
-  border: 1px solid rgba(0, 144, 231, 0.2);
+  border: 1px solid rgba(0, 144, 231, 0.3);
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
 .genre-tag:hover {
-  background: linear-gradient(to right, rgba(0, 144, 231, 0.2), rgba(0, 119, 181, 0.2));
+  background: linear-gradient(to right, rgba(0, 144, 231, 0.25), rgba(0, 119, 181, 0.25));
   transform: translateY(-2px);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
 
-/* Thêm vào phần info-item hiện tại */
+.genre-tag i {
+  margin-right: 5px;
+  font-size: 1rem;
+}
+
+/* Cải thiện hiển thị info-item */
 .info-item {
   display: flex;
-  justify-content: space-between;
-  padding: 12px 0;
+  flex-direction: column;
+  padding: 12px 10px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  transition: all 0.3s ease;
+}
+
+.info-item:hover {
+  background-color: rgba(255, 255, 255, 0.03);
 }
 
 .info-label {
   min-width: 120px;
-  color: #6c7293;
+  color: #8e94a9;
   display: flex;
   align-items: center;
+  margin-bottom: 8px;
+  font-weight: 500;
 }
 
 .info-value {
@@ -400,27 +424,15 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
+  padding-left: 28px; /* Căn lề trái để thẳng hàng với icon */
 }
 
-/* Animation cho genre tags */
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+/* Cải thiện hiển thị movie-info-card */
+.movie-info-card {
+  background-color: #191c24;
+  border: 1px solid #2c2e33;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
 }
-
-.genre-tag {
-  animation: fadeInUp 0.4s ease forwards;
-}
-
-.genre-tag:nth-child(1) { animation-delay: 0.1s; }
-.genre-tag:nth-child(2) { animation-delay: 0.2s; }
-.genre-tag:nth-child(3) { animation-delay: 0.3s; }
-.genre-tag:nth-child(4) { animation-delay: 0.4s; }
-.genre-tag:nth-child(5) { animation-delay: 0.5s; }
-.genre-tag:nth-child(6) { animation-delay: 0.6s; }

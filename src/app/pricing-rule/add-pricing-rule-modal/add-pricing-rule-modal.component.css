@@ -1,0 +1,36 @@
+.required:after {
+  content: ' *';
+  color: red;
+}
+
+.invalid-feedback {
+  display: block;
+}
+
+@media (max-width: 768px) {
+  .row {
+    flex-direction: column;
+  }
+
+  .col-md-6 {
+    width: 100%;
+  }
+}
+
+.date-picker-container .input-group,
+.time-picker-container .input-group {
+  display: flex;
+}
+
+.date-picker-container .btn,
+.time-picker-container .btn {
+  flex-shrink: 0;
+  width: 50px;
+}
+
+.invalid-feedback {
+  width: 100%;
+  margin-top: 0.25rem;
+  font-size: 0.875em;
+  color: #dc3545;
+}

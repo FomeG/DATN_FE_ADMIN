@@ -1,9 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { PricingRuleService, PricingRule } from '../services/pricing-rule.service';
-import { AddPricingRuleModalComponent } from './add-pricing-rule-modal/add-pricing-rule-modal.component';
-import { EditPricingRuleModalComponent } from './edit-pricing-rule-modal/edit-pricing-rule-modal.component';
+import { PricingRuleService, PricingRule } from '../../services/pricing-rule.service';
+import { AddPricingRuleModalComponent } from '../add-pricing-rule-modal/add-pricing-rule-modal.component';
+import { EditPricingRuleModalComponent } from '../edit-pricing-rule-modal/edit-pricing-rule-modal.component';
 import Swal from 'sweetalert2';
 
 declare var bootstrap: any;
@@ -37,15 +37,16 @@ export class PricingRuleComponent implements OnInit {
   }
 
   loadRules(): void {
-    this.pricingRuleService.getAllRules(this.currentPage, this.recordPerPage)
+    // Khi tải dữ liệu mới, luôn lấy từ trang 1
+    this.pricingRuleService.getAllRules(1, 1000) // Lấy nhiều bản ghi để có thể lọc phía client
       .subscribe({
         next: (response) => {
           if (response.responseCode === 200) {
-            this.rules = response.data;
-            this.filteredRules = [...this.rules];
+            this.filteredRules = response.data;
             this.totalRecords = response.totalRecord;
             this.calculateTotalPages();
-            this.applyFilters();
+            this.currentPage = 1; // Reset về trang 1 khi tải dữ liệu mới
+            this.updateDisplayedRules(); // Cập nhật rules hiển thị
           } else {
             Swal.fire('Lỗi', response.message, 'error');
           }
@@ -59,11 +60,20 @@ export class PricingRuleComponent implements OnInit {
 
   calculateTotalPages(): void {
     this.totalPages = Math.ceil(this.totalRecords / this.recordPerPage);
-    this.pages = Array.from({ length: this.totalPages }, (_, i) => i + 1);
+
+    // Giới hạn số trang hiển thị để tránh quá nhiều nút phân trang
+    if (this.totalPages <= 5) {
+      this.pages = Array.from({ length: this.totalPages }, (_, i) => i + 1);
+    } else {
+      // Hiển thị 5 trang gồm trang hiện tại và các trang xung quanh
+      const startPage = Math.max(1, this.currentPage - 2);
+      const endPage = Math.min(this.totalPages, startPage + 4);
+      this.pages = Array.from({ length: endPage - startPage + 1 }, (_, i) => startPage + i);
+    }
   }
 
   applyFilters(): void {
-    let filtered = [...this.rules];
+    let filtered = [...this.filteredRules];
 
     // Lọc theo tên
     if (this.searchTerm.trim() !== '') {
@@ -96,7 +106,7 @@ export class PricingRuleComponent implements OnInit {
       const month = parseInt(this.filterMonth, 10);
       filtered = filtered.filter(rule => {
         // Lọc theo tháng đặc biệt
-        if (rule.specialMonth === month) return true;
+        if (rule.specialMonth && parseInt(rule.specialMonth, 10) === month) return true;
 
         // Lọc theo ngày bắt đầu hoặc kết thúc
         if (rule.startDate) {
@@ -114,10 +124,8 @@ export class PricingRuleComponent implements OnInit {
     }
 
     this.filteredRules = filtered;
-    // Reset trang về 1 nếu filteredRules ít hơn recordPerPage
-    if (this.filteredRules.length <= this.recordPerPage) {
-      this.currentPage = 1;
-    }
+    this.totalRecords = this.filteredRules.length; // Cập nhật tổng số bản ghi sau khi lọc
+    this.currentPage = 1; // Reset về trang 1 khi áp dụng bộ lọc mới
 
     // Cập nhật lại rules hiển thị theo phân trang
     this.updateDisplayedRules();
@@ -128,7 +136,6 @@ export class PricingRuleComponent implements OnInit {
     const startIndex = (this.currentPage - 1) * this.recordPerPage;
     const endIndex = Math.min(startIndex + this.recordPerPage, this.filteredRules.length);
     this.rules = this.filteredRules.slice(startIndex, endIndex);
-    this.totalRecords = this.filteredRules.length;
   }
 
   clearFilters(): void {
@@ -178,10 +185,22 @@ export class PricingRuleComponent implements OnInit {
   }
 
   onPageChange(page: number): void {
-    if (page > 0 && (page - 1) * this.recordPerPage < this.totalRecords) {
+    if (page > 0 && page <= this.totalPages) {
       this.currentPage = page;
       this.updateDisplayedRules();
+      this.calculateTotalPages(); // Cập nhật lại danh sách trang hiển thị
     }
+  }
+
+  onRecordsPerPageChange(): void {
+    // Reset về trang 1 khi thay đổi số bản ghi trên trang
+    this.currentPage = 1;
+
+    // Tính toán lại tổng số trang
+    this.calculateTotalPages();
+
+    // Cập nhật lại danh sách hiển thị
+    this.updateDisplayedRules();
   }
 
   // Helper methods for display
@@ -203,22 +222,40 @@ export class PricingRuleComponent implements OnInit {
 
   getRuleTypeBadgeClass(rule: PricingRule): string {
     if (rule.startTime && rule.endTime) {
-      return 'bg-info';
+      return 'badge-time'; // Màu xanh dương nhạt
     } else if (rule.specialDay && rule.specialMonth) {
-      return 'bg-warning';
+      return 'badge-special-day'; // Màu cam
     } else if (rule.dayOfWeek !== null) {
-      return 'bg-secondary';
+      return 'badge-weekday'; // Màu tím
     } else if (rule.startDate && rule.endDate) {
-      return 'bg-primary';
+      return 'badge-date-range'; // Màu xanh dương đậm
     } else if (rule.date) {
-      return 'bg-dark';
+      return 'badge-specific-date'; // Màu xanh lá
     } else {
-      return 'bg-light text-dark';
+      return 'badge-other'; // Màu xám đậm
     }
   }
 
-  getDayOfWeekText(dayOfWeek: number): string {
+  getDayOfWeekText(dayOfWeek: string | number): string {
     const days = ['Chủ nhật', 'Thứ hai', 'Thứ ba', 'Thứ tư', 'Thứ năm', 'Thứ sáu', 'Thứ bảy'];
-    return days[dayOfWeek];
+    const index = typeof dayOfWeek === 'string' ? parseInt(dayOfWeek, 10) : dayOfWeek;
+    return days[index];
   }
-} 
+
+  // Trả về icon tương ứng với loại quy tắc
+  getRuleTypeIcon(rule: PricingRule): string {
+    if (rule.startTime && rule.endTime) {
+      return 'fa-clock'; // Theo giờ
+    } else if (rule.specialDay && rule.specialMonth) {
+      return 'fa-calendar-day'; // Ngày đặc biệt
+    } else if (rule.dayOfWeek !== null) {
+      return 'fa-calendar-week'; // Ngày trong tuần
+    } else if (rule.startDate && rule.endDate) {
+      return 'fa-calendar-alt'; // Khoảng thời gian
+    } else if (rule.date) {
+      return 'fa-calendar-check'; // Ngày cụ thể
+    } else {
+      return 'fa-tag'; // Khác
+    }
+  }
+}

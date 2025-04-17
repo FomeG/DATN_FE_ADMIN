@@ -58,7 +58,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     }],
     chart: {
       type: 'bar',
-      height: 250,
+      height: 500,
       toolbar: {
         show: false
       },
@@ -121,7 +121,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     series: [],
     chart: {
       type: 'donut',
-      height: 250,
+      height: 300,
       background: '#191c24'
     },
     labels: [],
@@ -160,7 +160,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     series: [],
     chart: {
       type: 'donut',
-      height: 250,
+      height: 300,
       background: '#191c24'
     },
     labels: [],

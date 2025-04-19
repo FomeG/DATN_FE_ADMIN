@@ -26,7 +26,7 @@ export class LoginComponent {
     document.body.classList.add('auth', 'login-bg');
 
     if (this.authService.isLoggedIn()) {
-      this.router.navigate(['/movies']);
+      this.router.navigate(['/statistics']);
     }
   }
 
@@ -46,7 +46,7 @@ export class LoginComponent {
     this.authService.login(this.username, this.password).subscribe({
       next: (response) => {
         if (response.responseCode === 200) {
-          this.router.navigate(['/movies']);
+          this.router.navigate(['/statistics']);
         } else {
           this.errorMessage = response.message || 'Login failed';
         }

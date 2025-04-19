@@ -70,63 +70,13 @@
 }
 
 .table td {
-  vertical-align: middle;
   padding: 15px 12px;
   border-top: 1px solid #2c2e33;
   white-space: normal;
   word-wrap: break-word;
 }
 
-/* Column-specific styles */
-/* Thumbnail column */
-.table td:first-child {
-  width: 100px;
-  text-align: center;
-}
 
-.table img {
-  width: 70px;
-  height: 100px;
-  object-fit: cover;
-  border-radius: 5px;
-  transition: transform 0.3s ease;
-}
-
-.table img:hover {
-  transform: scale(1.1);
-}
-
-/* Movie name column */
-.table td:nth-child(2) {
-  width: 15%;
-  font-weight: 500;
-}
-
-/* Description column */
-.table td:nth-child(3) {
-  width: 40%;
-  max-height: 120px;
-  overflow-y: auto;
-  white-space: normal;
-  word-break: normal;
-}
-
-/* Duration column */
-.table td:nth-child(4) {
-  width: 10%;
-  text-align: center;
-}
-
-/* Release date column */
-.table td:nth-child(5) {
-  width: 15%;
-}
-
-/* Actions column */
-.table td:last-child {
-  width: 20%;
-  text-align: center;
-}
 
 /* Custom scrollbar for description column */
 .table td:nth-child(3)::-webkit-scrollbar {
@@ -184,22 +134,6 @@
   color: #ffffff !important;
 }
 
-.btn-primary {
-  background: linear-gradient(to right, #0090e7, #0077b5);
-  border: none;
-  padding: 12px 20px;
-  margin-bottom: 25px;
-}
-
-.btn-primary:hover {
-  background: linear-gradient(to right, #0077b5, #005f92);
-  box-shadow: 0 8px 15px rgba(0, 144, 231, 0.3);
-  transform: translateY(-2px);
-}
-
-.btn-primary i {
-  margin-right: 10px;
-}
 
 .btn-outline-primary,
 .btn-outline-warning,
@@ -288,15 +222,6 @@
   border-radius: 5px;
 }
 
-/* Header styling */
-.container-fluid h2 {
-  color: #ffffff;
-  font-weight: 500;
-  margin-bottom: 25px;
-  padding-bottom: 15px;
-  border-bottom: 1px solid #2c2e33;
-}
-
 .d-flex {
   margin-bottom: 25px;
 }
@@ -367,6 +292,77 @@ label:hover {
   color: #ffffff !important;
 }
 
+/* Toggle Switch Styling */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 50px;
+  height: 24px;
+  margin-right: 10px;
+  vertical-align: middle;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #fc424a;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 18px;
+  width: 18px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+input:checked+.slider {
+  background-color: #00d25b;
+}
+
+input:focus+.slider {
+  box-shadow: 0 0 1px #0090e7;
+}
+
+input:checked+.slider:before {
+  -webkit-transform: translateX(26px);
+  -ms-transform: translateX(26px);
+  transform: translateX(26px);
+}
+
+/* Rounded sliders */
+.slider.round {
+  border-radius: 24px;
+}
+
+.slider.round:before {
+  border-radius: 50%;
+}
+
+.switch-label {
+  margin-left: 5px;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: color 0.3s ease;
+  vertical-align: middle;
+}
+
 /* Responsive adjustments */
 @media (max-width: 992px) {
   .table td:nth-child(2) {
@@ -396,4 +392,34 @@ label:hover {
   .description-text {
     max-height: 80px;
   }
+}
+
+
+
+
+
+
+
+
+
+
+
+.table th:nth-child(1) {
+  text-align: left;
+}
+
+.table th:nth-child(2) {
+  text-align: left;
+}
+
+.table th:nth-child(3) {
+  text-align: left;
+}
+
+.table th:nth-child(4) {
+  text-align: left;
+}
+
+.table th:nth-child(5) {
+  text-align: center;
 }

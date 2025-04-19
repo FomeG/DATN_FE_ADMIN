@@ -37,6 +37,7 @@ export interface Room {
     seatPrice: bigint;
     isdeleted: boolean;
     status: number;
+    roomTypeName: string;
 }
 
 export interface RoomResponse {

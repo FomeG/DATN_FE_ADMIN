@@ -92,8 +92,24 @@ export class ServiceManagementComponent implements OnInit {
   calculatePagination(): void {
     this.totalPages = Math.ceil(this.totalRecords / this.recordPerPage);
     this.pages = [];
-    for (let i = 1; i <= this.totalPages; i++) {
-      this.pages.push(i);
+
+    // Giới hạn hiển thị tối đa 5 trang
+    if (this.totalPages <= 5) {
+      // Nếu tổng số trang <= 5, hiển thị tất cả các trang
+      for (let i = 1; i <= this.totalPages; i++) {
+        this.pages.push(i);
+      }
+    } else {
+      // Nếu tổng số trang > 5, hiển thị 5 trang xung quanh trang hiện tại
+      const startPage = Math.max(1, this.currentPage - 2);
+      const endPage = Math.min(this.totalPages, startPage + 4);
+
+      // Điều chỉnh lại startPage nếu endPage đã đạt giới hạn
+      const adjustedStartPage = Math.max(1, endPage - 4);
+
+      for (let i = adjustedStartPage; i <= endPage; i++) {
+        this.pages.push(i);
+      }
     }
   }
 

@@ -1,1 +1,320 @@
-<p>voucher-ui works!</p>
+<div class="container-fluid">
+
+    <div class="dashboard-header p-0">
+
+        <div class="row align-items-center">
+            <div class="col-md-6">
+                <h2 class="mb-0 text-gradient">Quản lý giao diện Voucher</h2>
+                <p class="text-muted">Thông tin về giao diện voucher phía khách hàng</p>
+            </div>
+        </div>
+
+
+    </div>
+
+
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+
+                    <div class="d-flex justify-content-between align-items-center m-0">
+
+                        <div class="col-md-4 text-end d-flex m-0" style="gap: 30px">
+                            <button class="custom-header-button" style="width: 200px;" (click)="openCreateModal()">
+                                <i class="fas fa-plus"></i> Thêm mới
+                            </button>
+
+
+                            <!-- <button class="custom-header-button" style="width: 200px;" (click)="navigateToSettings()">
+                            <i class="fas fa-cog"></i> Cài đặt
+                          </button> -->
+                        </div>
+
+                        <div class="d-flex justify-content-between align-items-center m-0" style="gap: 0.5rem;">
+                            <div class="input-group header-search">
+                                <input type="text" class="form-control" placeholder="Tìm kiếm..."
+                                    [(ngModel)]="searchTerm" (keyup.enter)="search()">
+                                <button class="btn  btn-primary" type="button" (click)="search()">
+                                    <i class="fas fa-search"></i>
+                                </button>
+                            </div>
+
+
+
+                            <!-- Dropdown số bản ghi mỗi trang -->
+                            <div>
+                                <select [(ngModel)]="recordPerPage" class="form-select form-select-sm">
+                                    <option [value]="10">10 bản ghi</option>
+                                    <option [value]="20">20 bản ghi</option>
+                                    <option [value]="50">50 bản ghi</option>
+                                    <option [value]="100">100 bản ghi</option>
+                                </select>
+                            </div>
+
+                        </div>
+                    </div>
+
+                </div>
+                <div class="card-body pt-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead>
+                                <tr>
+                                    <!-- <th scope="col" style="width: 50px;">STT</th> -->
+                                    <th scope="col">Hình ảnh</th>
+                                    <th scope="col" class="sortable" (click)="sort('title')" style="cursor: pointer">
+                                        Tiêu đề <i class="fas" [ngClass]="getSortIcon('title')"></i>
+                                    </th>
+                                    <th scope="col">Mã Voucher</th>
+                                    <th scope="col">Giảm giá</th>
+                                    <th scope="col" class="sortable" (click)="sort('displayOrder')" style="cursor: pointer">
+                                        Thứ tự hiển thị <i class="fas" [ngClass]="getSortIcon('displayOrder')"></i>
+                                    </th>
+                                    <th scope="col" class="sortable" (click)="sort('startTime')" style="cursor: pointer">
+                                        Thời gian hiển thị <i class="fas" [ngClass]="getSortIcon('startTime')"></i>
+                                    </th>
+                                    <th scope="col" class="sortable" (click)="sort('status')" style="cursor: pointer">
+                                        Trạng thái <i class="fas" [ngClass]="getSortIcon('status')"></i>
+                                    </th>
+                                    <th scope="col" style="width: 150px;">Thao tác</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr *ngIf="isLoading">
+                                    <td colspan="9" class="text-center">
+                                        <div class="spinner-border text-primary" role="status">
+                                            <span class="visually-hidden">Đang tải...</span>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr *ngIf="!isLoading && filteredVoucherUIs.length === 0">
+                                    <td colspan="9" class="text-center">Không có dữ liệu</td>
+                                </tr>
+                                <tr *ngFor="let voucherUI of filteredVoucherUIs; let i = index">
+                                    <td>
+                                        <img [src]="voucherUI.imageUrl" alt="Voucher Image" class="img-thumbnail"
+                                            style="max-width: 100px; max-height: 60px;">
+                                    </td>
+                                    <!-- <td>{{ (currentPage - 1) * recordPerPage + i + 1 }}</td> -->
+                                    <td>
+                                        <div class="d-flex flex-column">
+                                            <span class="fw-bold">{{ voucherUI.title }}</span>
+                                            <small class="text-muted">{{ voucherUI.content }}</small>
+                                        </div>
+                                    </td>
+                                    <td>{{ voucherUI.voucherCode }}</td>
+                                    <td>{{ getDiscountText(voucherUI) }}</td>
+
+                                    <td class="text-center">{{ voucherUI.displayOrder }}</td>
+                                    <td>
+                                        <div class="d-flex flex-column">
+                                            <small><span style="font-weight: bold">Từ</span> : {{ formatDate(voucherUI.startTime) }}</small>
+                                            <small><span style="font-weight: bold">Đến</span>: {{ formatDate(voucherUI.endTime) }}</small>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="badge"
+                                            [ngClass]="voucherUI.status === 1 ? 'bg-success' : 'bg-danger'">
+                                            {{ voucherUI.status === 1 ? 'Hoạt động' : 'Không hoạt động' }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div class="btn-group">
+                                            <button class="btn btn-sm btn-info me-1" (click)="openEditModal(voucherUI)">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <button class="btn btn-sm btn-danger"
+                                                (click)="deleteVoucherUI(voucherUI.id)">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Pagination -->
+                    <div class="d-flex justify-content-between align-items-center mt-3" *ngIf="totalPages > 0">
+                        <div>
+                            Hiển thị {{ filteredVoucherUIs.length }} / {{ totalRecords }} kết quả
+                        </div>
+                        <nav aria-label="Page navigation">
+                            <ul class="pagination mb-0">
+                                <li class="page-item" [ngClass]="{disabled: currentPage === 1}">
+                                    <a class="page-link" href="javascript:void(0)" (click)="changePage(1)">
+                                        <i class="fas fa-angle-double-left"></i>
+                                    </a>
+                                </li>
+                                <li class="page-item" [ngClass]="{disabled: currentPage === 1}">
+                                    <a class="page-link" href="javascript:void(0)"
+                                        (click)="changePage(currentPage - 1)">
+                                        <i class="fas fa-angle-left"></i>
+                                    </a>
+                                </li>
+                                <li class="page-item" *ngFor="let page of pages"
+                                    [ngClass]="{active: page === currentPage}">
+                                    <a class="page-link" href="javascript:void(0)" (click)="changePage(page)">{{ page
+                                        }}</a>
+                                </li>
+                                <li class="page-item" [ngClass]="{disabled: currentPage === totalPages}">
+                                    <a class="page-link" href="javascript:void(0)"
+                                        (click)="changePage(currentPage + 1)">
+                                        <i class="fas fa-angle-right"></i>
+                                    </a>
+                                </li>
+                                <li class="page-item" [ngClass]="{disabled: currentPage === totalPages}">
+                                    <a class="page-link" href="javascript:void(0)" (click)="changePage(totalPages)">
+                                        <i class="fas fa-angle-double-right"></i>
+                                    </a>
+                                </li>
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+<!-- Modal -->
+<div class="modal fade" id="voucherUIModal" tabindex="-1" aria-labelledby="voucherUIModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="voucherUIModalLabel">
+                    {{ isEditing ? 'Chỉnh sửa Giao diện Voucher' : 'Thêm Giao diện Voucher mới' }}
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form [formGroup]="voucherUIForm" (ngSubmit)="onSubmit()">
+                    <!-- Voucher -->
+                    <div class="mb-3">
+                        <label for="voucherId" class="form-label">Voucher <span class="text-danger">*</span></label>
+                        <select class="form-select" id="voucherId" formControlName="voucherId">
+                            <option value="">-- Chọn Voucher --</option>
+                            <option *ngFor="let voucher of availableVouchers" [value]="voucher.id">
+                                {{ voucher.code }} - {{ voucher.description }} ({{ voucher.discountType === 'PERCENT' ?
+                                voucher.discountValue + '%' : voucher.discountValue.toLocaleString('vi-VN') + ' VNĐ' }})
+                            </option>
+                        </select>
+                        <div *ngIf="voucherUIForm.get('voucherId')?.invalid && voucherUIForm.get('voucherId')?.touched"
+                            class="text-danger">
+                            <small *ngIf="voucherUIForm.get('voucherId')?.errors?.['required']">Vui lòng chọn
+                                Voucher</small>
+                        </div>
+                    </div>
+
+                    <!-- Tiêu đề -->
+                    <div class="mb-3">
+                        <label for="title" class="form-label">Tiêu đề <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="title" formControlName="title"
+                            placeholder="Nhập tiêu đề">
+                        <div *ngIf="voucherUIForm.get('title')?.invalid && voucherUIForm.get('title')?.touched"
+                            class="text-danger">
+                            <small *ngIf="voucherUIForm.get('title')?.errors?.['required']">Vui lòng nhập tiêu
+                                đề</small>
+                            <small *ngIf="voucherUIForm.get('title')?.errors?.['maxlength']">Tiêu đề không được vượt quá
+                                200 ký tự</small>
+                        </div>
+                    </div>
+
+                    <!-- Nội dung -->
+                    <div class="mb-3">
+                        <label for="content" class="form-label">Nội dung <span class="text-danger">*</span></label>
+                        <textarea class="form-control" id="content" formControlName="content" rows="3"
+                            placeholder="Nhập nội dung"></textarea>
+                        <div *ngIf="voucherUIForm.get('content')?.invalid && voucherUIForm.get('content')?.touched"
+                            class="text-danger">
+                            <small *ngIf="voucherUIForm.get('content')?.errors?.['required']">Vui lòng nhập nội
+                                dung</small>
+                            <small *ngIf="voucherUIForm.get('content')?.errors?.['maxlength']">Nội dung không được vượt
+                                quá 1000 ký tự</small>
+                        </div>
+                    </div>
+
+                    <!-- Hình ảnh -->
+                    <div class="mb-3">
+                        <label for="imageUrl" class="form-label">Hình ảnh <span *ngIf="!isEditing"
+                                class="text-danger">*</span></label>
+                        <input type="file" class="form-control" id="imageUrl" (change)="onFileChange($event)"
+                            accept="image/*">
+                        <small class="text-muted">Kích thước tối đa: 2MB. Định dạng: JPG, PNG, GIF</small>
+
+                        <div *ngIf="imagePreview" class="mt-2">
+                            <img [src]="imagePreview" alt="Preview" class="img-thumbnail"
+                                style="max-width: 200px; max-height: 150px;">
+                        </div>
+                    </div>
+
+                    <!-- Thứ tự hiển thị -->
+                    <div class="mb-3">
+                        <label for="displayOrder" class="form-label">Thứ tự hiển thị <span
+                                class="text-danger">*</span></label>
+                        <input type="number" class="form-control" id="displayOrder" formControlName="displayOrder"
+                            min="0">
+                        <div *ngIf="voucherUIForm.get('displayOrder')?.invalid && voucherUIForm.get('displayOrder')?.touched"
+                            class="text-danger">
+                            <small *ngIf="voucherUIForm.get('displayOrder')?.errors?.['required']">Vui lòng nhập thứ tự
+                                hiển thị</small>
+                            <small *ngIf="voucherUIForm.get('displayOrder')?.errors?.['min']">Thứ tự hiển thị phải lớn
+                                hơn hoặc bằng 0</small>
+                        </div>
+                    </div>
+
+                    <!-- Thời gian hiển thị -->
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="startTime" class="form-label">Thời gian bắt đầu <span
+                                    class="text-danger">*</span></label>
+                            <input type="date" class="form-control" id="startTime" formControlName="startTime">
+                            <div *ngIf="voucherUIForm.get('startTime')?.invalid && voucherUIForm.get('startTime')?.touched"
+                                class="text-danger">
+                                <small *ngIf="voucherUIForm.get('startTime')?.errors?.['required']">Vui lòng chọn thời
+                                    gian bắt đầu</small>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="endTime" class="form-label">Thời gian kết thúc <span
+                                    class="text-danger">*</span></label>
+                            <input type="date" class="form-control" id="endTime" formControlName="endTime">
+                            <div *ngIf="voucherUIForm.get('endTime')?.invalid && voucherUIForm.get('endTime')?.touched"
+                                class="text-danger">
+                                <small *ngIf="voucherUIForm.get('endTime')?.errors?.['required']">Vui lòng chọn thời
+                                    gian kết thúc</small>
+                            </div>
+                        </div>
+                        <div *ngIf="voucherUIForm.errors?.['dateRangeInvalid']" class="col-12 text-danger mt-1">
+                            <small>Thời gian kết thúc phải sau thời gian bắt đầu</small>
+                        </div>
+                    </div>
+
+                    <!-- Trạng thái -->
+                    <div class="mb-3">
+                        <label for="status" class="form-label">Trạng thái <span class="text-danger">*</span></label>
+                        <select class="form-select" id="status" formControlName="status">
+                            <option *ngFor="let option of statusOptions" [value]="option.value">{{ option.label }}
+                            </option>
+                        </select>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                        <button type="submit" class="btn btn-primary" [disabled]="voucherUIForm.invalid || isLoading">
+                            <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-1" role="status"
+                                aria-hidden="true"></span>
+                            {{ isEditing ? 'Cập nhật' : 'Thêm mới' }}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

@@ -173,6 +173,80 @@
   background: linear-gradient(to right, #fc424a, #f54a53) !important;
 }
 
+/* Movie Format Badge Styling */
+.format-badge {
+  padding: 0.4em 0.8em;
+  font-weight: 500;
+  font-size: 0.7rem;
+  letter-spacing: 0.5px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+  transition: all 0.3s ease;
+}
+
+.format-badge:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+}
+
+/* Default format badge color - will be used if no specific class matches */
+.format-badge {
+  background: linear-gradient(to right, #8e44ad, #9b59b6);
+  color: white;
+}
+
+/* Format-specific colors - using first 8 chars of formatId to generate unique classes */
+.format-2cd0e081 {
+  background: linear-gradient(to right, #3498db, #2980b9);
+  color: white;
+}
+
+/* Add more format colors for different formats */
+.format-1 {
+  background: linear-gradient(to right, #e74c3c, #c0392b);
+  color: white;
+}
+
+.format-2 {
+  background: linear-gradient(to right, #2ecc71, #27ae60);
+  color: white;
+}
+
+.format-3 {
+  background: linear-gradient(to right, #f39c12, #d35400);
+  color: white;
+}
+
+.format-4 {
+  background: linear-gradient(to right, #1abc9c, #16a085);
+  color: white;
+}
+
+.format-5 {
+  background: linear-gradient(to right, #9b59b6, #8e44ad);
+  color: white;
+}
+
+/* Format names that might be common */
+.format-badge[class*="2D"] {
+  background: linear-gradient(to right, #3498db, #2980b9);
+  color: white;
+}
+
+.format-badge[class*="3D"] {
+  background: linear-gradient(to right, #e74c3c, #c0392b);
+  color: white;
+}
+
+.format-badge[class*="4D"] {
+  background: linear-gradient(to right, #f39c12, #d35400);
+  color: white;
+}
+
+.format-badge[class*="IMAX"] {
+  background: linear-gradient(to right, #1abc9c, #16a085);
+  color: white;
+}
+
 /* Button styling */
 .btn {
   transition: color 0.3s ease, background-color 0.3s ease, transform 0.3s ease;
@@ -548,7 +622,6 @@ label:hover {
 .custom-header-button:hover {
   background: linear-gradient(to right, #0077b5, #005f92);
   box-shadow: 0 8px 15px rgba(0, 144, 231, 0.4);
-  transform: translateY(-2px);
 }
 
 
@@ -569,7 +642,6 @@ label:hover {
 
 .custom-header-button:hover {
   background: linear-gradient(to right, #0077b5, #005f92);
-  transform: translateY(-2px);
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
 }
 

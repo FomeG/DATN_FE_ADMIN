@@ -83,6 +83,49 @@
   font-size: 0.85rem;
 }
 
+/* Room Type Badge Styles */
+.room-type-badge {
+  padding: 0.5em 1em;
+  font-weight: 500;
+  font-size: 0.8rem;
+  letter-spacing: 0.5px;
+  border-radius: 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+  transition: all 0.3s ease;
+}
+
+.room-type-badge:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+}
+
+/* Default room type badge color */
+.room-type-badge {
+  background: linear-gradient(to right, #8e44ad, #9b59b6);
+  color: white;
+}
+
+/* Room type specific colors - using first 8 chars of roomTypeId */
+.room-type-e1b1aeb3 { /* IMAX */
+  background: linear-gradient(to right, #1abc9c, #16a085);
+  color: white;
+}
+
+.room-type-b6098bb7 { /* 2D */
+  background: linear-gradient(to right, #3498db, #2980b9);
+  color: white;
+}
+
+.room-type-d4ad3dcc, .room-type-bed5181f { /* 3D */
+  background: linear-gradient(to right, #e74c3c, #c0392b);
+  color: white;
+}
+
+.room-type-cc4fba43 { /* 4D */
+  background: linear-gradient(to right, #f39c12, #d35400);
+  color: white;
+}
+
 
 /* Header Controls */
 .header-button {

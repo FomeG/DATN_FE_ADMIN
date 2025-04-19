@@ -64,6 +64,9 @@ export class ShowtimeManagementComponent implements OnInit, OnDestroy {
   currentPage = 1;
   recordPerPage = 10;
   totalRecords = 0;
+  totalPages = 0;
+  pages: number[] = [];
+  isLoading = false;
   showtimeForm: FormGroup;
   selectedShowtime: Showtime | null = null;
   isEditing = false;
@@ -77,6 +80,8 @@ export class ShowtimeManagementComponent implements OnInit, OnDestroy {
   upcomingShowtimes: Showtime[] = [];
   playingShowtimes: Showtime[] = [];
   maintenanceShowtimes: Showtime[] = [];
+  selectedMovie: any = null;
+  roomTypes: any[] = [];
 
   cinemaList: CinemaItem[] = [];
 
@@ -156,6 +161,7 @@ export class ShowtimeManagementComponent implements OnInit, OnDestroy {
     this.addBackdropFixStylesheet();
     this.initForm();
     this.loadCinemas();
+    this.loadRoomTypes();
 
     // Setup modal event listeners
     setTimeout(() => {
@@ -669,11 +675,17 @@ export class ShowtimeManagementComponent implements OnInit, OnDestroy {
     console.log("Phim đã thay đổi trong form:", movieId);
 
     try {
-      if (!movieId) return;
+      if (!movieId) {
+        this.selectedMovie = null;
+        return;
+      }
 
       // Tìm thông tin phim đã chọn
-      const selectedMovie = this.movies.find(m => m.id === movieId);
-      if (!selectedMovie) return;
+      this.selectedMovie = this.movies.find(m => m.id === movieId);
+      if (!this.selectedMovie) return;
+
+      // Kiểm tra xem có phòng nào không phù hợp với format của phim không
+      let hasIncompatibleRooms = false;
 
       if (this.cinemaList && this.cinemaList.length > 0) {
         // Cập nhật tất cả các phòng đã chọn
@@ -686,11 +698,28 @@ export class ShowtimeManagementComponent implements OnInit, OnDestroy {
                   this.calculateEndTime(cinemaIndex, roomIndex);
                 }
 
-                // Xóa thông báo lỗi
-                room.errorMessage = '';
+                // Kiểm tra tính tương thích của phòng với phim
+                const selectedRoom = this.getRoomById(room.id);
+                if (selectedRoom && !this.isRoomCompatible(selectedRoom)) {
+                  hasIncompatibleRooms = true;
+                  room.errorMessage = 'Phòng này không phù hợp với định dạng của phim!';
+                } else {
+                  // Xóa thông báo lỗi
+                  room.errorMessage = '';
+                }
               }
             });
           }
+        });
+      }
+
+      // Hiển thị cảnh báo nếu có phòng không phù hợp
+      if (hasIncompatibleRooms) {
+        Swal.fire({
+          icon: 'warning',
+          title: 'Cảnh báo!',
+          text: 'Một số phòng đã chọn không phù hợp với định dạng của phim. Vui lòng kiểm tra lại.',
+          confirmButtonText: 'Đồng ý'
         });
       }
     } catch (error) {
@@ -853,6 +882,7 @@ export class ShowtimeManagementComponent implements OnInit, OnDestroy {
   // Phương thức lấy tất cả dữ liệu showtime
   loadAllShowtimes(): void {
     console.log('Loading all showtimes...');
+    this.isLoading = true;
 
     this.showtimeService.getAllShowtimes().subscribe({
       next: (response: ShowtimeResponse) => {
@@ -866,12 +896,16 @@ export class ShowtimeManagementComponent implements OnInit, OnDestroy {
 
           // Phân loại các suất chiếu cho modal báo cáo sự cố
           this.updateReportModalLists();
+          this.calculateTotalPages();
+          this.isLoading = false;
         } else {
           console.error('Error loading all showtimes:', response.message);
+          this.isLoading = false;
         }
       },
       error: (error) => {
         console.error('Error loading all showtimes:', error);
+        this.isLoading = false;
       }
     });
   }
@@ -891,8 +925,28 @@ export class ShowtimeManagementComponent implements OnInit, OnDestroy {
   }
 
   // Phương thức lọc và phân trang dữ liệu ở client
+  calculateTotalPages(): void {
+    this.totalPages = Math.ceil(this.totalRecords / this.recordPerPage);
+
+    // Giới hạn hiển thị tối đa 5 trang
+    if (this.totalPages <= 5) {
+      // Nếu tổng số trang <= 5, hiển thị tất cả các trang
+      this.pages = Array.from({ length: this.totalPages }, (_, i) => i + 1);
+    } else {
+      // Nếu tổng số trang > 5, hiển thị 5 trang xung quanh trang hiện tại
+      const startPage = Math.max(1, this.currentPage - 2);
+      const endPage = Math.min(this.totalPages, startPage + 4);
+
+      // Điều chỉnh lại startPage nếu endPage đã đạt giới hạn
+      const adjustedStartPage = Math.max(1, endPage - 4);
+
+      this.pages = Array.from({ length: 5 }, (_, i) => adjustedStartPage + i).filter(p => p <= this.totalPages);
+    }
+  }
+
   filterAndPaginate(): void {
     console.log('Filtering and paginating data...');
+    this.isLoading = true;
 
     // Bắt đầu với tất cả dữ liệu
     let filtered = [...this.allShowtimes];
@@ -1009,6 +1063,7 @@ export class ShowtimeManagementComponent implements OnInit, OnDestroy {
 
     // Lưu trữ dữ liệu gốc cho các tính năng khác
     this.originalShowtimes = [...this.filteredShowtimes];
+    this.isLoading = false;
   }
 
   // Giữ lại phương thức loadShowtimes cũ để tương thích ngược
@@ -1187,6 +1242,32 @@ export class ShowtimeManagementComponent implements OnInit, OnDestroy {
 
   onSubmit(): void {
     if (!this.isFormValid()) return;
+
+    // Kiểm tra tính tương thích của phòng với phim trước khi submit
+    let hasIncompatibleRooms = false;
+    let incompatibleRoomNames: string[] = [];
+
+    for (const cinema of this.cinemaList) {
+      for (const room of cinema.rooms) {
+        if (room.id) {
+          const selectedRoom = this.getRoomById(room.id);
+          if (selectedRoom && !this.isRoomCompatible(selectedRoom)) {
+            hasIncompatibleRooms = true;
+            incompatibleRoomNames.push(selectedRoom.name);
+          }
+        }
+      }
+    }
+
+    if (hasIncompatibleRooms) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Không thể tạo suất chiếu!',
+        html: `Các phòng sau không phù hợp với định dạng của phim:<br><strong>${incompatibleRoomNames.join(', ')}</strong><br><br>Vui lòng chọn phòng khác hoặc thay đổi phim.`,
+        confirmButtonText: 'Đồng ý'
+      });
+      return;
+    }
 
     if (!this.isEditing) {
       this.createShowtimes();
@@ -1786,6 +1867,55 @@ export class ShowtimeManagementComponent implements OnInit, OnDestroy {
     const movieId = this.showtimeForm.get('movieId')?.value;
     const movie = this.movies.find(m => m.id === movieId);
     return movie ? movie.movieName : '';
+  }
+
+  // Phương thức lấy thông tin phòng từ ID
+  getRoomById(roomId: string): any {
+    return this.rooms.find(room => room.id === roomId);
+  }
+
+  // Phương thức lấy tên loại phòng từ ID loại phòng
+  getRoomTypeName(roomTypeId: string): string {
+    const roomType = this.roomTypes.find(rt => rt.roomTypeId === roomTypeId);
+    return roomType ? roomType.name : 'Không xác định';
+  }
+
+  // Phương thức kiểm tra tính tương thích của phòng với phim
+  isRoomCompatible(room: any): boolean {
+    if (!this.selectedMovie || !room) return true; // Nếu không có phim hoặc phòng, coi như hợp lệ
+
+    // Lấy loại phòng
+    const roomType = this.roomTypes.find(rt => rt.roomTypeId === room.roomTypeId);
+    if (!roomType) return true; // Nếu không tìm thấy loại phòng, coi như hợp lệ
+
+    // Lấy các format của phim
+    const movieFormats = this.selectedMovie.formats || [];
+    if (movieFormats.length === 0) return true; // Nếu phim không có format, coi như hợp lệ
+
+    // Kiểm tra xem có ít nhất một format của phim trùng với tên loại phòng không
+    // Ví dụ: Phim có format 2D, 3D và phòng có loại 3D -> hợp lệ
+    const roomTypeName = roomType.name.toUpperCase();
+    return movieFormats.some((format: { name: string }) => {
+      const formatName = format.name.toUpperCase();
+      return roomTypeName.includes(formatName) || formatName.includes(roomTypeName);
+    });
+  }
+
+  // Phương thức tải danh sách loại phòng
+  loadRoomTypes(): void {
+    // Gọi API để lấy danh sách loại phòng
+    this.roomService.getRoomTypes(1, 100).subscribe({
+      next: (response) => {
+        if (response.responseCode === 200) {
+          this.roomTypes = response.data;
+        } else {
+          console.error('Error loading room types:', response.message);
+        }
+      },
+      error: (error) => {
+        console.error('Error loading room types:', error);
+      }
+    });
   }
 
 

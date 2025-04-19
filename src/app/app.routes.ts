@@ -14,6 +14,7 @@ import { LoginComponent } from './login/login.component';
 import { authGuard } from './auth/auth.guard';
 import { VoucherManagementComponent } from './voucher/voucher-management/voucher-management.component';
 import { VoucherUsageManagementComponent } from './voucher/voucher-usage-management/voucher-usage-management.component';
+import { VoucherUiComponent } from './voucher/voucher-ui/voucher-ui.component';
 import { CinemaManagementComponent } from './cinema/cinema-management/cinema-management.component';
 import { ServiceManagementComponent } from './dichvu/service-management/service-management.component';
 import { ServiceTypeManagementComponent } from './dichvu/service-type-management/service-type-management.component';
@@ -51,6 +52,7 @@ export const routes: Routes = [
 
       { path: 'voucher', component: VoucherManagementComponent },
       { path: 'voucher-usage', component: VoucherUsageManagementComponent },
+      { path: 'voucher-ui', component: VoucherUiComponent },
       { path: 'cinemas', component: CinemaManagementComponent },
       { path: 'statistics', component: DashboardComponent }
     ]

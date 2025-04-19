@@ -159,7 +159,7 @@
 
                     </td>
                   </tr>
-                  <tr *ngIf="filteredVouchers.length === 0">
+                  <tr *ngIf="!isLoading && filteredVouchers.length === 0">
                     <td colspan="9" class="text-center">Không tìm thấy voucher nào</td>
                   </tr>
                 </tbody>
@@ -169,32 +169,49 @@
 
 
             <!-- Pagination -->
+            <div class="d-flex justify-content-between align-items-center mt-3 p-3" *ngIf="totalPages > 0">
+              <div>
+                Hiển thị {{ filteredVouchers.length }} / {{ totalRecords }} kết quả
+              </div>
+              <nav aria-label="Page navigation">
+                <ul class="pagination mb-0">
+                  <li class="page-item" [ngClass]="{disabled: currentPage === 1}">
+                    <a class="page-link" href="javascript:void(0)" (click)="onPageChange(1)">
+                      <i class="fas fa-angle-double-left"></i>
+                    </a>
+                  </li>
+                  <li class="page-item" [ngClass]="{disabled: currentPage === 1}">
+                    <a class="page-link" href="javascript:void(0)" (click)="onPageChange(currentPage - 1)">
+                      <i class="fas fa-angle-left"></i>
+                    </a>
+                  </li>
+                  <!-- Hiển thị dấu ... ở đầu nếu trang đầu tiên không phải là 1 -->
+                  <li class="page-item disabled" *ngIf="pages.length > 0 && pages[0] > 1">
+                    <a class="page-link" href="javascript:void(0)">...</a>
+                  </li>
 
-            <!-- Pagination -->
-            <nav aria-label="Voucher pagination" *ngIf="totalRecords > 0">
-              <ul class="pagination justify-content-center">
-                <!-- Previous button -->
-                <li class="page-item" [class.disabled]="currentPage === 1">
-                  <a class="page-link" href="javascript:void(0)" (click)="onPageChange(currentPage - 1)">
-                    Trước
-                  </a>
-                </li>
+                  <!-- Hiển thị các trang -->
+                  <li class="page-item" *ngFor="let page of pages" [ngClass]="{active: page === currentPage}">
+                    <a class="page-link" href="javascript:void(0)" (click)="onPageChange(page)">{{ page }}</a>
+                  </li>
 
-                <!-- Page numbers -->
-                <li class="page-item" *ngFor="let page of pages" [class.active]="page === currentPage">
-                  <a class="page-link" href="javascript:void(0)" (click)="onPageChange(page)">
-                    {{page}}
-                  </a>
-                </li>
-
-                <!-- Next button -->
-                <li class="page-item" [class.disabled]="currentPage === totalPages">
-                  <a class="page-link" href="javascript:void(0)" (click)="onPageChange(currentPage + 1)">
-                    Sau
-                  </a>
-                </li>
-              </ul>
-            </nav>
+                  <!-- Hiển thị dấu ... ở cuối nếu trang cuối cùng không phải là totalPages -->
+                  <li class="page-item disabled" *ngIf="pages.length > 0 && pages[pages.length - 1] < totalPages">
+                    <a class="page-link" href="javascript:void(0)">...</a>
+                  </li>
+                  <li class="page-item" [ngClass]="{disabled: currentPage === totalPages}">
+                    <a class="page-link" href="javascript:void(0)" (click)="onPageChange(currentPage + 1)">
+                      <i class="fas fa-angle-right"></i>
+                    </a>
+                  </li>
+                  <li class="page-item" [ngClass]="{disabled: currentPage === totalPages}">
+                    <a class="page-link" href="javascript:void(0)" (click)="onPageChange(totalPages)">
+                      <i class="fas fa-angle-double-right"></i>
+                    </a>
+                  </li>
+                </ul>
+              </nav>
+            </div>
 
 
             <!-- Page info -->

@@ -100,6 +100,129 @@
   background: linear-gradient(to right, #fc424a, #f54a53) !important;
 }
 
+/* Movie Format Badge Styling */
+.format-badge {
+  padding: 0.4em 0.8em;
+  font-weight: 500;
+  font-size: 0.7rem;
+  letter-spacing: 0.5px;
+  border-radius: 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+  transition: all 0.3s ease;
+  margin-right: 5px;
+  margin-bottom: 5px;
+  display: inline-block;
+}
+
+.format-badge:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+}
+
+/* Default format badge color */
+.format-badge {
+  background: linear-gradient(to right, #8e44ad, #9b59b6);
+  color: white;
+}
+
+/* Format-specific colors */
+.format-2d {
+  background: linear-gradient(to right, #3498db, #2980b9);
+  color: white;
+}
+
+.format-3d {
+  background: linear-gradient(to right, #e74c3c, #c0392b);
+  color: white;
+}
+
+.format-4d {
+  background: linear-gradient(to right, #f39c12, #d35400);
+  color: white;
+}
+
+.format-imax {
+  background: linear-gradient(to right, #1abc9c, #16a085);
+  color: white;
+}
+
+/* Room Type Badge Styling */
+.room-type-badge {
+  padding: 0.4em 0.8em;
+  font-weight: 500;
+  font-size: 0.7rem;
+  letter-spacing: 0.5px;
+  border-radius: 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+  transition: all 0.3s ease;
+  margin-right: 5px;
+  margin-bottom: 5px;
+  display: inline-block;
+}
+
+.room-type-badge:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+}
+
+/* Default room type badge color */
+.room-type-badge {
+  background: linear-gradient(to right, #8e44ad, #9b59b6);
+  color: white;
+}
+
+/* Room type specific colors */
+.room-type-2d {
+  background: linear-gradient(to right, #3498db, #2980b9);
+  color: white;
+}
+
+.room-type-3d {
+  background: linear-gradient(to right, #e74c3c, #c0392b);
+  color: white;
+}
+
+.room-type-4d {
+  background: linear-gradient(to right, #f39c12, #d35400);
+  color: white;
+}
+
+.room-type-imax {
+  background: linear-gradient(to right, #1abc9c, #16a085);
+  color: white;
+}
+
+/* Compatibility indicator */
+.compatible {
+  border: 2px solid #00d25b;
+}
+
+.incompatible {
+  border: 2px solid #fc424a;
+  opacity: 0.7;
+}
+
+/* Warning message */
+.format-warning {
+  background-color: rgba(255, 171, 0, 0.1);
+  border: 1px solid #ffab00;
+  border-radius: 6px;
+  padding: 10px;
+  margin-top: 10px;
+  color: #ffab00;
+  font-size: 0.85rem;
+}
+
+.format-error {
+  background-color: rgba(252, 66, 74, 0.1);
+  border: 1px solid #fc424a;
+  border-radius: 6px;
+  padding: 10px;
+  margin-top: 10px;
+  color: #fc424a;
+  font-size: 0.85rem;
+}
+
 
 .btn-outline-primary,
 .btn-outline-warning,

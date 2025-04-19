@@ -21,6 +21,7 @@ export class MembershipManagementComponent implements OnInit {
   selectedMembership: Membership | null = null;
   isEditing = false;
   totalPages = 0;
+  isLoading = false;
 
   constructor(
     private membershipService: MembershipService,
@@ -41,15 +42,18 @@ export class MembershipManagementComponent implements OnInit {
   }
 
   loadMemberships() {
+    this.isLoading = true;
     this.membershipService.getMemberships(this.currentPage, this.recordPerPage)
       .subscribe({
         next: (response) => {
           this.memberships = response.data;
           this.totalRecords = response.totalRecord;
           this.totalPages = Math.ceil(this.totalRecords / this.recordPerPage);
+          this.isLoading = false;
         },
         error: (error) => {
           console.error('Error loading memberships:', error);
+          this.isLoading = false;
         }
       });
   }
@@ -57,14 +61,14 @@ export class MembershipManagementComponent implements OnInit {
   onSubmit() {
     if (this.membershipForm.valid) {
       const membershipData = this.membershipForm.value;
-      
+
       if (this.isEditing && this.selectedMembership) {
         const updateData = {
           ...membershipData,
           id: this.selectedMembership.id,
           createdDate: this.selectedMembership.createdDate
         };
-        
+
         this.membershipService.updateMembership(updateData)
           .subscribe({
             next: () => {
@@ -128,9 +132,26 @@ export class MembershipManagementComponent implements OnInit {
 
   getPages(): number[] {
     const pages: number[] = [];
-    for (let i = 1; i <= this.totalPages; i++) {
-      pages.push(i);
+
+    // Giới hạn hiển thị tối đa 5 trang
+    if (this.totalPages <= 5) {
+      // Nếu tổng số trang <= 5, hiển thị tất cả các trang
+      for (let i = 1; i <= this.totalPages; i++) {
+        pages.push(i);
+      }
+    } else {
+      // Nếu tổng số trang > 5, hiển thị 5 trang xung quanh trang hiện tại
+      const startPage = Math.max(1, this.currentPage - 2);
+      const endPage = Math.min(this.totalPages, startPage + 4);
+
+      // Điều chỉnh lại startPage nếu endPage đã đạt giới hạn
+      const adjustedStartPage = Math.max(1, endPage - 4);
+
+      for (let i = adjustedStartPage; i <= endPage; i++) {
+        pages.push(i);
+      }
     }
+
     return pages;
   }
 }

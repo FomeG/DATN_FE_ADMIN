@@ -184,22 +184,6 @@
   color: #ffffff !important;
 }
 
-.btn-primary {
-  background: linear-gradient(to right, #0090e7, #0077b5);
-  border: none;
-  padding: 12px 20px;
-  margin-bottom: 25px;
-}
-
-.btn-primary:hover {
-  background: linear-gradient(to right, #0077b5, #005f92);
-  box-shadow: 0 8px 15px rgba(0, 144, 231, 0.3);
-  transform: translateY(-2px);
-}
-
-.btn-primary i {
-  margin-right: 10px;
-}
 
 .btn-outline-primary,
 .btn-outline-warning,
@@ -484,4 +468,52 @@ label:hover {
 .form-select option {
   background-color: #2A3038;
   color: #ffffff;
+}
+
+
+.header-button {
+  height: 42px;
+  border-radius: 8px;
+  padding: 0 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(to right, #0090e7, #0077b5);
+  border: none;
+  font-weight: 500;
+  box-shadow: 0 4px 10px rgba(0, 144, 231, 0.3);
+  transition: all 0.3s ease;
+}
+
+.header-button:hover {
+  background: linear-gradient(to right, #0077b5, #005f92);
+  box-shadow: 0 6px 12px rgba(0, 144, 231, 0.4);
+  transform: translateY(-2px);
+}
+
+
+
+
+
+
+
+
+.table th:nth-child(1) {
+  text-align: center;
+}
+
+.table th:nth-child(2) {
+  text-align: left;
+}
+
+.table th:nth-child(3) {
+  text-align: left;
+}
+
+.table th:nth-child(4) {
+  text-align: left;
+}
+
+.table th:nth-child(5) {
+  text-align: center;
 }

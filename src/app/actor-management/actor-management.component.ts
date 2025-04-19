@@ -25,6 +25,7 @@ export class ActorManagementComponent implements OnInit {
   pages: number[] = [];
   selectedPhoto: File | null = null;
   searchTerm: string = '';
+  isLoading = false;
 
   // Sorting properties
   sortColumn: string = '';
@@ -54,6 +55,7 @@ export class ActorManagementComponent implements OnInit {
   }
 
   loadActors() {
+    this.isLoading = true;
     this.actorService.getActors(this.currentPage, this.recordPerPage).subscribe({
       next: (response) => {
         this.actors = response.data;
@@ -65,31 +67,50 @@ export class ActorManagementComponent implements OnInit {
         if (this.allActors.length === 0) {
           this.loadAllActors();
         }
+        this.isLoading = false;
       },
       error: (error) => {
         console.error('Error loading actors:', error);
         Swal.fire('Lỗi!', 'Có lỗi xảy ra khi tải danh sách diễn viên.', 'error');
+        this.isLoading = false;
       }
     });
   }
 
   // Load all actors for client-side operations
   loadAllActors() {
+    this.isLoading = true;
     // We'll use a large enough page size to get all actors in one request
     this.actorService.getActors(1, 1000).subscribe({
       next: (response) => {
         this.allActors = response.data;
         this.applyFilters();
+        this.isLoading = false;
       },
       error: (error) => {
         console.error('Error loading all actors:', error);
+        this.isLoading = false;
       }
     });
   }
 
   calculateTotalPages() {
     this.totalPages = Math.ceil(this.totalRecords / this.recordPerPage);
-    this.pages = Array.from({ length: this.totalPages }, (_, i) => i + 1);
+
+    // Giới hạn hiển thị tối đa 5 trang
+    if (this.totalPages <= 5) {
+      // Nếu tổng số trang <= 5, hiển thị tất cả các trang
+      this.pages = Array.from({ length: this.totalPages }, (_, i) => i + 1);
+    } else {
+      // Nếu tổng số trang > 5, hiển thị 5 trang xung quanh trang hiện tại
+      const startPage = Math.max(1, this.currentPage - 2);
+      const endPage = Math.min(this.totalPages, startPage + 4);
+
+      // Điều chỉnh lại startPage nếu endPage đã đạt giới hạn
+      const adjustedStartPage = Math.max(1, endPage - 4);
+
+      this.pages = Array.from({ length: 5 }, (_, i) => adjustedStartPage + i).filter(p => p <= this.totalPages);
+    }
   }
 
   onPageChange(page: number) {
@@ -127,6 +148,7 @@ export class ActorManagementComponent implements OnInit {
 
   // Combined filter, sort and paginate
   applyFilters() {
+    this.isLoading = true;
     // 1. Filter by search term
     let result = [...this.allActors];
 
@@ -174,6 +196,7 @@ export class ActorManagementComponent implements OnInit {
     // 4. Apply pagination
     const startIndex = (this.currentPage - 1) * this.recordPerPage;
     this.filteredActors = result.slice(startIndex, startIndex + this.recordPerPage);
+    this.isLoading = false;
   }
 
   // Helper method to get column sort icon

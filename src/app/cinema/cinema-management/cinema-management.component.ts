@@ -47,6 +47,7 @@ export class CinemaManagementComponent implements OnInit, OnDestroy {
     isEditing = false;
     searchTerm = '';
     statusFilter = '-1';
+    isLoading = false;
     private modalInstance: any;
     showAddModal = false;
     showEditModal = false;
@@ -187,13 +188,16 @@ export class CinemaManagementComponent implements OnInit, OnDestroy {
 
     loadCinemas(): void {
         // Luôn tải tất cả các rạp phim, sau đó sẽ lọc ở client
+        this.isLoading = true;
         this.cinemaService.getCinemas(1, 100).subscribe({
             next: (response) => {
                 if (response.responseCode === 200) {
                     this.allCinemas = response.data;
                     // Áp dụng bộ lọc tìm kiếm và trạng thái
                     this.filterCinemas();
+                    this.isLoading = false;
                 } else {
+                    this.isLoading = false;
                     Swal.fire({
                         title: 'Lỗi!',
                         text: response.message || 'Có lỗi xảy ra khi tải danh sách rạp',
@@ -203,6 +207,7 @@ export class CinemaManagementComponent implements OnInit, OnDestroy {
                 }
             },
             error: (error) => {
+                this.isLoading = false;
                 Swal.fire({
                     title: 'Lỗi!',
                     text: 'Có lỗi xảy ra khi tải danh sách rạp',
@@ -214,6 +219,7 @@ export class CinemaManagementComponent implements OnInit, OnDestroy {
     }
 
     filterCinemas(): void {
+        this.isLoading = true;
         // Bước 1: Lọc theo chuỗi tìm kiếm (tên hoặc địa chỉ)
         let filteredData = this.allCinemas;
 
@@ -245,6 +251,7 @@ export class CinemaManagementComponent implements OnInit, OnDestroy {
         const startIndex = (this.currentPage - 1) * this.recordPerPage;
         const endIndex = startIndex + this.recordPerPage;
         this.cinemas = filteredData.slice(startIndex, endIndex);
+        this.isLoading = false;
     }
 
     onSearch(): void {
@@ -496,7 +503,21 @@ export class CinemaManagementComponent implements OnInit, OnDestroy {
 
     calculateTotalPages(): void {
         this.totalPages = Math.ceil(this.totalRecords / this.recordPerPage);
-        this.pages = Array.from({ length: this.totalPages }, (_, i) => i + 1);
+
+        // Giới hạn hiển thị tối đa 5 trang
+        if (this.totalPages <= 5) {
+            // Nếu tổng số trang <= 5, hiển thị tất cả các trang
+            this.pages = Array.from({ length: this.totalPages }, (_, i) => i + 1);
+        } else {
+            // Nếu tổng số trang > 5, hiển thị 5 trang xung quanh trang hiện tại
+            const startPage = Math.max(1, this.currentPage - 2);
+            const endPage = Math.min(this.totalPages, startPage + 4);
+
+            // Điều chỉnh lại startPage nếu endPage đã đạt giới hạn
+            const adjustedStartPage = Math.max(1, endPage - 4);
+
+            this.pages = Array.from({ length: 5 }, (_, i) => adjustedStartPage + i).filter(p => p <= this.totalPages);
+        }
     }
 
     getStatusText(status: number): string {
@@ -998,4 +1019,4 @@ export class CinemaManagementComponent implements OnInit, OnDestroy {
             title: 'Vị trí đã được cập nhật'
         });
     }
-} 
+}

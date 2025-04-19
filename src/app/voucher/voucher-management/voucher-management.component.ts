@@ -129,12 +129,23 @@ export class VoucherManagementComponent implements OnInit {
     this.totalPages = Math.ceil(this.totalRecords / this.recordPerPage) || 1;
     this.pages = [];
 
-    // Tạo mảng các trang, tối đa hiển thị 5 trang một lúc
-    const startPage = Math.max(1, this.currentPage - 2);
-    const endPage = Math.min(this.totalPages, startPage + 4);
+    // Giới hạn hiển thị tối đa 5 trang
+    if (this.totalPages <= 5) {
+      // Nếu tổng số trang <= 5, hiển thị tất cả các trang
+      for (let i = 1; i <= this.totalPages; i++) {
+        this.pages.push(i);
+      }
+    } else {
+      // Nếu tổng số trang > 5, hiển thị 5 trang xung quanh trang hiện tại
+      const startPage = Math.max(1, this.currentPage - 2);
+      const endPage = Math.min(this.totalPages, startPage + 4);
 
-    for (let i = startPage; i <= endPage; i++) {
-      this.pages.push(i);
+      // Điều chỉnh lại startPage nếu endPage đã đạt giới hạn
+      const adjustedStartPage = Math.max(1, endPage - 4);
+
+      for (let i = adjustedStartPage; i <= endPage; i++) {
+        this.pages.push(i);
+      }
     }
   }
 

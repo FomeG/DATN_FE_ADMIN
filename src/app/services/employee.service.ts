@@ -13,8 +13,9 @@ export interface Employee {
   sex: number;
   status: number;
   createdDate: Date;
-  lockoutEnabled: number;
-  roleName: string;
+  lockoutEnabled: boolean;
+  lockoutEnd: string | null;
+  roleName?: string;
 }
 
 export interface EmployeeListResponse {
@@ -52,7 +53,7 @@ export class EmployeeService {
     return this.http.post(`${this.apiUrl}Employee/UpdateEmployee?id=${id}`, employeeData);
   }
 
-  lockoutEmployee(id: string): Observable<any> {
-    return this.http.post(`${this.apiUrl}Employee/LockoutEmployee?id=${id}`, {});
+  toggleLockoutEmployee(id: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}Employee/ToggleLockout?id=${id}`, {});
   }
 }

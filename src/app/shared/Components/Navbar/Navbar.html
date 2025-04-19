@@ -173,12 +173,19 @@
 
 
         <li class="nav-item menu-items">
-            <a class="nav-link" href="/memberships">
+            <a class="nav-link" data-toggle="collapse" href="#membership-dropdown" aria-expanded="false"
+                aria-controls="membership-dropdown">
                 <span class="menu-icon">
                     <i class="mdi mdi-account-card-details"></i>
                 </span>
                 <span class="menu-title">Membership</span>
+                <i class="menu-arrow"></i>
             </a>
+            <div class="collapse" id="membership-dropdown">
+                <ul class="nav flex-column sub-menu">
+                    <li class="nav-item"> <a class="nav-link" href="/membership-benefit"> Quyền lợi thành viên </a></li>
+                </ul>
+            </div>
         </li>
 
         <li class="nav-item menu-items">
@@ -238,8 +245,8 @@
             <div class="collapse" id="voucher-dropdown">
                 <ul class="nav flex-column sub-menu">
                     <li class="nav-item"> <a class="nav-link" href="voucher"> Voucher </a></li>
-                    <li class="nav-item"> <a class="nav-link" href="voucher-usage"> Voucher đã sử dụng </a></li> 
-                    <li class="nav-item"> <a class="nav-link" href="voucher-ui"> Giao diện Voucher </a></li> 
+                    <li class="nav-item"> <a class="nav-link" href="voucher-usage"> Voucher đã sử dụng </a></li>
+                    <li class="nav-item"> <a class="nav-link" href="voucher-ui"> Giao diện Voucher </a></li>
                 </ul>
             </div>
         </li>

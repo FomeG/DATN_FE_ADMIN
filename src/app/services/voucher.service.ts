@@ -15,6 +15,7 @@ export interface Voucher {
   maxUsage: number;
   usedCount: number;
   status: number;
+  voucherType: number;
   createdAt: string;
   updatedAt: string;
 }

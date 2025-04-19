@@ -101,13 +101,16 @@
                     <th (click)="sort('code')" style="cursor: pointer; width: 10%">
                       Mã Voucher <i class="fas" [ngClass]="getSortIcon('code')"></i>
                     </th>
-                    <th (click)="sort('description')" style="cursor: pointer; width: 20%">
+                    <th (click)="sort('description')" style="cursor: pointer; width: 15%">
                       Mô Tả <i class="fas" [ngClass]="getSortIcon('description')"></i>
                     </th>
-                    <th (click)="sort('discountType')" style="cursor: pointer; width: 10%">
+                    <th (click)="sort('discountType')" style="cursor: pointer; width: 8%">
                       Loại <i class="fas" [ngClass]="getSortIcon('discountType')"></i>
                     </th>
-                    <th (click)="sort('discountValue')" style="cursor: pointer; width: 10%">
+                    <th (click)="sort('voucherType')" style="cursor: pointer; width: 8%">
+                      Áp dụng cho <i class="fas" [ngClass]="getSortIcon('voucherType')"></i>
+                    </th>
+                    <th (click)="sort('discountValue')" style="cursor: pointer; width: 8%">
                       Giá Trị <i class="fas" [ngClass]="getSortIcon('discountValue')"></i>
                     </th>
                     <th (click)="sort('startDate')" style="cursor: pointer; width: 10%">
@@ -116,10 +119,10 @@
                     <th (click)="sort('endDate')" style="cursor: pointer; width: 10%">
                       Ngày Kết Thúc <i class="fas" [ngClass]="getSortIcon('endDate')"></i>
                     </th>
-                    <th (click)="sort('usedCount')" style="cursor: pointer; width: 10%">
+                    <th (click)="sort('usedCount')" style="cursor: pointer; width: 8%">
                       Lượt Sử Dụng <i class="fas" [ngClass]="getSortIcon('usedCount')"></i>
                     </th>
-                    <th (click)="sort('status')" style="cursor: pointer; width: 10%">
+                    <th (click)="sort('status')" style="cursor: pointer; width: 8%">
                       Trạng Thái <i class="fas" [ngClass]="getSortIcon('status')"></i>
                     </th>
                     <th style="width: 15%">Thao Tác</th>
@@ -130,6 +133,11 @@
                     <td style="font-weight: bold;">{{ voucher.code }}</td>
                     <td>{{ voucher.description }}</td>
                     <td>{{ getDiscountTypeLabel(voucher.discountType) }}</td>
+                    <td>
+                      <span class="badge" [ngClass]="getVoucherTypeBadgeClass(voucher.voucherType)">
+                        {{ getVoucherTypeText(voucher.voucherType) }}
+                      </span>
+                    </td>
                     <td>{{ formatDiscountValue(voucher) }}</td>
                     <td>{{ formatDate(voucher.startDate) }}</td>
                     <td>{{ formatDate(voucher.endDate) }}</td>
@@ -160,7 +168,7 @@
                     </td>
                   </tr>
                   <tr *ngIf="!isLoading && filteredVouchers.length === 0">
-                    <td colspan="9" class="text-center">Không tìm thấy voucher nào</td>
+                    <td colspan="10" class="text-center">Không tìm thấy voucher nào</td>
                   </tr>
                 </tbody>
               </table>
@@ -345,6 +353,17 @@
                     <small *ngIf="voucherForm.get('maxUsage')?.errors?.['min']">Lượt sử dụng tối đa phải lớn hơn
                       0</small>
                   </div>
+                </div>
+              </div>
+
+              <!-- Loại voucher -->
+              <div class=" mb-3">
+                <div class="form-group">
+                  <label for="voucherType" class="form-label">Áp dụng cho <span class="text-danger">*</span></label>
+                  <select class="form-select" id="voucherType" formControlName="voucherType">
+                    <option [value]="1">Vé xem phim</option>
+                    <option [value]="2">Dịch vụ (đồ ăn, đồ uống)</option>
+                  </select>
                 </div>
               </div>
 

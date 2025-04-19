@@ -547,9 +547,12 @@ export class EditMovieComponent implements OnInit {
         next: (response) => {
           this.isLoading = false;
           if (response.responseCode === 200) {
+
             Swal.fire('Thành công!', 'Cập nhật phim thành công', 'success').then(() => {
               this.router.navigate(['/movies']);
             });
+
+            
           } else {
             Swal.fire('Lỗi!', response.message || 'Có lỗi xảy ra khi cập nhật phim', 'error');
           }

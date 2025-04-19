@@ -716,7 +716,8 @@ export class CinemaManagementComponent implements OnInit, OnDestroy {
 
     // Tìm địa chỉ từ tọa độ (reverse geocoding)
     private reverseGeocode(lat: number, lng: number): void {
-        fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&addressdetails=1`)
+        // Thêm tham số accept-language=vi để ưu tiên kết quả tiếng Việt
+        fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&addressdetails=1&accept-language=vi`)
             .then(response => response.json())
             .then(data => {
                 if (data && data.display_name) {
@@ -874,7 +875,8 @@ export class CinemaManagementComponent implements OnInit, OnDestroy {
 
                 // Sử dụng Nominatim API của OpenStreetMap để tìm tọa độ từ địa chỉ
                 // API này miễn phí nhưng có giới hạn tần suất sử dụng
-                fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}&addressdetails=1`)
+                // Thêm tham số accept-language=vi để ưu tiên kết quả tiếng Việt
+                fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}&addressdetails=1&accept-language=vi`)
                     .then(response => response.json())
                     .then(data => {
                         Swal.close();
@@ -946,11 +948,14 @@ export class CinemaManagementComponent implements OnInit, OnDestroy {
         if (addressObj.house_number) addressParts.push(addressObj.house_number);
         if (addressObj.road) addressParts.push(addressObj.road);
 
-        // Thêm phường/xã, quận/huyện
+        // Thêm phường/xã
         if (addressObj.suburb) addressParts.push(addressObj.suburb);
         if (addressObj.quarter) addressParts.push(addressObj.quarter);
         if (addressObj.neighbourhood) addressParts.push(addressObj.neighbourhood);
+
+        // Thêm quận/huyện
         if (addressObj.district) addressParts.push(addressObj.district);
+        if (addressObj.city_district) addressParts.push(addressObj.city_district);
 
         // Thêm thành phố/tỉnh
         if (addressObj.city) addressParts.push(addressObj.city);
@@ -964,8 +969,13 @@ export class CinemaManagementComponent implements OnInit, OnDestroy {
             addressParts.push(addressObj.state);
         }
 
-        // Thêm quốc gia
-        if (addressObj.country) addressParts.push(addressObj.country);
+        // Thêm quốc gia (có thể bỏ nếu chỉ muốn địa chỉ trong nước)
+        if (addressObj.country && addressObj.country !== 'Việt Nam' && addressObj.country !== 'Vietnam') {
+            addressParts.push(addressObj.country);
+        } else {
+            // Mặc định thêm Việt Nam nếu không có quốc gia hoặc là Việt Nam
+            addressParts.push('Việt Nam');
+        }
 
         // Ghép các thành phần lại với nhau
         return addressParts.join(', ');

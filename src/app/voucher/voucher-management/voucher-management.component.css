@@ -103,6 +103,17 @@
   background: linear-gradient(to right, #fc424a, #f54a53) !important;
 }
 
+/* Custom badge styles for voucher types */
+.badge-ticket {
+  background: linear-gradient(to right, #8e44ad, #9b59b6) !important;
+  color: white;
+}
+
+.badge-service {
+  background: linear-gradient(to right, #e67e22, #f39c12) !important;
+  color: white;
+}
+
 /* Button styling */
 .btn-primary {
   background: linear-gradient(to right, #0090e7, #0077b5);

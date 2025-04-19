@@ -852,7 +852,10 @@ export class ShowtimeManagementComponent implements OnInit, OnDestroy {
 
         // Xác định trạng thái mới dựa trên thời gian hiện tại
         if (now.getTime() < startTime.getTime()) {
-          showtime.status = this.SHOWTIME_STATUS.UPCOMING_SALE;
+          // Giữ nguyên trạng thái UPCOMING (2) nếu đã có, chỉ đổi UPCOMING_SALE (1) nếu trạng thái khác
+          if (showtime.status !== this.SHOWTIME_STATUS.UPCOMING) {
+            showtime.status = this.SHOWTIME_STATUS.UPCOMING_SALE;
+          }
         } else if (now.getTime() > endTime.getTime()) {
           showtime.status = this.SHOWTIME_STATUS.ENDED;
         } else {

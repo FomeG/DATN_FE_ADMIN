@@ -412,19 +412,16 @@ export class AddMovieModalComponent implements OnInit, AfterViewInit {
               }
             }).then((result) => {
               if (result.isConfirmed) {
-                // Đóng modal
                 const modalElement = document.getElementById('addMovieModal');
                 if (modalElement) {
                   modalElement.click(); // Trigger click để đóng modal
                 }
-                // Emit event để refresh danh sách
                 this.movieAdded.emit();
-                // Reset form
                 this.closeModal();
               }
             });
           } else {
-            // Hiển thị lỗi với SweetAlert2
+            
             Swal.fire({
               icon: 'error',
               title: 'Lỗi!',

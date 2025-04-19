@@ -207,20 +207,24 @@
   background-color: rgba(255, 171, 0, 0.1);
   border: 1px solid #ffab00;
   border-radius: 6px;
-  padding: 10px;
-  margin-top: 10px;
+  padding: 6px 8px;
+  margin-top: 5px;
   color: #ffab00;
-  font-size: 0.85rem;
+  font-size: 0.75rem;
+  display: inline-block;
+  max-width: 100%;
 }
 
 .format-error {
   background-color: rgba(252, 66, 74, 0.1);
   border: 1px solid #fc424a;
   border-radius: 6px;
-  padding: 10px;
-  margin-top: 10px;
+  padding: 6px 8px;
+  margin-top: 5px;
   color: #fc424a;
-  font-size: 0.85rem;
+  font-size: 0.75rem;
+  display: inline-block;
+  max-width: 100%;
 }
 
 

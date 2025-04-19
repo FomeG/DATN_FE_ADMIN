@@ -46,7 +46,8 @@ export class VoucherManagementComponent implements OnInit {
       startDate: ['', Validators.required],
       endDate: ['', Validators.required],
       maxUsage: [1, [Validators.required, Validators.min(1)]],
-      status: [1]
+      status: [1],
+      voucherType: [1, Validators.required] // Mặc định là voucher vé (1)
     }, {
       validators: this.dateRangeValidator()
     });
@@ -168,7 +169,8 @@ export class VoucherManagementComponent implements OnInit {
       discountValue: 0,
       minOrderValue: 0,
       maxUsage: 0,
-      status: 1
+      status: 1,
+      voucherType: 1 // Mặc định là voucher vé (1)
     });
     this.isEditing = false;
     this.editingVoucherId = null;
@@ -250,7 +252,8 @@ export class VoucherManagementComponent implements OnInit {
       startDate: startDate,
       endDate: endDate,
       maxUsage: voucher.maxUsage,
-      status: voucher.status
+      status: voucher.status,
+      voucherType: voucher.voucherType || 1 // Nếu không có giá trị, mặc định là 1 (voucher vé)
     });
   }
 
@@ -375,6 +378,30 @@ export class VoucherManagementComponent implements OnInit {
         return 'bg-success';
       case 2:
         return 'bg-warning';
+      default:
+        return 'bg-secondary';
+    }
+  }
+
+  // Trả về văn bản loại voucher dựa vào mã số
+  getVoucherTypeText(type: number): string {
+    switch (type) {
+      case 1:
+        return 'Vé';
+      case 2:
+        return 'Dịch vụ';
+      default:
+        return 'Không xác định';
+    }
+  }
+
+  // Trả về class CSS cho badge dựa vào loại voucher
+  getVoucherTypeBadgeClass(type: number): string {
+    switch (type) {
+      case 1:
+        return 'badge-ticket'; // Sẽ định nghĩa trong CSS
+      case 2:
+        return 'badge-service'; // Sẽ định nghĩa trong CSS
       default:
         return 'bg-secondary';
     }

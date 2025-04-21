@@ -109,6 +109,8 @@
   overflow: hidden;
   background-color: #191c24;
   color: #ffffff;
+  z-index: 1056;
+  /* Đảm bảo modal hiển thị trên backdrop */
 }
 
 .modal-header {
@@ -133,6 +135,8 @@
 /* Đảm bảo các phần tử trong modal có thể tương tác */
 .modal-dialog {
   pointer-events: auto !important;
+  z-index: 1056;
+  /* Đảm bảo dialog hiển thị trên backdrop */
 }
 
 .modal-content * {
@@ -146,6 +150,11 @@
 
 .benefit-modal .modal-content {
   animation: none;
+}
+
+/* Modal styling */
+.benefit-modal .modal-dialog {
+  max-width: 600px;
 }
 
 /* Cấu hình quyền lợi */
@@ -172,7 +181,8 @@
 }
 
 /* Cải thiện form controls */
-.form-control, .form-select {
+.form-control,
+.form-select {
   border-radius: 5px;
   padding: 10px 15px;
   border: 1px solid #2c2e33;
@@ -181,9 +191,93 @@
   transition: all 0.3s ease;
 }
 
-.form-control:focus, .form-select:focus {
+.form-control:focus,
+.form-select:focus {
   box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.15);
   border-color: #86b7fe;
+}
+
+/* Cải thiện select options */
+select.form-select option {
+  background-color: #2A3038;
+  color: #ffffff;
+  padding: 10px;
+}
+
+select.form-select option:hover,
+select.form-select option:focus,
+select.form-select option:active,
+select.form-select option:checked {
+  background-color: #0090e7;
+  color: #ffffff;
+}
+
+/* Điều chỉnh dropdown menu của select */
+.form-select {
+  appearance: auto;
+  /* Sử dụng giao diện mặc định của trình duyệt */
+  -webkit-appearance: auto;
+  -moz-appearance: auto;
+}
+
+/* Đảm bảo dropdown menu hiển thị đúng */
+.form-select::-ms-expand {
+  display: block;
+}
+
+/* Đặc biệt cho select dịch vụ */
+.benefit-config-section select.form-select {
+  background-color: #2A3038;
+  color: #ffffff;
+  border: 1px solid #4a5568;
+}
+
+.benefit-config-section select.form-select option {
+  background-color: #2A3038;
+  color: #ffffff;
+  padding: 12px;
+  border-bottom: 1px solid #4a5568;
+}
+
+.benefit-config-section select.form-select option:hover,
+.benefit-config-section select.form-select option:focus,
+.benefit-config-section select.form-select option:active,
+.benefit-config-section select.form-select option:checked {
+  background-color: #0090e7;
+  color: #ffffff;
+}
+
+/* Style cho service select */
+.service-select {
+  background-color: #2A3038 !important;
+  color: #ffffff !important;
+  border: 1px solid #4a5568 !important;
+  font-weight: 500 !important;
+}
+
+.service-select option {
+  background-color: #2A3038 !important;
+  color: #ffffff !important;
+  padding: 12px !important;
+  font-weight: normal !important;
+}
+
+.service-select option.default-option {
+  font-style: italic !important;
+  color: #a0aec0 !important;
+}
+
+.service-select option.service-option {
+  border-bottom: 1px solid #4a5568 !important;
+  margin-bottom: 2px !important;
+}
+
+.service-select option.service-option:hover,
+.service-select option.service-option:focus,
+.service-select option.service-option:active,
+.service-select option.service-option:checked {
+  background-color: #0090e7 !important;
+  color: #ffffff !important;
 }
 
 .form-label {
@@ -206,4 +300,94 @@
   .card-body {
     padding: 15px;
   }
+}
+
+
+
+
+
+/* Global Select Option Customization */
+select option {
+  background-color: #2A3038 !important;
+  color: #ffffff !important;
+  padding: 8px !important;
+}
+
+select option:hover,
+select option:focus,
+select option:active,
+select option:checked {
+  background-color: #0090e7 !important;
+  color: #ffffff !important;
+}
+
+/* Ensure dropdown menus are visible */
+select {
+  background-color: #2A3038 !important;
+  color: #ffffff !important;
+}
+
+/* Fix for dark dropdowns in Chrome and other browsers */
+select.form-select,
+select.form-control {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23ffffff' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e") !important;
+  background-repeat: no-repeat !important;
+  background-position: right 0.75rem center !important;
+  background-size: 16px 12px !important;
+}
+
+
+/* Tạo backdrop tùy chỉnh */
+.custom-modal-class::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 1040;
+  pointer-events: none;
+}
+
+/* Tăng z-index của modal lên cao hơn */
+.custom-modal-class .modal-dialog {
+  z-index: 1060 !important;
+  position: relative;
+}
+
+.custom-modal-class .modal-content {
+  background-color: #191c24 !important;
+  color: #ffffff !important;
+  border-radius: 15px !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5) !important;
+  border: 1px solid #2c2e33 !important;
+}
+
+/* Đảm bảo tất cả các phần tử trong modal có thể tương tác */
+.custom-modal-class .modal-content * {
+  pointer-events: auto !important;
+}
+
+/* Tăng độ nổi bật của modal */
+.custom-modal-class .modal-header {
+  border-bottom: 1px solid #2c2e33 !important;
+  background-color: #191c24 !important;
+}
+
+/* Đảm bảo modal hiển thị đúng */
+.modal-open .modal {
+  display: block !important;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+.modal-header {
+  border-bottom: 1px solid #2c2e33 !important;
+  background-color: #191c24 !important;
+}
+
+.modal-footer {
+  border-top: 1px solid #2c2e33 !important;
+  background-color: #191c24 !important;
 }

@@ -22,18 +22,152 @@
           <div class="modal-body">
             <form [formGroup]="voucherForm" (ngSubmit)="onSubmit()">
               <!-- Mã voucher -->
-              <div class=" mb-3">
+              <div class="mb-3">
                 <div class="form-group">
                   <label for="code" class="form-label">Mã Voucher <span class="text-danger">*</span></label>
                   <input type="text" class="form-control" id="code" formControlName="code" [readOnly]="isEditing">
                   <div *ngIf="voucherForm.get('code')?.touched && voucherForm.get('code')?.invalid" class="text-danger">
                     <small *ngIf="voucherForm.get('code')?.errors?.['required']">Mã voucher là bắt buộc</small>
-                    <small *ngIf="voucherForm.get('code')?.errors?.['maxlength']">Mã voucher không được vượt quá 50 ký
+                    <small *ngIf="voucherForm.get('code')?.errors?.['maxlength']">Mã voucher không được vượt quá 50
+                      ký
                       tự</small>
                   </div>
                 </div>
               </div>
 
+              <!-- Loại giảm giá -->
+              <div class="mb-3">
+                <div class="form-group">
+                  <label for="discountType" class="form-label">Loại Giảm Giá <span class="text-danger">*</span></label>
+                  <select class="form-select" id="discountType" formControlName="discountType">
+                    <option value="PERCENT">Phần trăm (%)</option>
+                    <option value="FIXED">Số tiền cố định</option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- Giá trị giảm giá -->
+              <div class="mb-3">
+                <div class="form-group">
+                  <label for="discountValue" class="form-label">Giá Trị Giảm Giá <span
+                      class="text-danger">*</span></label>
+                  <div class="input-group">
+                    <input type="number" class="form-control" id="discountValue" formControlName="discountValue">
+                    <span class="input-group-text">
+                      {{ voucherForm.get('discountType')?.value === 'PERCENT' ? '%' : 'VNĐ' }}
+                    </span>
+                  </div>
+                  <div *ngIf="voucherForm.get('discountValue')?.touched && voucherForm.get('discountValue')?.invalid"
+                    class="text-danger">
+                    <small *ngIf="voucherForm.get('discountValue')?.errors?.['required']">Giá trị giảm giá là bắt
+                      buộc</small>
+                    <small *ngIf="voucherForm.get('discountValue')?.errors?.['min']">Giá trị giảm giá phải lớn hơn
+                      0</small>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Loại voucher -->
+              <div class="mb-3">
+                <div class="form-group">
+                  <label for="voucherType" class="form-label">Áp dụng cho <span class="text-danger">*</span></label>
+                  <select class="form-select" id="voucherType" formControlName="voucherType">
+                    <option [value]="1">Vé xem phim</option>
+                    <option [value]="2">Dịch vụ (đồ ăn, đồ uống)</option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- Ngày bắt đầu -->
+              <div class="mb-3">
+                <div class="form-group">
+                  <label for="startDate" class="form-label">Ngày Bắt Đầu <span class="text-danger">*</span></label>
+                  <input type="date" class="form-control" id="startDate" formControlName="startDate">
+                  <div class="text-danger small"
+                    *ngIf="voucherForm.get('startDate')?.touched && voucherForm.get('startDate')?.invalid">
+                    <span *ngIf="voucherForm.get('startDate')?.errors?.['required']">Ngày bắt đầu là bắt buộc</span>
+                  </div>
+                  <div class="text-danger small"
+                    *ngIf="voucherForm.touched && voucherForm.errors?.['startDateBeforeToday']">
+                    Ngày bắt đầu không được nhỏ hơn ngày hiện tại
+                  </div>
+                </div>
+              </div>
+
+              <!-- Ngày kết thúc -->
+              <div class="mb-3">
+                <div class="form-group">
+                  <label for="endDate" class="form-label">Ngày Kết Thúc <span class="text-danger">*</span></label>
+                  <input type="date" class="form-control" id="endDate" formControlName="endDate">
+                  <div class="text-danger small"
+                    *ngIf="voucherForm.get('endDate')?.touched && voucherForm.get('endDate')?.invalid">
+                    <span *ngIf="voucherForm.get('endDate')?.errors?.['required']">Ngày kết thúc là bắt buộc</span>
+                  </div>
+                  <div class="text-danger small"
+                    *ngIf="voucherForm.touched && voucherForm.errors?.['endDateBeforeToday']">
+                    Ngày kết thúc không được nhỏ hơn ngày hiện tại
+                  </div>
+                  <div class="text-danger small"
+                    *ngIf="voucherForm.touched && voucherForm.errors?.['endDateBeforeStartDate']">
+                    Ngày kết thúc phải sau ngày bắt đầu
+                  </div>
+                </div>
+              </div>
+
+              <!-- Lượt sử dụng tối đa -->
+              <div class="mb-3">
+                <div class="form-group">
+                  <label for="maxUsage" class="form-label">Lượt Sử Dụng Tối Đa <span
+                      class="text-danger">*</span></label>
+                  <input type="number" class="form-control" id="maxUsage" formControlName="maxUsage">
+                  <div *ngIf="voucherForm.get('maxUsage')?.touched && voucherForm.get('maxUsage')?.invalid"
+                    class="text-danger">
+                    <small *ngIf="voucherForm.get('maxUsage')?.errors?.['required']">Lượt sử dụng tối đa là bắt
+                      buộc</small>
+                    <small *ngIf="voucherForm.get('maxUsage')?.errors?.['min']">Lượt sử dụng tối đa phải lớn hơn
+                      0</small>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Số lượng nhận tối đa -->
+              <div class="mb-3">
+                <div class="form-group">
+                  <label for="maxClaimCount" class="form-label">Số Lượng Nhận Tối Đa <span
+                      class="text-danger">*</span></label>
+                  <input type="number" class="form-control" id="maxClaimCount" formControlName="maxClaimCount">
+                  <div *ngIf="voucherForm.get('maxClaimCount')?.touched && voucherForm.get('maxClaimCount')?.invalid"
+                    class="text-danger">
+                    <small *ngIf="voucherForm.get('maxClaimCount')?.errors?.['required']">Số lượng nhận tối đa là bắt
+                      buộc</small>
+                    <small *ngIf="voucherForm.get('maxClaimCount')?.errors?.['min']">Số lượng nhận tối đa phải lớn hơn
+                      0</small>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Có thể dùng cùng voucher khác -->
+              <div class="mb-3">
+                <div class="form-group form-check">
+                  <input type="checkbox" class="form-check-input" id="isStackable" formControlName="isStackable">
+                  <label class="form-check-label" for="isStackable">Có thể dùng cùng voucher khác</label>
+                </div>
+              </div>
+
+              <!-- Mô tả -->
+              <div class="mb-3">
+                <div class="form-group">
+                  <label for="description" class="form-label">Mô Tả</label>
+                  <textarea class="form-control" id="description" formControlName="description" rows="4"></textarea>
+                </div>
+              </div>
+
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                <button type="submit" class="btn btn-primary" [disabled]="voucherForm.invalid">
+                  {{ isEditing ? 'Cập nhật' : 'Thêm mới' }}
+                </button>
+              </div>
             </form>
           </div>
         </div>
@@ -239,145 +373,5 @@
       </div>
     </div>
 
-    <!-- Voucher Modal -->
-    <div class="modal fade" id="voucherModal" tabindex="-1" aria-labelledby="voucherModalLabel" aria-hidden="true">
-      <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="voucherModalLabel">
-              {{ isEditing ? 'Chỉnh sửa Voucher' : 'Thêm Voucher mới' }}
-            </h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-          </div>
-          <div class="modal-body">
-            <form [formGroup]="voucherForm" (ngSubmit)="onSubmit()">
-              <!-- Mã voucher -->
-              <div class=" mb-3">
-                <div class="form-group">
-                  <label for="code" class="form-label">Mã Voucher <span class="text-danger">*</span></label>
-                  <input type="text" class="form-control" id="code" formControlName="code" [readOnly]="isEditing">
-                  <div *ngIf="voucherForm.get('code')?.touched && voucherForm.get('code')?.invalid" class="text-danger">
-                    <small *ngIf="voucherForm.get('code')?.errors?.['required']">Mã voucher là bắt buộc</small>
-                    <small *ngIf="voucherForm.get('code')?.errors?.['maxlength']">Mã voucher không được vượt quá 50 ký
-                      tự</small>
-                  </div>
-                </div>
-              </div>
 
-              <!-- Loại giảm giá -->
-              <div class=" mb-3">
-                <div class="form-group">
-                  <label for="discountType" class="form-label">Loại Giảm Giá <span class="text-danger">*</span></label>
-                  <select class="form-select" id="discountType" formControlName="discountType">
-                    <option value="PERCENT">Phần trăm (%)</option>
-                    <option value="FIXED">Số tiền cố định</option>
-                  </select>
-                </div>
-              </div>
-
-              <!-- Giá trị giảm giá -->
-              <div class=" mb-3">
-                <div class="form-group">
-                  <label for="discountValue" class="form-label">Giá Trị Giảm Giá <span
-                      class="text-danger">*</span></label>
-                  <div class="input-group">
-                    <input type="number" class="form-control" id="discountValue" formControlName="discountValue">
-                    <span class="input-group-text">
-                      {{ voucherForm.get('discountType')?.value === 'PERCENT' ? '%' : 'VNĐ' }}
-                    </span>
-                  </div>
-                  <div *ngIf="voucherForm.get('discountValue')?.touched && voucherForm.get('discountValue')?.invalid"
-                    class="text-danger">
-                    <small *ngIf="voucherForm.get('discountValue')?.errors?.['required']">Giá trị giảm giá là bắt
-                      buộc</small>
-                    <small *ngIf="voucherForm.get('discountValue')?.errors?.['min']">Giá trị giảm giá phải lớn hơn
-                      0</small>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Mô tả -->
-              <div class=" mb-3">
-                <div class="form-group">
-                  <label for="description" class="form-label">Mô Tả</label>
-                  <textarea class="form-control" id="description" formControlName="description" rows="1"></textarea>
-                </div>
-              </div>
-
-              <!-- Ngày bắt đầu -->
-              <div class=" mb-3">
-                <div class="form-group">
-                  <label for="startDate" class="form-label">Ngày Bắt Đầu <span class="text-danger">*</span></label>
-                  <input type="date" class="form-control" id="startDate" formControlName="startDate">
-                  <div class="text-danger small"
-                    *ngIf="voucherForm.get('startDate')?.touched && voucherForm.get('startDate')?.invalid">
-                    <span *ngIf="voucherForm.get('startDate')?.errors?.['required']">Ngày bắt đầu là bắt buộc</span>
-                  </div>
-                  <div class="text-danger small"
-                    *ngIf="voucherForm.touched && voucherForm.errors?.['startDateBeforeToday']">
-                    Ngày bắt đầu không được nhỏ hơn ngày hiện tại
-                  </div>
-                </div>
-              </div>
-
-              <!-- Ngày kết thúc -->
-              <div class=" mb-3">
-                <div class="form-group">
-                  <label for="endDate" class="form-label">Ngày Kết Thúc <span class="text-danger">*</span></label>
-                  <input type="date" class="form-control" id="endDate" formControlName="endDate">
-                  <div class="text-danger small"
-                    *ngIf="voucherForm.get('endDate')?.touched && voucherForm.get('endDate')?.invalid">
-                    <span *ngIf="voucherForm.get('endDate')?.errors?.['required']">Ngày kết thúc là bắt buộc</span>
-                  </div>
-                  <div class="text-danger small"
-                    *ngIf="voucherForm.touched && voucherForm.errors?.['endDateBeforeToday']">
-                    Ngày kết thúc không được nhỏ hơn ngày hiện tại
-                  </div>
-                  <div class="text-danger small"
-                    *ngIf="voucherForm.touched && voucherForm.errors?.['endDateBeforeStartDate']">
-                    Ngày kết thúc phải sau ngày bắt đầu
-                  </div>
-                </div>
-              </div>
-
-              <!-- Lượt sử dụng tối đa -->
-              <div class=" mb-3">
-                <div class="form-group">
-                  <label for="maxUsage" class="form-label">Lượt Sử Dụng Tối Đa <span
-                      class="text-danger">*</span></label>
-                  <input type="number" class="form-control" id="maxUsage" formControlName="maxUsage">
-                  <div *ngIf="voucherForm.get('maxUsage')?.touched && voucherForm.get('maxUsage')?.invalid"
-                    class="text-danger">
-                    <small *ngIf="voucherForm.get('maxUsage')?.errors?.['required']">Lượt sử dụng tối đa là bắt
-                      buộc</small>
-                    <small *ngIf="voucherForm.get('maxUsage')?.errors?.['min']">Lượt sử dụng tối đa phải lớn hơn
-                      0</small>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Loại voucher -->
-              <div class=" mb-3">
-                <div class="form-group">
-                  <label for="voucherType" class="form-label">Áp dụng cho <span class="text-danger">*</span></label>
-                  <select class="form-select" id="voucherType" formControlName="voucherType">
-                    <option [value]="1">Vé xem phim</option>
-                    <option [value]="2">Dịch vụ (đồ ăn, đồ uống)</option>
-                  </select>
-                </div>
-              </div>
-
-
-
-              <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
-                <button type="submit" class="btn btn-primary" [disabled]="voucherForm.invalid">
-                  {{ isEditing ? 'Cập nhật' : 'Thêm mới' }}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      </div>
-    </div>
   </div>

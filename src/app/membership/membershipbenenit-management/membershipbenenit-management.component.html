@@ -35,7 +35,7 @@
 
       <!-- Hiển thị thông tin membership -->
       <div class="card mb-4 border-0 shadow-sm">
-        <div class="card-body p-3" style="background-color: #2e3340 !important; border-radius: 10px !important;">
+        <div class="card-body p-3 m-4" style="background-color: #2e3340 !important; border-radius: 10px !important;">
           <div class="d-flex align-items-center">
             <div>
               <h4 class="mb-1">{{ membership.name }}</h4>
@@ -45,185 +45,182 @@
         </div>
       </div>
 
-      <div class="row">
-        <div class="p-2">
-              <h5 class="mb-0">Quyền lợi thành viên</h5>
-              <button class="btn btn-sm btn-primary" (click)="openModal(benefitModal, undefined, membership.id)">
-                <i class="fas fa-plus"></i> Thêm quyền lợi
-              </button>
-            <div class="card-body">
-              <!-- Hiển thị quyền lợi theo từng loại -->
-              <div class="row">
-                <!-- Discount Benefits -->
-                <div class="col-md-6 mb-4">
-                  <div class="card h-100 border-primary shadow-sm hover-card">
-                    <div class="card-header bg-primary text-white">
-                      <h5 class="mb-0"><i class="fas fa-percent me-2"></i>Giảm giá</h5>
+      <div class="container-fluid px-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h5 class="mb-0">Quyền lợi thành viên</h5>
+          <button class="btn btn-sm btn-primary" (click)="openModal(benefitModal, undefined, membership.id)">
+            <i class="fas fa-plus"></i> Thêm quyền lợi
+          </button>
+        </div>
+        <!-- Hiển thị quyền lợi theo từng loại -->
+        <div class="row">
+          <!-- Discount Benefits -->
+          <div class="col-md-6 mb-4">
+            <div class="card h-100 border-primary shadow-sm hover-card">
+              <div class="card-header bg-primary text-white">
+                <h5 class="mb-0"><i class="fas fa-percent me-2"></i>Giảm giá</h5>
+              </div>
+              <div class="card-body">
+                <div *ngIf="getBenefitsByType(membership.id, 'Discount').length === 0" class="text-center py-3">
+                  <p class="text-muted">Chưa có quyền lợi giảm giá</p>
+                  <button class="btn btn-sm btn-outline-primary"
+                    (click)="openModal(benefitModal, undefined, membership.id, 'Discount')">
+                    <i class="fas fa-plus"></i> Thêm
+                  </button>
+                </div>
+                <div *ngIf="getBenefitsByType(membership.id, 'Discount').length > 0" class="text-end mb-2">
+                  <p class="text-muted small">Chỉ được phép có 1 quyền lợi giảm giá</p>
+                </div>
+                <div *ngFor="let benefit of getBenefitsByType(membership.id, 'Discount')"
+                  class="benefit-item mb-3 p-3 border rounded shadow-sm">
+                  <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                      <div class="d-flex align-items-center mb-2">
+                        <img [src]="benefit.logoUrl" alt="Logo" class="me-2"
+                          style="width: 30px; height: 30px; border-radius: 50%;">
+                        <h6 class="mb-0">{{ benefit.description }}</h6>
+                      </div>
+                      <p class="mb-1"><strong>Đối tượng:</strong> {{ getDiscountTargetLabel(benefit.target) }}</p>
+                      <p class="mb-0"><strong>Giá trị:</strong> {{ benefit.value }}%</p>
                     </div>
-                    <div class="card-body">
-                      <div *ngIf="getBenefitsByType(membership.id, 'Discount').length === 0" class="text-center py-3">
-                        <p class="text-muted">Chưa có quyền lợi giảm giá</p>
-                        <button class="btn btn-sm btn-outline-primary"
-                          (click)="openModal(benefitModal, undefined, membership.id, 'Discount')">
-                          <i class="fas fa-plus"></i> Thêm
-                        </button>
-                      </div>
-                      <div *ngIf="getBenefitsByType(membership.id, 'Discount').length > 0" class="text-end mb-2">
-                        <p class="text-muted small">Chỉ được phép có 1 quyền lợi giảm giá</p>
-                      </div>
-                      <div *ngFor="let benefit of getBenefitsByType(membership.id, 'Discount')"
-                        class="benefit-item mb-3 p-3 border rounded shadow-sm">
-                        <div class="d-flex justify-content-between align-items-start">
-                          <div>
-                            <div class="d-flex align-items-center mb-2">
-                              <img [src]="benefit.logoUrl" alt="Logo" class="me-2"
-                                style="width: 30px; height: 30px; border-radius: 50%;">
-                              <h6 class="mb-0">{{ benefit.description }}</h6>
-                            </div>
-                            <p class="mb-1"><strong>Đối tượng:</strong> {{ getDiscountTargetLabel(benefit.target) }}</p>
-                            <p class="mb-0"><strong>Giá trị:</strong> {{ benefit.value }}%</p>
-                          </div>
-                          <div class="btn-group">
-                            <button class="btn btn-sm btn-outline-primary" (click)="openModal(benefitModal, benefit)">
-                              <i class="fas fa-edit"></i>
-                            </button>
-                            <button class="btn btn-sm btn-outline-danger" (click)="deleteBenefit(benefit)">
-                              <i class="fas fa-trash"></i>
-                            </button>
-                          </div>
-                        </div>
-                      </div>
+                    <div class="btn-group">
+                      <button class="btn btn-sm btn-outline-primary" (click)="openModal(benefitModal, benefit)">
+                        <i class="fas fa-edit"></i>
+                      </button>
+                      <button class="btn btn-sm btn-outline-danger" (click)="deleteBenefit(benefit)">
+                        <i class="fas fa-trash"></i>
+                      </button>
                     </div>
                   </div>
                 </div>
+              </div>
+            </div>
+          </div>
 
-                <!-- Point Bonus Benefits -->
-                <div class="col-md-6 mb-4">
-                  <div class="card h-100 border-success shadow-sm hover-card">
-                    <div class="card-header bg-success text-white">
-                      <h5 class="mb-0"><i class="fas fa-coins me-2"></i>Thưởng điểm</h5>
+          <!-- Point Bonus Benefits -->
+          <div class="col-md-6 mb-4">
+            <div class="card h-100 border-success shadow-sm hover-card">
+              <div class="card-header bg-success text-white">
+                <h5 class="mb-0"><i class="fas fa-coins me-2"></i>Thưởng điểm</h5>
+              </div>
+              <div class="card-body">
+                <div *ngIf="getBenefitsByType(membership.id, 'PointBonus').length === 0" class="text-center py-3">
+                  <p class="text-muted">Chưa có quyền lợi thưởng điểm</p>
+                  <button class="btn btn-sm btn-outline-success"
+                    (click)="openModal(benefitModal, undefined, membership.id, 'PointBonus')">
+                    <i class="fas fa-plus"></i> Thêm
+                  </button>
+                </div>
+                <div *ngIf="getBenefitsByType(membership.id, 'PointBonus').length > 0" class="text-end mb-2">
+                  <p class="text-muted small">Chỉ được phép có 1 quyền lợi thưởng điểm</p>
+                </div>
+                <div *ngFor="let benefit of getBenefitsByType(membership.id, 'PointBonus')"
+                  class="benefit-item mb-3 p-3 border rounded shadow-sm">
+                  <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                      <div class="d-flex align-items-center mb-2">
+                        <img [src]="benefit.logoUrl" alt="Logo" class="me-2"
+                          style="width: 30px; height: 30px; border-radius: 50%;">
+                        <h6 class="mb-0">{{ benefit.description }}</h6>
+                      </div>
+                      <p class="mb-0"><strong>Hệ số nhân:</strong> {{ benefit.multiplier }}</p>
                     </div>
-                    <div class="card-body">
-                      <div *ngIf="getBenefitsByType(membership.id, 'PointBonus').length === 0" class="text-center py-3">
-                        <p class="text-muted">Chưa có quyền lợi thưởng điểm</p>
-                        <button class="btn btn-sm btn-outline-success"
-                          (click)="openModal(benefitModal, undefined, membership.id, 'PointBonus')">
-                          <i class="fas fa-plus"></i> Thêm
-                        </button>
-                      </div>
-                      <div *ngIf="getBenefitsByType(membership.id, 'PointBonus').length > 0" class="text-end mb-2">
-                        <p class="text-muted small">Chỉ được phép có 1 quyền lợi thưởng điểm</p>
-                      </div>
-                      <div *ngFor="let benefit of getBenefitsByType(membership.id, 'PointBonus')"
-                        class="benefit-item mb-3 p-3 border rounded shadow-sm">
-                        <div class="d-flex justify-content-between align-items-start">
-                          <div>
-                            <div class="d-flex align-items-center mb-2">
-                              <img [src]="benefit.logoUrl" alt="Logo" class="me-2"
-                                style="width: 30px; height: 30px; border-radius: 50%;">
-                              <h6 class="mb-0">{{ benefit.description }}</h6>
-                            </div>
-                            <p class="mb-0"><strong>Hệ số nhân:</strong> {{ benefit.multiplier }}</p>
-                          </div>
-                          <div class="btn-group">
-                            <button class="btn btn-sm btn-outline-success" (click)="openModal(benefitModal, benefit)">
-                              <i class="fas fa-edit"></i>
-                            </button>
-                            <button class="btn btn-sm btn-outline-danger" (click)="deleteBenefit(benefit)">
-                              <i class="fas fa-trash"></i>
-                            </button>
-                          </div>
-                        </div>
-                      </div>
+                    <div class="btn-group">
+                      <button class="btn btn-sm btn-outline-success" (click)="openModal(benefitModal, benefit)">
+                        <i class="fas fa-edit"></i>
+                      </button>
+                      <button class="btn btn-sm btn-outline-danger" (click)="deleteBenefit(benefit)">
+                        <i class="fas fa-trash"></i>
+                      </button>
                     </div>
                   </div>
                 </div>
+              </div>
+            </div>
+          </div>
 
-                <!-- Service Benefits -->
-                <div class="col-md-6 mb-4">
-                  <div class="card h-100 border-info shadow-sm hover-card">
-                    <div class="card-header bg-info text-white">
-                      <h5 class="mb-0"><i class="fas fa-concierge-bell me-2"></i>Dịch vụ</h5>
+          <!-- Service Benefits -->
+          <div class="col-md-6 mb-4">
+            <div class="card h-100 border-info shadow-sm hover-card">
+              <div class="card-header bg-info text-white">
+                <h5 class="mb-0"><i class="fas fa-concierge-bell me-2"></i>Dịch vụ</h5>
+              </div>
+              <div class="card-body">
+                <div *ngIf="getBenefitsByType(membership.id, 'Service').length === 0" class="text-center py-3">
+                  <p class="text-muted">Chưa có quyền lợi dịch vụ</p>
+                  <button class="btn btn-sm btn-outline-info"
+                    (click)="openModal(benefitModal, undefined, membership.id, 'Service')">
+                    <i class="fas fa-plus"></i> Thêm
+                  </button>
+                </div>
+                <div *ngIf="getBenefitsByType(membership.id, 'Service').length > 0" class="text-end mb-2">
+                  <button class="btn btn-sm btn-outline-info"
+                    (click)="openModal(benefitModal, undefined, membership.id, 'Service')">
+                    <i class="fas fa-plus"></i> Thêm dịch vụ mới
+                  </button>
+                </div>
+                <div *ngFor="let benefit of getBenefitsByType(membership.id, 'Service')"
+                  class="benefit-item mb-3 p-3 border rounded shadow-sm">
+                  <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                      <div class="d-flex align-items-center mb-2">
+                        <img [src]="benefit.logoUrl" alt="Logo" class="me-2"
+                          style="width: 30px; height: 30px; border-radius: 50%;">
+                        <h6 class="mb-0">{{ benefit.description }}</h6>
+                      </div>
+                      <p class="mb-1"><strong>Dịch vụ:</strong> {{ getServiceName(benefit.serviceId) }}</p>
+                      <p class="mb-1"><strong>Số lượng:</strong> {{ benefit.quantity }}</p>
+                      <p class="mb-0"><strong>Giới hạn:</strong> {{ benefit.limit }} lần/tháng</p>
                     </div>
-                    <div class="card-body">
-                      <div *ngIf="getBenefitsByType(membership.id, 'Service').length === 0" class="text-center py-3">
-                        <p class="text-muted">Chưa có quyền lợi dịch vụ</p>
-                        <button class="btn btn-sm btn-outline-info"
-                          (click)="openModal(benefitModal, undefined, membership.id, 'Service')">
-                          <i class="fas fa-plus"></i> Thêm
-                        </button>
-                      </div>
-                      <div *ngIf="getBenefitsByType(membership.id, 'Service').length > 0" class="text-end mb-2">
-                        <button class="btn btn-sm btn-outline-info"
-                          (click)="openModal(benefitModal, undefined, membership.id, 'Service')">
-                          <i class="fas fa-plus"></i> Thêm dịch vụ mới
-                        </button>
-                      </div>
-                      <div *ngFor="let benefit of getBenefitsByType(membership.id, 'Service')"
-                        class="benefit-item mb-3 p-3 border rounded shadow-sm">
-                        <div class="d-flex justify-content-between align-items-start">
-                          <div>
-                            <div class="d-flex align-items-center mb-2">
-                              <img [src]="benefit.logoUrl" alt="Logo" class="me-2"
-                                style="width: 30px; height: 30px; border-radius: 50%;">
-                              <h6 class="mb-0">{{ benefit.description }}</h6>
-                            </div>
-                            <p class="mb-1"><strong>Dịch vụ:</strong> {{ getServiceName(benefit.serviceId) }}</p>
-                            <p class="mb-1"><strong>Số lượng:</strong> {{ benefit.quantity }}</p>
-                            <p class="mb-0"><strong>Giới hạn:</strong> {{ benefit.limit }} lần/tháng</p>
-                          </div>
-                          <div class="btn-group">
-                            <button class="btn btn-sm btn-outline-info" (click)="openModal(benefitModal, benefit)">
-                              <i class="fas fa-edit"></i>
-                            </button>
-                            <button class="btn btn-sm btn-outline-danger" (click)="deleteBenefit(benefit)">
-                              <i class="fas fa-trash"></i>
-                            </button>
-                          </div>
-                        </div>
-                      </div>
+                    <div class="btn-group">
+                      <button class="btn btn-sm btn-outline-info" (click)="openModal(benefitModal, benefit)">
+                        <i class="fas fa-edit"></i>
+                      </button>
+                      <button class="btn btn-sm btn-outline-danger" (click)="deleteBenefit(benefit)">
+                        <i class="fas fa-trash"></i>
+                      </button>
                     </div>
                   </div>
                 </div>
+              </div>
+            </div>
+          </div>
 
-                <!-- Use Point Benefits -->
-                <div class="col-md-6 mb-4">
-                  <div class="card h-100 border-warning shadow-sm hover-card">
-                    <div class="card-header bg-warning text-dark">
-                      <h5 class="mb-0"><i class="fas fa-exchange-alt me-2"></i>Quy đổi điểm</h5>
+          <!-- Use Point Benefits -->
+          <div class="col-md-6 mb-4">
+            <div class="card h-100 border-warning shadow-sm hover-card">
+              <div class="card-header bg-warning text-dark">
+                <h5 class="mb-0"><i class="fas fa-exchange-alt me-2"></i>Quy đổi điểm</h5>
+              </div>
+              <div class="card-body">
+                <div *ngIf="getBenefitsByType(membership.id, 'UsePoint').length === 0" class="text-center py-3">
+                  <p class="text-muted">Chưa có quyền lợi quy đổi điểm</p>
+                  <button class="btn btn-sm btn-outline-warning"
+                    (click)="openModal(benefitModal, undefined, membership.id, 'UsePoint')">
+                    <i class="fas fa-plus"></i> Thêm
+                  </button>
+                </div>
+                <div *ngIf="getBenefitsByType(membership.id, 'UsePoint').length > 0" class="text-end mb-2">
+                  <p class="text-muted small">Chỉ được phép có 1 quyền lợi quy đổi điểm</p>
+                </div>
+                <div *ngFor="let benefit of getBenefitsByType(membership.id, 'UsePoint')"
+                  class="benefit-item mb-3 p-3 border rounded shadow-sm">
+                  <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                      <div class="d-flex align-items-center mb-2">
+                        <img [src]="benefit.logoUrl" alt="Logo" class="me-2"
+                          style="width: 30px; height: 30px; border-radius: 50%;">
+                        <h6 class="mb-0">{{ benefit.description }}</h6>
+                      </div>
+                      <p class="mb-0"><strong>Tỉ lệ quy đổi:</strong> {{ benefit.usePointValue }}</p>
                     </div>
-                    <div class="card-body">
-                      <div *ngIf="getBenefitsByType(membership.id, 'UsePoint').length === 0" class="text-center py-3">
-                        <p class="text-muted">Chưa có quyền lợi quy đổi điểm</p>
-                        <button class="btn btn-sm btn-outline-warning"
-                          (click)="openModal(benefitModal, undefined, membership.id, 'UsePoint')">
-                          <i class="fas fa-plus"></i> Thêm
-                        </button>
-                      </div>
-                      <div *ngIf="getBenefitsByType(membership.id, 'UsePoint').length > 0" class="text-end mb-2">
-                        <p class="text-muted small">Chỉ được phép có 1 quyền lợi quy đổi điểm</p>
-                      </div>
-                      <div *ngFor="let benefit of getBenefitsByType(membership.id, 'UsePoint')"
-                        class="benefit-item mb-3 p-3 border rounded shadow-sm">
-                        <div class="d-flex justify-content-between align-items-start">
-                          <div>
-                            <div class="d-flex align-items-center mb-2">
-                              <img [src]="benefit.logoUrl" alt="Logo" class="me-2"
-                                style="width: 30px; height: 30px; border-radius: 50%;">
-                              <h6 class="mb-0">{{ benefit.description }}</h6>
-                            </div>
-                            <p class="mb-0"><strong>Tỉ lệ quy đổi:</strong> {{ benefit.usePointValue }}</p>
-                          </div>
-                          <div class="btn-group">
-                            <button class="btn btn-sm btn-outline-warning" (click)="openModal(benefitModal, benefit)">
-                              <i class="fas fa-edit"></i>
-                            </button>
-                            <button class="btn btn-sm btn-outline-danger" (click)="deleteBenefit(benefit)">
-                              <i class="fas fa-trash"></i>
-                            </button>
-                          </div>
-                        </div>
-                      </div>
+                    <div class="btn-group">
+                      <button class="btn btn-sm btn-outline-warning" (click)="openModal(benefitModal, benefit)">
+                        <i class="fas fa-edit"></i>
+                      </button>
+                      <button class="btn btn-sm btn-outline-danger" (click)="deleteBenefit(benefit)">
+                        <i class="fas fa-trash"></i>
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -235,168 +232,174 @@
     </div>
   </div>
 
-<!-- Modal -->
-<ng-template #benefitModal let-modal>
-  <div class="modal-header bg-primary text-white">
-    <h5 class="modal-title">
-      <i class="fas" [ngClass]="{
+  <!-- Modal -->
+  <ng-template #benefitModal let-modal>
+    <div class="modal-header bg-primary text-white">
+      <h5 class="modal-title">
+        <i class="fas" [ngClass]="{
         'fa-plus-circle': !isEditing,
         'fa-edit': isEditing
       }"></i>
-      {{ isEditing ? 'Cập nhật quyền lợi' : 'Thêm quyền lợi mới' }}
-    </h5>
-    <button type="button" class="btn-close btn-close-white" (click)="modal.dismiss()"></button>
-  </div>
-  <div class="modal-body">
-    <form [formGroup]="benefitForm">
-      <!-- Thông tin cơ bản -->
-      <div class="mb-3">
-        <label class="form-label">Gói thành viên</label>
-        <select class="form-select" formControlName="membershipId">
-          <option [ngValue]="null">-- Chọn gói thành viên --</option>
-          <option *ngFor="let membership of memberships" [value]="membership.id">{{ membership.name }}</option>
-        </select>
-        <div class="invalid-feedback"
-          *ngIf="benefitForm.get('membershipId')?.invalid && benefitForm.get('membershipId')?.touched">
-          Vui lòng chọn gói thành viên
-        </div>
-      </div>
-
-      <div class="mb-3">
-        <label class="form-label">Loại quyền lợi</label>
-        <select class="form-select" formControlName="benefitType" (change)="onBenefitTypeChange()">
-          <option [ngValue]="null">-- Chọn loại quyền lợi --</option>
-          <option *ngFor="let type of benefitTypes" [value]="type.value">{{ type.label }}</option>
-        </select>
-        <div class="invalid-feedback"
-          *ngIf="benefitForm.get('benefitType')?.invalid && benefitForm.get('benefitType')?.touched">
-          Vui lòng chọn loại quyền lợi
-        </div>
-      </div>
-
-      <div class="mb-3">
-        <label class="form-label">Mô tả</label>
-        <input type="text" class="form-control" formControlName="description" placeholder="Nhập mô tả quyền lợi">
-        <div class="invalid-feedback"
-          *ngIf="benefitForm.get('description')?.invalid && benefitForm.get('description')?.touched">
-          Vui lòng nhập mô tả
-        </div>
-      </div>
-
-      <div class="mb-4">
-        <label class="form-label">Logo</label>
-        <input type="file" class="form-control" (change)="onFileSelected($event)" accept="image/*">
-        <div class="mt-2" *ngIf="previewImageUrl">
-          <img [src]="previewImageUrl" alt="Preview" class="img-thumbnail" style="max-width: 100px; max-height: 100px;">
-        </div>
-      </div>
-
-      <hr class="my-4">
-
-      <!-- Các trường cho Discount -->
-      <div *ngIf="benefitForm.get('benefitType')?.value === 'Discount'" class="benefit-config-section">
-        <h6 class="text-primary mb-3"><i class="fas fa-percent me-2"></i>Cấu hình giảm giá</h6>
-
+        {{ isEditing ? 'Cập nhật quyền lợi' : 'Thêm quyền lợi mới' }}
+      </h5>
+      <button type="button" class="btn-close btn-close-white" (click)="modal.dismiss()"></button>
+    </div>
+    <div class="modal-body">
+      <form [formGroup]="benefitForm">
+        <!-- Thông tin cơ bản -->
         <div class="mb-3">
-          <label class="form-label">Đối tượng giảm giá</label>
-          <select class="form-select" formControlName="target">
-            <option [ngValue]="null">-- Chọn đối tượng --</option>
-            <option *ngFor="let target of discountTargets" [value]="target.value">{{ target.label }}</option>
+          <label class="form-label">Gói thành viên</label>
+          <select class="form-select" formControlName="membershipId">
+            <option [ngValue]="null">-- Chọn gói thành viên --</option>
+            <option *ngFor="let membership of memberships" [value]="membership.id">{{ membership.name }}</option>
           </select>
           <div class="invalid-feedback"
-            *ngIf="benefitForm.get('target')?.invalid && benefitForm.get('target')?.touched">
-            Vui lòng chọn đối tượng giảm giá
+            *ngIf="benefitForm.get('membershipId')?.invalid && benefitForm.get('membershipId')?.touched">
+            Vui lòng chọn gói thành viên
           </div>
         </div>
 
         <div class="mb-3">
-          <label class="form-label">Giá trị (%)</label>
-          <input type="number" class="form-control" formControlName="value" min="0" max="100"
-            placeholder="Nhập giá trị từ 0-100">
-          <div class="invalid-feedback" *ngIf="benefitForm.get('value')?.invalid && benefitForm.get('value')?.touched">
-            Vui lòng nhập giá trị hợp lệ (0-100)
-          </div>
-        </div>
-      </div>
-
-      <!-- Các trường cho PointBonus -->
-      <div *ngIf="benefitForm.get('benefitType')?.value === 'PointBonus'" class="benefit-config-section">
-        <h6 class="text-success mb-3"><i class="fas fa-coins me-2"></i>Cấu hình thưởng điểm</h6>
-
-        <div class="mb-3">
-          <label class="form-label">Hệ số nhân</label>
-          <input type="number" class="form-control" formControlName="multiplier" min="0" step="0.1"
-            placeholder="Ví dụ: 1.5">
-          <div class="invalid-feedback"
-            *ngIf="benefitForm.get('multiplier')?.invalid && benefitForm.get('multiplier')?.touched">
-            Vui lòng nhập hệ số nhân hợp lệ
-          </div>
-          <small class="form-text text-muted">Hệ số nhân điểm thưởng khi mua hàng</small>
-        </div>
-      </div>
-
-      <!-- Các trường cho Service -->
-      <div *ngIf="benefitForm.get('benefitType')?.value === 'Service'" class="benefit-config-section">
-        <h6 class="text-info mb-3"><i class="fas fa-concierge-bell me-2"></i>Cấu hình dịch vụ miễn phí</h6>
-
-        <div class="mb-3">
-          <label class="form-label">Dịch vụ</label>
-          <select class="form-select" formControlName="serviceId">
-            <option [ngValue]="null">-- Chọn dịch vụ --</option>
-            <option *ngFor="let service of services" [value]="service.id">{{ service.name }}</option>
+          <label class="form-label">Loại quyền lợi</label>
+          <select class="form-select" formControlName="benefitType" (change)="onBenefitTypeChange()">
+            <option [ngValue]="null">-- Chọn loại quyền lợi --</option>
+            <option *ngFor="let type of benefitTypes" [value]="type.value">{{ type.label }}</option>
           </select>
           <div class="invalid-feedback"
-            *ngIf="benefitForm.get('serviceId')?.invalid && benefitForm.get('serviceId')?.touched">
-            Vui lòng chọn dịch vụ
+            *ngIf="benefitForm.get('benefitType')?.invalid && benefitForm.get('benefitType')?.touched">
+            Vui lòng chọn loại quyền lợi
           </div>
         </div>
 
         <div class="mb-3">
-          <label class="form-label">Số lượng</label>
-          <input type="number" class="form-control" formControlName="quantity" min="1" placeholder="Nhập số lượng">
+          <label class="form-label">Mô tả</label>
+          <input type="text" class="form-control" formControlName="description" placeholder="Nhập mô tả quyền lợi">
           <div class="invalid-feedback"
-            *ngIf="benefitForm.get('quantity')?.invalid && benefitForm.get('quantity')?.touched">
-            Vui lòng nhập số lượng hợp lệ
+            *ngIf="benefitForm.get('description')?.invalid && benefitForm.get('description')?.touched">
+            Vui lòng nhập mô tả
           </div>
         </div>
 
-        <div class="mb-3">
-          <label class="form-label">Giới hạn (lần/tháng)</label>
-          <input type="number" class="form-control" formControlName="limit" min="1" placeholder="Nhập giới hạn sử dụng">
-          <div class="invalid-feedback" *ngIf="benefitForm.get('limit')?.invalid && benefitForm.get('limit')?.touched">
-            Vui lòng nhập giới hạn hợp lệ
+        <div class="mb-4">
+          <label class="form-label">Logo</label>
+          <input type="file" class="form-control" (change)="onFileSelected($event)" accept="image/*">
+          <div class="mt-2" *ngIf="previewImageUrl">
+            <img [src]="previewImageUrl" alt="Preview" class="img-thumbnail"
+              style="max-width: 100px; max-height: 100px;">
           </div>
         </div>
-      </div>
 
-      <!-- Các trường cho UsePoint -->
-      <div *ngIf="benefitForm.get('benefitType')?.value === 'UsePoint'" class="benefit-config-section">
-        <h6 class="text-warning mb-3"><i class="fas fa-exchange-alt me-2"></i>Cấu hình quy đổi điểm</h6>
+        <hr class="my-4">
 
-        <div class="mb-3">
-          <label class="form-label">Tỉ lệ quy đổi</label>
-          <input type="number" class="form-control" formControlName="usePointValue" min="0" step="0.1"
-            placeholder="Ví dụ: 0.5">
-          <div class="invalid-feedback"
-            *ngIf="benefitForm.get('usePointValue')?.invalid && benefitForm.get('usePointValue')?.touched">
-            Vui lòng nhập tỉ lệ quy đổi hợp lệ
+        <!-- Các trường cho Discount -->
+        <div *ngIf="benefitForm.get('benefitType')?.value === 'Discount'" class="benefit-config-section">
+          <h6 class="text-primary mb-3"><i class="fas fa-percent me-2"></i>Cấu hình giảm giá</h6>
+
+          <div class="mb-3">
+            <label class="form-label">Đối tượng giảm giá</label>
+            <select class="form-select" formControlName="target">
+              <option [ngValue]="null">-- Chọn đối tượng --</option>
+              <option *ngFor="let target of discountTargets" [value]="target.value">{{ target.label }}</option>
+            </select>
+            <div class="invalid-feedback"
+              *ngIf="benefitForm.get('target')?.invalid && benefitForm.get('target')?.touched">
+              Vui lòng chọn đối tượng giảm giá
+            </div>
           </div>
-          <small class="form-text text-muted">Giá trị quy đổi từ điểm sang tiền</small>
+
+          <div class="mb-3">
+            <label class="form-label">Giá trị (%)</label>
+            <input type="number" class="form-control" formControlName="value" min="0" max="100"
+              placeholder="Nhập giá trị từ 0-100">
+            <div class="invalid-feedback"
+              *ngIf="benefitForm.get('value')?.invalid && benefitForm.get('value')?.touched">
+              Vui lòng nhập giá trị hợp lệ (0-100)
+            </div>
+          </div>
         </div>
-      </div>
-    </form>
-  </div>
-  <div class="modal-footer">
-    <button type="button" class="btn btn-secondary" (click)="modal.dismiss()">
-      <i class="fas fa-times me-1"></i>Hủy
-    </button>
-    <button type="button" class="btn btn-primary" [disabled]="benefitForm.invalid || isLoading" (click)="saveBenefit()">
-      <i class="fas" [ngClass]="{
+
+        <!-- Các trường cho PointBonus -->
+        <div *ngIf="benefitForm.get('benefitType')?.value === 'PointBonus'" class="benefit-config-section">
+          <h6 class="text-success mb-3"><i class="fas fa-coins me-2"></i>Cấu hình thưởng điểm</h6>
+
+          <div class="mb-3">
+            <label class="form-label">Hệ số nhân</label>
+            <input type="number" class="form-control" formControlName="multiplier" min="0" step="0.1"
+              placeholder="Ví dụ: 1.5">
+            <div class="invalid-feedback"
+              *ngIf="benefitForm.get('multiplier')?.invalid && benefitForm.get('multiplier')?.touched">
+              Vui lòng nhập hệ số nhân hợp lệ
+            </div>
+            <small class="form-text text-muted">Hệ số nhân điểm thưởng khi mua hàng</small>
+          </div>
+        </div>
+
+        <!-- Các trường cho Service -->
+        <div *ngIf="benefitForm.get('benefitType')?.value === 'Service'" class="benefit-config-section">
+          <h6 class="text-info mb-3"><i class="fas fa-concierge-bell me-2"></i>Cấu hình dịch vụ miễn phí</h6>
+
+          <div class="mb-3">
+            <label class="form-label">Dịch vụ</label>
+            <select class="form-select service-select" formControlName="serviceId">
+              <option [ngValue]="null" class="default-option">-- Chọn dịch vụ --</option>
+              <option *ngFor="let service of services" [value]="service.id" class="service-option">{{ service.name }}
+              </option>
+            </select>
+            <div class="invalid-feedback"
+              *ngIf="benefitForm.get('serviceId')?.invalid && benefitForm.get('serviceId')?.touched">
+              Vui lòng chọn dịch vụ
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Số lượng</label>
+            <input type="number" class="form-control" formControlName="quantity" min="1" placeholder="Nhập số lượng">
+            <div class="invalid-feedback"
+              *ngIf="benefitForm.get('quantity')?.invalid && benefitForm.get('quantity')?.touched">
+              Vui lòng nhập số lượng hợp lệ
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Giới hạn (lần/tháng)</label>
+            <input type="number" class="form-control" formControlName="limit" min="1"
+              placeholder="Nhập giới hạn sử dụng">
+            <div class="invalid-feedback"
+              *ngIf="benefitForm.get('limit')?.invalid && benefitForm.get('limit')?.touched">
+              Vui lòng nhập giới hạn hợp lệ
+            </div>
+          </div>
+        </div>
+
+        <!-- Các trường cho UsePoint -->
+        <div *ngIf="benefitForm.get('benefitType')?.value === 'UsePoint'" class="benefit-config-section">
+          <h6 class="text-warning mb-3"><i class="fas fa-exchange-alt me-2"></i>Cấu hình quy đổi điểm</h6>
+
+          <div class="mb-3">
+            <label class="form-label">Tỉ lệ quy đổi</label>
+            <input type="number" class="form-control" formControlName="usePointValue" min="0" step="0.1"
+              placeholder="Ví dụ: 0.5">
+            <div class="invalid-feedback"
+              *ngIf="benefitForm.get('usePointValue')?.invalid && benefitForm.get('usePointValue')?.touched">
+              Vui lòng nhập tỉ lệ quy đổi hợp lệ
+            </div>
+            <small class="form-text text-muted">Giá trị quy đổi từ điểm sang tiền</small>
+          </div>
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-secondary" (click)="modal.dismiss()">
+        <i class="fas fa-times me-1"></i>Hủy
+      </button>
+      <button type="button" class="btn btn-primary" [disabled]="benefitForm.invalid || isLoading"
+        (click)="saveBenefit()">
+        <i class="fas" [ngClass]="{
         'fa-save': !isLoading && isEditing,
         'fa-plus': !isLoading && !isEditing,
         'fa-spinner fa-spin': isLoading
       }"></i>
-      {{ isEditing ? 'Cập nhật' : 'Thêm mới' }}
-    </button>
-  </div>
-</ng-template>
+        {{ isEditing ? 'Cập nhật' : 'Thêm mới' }}
+      </button>
+    </div>
+  </ng-template>

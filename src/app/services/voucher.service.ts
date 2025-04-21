@@ -9,12 +9,14 @@ export interface Voucher {
   description: string;
   discountType: string;
   discountValue: number;
-  minOrderValue?: number;
   startDate: string;
   endDate: string;
   maxUsage: number;
+  maxClaimCount: number;
   usedCount: number;
+  claimedCount?: number;
   status: number;
+  isStackable: boolean;
   voucherType: number;
   createdAt: string;
   updatedAt: string;

@@ -164,6 +164,9 @@ export class MembershipbenenitManagementComponent implements OnInit {
   }
 
   openModal(content: any, benefit?: MembershipBenefit, membershipId?: number, benefitType?: string): void {
+    // Đảm bảo đóng tất cả các modal đang mở trước khi mở modal mới
+    this.modalService.dismissAll();
+
     // Kiểm tra xem đã có quyền lợi cùng loại chưa (trừ Service)
     if (!benefit && benefitType && benefitType !== 'Service' && membershipId) {
       const existingBenefits = this.getBenefitsByType(membershipId, benefitType);
@@ -212,9 +215,9 @@ export class MembershipbenenitManagementComponent implements OnInit {
     const modalRef = this.modalService.open(content, {
       size: 'md', // Giảm kích thước modal
       centered: true,
-      backdrop: 'static', // Ngăn người dùng đóng modal bằng cách nhấp bên ngoài
+      backdrop: false, // Tắt backdrop để tránh vấn đề chặn tương tác
       keyboard: true, // Cho phép đóng bằng phím Escape
-      windowClass: 'benefit-modal', // Thêm class để có thể tùy chỉnh thêm
+      windowClass: 'benefit-modal custom-modal-class', // Thêm class để có thể tùy chỉnh thêm
       animation: true
     });
 
@@ -222,6 +225,7 @@ export class MembershipbenenitManagementComponent implements OnInit {
     modalRef.result.then(
       () => {
         // Modal đóng bằng close (thành công)
+        // Không cần làm gì ở đây vì đã xử lý trong saveBenefit()
       },
       () => {
         // Modal đóng bằng dismiss (hủy)
@@ -317,7 +321,12 @@ export class MembershipbenenitManagementComponent implements OnInit {
       // Cập nhật
       this.benefitService.updateBenefit(this.selectedBenefit.id, formData).subscribe({
         next: (res: any) => {
+          this.isLoading = false;
           if (res.responseCode === 200) {
+            // Đóng modal trước khi hiển thị thông báo
+            this.modalService.dismissAll();
+
+            // Hiển thị thông báo thành công
             Swal.fire({
               toast: true,
               position: 'top-end',
@@ -327,7 +336,8 @@ export class MembershipbenenitManagementComponent implements OnInit {
               timer: 3000,
               timerProgressBar: true
             });
-            this.modalService.dismissAll();
+
+            // Tải lại danh sách quyền lợi
             this.loadBenefits();
           } else {
             Swal.fire({
@@ -340,10 +350,10 @@ export class MembershipbenenitManagementComponent implements OnInit {
               timerProgressBar: true
             });
           }
-          this.isLoading = false;
         },
         error: (err: any) => {
           console.error(err);
+          this.isLoading = false;
           Swal.fire({
             toast: true,
             position: 'top-end',
@@ -353,14 +363,18 @@ export class MembershipbenenitManagementComponent implements OnInit {
             timer: 3000,
             timerProgressBar: true
           });
-          this.isLoading = false;
         }
       });
     } else {
       // Tạo mới
       this.benefitService.createBenefit(formData).subscribe({
         next: (res: any) => {
+          this.isLoading = false;
           if (res.responseCode === 200) {
+            // Đóng modal trước khi hiển thị thông báo
+            this.modalService.dismissAll();
+
+            // Hiển thị thông báo thành công
             Swal.fire({
               toast: true,
               position: 'top-end',
@@ -370,7 +384,8 @@ export class MembershipbenenitManagementComponent implements OnInit {
               timer: 3000,
               timerProgressBar: true
             });
-            this.modalService.dismissAll();
+
+            // Tải lại danh sách quyền lợi
             this.loadBenefits();
           } else {
             Swal.fire({
@@ -383,10 +398,10 @@ export class MembershipbenenitManagementComponent implements OnInit {
               timerProgressBar: true
             });
           }
-          this.isLoading = false;
         },
         error: (err: any) => {
           console.error(err);
+          this.isLoading = false;
           Swal.fire({
             toast: true,
             position: 'top-end',
@@ -396,7 +411,6 @@ export class MembershipbenenitManagementComponent implements OnInit {
             timer: 3000,
             timerProgressBar: true
           });
-          this.isLoading = false;
         }
       });
     }

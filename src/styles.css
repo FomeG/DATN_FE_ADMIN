@@ -98,6 +98,39 @@ body.auth.login-bg {
   /* Z-index cực cao để hiển thị trên tất cả các phần tử */
 }
 
+/* Ng-Bootstrap Modal Customization - Global */
+.modal {
+  z-index: 1050 !important;
+}
+
+.modal-dialog {
+  z-index: 1055 !important;
+  pointer-events: auto !important;
+}
+
+.modal-backdrop {
+  z-index: 1040 !important;
+  opacity: 0.5 !important;
+  pointer-events: none !important;
+}
+
+.modal-backdrop.show {
+  opacity: 0.5 !important;
+  pointer-events: none !important;
+}
+
+.modal-backdrop + .modal-backdrop {
+  display: none !important;
+}
+
+.modal-content {
+  pointer-events: auto !important;
+}
+
+.modal-content * {
+  pointer-events: auto !important;
+}
+
 /* Sửa lỗi logo SweetAlert2 bị lệch */
 .swal2-icon {
   display: flex !important;
@@ -439,4 +472,66 @@ body.auth.login-bg {
 .mat-mdc-option.mdc-list-item--selected:not(.mdc-list-item--disabled) {
   background-color: rgba(0, 144, 231, 0.2) !important;
   color: #ffffff !important;
+}
+
+/* Global Select Option Customization */
+select option {
+  background-color: #2A3038 !important;
+  color: #ffffff !important;
+  padding: 8px !important;
+}
+
+select option:hover,
+select option:focus,
+select option:active,
+select option:checked {
+  background-color: #0090e7 !important;
+  color: #ffffff !important;
+}
+
+/* Ensure dropdown menus are visible */
+select {
+  background-color: #2A3038 !important;
+  color: #ffffff !important;
+}
+
+/* Fix for dark dropdowns in Chrome and other browsers */
+select.form-select,
+select.form-control {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23ffffff' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e") !important;
+  background-repeat: no-repeat !important;
+  background-position: right 0.75rem center !important;
+  background-size: 16px 12px !important;
+}
+
+/* Fix for Firefox */
+@-moz-document url-prefix() {
+  select.form-select,
+  select.form-control {
+    color: #ffffff !important;
+    background-color: #2A3038 !important;
+  }
+
+  select.form-select option,
+  select.form-control option {
+    background-color: #2A3038 !important;
+    color: #ffffff !important;
+  }
+}
+
+/* Fix for Safari */
+@media screen and (-webkit-min-device-pixel-ratio:0) {
+  select.form-select,
+  select.form-control {
+    -webkit-appearance: none !important;
+    background-color: #2A3038 !important;
+    color: #ffffff !important;
+    padding-right: 25px !important;
+  }
+
+  select.form-select option,
+  select.form-control option {
+    background-color: #2A3038 !important;
+    color: #ffffff !important;
+  }
 }

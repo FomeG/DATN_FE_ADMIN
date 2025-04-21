@@ -378,8 +378,9 @@ textarea.form-control {
 
 
 
-.modal-dialog {
-  max-width: 450px;
+/* Kích thước modal cho form voucher */
+.modal-lg {
+  max-width: 800px;
 }
 
 .modal-content {

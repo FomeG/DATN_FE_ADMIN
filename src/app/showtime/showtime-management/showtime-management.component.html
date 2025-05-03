@@ -35,7 +35,7 @@
       </div>
 
       <!-- Bộ lọc trạng thái -->
-      <div class="col-md-2">
+      <!-- <div class="col-md-2">
         <select class="custom-header-select" [(ngModel)]="selectedStatus" (change)="onStatusChange()">
           <option [value]="-1">Tất cả trạng thái</option>
           <option [value]="1">Sắp chiếu</option>
@@ -44,7 +44,7 @@
           <option [value]="4">Đã kết thúc</option>
           <option [value]="5">Đang bảo trì</option>
         </select>
-      </div>
+      </div> -->
 
       <!-- Nút xóa bộ lọc -->
       <div class="col-2">
@@ -129,12 +129,24 @@
                 <thead>
                   <tr>
                     <th class="text-center" style="width: 50px">#</th>
-                    <th>Phim</th>
-                    <th>Thời lượng</th>
-                    <th>Phòng</th>
-                    <th>Thời gian bắt đầu</th>
-                    <th>Thời gian kết thúc</th>
-                    <th class="text-center">Trạng thái</th>
+                    <th style="cursor: pointer" (click)="sort('movieName')">
+                      Phim <i class="fas" [ngClass]="getSortIcon('movieName')"></i>
+                    </th>
+                    <th style="cursor: pointer" (click)="sort('duration')">
+                      Thời lượng <i class="fas" [ngClass]="getSortIcon('duration')"></i>
+                    </th>
+                    <th style="cursor: pointer" (click)="sort('roomName')">
+                      Phòng <i class="fas" [ngClass]="getSortIcon('roomName')"></i>
+                    </th>
+                    <th style="cursor: pointer" (click)="sort('startTime')">
+                      Thời gian bắt đầu <i class="fas" [ngClass]="getSortIcon('startTime')"></i>
+                    </th>
+                    <th style="cursor: pointer" (click)="sort('endTime')">
+                      Thời gian kết thúc <i class="fas" [ngClass]="getSortIcon('endTime')"></i>
+                    </th>
+                    <th class="text-center" style="cursor: pointer" (click)="sort('status')">
+                      Trạng thái <i class="fas" [ngClass]="getSortIcon('status')"></i>
+                    </th>
                     <th class="text-center" style="width: 250px">Thao tác</th>
                   </tr>
                 </thead>

@@ -59,6 +59,33 @@
   padding: 15px 12px;
   color: #6c7293;
   letter-spacing: 0.5px;
+  transition: all 0.2s ease;
+}
+
+/* Sortable columns styling */
+.table thead th[style*="cursor: pointer"] {
+  position: relative;
+  user-select: none;
+}
+
+.table thead th[style*="cursor: pointer"]:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+  color: #ffffff;
+}
+
+.table thead th i.fas {
+  margin-left: 5px;
+  font-size: 0.8rem;
+}
+
+.table thead th i.fa-sort {
+  color: #6c7293;
+  opacity: 0.5;
+}
+
+.table thead th i.fa-sort-up,
+.table thead th i.fa-sort-down {
+  color: #0090e7;
 }
 
 .table tbody tr:hover {

@@ -83,6 +83,10 @@ export class ShowtimeManagementComponent implements OnInit, OnDestroy {
   selectedMovie: any = null;
   roomTypes: any[] = [];
 
+  // Biến cho sắp xếp
+  sortColumn: string = '';
+  sortDirection: 'asc' | 'desc' = 'asc';
+
   cinemaList: CinemaItem[] = [];
 
   // Constants
@@ -481,21 +485,14 @@ export class ShowtimeManagementComponent implements OnInit, OnDestroy {
                 startTimeDate.setFullYear(selectedDate.getFullYear(), selectedDate.getMonth(), selectedDate.getDate());
               } else {
                 // Nếu không có dữ liệu (responseCode = 200, data = null)
-                // Sử dụng thời gian hiện tại của Việt Nam
+                // Đây là ngày chưa có suất chiếu, luôn đặt thời gian bắt đầu từ 9 giờ sáng
                 startTimeDate = new Date();
-                // Đảm bảo thời gian nằm trong khoảng 9h-22h
-                const hours = startTimeDate.getHours();
-                if (hours < 9) {
-                  startTimeDate.setHours(9, 0, 0, 0);
-                } else if (hours >= 22) {
-                  // Nếu đã quá 22h, đặt thành 9h sáng ngày hôm sau
-                  startTimeDate.setHours(9, 0, 0, 0);
-                }
+                startTimeDate.setHours(9, 0, 0, 0);
 
                 // Đặt ngày theo ngày đã chọn từ form
                 startTimeDate.setFullYear(selectedDate.getFullYear(), selectedDate.getMonth(), selectedDate.getDate());
 
-                console.log('Sử dụng thời gian hiện tại đã điều chỉnh theo ngày đã chọn:', startTimeDate);
+                console.log('Đặt thời gian bắt đầu từ 9 giờ sáng cho ngày chưa có suất chiếu:', startTimeDate);
               }
 
               // Định dạng thời gian
@@ -540,22 +537,15 @@ export class ShowtimeManagementComponent implements OnInit, OnDestroy {
           room.errorMessage = 'Lỗi khi kiểm tra lịch chiếu. Vui lòng thử lại.';
           console.error('Error getting auto date:', error);
 
-          // Khi có lỗi, sử dụng thời gian hiện tại của Việt Nam
+          // Khi có lỗi, luôn đặt thời gian bắt đầu từ 9 giờ sáng
           const defaultDate = new Date();
-          // Đảm bảo thời gian nằm trong khoảng 9h-22h
-          const hours = defaultDate.getHours();
-          if (hours < 9) {
-            defaultDate.setHours(9, 0, 0, 0);
-          } else if (hours >= 22) {
-            // Nếu đã quá 22h, đặt thành 9h sáng ngày hôm sau
-            defaultDate.setHours(9, 0, 0, 0);
-          }
+          defaultDate.setHours(9, 0, 0, 0);
 
           // Lấy ngày từ form và đặt ngày cho thời gian mặc định
           const selectedDate = new Date(this.showtimeForm.get('showtimeDate')?.value);
           defaultDate.setFullYear(selectedDate.getFullYear(), selectedDate.getMonth(), selectedDate.getDate());
 
-          console.log('Thời gian mặc định khi có lỗi (đã điều chỉnh theo ngày đã chọn):', defaultDate);
+          console.log('Thời gian mặc định khi có lỗi (đặt 9 giờ sáng):', defaultDate);
           room.startTime = this.formatDateTimeForInput(defaultDate);
 
           // Tính thời gian kết thúc
@@ -567,22 +557,15 @@ export class ShowtimeManagementComponent implements OnInit, OnDestroy {
       room.errorMessage = 'Lỗi khi kiểm tra lịch chiếu. Vui lòng thử lại.';
       console.error('Error in onRoomChange:', error);
 
-      // Khi có lỗi, sử dụng thời gian hiện tại của Việt Nam
+      // Khi có lỗi, luôn đặt thời gian bắt đầu từ 9 giờ sáng
       const defaultDate = new Date();
-      // Đảm bảo thời gian nằm trong khoảng 9h-22h
-      const hours = defaultDate.getHours();
-      if (hours < 9) {
-        defaultDate.setHours(9, 0, 0, 0);
-      } else if (hours >= 22) {
-        // Nếu đã quá 22h, đặt thành 9h sáng ngày hôm sau
-        defaultDate.setHours(9, 0, 0, 0);
-      }
+      defaultDate.setHours(9, 0, 0, 0);
 
       // Lấy ngày từ form và đặt ngày cho thời gian mặc định
       const selectedDate = new Date(this.showtimeForm.get('showtimeDate')?.value);
       defaultDate.setFullYear(selectedDate.getFullYear(), selectedDate.getMonth(), selectedDate.getDate());
 
-      console.log('Thời gian mặc định khi có lỗi (catch, đã điều chỉnh theo ngày đã chọn):', defaultDate);
+      console.log('Thời gian mặc định khi có lỗi (catch, đặt 9 giờ sáng):', defaultDate);
       room.startTime = this.formatDateTimeForInput(defaultDate);
 
       // Tính thời gian kết thúc
@@ -685,12 +668,27 @@ export class ShowtimeManagementComponent implements OnInit, OnDestroy {
     // Prepare an array of showtime requests
     const showtimeRequests: any[] = [];
 
+    // Lấy ngày từ form
+    const selectedDate = new Date(this.showtimeForm.get('showtimeDate')?.value);
+
     for (const cinema of this.cinemaList) {
       for (const room of cinema.rooms) {
         if (room.id && room.startTime && room.endTime) {
+          // Phân tích thời gian bắt đầu (định dạng HH:MM)
+          const [startHours, startMinutes] = room.startTime.split(':').map(Number);
+
+          // Tạo đối tượng Date đầy đủ với ngày từ form và giờ từ input
+          const startTimeDate = new Date(
+            selectedDate.getFullYear(),
+            selectedDate.getMonth(),
+            selectedDate.getDate(),
+            startHours,
+            startMinutes,
+            0
+          );
+
           // Kiểm tra thời gian bắt đầu nằm trong khoảng 9h-22h
-          const startTime = new Date(room.startTime);
-          const hours = startTime.getHours();
+          const hours = startTimeDate.getHours();
 
           if (hours < 9 || hours >= 22) {
             Swal.fire({
@@ -701,11 +699,43 @@ export class ShowtimeManagementComponent implements OnInit, OnDestroy {
             return;
           }
 
+          // Phân tích thời gian kết thúc (định dạng HH:MM)
+          const [endHours, endMinutes] = room.endTime.split(':').map(Number);
+
+          // Tạo đối tượng Date đầy đủ với ngày từ form và giờ từ input
+          const endTimeDate = new Date(
+            selectedDate.getFullYear(),
+            selectedDate.getMonth(),
+            selectedDate.getDate(),
+            endHours,
+            endMinutes,
+            0
+          );
+
+          // Chuyển đổi sang ISO string để gửi đến API, giữ nguyên múi giờ địa phương
+          // Lấy offset múi giờ (phút)
+          const tzOffset = startTimeDate.getTimezoneOffset();
+
+          // Tạo bản sao và điều chỉnh thời gian để bù đắp cho việc chuyển đổi sang UTC
+          const startTimeAdjusted = new Date(startTimeDate.getTime() - tzOffset * 60000);
+          const endTimeAdjusted = new Date(endTimeDate.getTime() - tzOffset * 60000);
+
+          // Chuyển đổi sang ISO string
+          const startTimeISO = startTimeAdjusted.toISOString();
+          const endTimeISO = endTimeAdjusted.toISOString();
+
+          console.log('Múi giờ offset (phút):', tzOffset);
+          console.log('Thời gian gốc:', startTimeDate);
+          console.log('Thời gian đã điều chỉnh:', startTimeAdjusted);
+
+          console.log('Thời gian bắt đầu gửi đến API:', startTimeISO);
+          console.log('Thời gian kết thúc gửi đến API:', endTimeISO);
+
           showtimeRequests.push({
             movieId: movieId,
             roomId: room.id,
-            startTime: room.startTime,
-            endTime: room.endTime,
+            startTime: startTimeISO,
+            endTime: endTimeISO,
             status: 1
           });
         }
@@ -820,9 +850,24 @@ export class ShowtimeManagementComponent implements OnInit, OnDestroy {
     const room = cinema.rooms[0];
     if (!room.id || !room.startTime || !room.endTime) return;
 
+    // Lấy ngày từ form
+    const selectedDate = new Date(this.showtimeForm.get('showtimeDate')?.value);
+
+    // Phân tích thời gian bắt đầu (định dạng HH:MM)
+    const [startHours, startMinutes] = room.startTime.split(':').map(Number);
+
+    // Tạo đối tượng Date đầy đủ với ngày từ form và giờ từ input
+    const startTimeDate = new Date(
+      selectedDate.getFullYear(),
+      selectedDate.getMonth(),
+      selectedDate.getDate(),
+      startHours,
+      startMinutes,
+      0
+    );
+
     // Kiểm tra thời gian bắt đầu nằm trong khoảng 9h-22h
-    const startTime = new Date(room.startTime);
-    const hours = startTime.getHours();
+    const hours = startTimeDate.getHours();
 
     if (hours < 9 || hours >= 22) {
       Swal.fire({
@@ -833,11 +878,43 @@ export class ShowtimeManagementComponent implements OnInit, OnDestroy {
       return;
     }
 
+    // Phân tích thời gian kết thúc (định dạng HH:MM)
+    const [endHours, endMinutes] = room.endTime.split(':').map(Number);
+
+    // Tạo đối tượng Date đầy đủ với ngày từ form và giờ từ input
+    const endTimeDate = new Date(
+      selectedDate.getFullYear(),
+      selectedDate.getMonth(),
+      selectedDate.getDate(),
+      endHours,
+      endMinutes,
+      0
+    );
+
+    // Chuyển đổi sang ISO string để gửi đến API, giữ nguyên múi giờ địa phương
+    // Lấy offset múi giờ (phút)
+    const tzOffset = startTimeDate.getTimezoneOffset();
+
+    // Tạo bản sao và điều chỉnh thời gian để bù đắp cho việc chuyển đổi sang UTC
+    const startTimeAdjusted = new Date(startTimeDate.getTime() - tzOffset * 60000);
+    const endTimeAdjusted = new Date(endTimeDate.getTime() - tzOffset * 60000);
+
+    // Chuyển đổi sang ISO string
+    const startTimeISO = startTimeAdjusted.toISOString();
+    const endTimeISO = endTimeAdjusted.toISOString();
+
+    console.log('Múi giờ offset (phút):', tzOffset);
+    console.log('Thời gian gốc:', startTimeDate);
+    console.log('Thời gian đã điều chỉnh:', startTimeAdjusted);
+
+    console.log('Thời gian bắt đầu gửi đến API (update):', startTimeISO);
+    console.log('Thời gian kết thúc gửi đến API (update):', endTimeISO);
+
     const updateRequest = {
       roomId: room.id,
       movieId: movieId,
-      startTime: room.startTime,
-      endTime: room.endTime
+      startTime: startTimeISO,
+      endTime: endTimeISO
     };
 
 
@@ -1208,35 +1285,28 @@ export class ShowtimeManagementComponent implements OnInit, OnDestroy {
     if (this.selectedStatus !== -1) {
       console.log('Filtering by status:', this.selectedStatus);
 
-      // Xử lý các trường hợp đặc biệt
-      if (this.selectedStatus === 4) {
-        // Kiểm tra xem có phải là MAINTENANCE hay không
-        const isMaintenance = this.selectedStatus === this.STATUS_TYPES.MAINTENANCE;
-
-        if (isMaintenance) {
-          filtered = filtered.filter(s => s.status === this.SHOWTIME_STATUS.MAINTENANCE); // 5
-        } else {
-          filtered = filtered.filter(s => s.status === 4); // ENDED
-        }
-      } else {
-        // Xử lý các trường hợp khác
-        let statusToFilter;
-
-        switch (this.selectedStatus) {
-          case this.STATUS_TYPES.UPCOMING: // 1
-            statusToFilter = this.SHOWTIME_STATUS.UPCOMING_SALE; // 1
-            break;
-          case this.STATUS_TYPES.PLAYING: // 2
-            statusToFilter = this.SHOWTIME_STATUS.PLAYING; // 3
-            break;
-          case this.STATUS_TYPES.ENDED: // 3
-            statusToFilter = this.SHOWTIME_STATUS.ENDED; // 4
-            break;
-          default:
-            statusToFilter = this.selectedStatus;
-        }
-
-        filtered = filtered.filter(s => s.status === statusToFilter);
+      // Xử lý trạng thái dựa trên giá trị từ HTML
+      switch (this.selectedStatus) {
+        case 1: // Sắp chiếu
+          filtered = filtered.filter(s =>
+            s.status === this.SHOWTIME_STATUS.UPCOMING_SALE ||
+            s.status === this.SHOWTIME_STATUS.UPCOMING);
+          break;
+        case 2: // Chuẩn bị chiếu
+          filtered = filtered.filter(s => s.status === this.SHOWTIME_STATUS.UPCOMING);
+          break;
+        case 3: // Đang chiếu
+          filtered = filtered.filter(s => s.status === this.SHOWTIME_STATUS.PLAYING);
+          break;
+        case 4: // Đã kết thúc
+          filtered = filtered.filter(s => s.status === this.SHOWTIME_STATUS.ENDED);
+          break;
+        case 5: // Đang bảo trì
+          filtered = filtered.filter(s => s.status === this.SHOWTIME_STATUS.MAINTENANCE);
+          break;
+        default:
+          // Không có trường hợp mặc định, vì đã kiểm tra selectedStatus !== -1
+          break;
       }
     }
 
@@ -1292,15 +1362,20 @@ export class ShowtimeManagementComponent implements OnInit, OnDestroy {
     // Lưu kết quả lọc
     this.filteredShowtimes = filtered;
 
+    // Áp dụng sắp xếp nếu có
+    if (this.sortColumn) {
+      this.applySort();
+    }
+
     // Cập nhật tổng số bản ghi
-    this.totalRecords = filtered.length;
+    this.totalRecords = this.filteredShowtimes.length;
     console.log('Total filtered records:', this.totalRecords);
 
     // Phân trang
     const startIndex = (this.currentPage - 1) * this.recordPerPage;
-    const endIndex = Math.min(startIndex + this.recordPerPage, filtered.length);
-    this.showtimes = filtered.slice(startIndex, endIndex);
-    console.log(`Showing records ${startIndex + 1} to ${endIndex} of ${filtered.length}`);
+    const endIndex = Math.min(startIndex + this.recordPerPage, this.filteredShowtimes.length);
+    this.showtimes = this.filteredShowtimes.slice(startIndex, endIndex);
+    console.log(`Showing records ${startIndex + 1} to ${endIndex} of ${this.filteredShowtimes.length}`);
 
     // Lưu trữ dữ liệu gốc cho các tính năng khác
     this.originalShowtimes = [...this.filteredShowtimes];
@@ -1666,39 +1741,21 @@ export class ShowtimeManagementComponent implements OnInit, OnDestroy {
       return true;
     }
 
-    // Trường hợp đặc biệt: nếu selectedStatus = 4, đây là trạng thái MAINTENANCE trong STATUS_TYPES
-    // nhưng cũng có thể là trạng thái ENDED trong SHOWTIME_STATUS
-    if (this.selectedStatus === 4) {
-      // Kiểm tra xem có phải là MAINTENANCE hay không
-      const isMaintenance = this.selectedStatus === this.STATUS_TYPES.MAINTENANCE;
-
-      if (isMaintenance) {
-        // Nếu là MAINTENANCE, so sánh với MAINTENANCE
-        return showtime.status === this.SHOWTIME_STATUS.MAINTENANCE; // 5
-      } else {
-        // Nếu không, giữ nguyên giá trị 4 (ENDED)
-        return showtime.status === 4;
-      }
-    } else {
-      // Xử lý các trường hợp khác
-      let statusToFilter;
-
-      switch (this.selectedStatus) {
-        case this.STATUS_TYPES.UPCOMING: // 1
-          statusToFilter = this.SHOWTIME_STATUS.UPCOMING_SALE; // 1
-          break;
-        case this.STATUS_TYPES.PLAYING: // 2
-          statusToFilter = this.SHOWTIME_STATUS.PLAYING; // 3
-          break;
-        case this.STATUS_TYPES.ENDED: // 3
-          statusToFilter = this.SHOWTIME_STATUS.ENDED; // 4
-          break;
-        default:
-          statusToFilter = this.selectedStatus;
-      }
-
-      // Trả về true nếu trạng thái của showtime khớp với trạng thái đã chọn
-      return showtime.status === statusToFilter;
+    // Xử lý trạng thái dựa trên giá trị từ HTML
+    switch (this.selectedStatus) {
+      case 1: // Sắp chiếu
+        return showtime.status === this.SHOWTIME_STATUS.UPCOMING_SALE ||
+               showtime.status === this.SHOWTIME_STATUS.UPCOMING;
+      case 2: // Chuẩn bị chiếu
+        return showtime.status === this.SHOWTIME_STATUS.UPCOMING;
+      case 3: // Đang chiếu
+        return showtime.status === this.SHOWTIME_STATUS.PLAYING;
+      case 4: // Đã kết thúc
+        return showtime.status === this.SHOWTIME_STATUS.ENDED;
+      case 5: // Đang bảo trì
+        return showtime.status === this.SHOWTIME_STATUS.MAINTENANCE;
+      default:
+        return false;
     }
   }
 
@@ -1707,6 +1764,90 @@ export class ShowtimeManagementComponent implements OnInit, OnDestroy {
     // Đặt lại trang về 1 khi thay đổi bộ lọc
     this.currentPage = 1;
     this.filterAndPaginate();
+  }
+
+  // Phương thức sắp xếp
+  sort(column: string): void {
+    console.log('Sorting by column:', column);
+
+    // Nếu đang sắp xếp theo cột này rồi thì đổi hướng sắp xếp
+    if (this.sortColumn === column) {
+      this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
+    } else {
+      // Nếu chọn cột mới, mặc định sắp xếp tăng dần
+      this.sortColumn = column;
+      this.sortDirection = 'asc';
+    }
+
+    // Áp dụng sắp xếp và cập nhật dữ liệu
+    this.applySort();
+
+    // Cập nhật phân trang
+    const startIndex = (this.currentPage - 1) * this.recordPerPage;
+    const endIndex = Math.min(startIndex + this.recordPerPage, this.filteredShowtimes.length);
+    this.showtimes = this.filteredShowtimes.slice(startIndex, endIndex);
+  }
+
+  // Áp dụng sắp xếp cho danh sách
+  applySort(): void {
+    if (!this.sortColumn) return;
+
+    console.log(`Applying sort: ${this.sortColumn} ${this.sortDirection}`);
+
+    this.filteredShowtimes.sort((a: any, b: any) => {
+      let valueA: any;
+      let valueB: any;
+
+      // Lấy giá trị cần so sánh dựa trên cột sắp xếp
+      switch(this.sortColumn) {
+        case 'movieName':
+          valueA = a.movieName || '';
+          valueB = b.movieName || '';
+          break;
+        case 'duration':
+          valueA = parseInt(a.duration) || 0;
+          valueB = parseInt(b.duration) || 0;
+          break;
+        case 'roomName':
+          valueA = a.roomName || '';
+          valueB = b.roomName || '';
+          break;
+        case 'startTime':
+          valueA = new Date(a.startTime).getTime();
+          valueB = new Date(b.startTime).getTime();
+          break;
+        case 'endTime':
+          valueA = new Date(a.endTime).getTime();
+          valueB = new Date(b.endTime).getTime();
+          break;
+        case 'status':
+          valueA = a.status;
+          valueB = b.status;
+          break;
+        default:
+          valueA = a[this.sortColumn];
+          valueB = b[this.sortColumn];
+      }
+
+      // So sánh giá trị
+      let comparison = 0;
+      if (typeof valueA === 'string') {
+        comparison = valueA.localeCompare(valueB);
+      } else {
+        comparison = valueA - valueB;
+      }
+
+      // Áp dụng hướng sắp xếp
+      return this.sortDirection === 'asc' ? comparison : -comparison;
+    });
+  }
+
+  // Lấy icon cho cột đang sắp xếp
+  getSortIcon(column: string): string {
+    if (this.sortColumn !== column) {
+      return 'fa-sort'; // Icon mặc định
+    }
+    return this.sortDirection === 'asc' ? 'fa-sort-up' : 'fa-sort-down';
   }
 
   onDateFilterChange(): void {
@@ -1761,8 +1902,12 @@ export class ShowtimeManagementComponent implements OnInit, OnDestroy {
     if (this.startDateFilter) {
       try {
         const startDate = new Date(this.startDateFilter);
-        startDateStr = startDate.toISOString().split('T')[0]; // YYYY-MM-DD
-        startTimeStr = startDate.toISOString(); // Full ISO datetime
+        // Điều chỉnh múi giờ
+        const tzOffset = startDate.getTimezoneOffset();
+        const startDateAdjusted = new Date(startDate.getTime() - tzOffset * 60000);
+
+        startDateStr = startDateAdjusted.toISOString().split('T')[0]; // YYYY-MM-DD
+        startTimeStr = startDateAdjusted.toISOString(); // Full ISO datetime
       } catch (error) {
         console.error('Error formatting start date for test:', error);
         return;
@@ -1774,8 +1919,13 @@ export class ShowtimeManagementComponent implements OnInit, OnDestroy {
         const endDate = new Date(this.endDateFilter);
         // Đặt thời gian kết thúc là cuối ngày (23:59:59.999)
         endDate.setHours(23, 59, 59, 999);
-        endDateStr = endDate.toISOString().split('T')[0]; // YYYY-MM-DD
-        endTimeStr = endDate.toISOString(); // Full ISO datetime
+
+        // Điều chỉnh múi giờ
+        const tzOffset = endDate.getTimezoneOffset();
+        const endDateAdjusted = new Date(endDate.getTime() - tzOffset * 60000);
+
+        endDateStr = endDateAdjusted.toISOString().split('T')[0]; // YYYY-MM-DD
+        endTimeStr = endDateAdjusted.toISOString(); // Full ISO datetime
       } catch (error) {
         console.error('Error formatting end date for test:', error);
         return;

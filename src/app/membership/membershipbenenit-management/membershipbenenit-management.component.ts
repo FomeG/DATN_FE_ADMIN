@@ -248,18 +248,26 @@ export class MembershipbenenitManagementComponent implements OnInit {
     this.benefitForm.get('limit')?.setValue(null);
     this.benefitForm.get('usePointValue')?.setValue(null);
 
-    // Thêm validators cho các trường tương ứng
+    // Xóa tất cả validators hiện tại
+    this.benefitForm.get('target')?.clearValidators();
+    this.benefitForm.get('value')?.clearValidators();
+    this.benefitForm.get('multiplier')?.clearValidators();
+    this.benefitForm.get('serviceId')?.clearValidators();
+    this.benefitForm.get('quantity')?.clearValidators();
+    this.benefitForm.get('limit')?.clearValidators();
+    this.benefitForm.get('usePointValue')?.clearValidators();
+
+    // Thêm validators cho các trường tương ứng (không bắt buộc)
     if (benefitType === 'Discount') {
-      this.benefitForm.get('target')?.setValidators([Validators.required]);
-      this.benefitForm.get('value')?.setValidators([Validators.required, Validators.min(0), Validators.max(100)]);
+      // Không bắt buộc nhập Target
+      this.benefitForm.get('value')?.setValidators([Validators.min(0), Validators.max(100)]);
     } else if (benefitType === 'PointBonus') {
-      this.benefitForm.get('multiplier')?.setValidators([Validators.required, Validators.min(0)]);
+      this.benefitForm.get('multiplier')?.setValidators([Validators.min(0)]);
     } else if (benefitType === 'Service') {
-      this.benefitForm.get('serviceId')?.setValidators([Validators.required]);
-      this.benefitForm.get('quantity')?.setValidators([Validators.required, Validators.min(1)]);
-      this.benefitForm.get('limit')?.setValidators([Validators.required, Validators.min(1)]);
+      this.benefitForm.get('quantity')?.setValidators([Validators.min(1)]);
+      this.benefitForm.get('limit')?.setValidators([Validators.min(1)]);
     } else if (benefitType === 'UsePoint') {
-      this.benefitForm.get('usePointValue')?.setValidators([Validators.required, Validators.min(0)]);
+      this.benefitForm.get('usePointValue')?.setValidators([Validators.min(0)]);
     }
 
     // Cập nhật trạng thái của form

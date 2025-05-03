@@ -48,9 +48,9 @@
       <div class="container-fluid px-4">
         <div class="d-flex justify-content-between align-items-center mb-3">
           <h5 class="mb-0">Quyền lợi thành viên</h5>
-          <button class="btn btn-sm btn-primary" (click)="openModal(benefitModal, undefined, membership.id)">
+          <!-- <button class="btn btn-sm btn-primary" (click)="openModal(benefitModal, undefined, membership.id)">
             <i class="fas fa-plus"></i> Thêm quyền lợi
-          </button>
+          </button> -->
         </div>
         <!-- Hiển thị quyền lợi theo từng loại -->
         <div class="row">
@@ -296,19 +296,15 @@
           <h6 class="text-primary mb-3"><i class="fas fa-percent me-2"></i>Cấu hình giảm giá</h6>
 
           <div class="mb-3">
-            <label class="form-label">Đối tượng giảm giá</label>
+            <label class="form-label">Đối tượng giảm giá (không bắt buộc)</label>
             <select class="form-select" formControlName="target">
               <option [ngValue]="null">-- Chọn đối tượng --</option>
               <option *ngFor="let target of discountTargets" [value]="target.value">{{ target.label }}</option>
             </select>
-            <div class="invalid-feedback"
-              *ngIf="benefitForm.get('target')?.invalid && benefitForm.get('target')?.touched">
-              Vui lòng chọn đối tượng giảm giá
-            </div>
           </div>
 
           <div class="mb-3">
-            <label class="form-label">Giá trị (%)</label>
+            <label class="form-label">Giá trị (%) (không bắt buộc)</label>
             <input type="number" class="form-control" formControlName="value" min="0" max="100"
               placeholder="Nhập giá trị từ 0-100">
             <div class="invalid-feedback"
@@ -323,7 +319,7 @@
           <h6 class="text-success mb-3"><i class="fas fa-coins me-2"></i>Cấu hình thưởng điểm</h6>
 
           <div class="mb-3">
-            <label class="form-label">Hệ số nhân</label>
+            <label class="form-label">Hệ số nhân (không bắt buộc)</label>
             <input type="number" class="form-control" formControlName="multiplier" min="0" step="0.1"
               placeholder="Ví dụ: 1.5">
             <div class="invalid-feedback"
@@ -339,20 +335,16 @@
           <h6 class="text-info mb-3"><i class="fas fa-concierge-bell me-2"></i>Cấu hình dịch vụ miễn phí</h6>
 
           <div class="mb-3">
-            <label class="form-label">Dịch vụ</label>
+            <label class="form-label">Dịch vụ (không bắt buộc)</label>
             <select class="form-select service-select" formControlName="serviceId">
               <option [ngValue]="null" class="default-option">-- Chọn dịch vụ --</option>
               <option *ngFor="let service of services" [value]="service.id" class="service-option">{{ service.name }}
               </option>
             </select>
-            <div class="invalid-feedback"
-              *ngIf="benefitForm.get('serviceId')?.invalid && benefitForm.get('serviceId')?.touched">
-              Vui lòng chọn dịch vụ
-            </div>
           </div>
 
           <div class="mb-3">
-            <label class="form-label">Số lượng</label>
+            <label class="form-label">Số lượng (không bắt buộc)</label>
             <input type="number" class="form-control" formControlName="quantity" min="1" placeholder="Nhập số lượng">
             <div class="invalid-feedback"
               *ngIf="benefitForm.get('quantity')?.invalid && benefitForm.get('quantity')?.touched">
@@ -361,7 +353,7 @@
           </div>
 
           <div class="mb-3">
-            <label class="form-label">Giới hạn (lần/tháng)</label>
+            <label class="form-label">Giới hạn (lần/tháng) (không bắt buộc)</label>
             <input type="number" class="form-control" formControlName="limit" min="1"
               placeholder="Nhập giới hạn sử dụng">
             <div class="invalid-feedback"
@@ -376,7 +368,7 @@
           <h6 class="text-warning mb-3"><i class="fas fa-exchange-alt me-2"></i>Cấu hình quy đổi điểm</h6>
 
           <div class="mb-3">
-            <label class="form-label">Tỉ lệ quy đổi</label>
+            <label class="form-label">Tỉ lệ quy đổi (không bắt buộc)</label>
             <input type="number" class="form-control" formControlName="usePointValue" min="0" step="0.1"
               placeholder="Ví dụ: 0.5">
             <div class="invalid-feedback"

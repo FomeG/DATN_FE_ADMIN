@@ -13,7 +13,8 @@ import { AgeRatingService, AgeRating } from '../../../services/age-rating.servic
 import Swal from 'sweetalert2';
 
 export interface AgeRatingDialogData {
-  mode: 'add' | 'list';
+  mode: 'add' | 'edit';
+  ageRating?: AgeRating;
 }
 
 @Component({
@@ -58,6 +59,14 @@ export class AgeRatingDialogComponent implements OnInit {
     // Khởi tạo form với giá trị mặc định hoặc giá trị chỉnh sửa
     if (this.data.mode === 'add') {
       this.isEditing = false;
+    } else if (this.data.mode === 'edit' && this.data.ageRating) {
+      this.isEditing = true;
+      this.editingAgeRatingId = this.data.ageRating.ageRatingId;
+      this.ageRatingForm.patchValue({
+        code: this.data.ageRating.code,
+        description: this.data.ageRating.description,
+        minimumAge: this.data.ageRating.minAge
+      });
     }
   }
 
@@ -125,17 +134,7 @@ export class AgeRatingDialogComponent implements OnInit {
     }
   }
 
-  // Phương thức này không còn cần thiết vì không còn tab danh sách
-  // Chỉ giữ lại để tương thích với các component khác nếu cần
-  editAgeRating(ageRating: AgeRating): void {
-    this.isEditing = true;
-    this.editingAgeRatingId = ageRating.ageRatingId;
-    this.ageRatingForm.patchValue({
-      code: ageRating.code,
-      description: ageRating.description,
-      minimumAge: ageRating.minAge
-    });
-  }
+  // Phương thức này đã được thay thế bằng xử lý trong ngOnInit
 
   deleteAgeRating(ageRatingId: string): void {
     Swal.fire({

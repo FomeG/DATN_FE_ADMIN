@@ -12,7 +12,8 @@ import { MovieFormatService, MovieFormat } from '../../../services/movie-format.
 import Swal from 'sweetalert2';
 
 export interface MovieFormatDialogData {
-  mode: 'add' | 'list';
+  mode: 'add' | 'edit';
+  movieFormat?: MovieFormat;
 }
 
 @Component({
@@ -55,6 +56,13 @@ export class MovieFormatDialogComponent implements OnInit {
     // Khởi tạo form với giá trị mặc định hoặc giá trị chỉnh sửa
     if (this.data.mode === 'add') {
       this.isEditing = false;
+    } else if (this.data.mode === 'edit' && this.data.movieFormat) {
+      this.isEditing = true;
+      this.editingFormatId = this.data.movieFormat.formatId;
+      this.formatForm.patchValue({
+        name: this.data.movieFormat.name,
+        description: this.data.movieFormat.description
+      });
     }
   }
 
@@ -120,16 +128,7 @@ export class MovieFormatDialogComponent implements OnInit {
     }
   }
 
-  // Phương thức này không còn cần thiết vì không còn tab danh sách
-  // Chỉ giữ lại để tương thích với các component khác nếu cần
-  editMovieFormat(format: MovieFormat): void {
-    this.isEditing = true;
-    this.editingFormatId = format.formatId;
-    this.formatForm.patchValue({
-      name: format.name,
-      description: format.description
-    });
-  }
+  // Phương thức này đã được thay thế bằng xử lý trong ngOnInit
 
   // Phương thức này không còn cần thiết vì không còn tab danh sách
   // Chỉ giữ lại để tương thích với các component khác nếu cần

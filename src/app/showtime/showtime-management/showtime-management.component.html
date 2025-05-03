@@ -439,8 +439,7 @@
             <!-- Movie Format Badges -->
             <div *ngIf="selectedMovie" class="mt-2">
               <div class="d-flex flex-wrap">
-                <span *ngFor="let format of selectedMovie.formats"
-                  class="format-badge"
+                <span *ngFor="let format of selectedMovie.formats" class="format-badge"
                   [ngClass]="'format-' + format.name.toLowerCase()">
                   {{format.name}}
                 </span>
@@ -451,17 +450,22 @@
             </div>
           </div>
 
-          <!-- Date Selection -->
+          <!-- Date and Time Selection -->
           <div class="form-group mb-4">
             <label for="showtimeDate" class="form-label">
-              <i class="fas fa-calendar-alt me-1"></i>Ngày chiếu <span class="text-danger">*</span>
+              <i class="fas fa-calendar-alt me-1"></i>Ngày và giờ chiếu <span class="text-danger">*</span>
             </label>
-            <input type="date" class="form-control" id="showtimeDate" formControlName="showtimeDate"
+            <input type="datetime-local" class="form-control" id="showtimeDate" formControlName="showtimeDate"
               [ngClass]="{'is-invalid': showtimeForm.get('showtimeDate')?.invalid && showtimeForm.get('showtimeDate')?.touched}"
               (change)="onShowtimeDateChange()">
             <div class="invalid-feedback"
               *ngIf="showtimeForm.get('showtimeDate')?.invalid && showtimeForm.get('showtimeDate')?.touched">
-              Vui lòng chọn ngày chiếu
+              <span *ngIf="showtimeForm.get('showtimeDate')?.errors?.['required']">Vui lòng chọn ngày và giờ
+                chiếu</span>
+              <span *ngIf="showtimeForm.get('showtimeDate')?.errors?.['dateInPast']">Ngày và giờ chiếu không được nhỏ
+                hơn thời điểm hiện tại</span>
+              <span *ngIf="showtimeForm.get('showtimeDate')?.errors?.['invalidTimeRange']">Giờ chiếu phải nằm trong
+                khoảng từ 9:00 đến 21:59</span>
             </div>
           </div>
 
@@ -535,7 +539,8 @@
                             </select>
 
                             <!-- Room Type Badge -->
-                            <div *ngIf="room.id && getRoomById(room.id)" class="mt-2 d-flex align-items-center flex-wrap">
+                            <div *ngIf="room.id && getRoomById(room.id)"
+                              class="mt-2 d-flex align-items-center flex-wrap">
                               <span class="room-type-badge"
                                 [ngClass]="'room-type-' + getRoomTypeName(getRoomById(room.id).roomTypeId).toLowerCase()">
                                 {{getRoomTypeName(getRoomById(room.id).roomTypeId)}}

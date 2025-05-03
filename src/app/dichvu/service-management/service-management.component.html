@@ -99,7 +99,7 @@
                   <th (click)="sort('price')" style="cursor: pointer; width: 150px">
                     Giá <i class="fas" [ngClass]="getSortIcon('price')"></i>
                   </th>
-                  <th style="width: 150px">Loại dịch vụ</th>
+                  <!-- <th style="width: 150px">Loại dịch vụ</th> -->
                   <th style="width: 200px" class="text-center">Thao tác</th>
                 </tr>
               </thead>
@@ -122,7 +122,7 @@
                   </td>
                   <td>{{ service.description }}</td>
                   <td>{{ service.price | number:'1.0-0' }} VNĐ</td>
-                  <td>{{ getServiceTypeName(service.serviceTypeID) }}</td>
+                  <!-- <td>{{ getServiceTypeName(service.serviceTypeID) }}</td> -->
                   <td class="text-center">
                     <button type="button" class="btn btn-outline-warning me-2" (click)="editService(service)">
                       <i class="fas fa-edit"></i>

@@ -153,43 +153,37 @@
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="actorModalLabel">{{isEditing ? 'Edit Actor' : 'Add New Actor'}}</h5>
+          <h5 class="modal-title" id="actorModalLabel">{{isEditing ? 'Cập nhật diễn viên' : 'Thêm diễn viên mới'}}</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
           <form [formGroup]="actorForm" (ngSubmit)="onSubmit()">
             <div class="mb-3">
-              <label for="name" class="form-label">Name</label>
+              <label for="name" class="form-label">Tên diễn viên</label>
               <input type="text" class="form-control" id="name" formControlName="name">
             </div>
 
             <div class="mb-3">
-              <label for="dateOfBirth" class="form-label">Date of Birth</label>
+              <label for="dateOfBirth" class="form-label">Ngày sinh</label>
               <input type="date" class="form-control" id="dateOfBirth" formControlName="dateOfBirth">
             </div>
 
             <div class="mb-3">
-              <label for="biography" class="form-label">Biography</label>
+              <label for="biography" class="form-label">Tiểu sử</label>
               <textarea class="form-control" id="biography" rows="3" formControlName="biography"></textarea>
             </div>
 
             <div class="mb-3">
-              <label for="photo" class="form-label">Photo</label>
+              <label for="photo" class="form-label">Ảnh</label>
               <input type="file" class="form-control" id="photo" (change)="onFileSelect($event)" accept="image/*">
             </div>
 
-            <div class="mb-3">
-              <label for="status" class="form-label">Status</label>
-              <select class="form-select" id="status" formControlName="status">
-                <option value="1">Active</option>
-                <option value="0">Inactive</option>
-              </select>
-            </div>
+            <!-- Status field removed as it's now managed by backend -->
 
             <div class="modal-footer">
-              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="closeModalBtn">Đóng</button>
               <button type="submit" class="btn btn-primary" [disabled]="!actorForm.valid">
-                {{isEditing ? 'Update' : 'Create'}}
+                {{isEditing ? 'Cập nhật' : 'Tạo mới'}}
               </button>
             </div>
           </form>

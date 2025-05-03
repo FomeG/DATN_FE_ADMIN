@@ -154,7 +154,10 @@ export class ShowtimeService {
 
 
   showtimeAutoDate(request: ShowtimeAutoDateRequest): Observable<ShowtimeAutoDateResponse> {
-    return this.http.get<ShowtimeAutoDateResponse>(`${this.apiUrl}ShowTime/GetAutoDate?CinemasId=${request.cinemasId}&RoomId=${request.roomId}&Date=${request.date}&MovieId=${request.movieId}`);
+    // Mã hóa URL cho tham số date để xử lý đúng định dạng datetime-local
+    const encodedDate = encodeURIComponent(request.date);
+    console.log('Calling GetAutoDate with date:', request.date, 'encoded:', encodedDate);
+    return this.http.get<ShowtimeAutoDateResponse>(`${this.apiUrl}ShowTime/GetAutoDate?CinemasId=${request.cinemasId}&RoomId=${request.roomId}&Date=${encodedDate}&MovieId=${request.movieId}`);
   }
 
 

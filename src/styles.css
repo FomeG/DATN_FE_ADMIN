@@ -535,3 +535,8 @@ select.form-control {
     color: #ffffff !important;
   }
 }
+
+
+.swal2-x-mark{
+  margin-bottom: 20px !important;
+}

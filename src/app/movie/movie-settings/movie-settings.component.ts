@@ -121,7 +121,10 @@ export class MovieSettingsComponent implements OnInit {
   editAgeRating(ageRating: AgeRating): void {
     const dialogRef = this.dialog.open(AgeRatingDialogComponent, {
       width: '600px',
-      data: { mode: 'edit', ageRating: ageRating }
+      data: {
+        mode: 'edit',
+        ageRating: { ...ageRating } // Truyền bản sao của đối tượng để tránh tham chiếu
+      }
     });
 
     dialogRef.afterClosed().subscribe(result => {
@@ -209,7 +212,10 @@ export class MovieSettingsComponent implements OnInit {
   editMovieFormat(movieFormat: MovieFormat): void {
     const dialogRef = this.dialog.open(MovieFormatDialogComponent, {
       width: '600px',
-      data: { mode: 'edit', movieFormat: movieFormat }
+      data: {
+        mode: 'edit',
+        movieFormat: { ...movieFormat } // Truyền bản sao của đối tượng để tránh tham chiếu
+      }
     });
 
     dialogRef.afterClosed().subscribe(result => {

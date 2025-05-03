@@ -45,8 +45,8 @@ export class ActorManagementComponent implements OnInit {
     this.actorForm = this.fb.group({
       name: ['', Validators.required],
       dateOfBirth: ['', Validators.required],
-      biography: ['', Validators.required],
-      status: [1]
+      biography: ['', Validators.required]
+      // Status đã được loại bỏ vì mặc định là 1 ở backend
     });
   }
 
@@ -225,9 +225,7 @@ export class ActorManagementComponent implements OnInit {
     this.isEditing = false;
     this.editActorId = '';
     this.selectedPhoto = null;
-    this.actorForm.reset({
-      status: 1
-    });
+    this.actorForm.reset();
   }
 
   editActor(actor: Actor) {
@@ -236,8 +234,8 @@ export class ActorManagementComponent implements OnInit {
     this.actorForm.patchValue({
       name: actor.name,
       dateOfBirth: this.datePipe.transform(actor.dateOfBirth, 'yyyy-MM-dd'),
-      biography: actor.biography,
-      status: actor.status
+      biography: actor.biography
+      // Status không được phép cập nhật
     });
   }
 
@@ -253,7 +251,7 @@ export class ActorManagementComponent implements OnInit {
       formData.append('name', this.actorForm.get('name')?.value);
       formData.append('dateOfBirth', this.actorForm.get('dateOfBirth')?.value);
       formData.append('biography', this.actorForm.get('biography')?.value);
-      formData.append('status', this.actorForm.get('status')?.value);
+      // Status không cần thiết, mặc định là 1 ở backend
 
       if (this.selectedPhoto) {
         formData.append('photo', this.selectedPhoto);

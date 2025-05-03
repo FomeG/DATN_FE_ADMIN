@@ -9,7 +9,7 @@ export interface Actor {
   dateOfBirth: Date;
   biography: string;
   photo: string;
-  status: number;
+  status: number; // Giữ lại để hiển thị, nhưng không sử dụng khi tạo mới hoặc cập nhật
 }
 
 export interface ActorListResponse {

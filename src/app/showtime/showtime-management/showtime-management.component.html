@@ -540,11 +540,13 @@
 
                             <!-- Room Type Badge -->
                             <div *ngIf="room.id && getRoomById(room.id)"
-                              class="mt-2 d-flex align-items-center flex-wrap">
-                              <span class="room-type-badge"
-                                [ngClass]="'room-type-' + getRoomTypeName(getRoomById(room.id).roomTypeId).toLowerCase()">
-                                {{getRoomTypeName(getRoomById(room.id).roomTypeId)}}
-                              </span>
+                              class="mt-2 d-flex align-items-center">
+                              <div class="room-type-badge-container">
+                                <span class="room-type-badge"
+                                  [ngClass]="'room-type-' + getRoomTypeName(getRoomById(room.id).roomTypeId).toLowerCase()">
+                                  {{getRoomTypeName(getRoomById(room.id).roomTypeId)}}
+                                </span>
+                              </div>
                               <span *ngIf="!isRoomCompatible(getRoomById(room.id))" class="format-error ms-2">
                                 <i class="fas fa-exclamation-triangle me-1"></i> Không phù hợp!
                               </span>
@@ -663,6 +665,17 @@
                           {{r.name}}
                         </option>
                       </select>
+
+                      <!-- Room Type Badge -->
+                      <div *ngIf="cinemaList[0].rooms[0].id && getRoomById(cinemaList[0].rooms[0].id)"
+                        class="mt-2 d-flex align-items-center">
+                        <div class="room-type-badge-container">
+                          <span class="room-type-badge"
+                            [ngClass]="'room-type-' + getRoomTypeName(getRoomById(cinemaList[0].rooms[0].id).roomTypeId).toLowerCase()">
+                            {{getRoomTypeName(getRoomById(cinemaList[0].rooms[0].id).roomTypeId)}}
+                          </span>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>

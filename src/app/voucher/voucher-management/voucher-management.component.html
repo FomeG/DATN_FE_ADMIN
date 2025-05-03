@@ -67,6 +67,27 @@
                 </div>
               </div>
 
+              <!-- Giá trị đơn hàng tối thiểu -->
+              <div class="mb-3">
+                <div class="form-group">
+                  <label for="minOrderValue" class="form-label">Giá Trị Đơn Hàng Tối Thiểu <span
+                      class="text-danger">*</span></label>
+                  <div class="input-group">
+                    <input type="number" class="form-control" id="minOrderValue" formControlName="minOrderValue">
+                    <span class="input-group-text">VNĐ</span>
+                  </div>
+                  <div *ngIf="voucherForm.get('minOrderValue')?.touched && voucherForm.get('minOrderValue')?.invalid"
+                    class="text-danger">
+                    <small *ngIf="voucherForm.get('minOrderValue')?.errors?.['required']">Giá trị đơn hàng tối thiểu là
+                      bắt
+                      buộc</small>
+                    <small *ngIf="voucherForm.get('minOrderValue')?.errors?.['min']">Giá trị đơn hàng tối thiểu phải lớn
+                      hơn
+                      hoặc bằng 0</small>
+                  </div>
+                </div>
+              </div>
+
               <!-- Loại voucher -->
               <div class="mb-3">
                 <div class="form-group">
@@ -150,7 +171,7 @@
               <div class="mb-3">
                 <div class="form-group form-check">
                   <input type="checkbox" class="form-check-input" id="isStackable" formControlName="isStackable">
-                  <label class="form-check-label" for="isStackable">Có thể dùng cùng voucher khác</label>
+                  <label class="form-check-label" for="isStackable">Voucher có thể cộng dồn</label>
                 </div>
               </div>
 
@@ -163,7 +184,7 @@
               </div>
 
               <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Đóng</button>
                 <button type="submit" class="btn btn-primary" [disabled]="voucherForm.invalid">
                   {{ isEditing ? 'Cập nhật' : 'Thêm mới' }}
                 </button>
@@ -174,18 +195,6 @@
       </div>
     </div>
 
-    <div class="d-flex mb-4">
-      <button class="btn-lg btn-primary" style="border-radius: 15px" data-bs-toggle="modal"
-        data-bs-target="#voucherModal" (click)="resetForm()">
-        <i class="fas fa-plus"></i> Thêm Voucher
-      </button>
-
-      <input type="text" class="form-control" placeholder="Tìm kiếm voucher..." [(ngModel)]="searchTerm"
-        (keyup.enter)="search()" style="width: 70%; height: 55px; margin-left: auto">
-      <button class="btn btn-primary mb-4" type="button" (click)="search()">
-        <i class="fas fa-search"></i>
-      </button>
-    </div>
 
     <div class="row">
       <div class="col-12">
@@ -193,20 +202,42 @@
           <div class="card-header">
 
 
+            <div class="d-flex justify-content-between align-items-center m-0">
+
+              <div class="col-md-4 d-flex">
+                <button class="btn-lg btn-primary header-button" data-bs-toggle="modal" data-bs-target="#voucherModal"
+                  (click)="resetForm()">
+                  <i class="fas fa-plus me-2"></i> Thêm Voucher
+                </button>
 
 
-            <div class="d-flex justify-content-between align-items-center">
-              <h4 class="card-title mb-0">Danh sách Voucher</h4>
+              </div>
 
-              <!-- Dropdown số bản ghi mỗi trang -->
-              <div>
-                <select [(ngModel)]="recordPerPage" (change)="onRecordsPerPageChange()"
-                  class="form-select form-select-sm">
-                  <option [value]="10">10 bản ghi</option>
-                  <option [value]="20">20 bản ghi</option>
-                  <option [value]="50">50 bản ghi</option>
-                  <option [value]="100">100 bản ghi</option>
-                </select>
+              <div class="d-flex justify-content-between align-items-center m-0" style="gap: 0.5rem;">
+                <div class="input-group header-search">
+
+                  <input type="text" class="form-control" placeholder="Tìm kiếm voucher..." [(ngModel)]="searchTerm"
+                    (keyup.enter)="search()">
+                  <button class="btn btn-primary mb-4" type="button" (click)="search()">
+                    <i class="fas fa-search"></i>
+                  </button>
+
+
+                </div>
+
+
+
+                <!-- Dropdown số bản ghi mỗi trang -->
+                <div>
+                  <select [(ngModel)]="recordPerPage" (change)="onRecordsPerPageChange()"
+                    class="form-select form-select-sm">
+                    <option [value]="10">10 bản ghi</option>
+                    <option [value]="20">20 bản ghi</option>
+                    <option [value]="50">50 bản ghi</option>
+                    <option [value]="100">100 bản ghi</option>
+                  </select>
+                </div>
+
               </div>
             </div>
 
@@ -218,9 +249,9 @@
 
 
 
-          <div class="card-body">
+          <div class="card-body pt-0">
             <!-- Loading spinner -->
-            <div *ngIf="isLoading" class="text-center py-5">
+            <div *ngIf="isLoading" class="text-center py- mb-0">
               <div class="spinner-border text-primary" role="status">
                 <span class="visually-hidden">Loading...</span>
               </div>
@@ -228,8 +259,8 @@
             </div>
 
             <!-- Table -->
-            <div class="table-responsive" *ngIf="!isLoading">
-              <table class="table table-bordered table-hover" style="border-top: 1px solid #2c2e33;">
+            <div class="table-responsive pt-0" *ngIf="!isLoading">
+              <table class="table table-hover" style="border-top: 1px solid #2c2e33;">
                 <thead>
                   <tr>
                     <th (click)="sort('code')" style="cursor: pointer; width: 10%">
@@ -246,6 +277,9 @@
                     </th>
                     <th (click)="sort('discountValue')" style="cursor: pointer; width: 8%">
                       Giá Trị <i class="fas" [ngClass]="getSortIcon('discountValue')"></i>
+                    </th>
+                    <th (click)="sort('minOrderValue')" style="cursor: pointer; width: 8%">
+                      Đơn hàng tối thiểu <i class="fas" [ngClass]="getSortIcon('minOrderValue')"></i>
                     </th>
                     <th (click)="sort('startDate')" style="cursor: pointer; width: 10%">
                       Ngày Bắt Đầu <i class="fas" [ngClass]="getSortIcon('startDate')"></i>
@@ -273,6 +307,7 @@
                       </span>
                     </td>
                     <td>{{ formatDiscountValue(voucher) }}</td>
+                    <td>{{ formatMinOrderValue(voucher.minOrderValue) }}</td>
                     <td>{{ formatDate(voucher.startDate) }}</td>
                     <td>{{ formatDate(voucher.endDate) }}</td>
                     <td>{{ voucher.usedCount }}/{{ voucher.maxUsage }}</td>

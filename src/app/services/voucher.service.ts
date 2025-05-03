@@ -18,6 +18,7 @@ export interface Voucher {
   status: number;
   isStackable: boolean;
   voucherType: number;
+  minOrderValue: number;
   createdAt: string;
   updatedAt: string;
 }

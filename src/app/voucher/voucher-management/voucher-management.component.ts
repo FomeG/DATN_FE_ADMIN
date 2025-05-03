@@ -42,6 +42,7 @@ export class VoucherManagementComponent implements OnInit {
       description: [''],
       discountType: ['PERCENT', Validators.required],
       discountValue: [0, [Validators.required, Validators.min(1)]],
+      minOrderValue: [0, [Validators.required, Validators.min(0)]],
       startDate: ['', Validators.required],
       endDate: ['', Validators.required],
       maxUsage: [1, [Validators.required, Validators.min(1)]],
@@ -168,6 +169,7 @@ export class VoucherManagementComponent implements OnInit {
     this.voucherForm.reset({
       discountType: 'PERCENT',
       discountValue: 0,
+      minOrderValue: 0,
       maxUsage: 0,
       maxClaimCount: 0,
       status: 1,
@@ -250,6 +252,7 @@ export class VoucherManagementComponent implements OnInit {
       description: voucher.description,
       discountType: voucher.discountType,
       discountValue: voucher.discountValue,
+      minOrderValue: voucher.minOrderValue || 0,
       startDate: startDate,
       endDate: endDate,
       maxUsage: voucher.maxUsage,

@@ -222,14 +222,18 @@ export class VoucherUiComponent implements OnInit {
       };
       reader.readAsDataURL(file);
 
-      // Lưu file vào form
+      // Lưu file vào form với tên trường imageUrl (sẽ được chuyển thành Photo khi gửi request)
       this.voucherUIForm.patchValue({
         imageUrl: file
       });
+
+      // Đánh dấu là đã thay đổi để trigger validation
+      this.voucherUIForm.get('imageUrl')?.markAsDirty();
     }
   }
 
   onSubmit(): void {
+    // Kiểm tra xem form có hợp lệ không
     if (this.voucherUIForm.invalid) {
       // Mark all fields as touched to trigger validation messages
       Object.keys(this.voucherUIForm.controls).forEach(key => {
@@ -239,20 +243,43 @@ export class VoucherUiComponent implements OnInit {
       return;
     }
 
+    // Kiểm tra ảnh khi tạo mới (không phải khi cập nhật)
+    const imageFile = this.voucherUIForm.get('imageUrl')?.value;
+    if (!this.isEditing && (!imageFile || !(imageFile instanceof File))) {
+      Swal.fire({
+        title: 'Lỗi!',
+        text: 'Vui lòng chọn hình ảnh cho voucher',
+        icon: 'error',
+        confirmButtonText: 'OK'
+      });
+      return;
+    }
+
+    // Log để debug
+    console.log('Form data before submit:', {
+      isEditing: this.isEditing,
+      imageFile: imageFile instanceof File ? 'File object' : imageFile,
+      formValues: this.voucherUIForm.value
+    });
+
     const formData = new FormData();
     const formValue = this.voucherUIForm.value;
 
     // Append all form fields to FormData
     Object.keys(formValue).forEach(key => {
-      if (key !== 'imageUrl' || (key === 'imageUrl' && formValue[key] instanceof File)) {
+      if (key !== 'imageUrl') {
         formData.append(key, formValue[key]);
       }
     });
 
-    // If editing and no new image is selected, don't send the imageUrl field
+    // Xử lý riêng trường hợp file ảnh - đổi tên từ imageUrl thành Photo để khớp với backend
+    if (formValue.imageUrl instanceof File) {
+      formData.append('Photo', formValue.imageUrl);
+    }
+
+    // If editing and no new image is selected, don't send the Photo field
     if (this.isEditing && !(formValue.imageUrl instanceof File)) {
-      // Remove the empty imageUrl field from FormData
-      // Note: FormData doesn't have a direct way to remove entries, so we're not adding it in the first place
+      // Không cần gửi trường Photo khi cập nhật mà không có ảnh mới
     }
 
     this.isLoading = true;

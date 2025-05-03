@@ -111,6 +111,8 @@ export class EditMovieComponent implements OnInit {
               description: movieData.description,
               duration: movieData.duration,
               releaseDate: movieData.releaseDate instanceof Date ? movieData.releaseDate.toISOString().split('T')[0] : String(movieData.releaseDate).split('T')[0],
+              importDate: movieData.importDate instanceof Date ? movieData.importDate.toISOString().split('T')[0] : String(movieData.importDate).split('T')[0],
+              endDate: movieData.endDate instanceof Date ? movieData.endDate.toISOString().split('T')[0] : String(movieData.endDate).split('T')[0],
               status: movieData.status,
               ageRatingId: movieData.ageRatingId || ''
             });
@@ -166,17 +168,40 @@ export class EditMovieComponent implements OnInit {
 
   // Initialize form
   private initForm() {
+    // Tạo ngày mặc định cho ImportDate (hôm nay) và EndDate (1 năm sau)
+    const today = new Date();
+    const oneYearLater = new Date();
+    oneYearLater.setFullYear(today.getFullYear() + 1);
+
+    // Format dates to YYYY-MM-DD for form
+    const todayFormatted = today.toISOString().split('T')[0];
+    const oneYearLaterFormatted = oneYearLater.toISOString().split('T')[0];
+
     this.movieForm = this.fb.group({
       movieName: ['', Validators.required],
       description: ['', Validators.required],
       duration: [0, [Validators.required, Validators.min(1)]],
       releaseDate: ['', Validators.required],
+      importDate: [todayFormatted, Validators.required],
+      endDate: [oneYearLaterFormatted, Validators.required],
       status: [1],
       listActorID: [[]],
       listGenreID: [[]],
       ageRatingId: [''],
       listFormatID: [[]]
-    });
+    }, { validators: this.endDateValidator });
+  }
+
+  // Validator để kiểm tra EndDate không nhỏ hơn ImportDate
+  endDateValidator(formGroup: FormGroup) {
+    const importDate = formGroup.get('importDate')?.value;
+    const endDate = formGroup.get('endDate')?.value;
+
+    if (importDate && endDate && new Date(endDate) < new Date(importDate)) {
+      return { endDateInvalid: true };
+    }
+
+    return null;
   }
 
   // Load age ratings
@@ -502,6 +527,8 @@ export class EditMovieComponent implements OnInit {
       formData.append('Description', this.movieForm.get('description')?.value);
       formData.append('Duration', this.movieForm.get('duration')?.value);
       formData.append('ReleaseDate', this.movieForm.get('releaseDate')?.value);
+      formData.append('ImportDate', this.movieForm.get('importDate')?.value);
+      formData.append('EndDate', this.movieForm.get('endDate')?.value);
       formData.append('Status', this.movieForm.get('status')?.value);
 
       // Thêm AgeRatingId nếu có
@@ -552,7 +579,7 @@ export class EditMovieComponent implements OnInit {
               this.router.navigate(['/movies']);
             });
 
-            
+
           } else {
             Swal.fire('Lỗi!', response.message || 'Có lỗi xảy ra khi cập nhật phim', 'error');
           }

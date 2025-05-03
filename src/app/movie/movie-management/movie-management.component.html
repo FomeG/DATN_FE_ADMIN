@@ -102,20 +102,22 @@
                     <th (click)="sort('releaseDate')" style="cursor: pointer">
                       Ngày phát hành <i class="fas" [ngClass]="getSortIcon('releaseDate')"></i>
                     </th>
-                    <!-- <th>Trạng thái</th> -->
+                    <th (click)="sort('status')" style="cursor: pointer">
+                      Trạng thái <i class="fas" [ngClass]="getSortIcon('status')"></i>
+                    </th>
                     <th class="text-center">Thao tác</th>
                   </tr>
                 </thead>
                 <tbody>
                   <tr *ngIf="isLoading">
-                    <td colspan="6" class="text-center">
+                    <td colspan="7" class="text-center">
                       <div class="spinner-border text-primary" role="status">
                         <span class="visually-hidden">Đang tải...</span>
                       </div>
                     </td>
                   </tr>
                   <tr *ngIf="!isLoading && filteredMovies.length === 0">
-                    <td colspan="6" class="text-center">Không có dữ liệu</td>
+                    <td colspan="7" class="text-center">Không có dữ liệu</td>
                   </tr>
                   <tr *ngFor="let movie of filteredMovies">
                     <td>
@@ -140,13 +142,11 @@
                     <td>{{movie.description}}</td>
                     <td>{{movie.duration}}</td>
                     <td>{{movie.releaseDate | date:'dd/MM/yyyy'}}</td>
-                    <!-- <td>
-                    <span class="badge" [ngClass]="{'bg-success': movie.status === 1, 'bg-danger': movie.status === 0}">
-                      {{movie.status === 1 ? 'Đang chiếu' : 'Ngừng chiếu'}}
-                    </span>
-                  </td> -->
-
-
+                    <td>
+                      <span class="badge" [ngClass]="{'bg-success': movie.status === 1, 'bg-danger': movie.status === 2}">
+                        {{movie.status === 1 ? 'Đang phát hành' : 'Đã kết thúc'}}
+                      </span>
+                    </td>
                     <td>
                       <button type="button" class="btn btn-outline-primary btn-rounded"
                         (click)="onViewMovieDetails(movie.id)"><i class="mdi mdi-information-outline"></i>

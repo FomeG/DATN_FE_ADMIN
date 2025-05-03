@@ -14,7 +14,7 @@
                     <!-- Chọn rạp -->
                     <div class="form-group mb-3">
                         <label for="cinemaId" class="form-label">Chọn rạp <span class="text-danger">*</span></label>
-                        <select class="form-select" id="cinemaId" formControlName="cinemaId">
+                        <select class="form-select" id="cinemaId" formControlName="cinemaId" (change)="onCinemaChange()">
                             <option value="">-- Chọn rạp --</option>
                             <option *ngFor="let cinema of cinemas" [value]="cinema.cinemasId">
                                 {{ cinema.name }}
@@ -23,6 +23,26 @@
                         <div class="text-danger"
                             *ngIf="roomForm.get('cinemaId')?.touched && roomForm.get('cinemaId')?.invalid">
                             <small *ngIf="roomForm.get('cinemaId')?.errors?.['required']">Vui lòng chọn rạp</small>
+                        </div>
+                        <!-- Hiển thị thông tin về số phòng -->
+                        <div *ngIf="selectedCinema" class="mt-2 small">
+                            <div class="d-flex justify-content-between">
+                                <span>Số phòng hiện tại:</span>
+                                <span class="fw-bold">{{ currentRoomCount }}</span>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <span>Số phòng tối đa:</span>
+                                <span class="fw-bold">{{ selectedCinema.totalRooms }}</span>
+                            </div>
+                            <div class="progress mt-1" style="height: 5px;">
+                                <div class="progress-bar" role="progressbar"
+                                    [ngClass]="{'bg-success': currentRoomCount < selectedCinema.totalRooms, 'bg-danger': currentRoomCount >= selectedCinema.totalRooms}"
+                                    [style.width.%]="(currentRoomCount / selectedCinema.totalRooms) * 100">
+                                </div>
+                            </div>
+                            <div *ngIf="currentRoomCount >= selectedCinema.totalRooms" class="text-danger mt-1">
+                                <small>Rạp đã đạt số phòng tối đa!</small>
+                            </div>
                         </div>
                     </div>
 
@@ -102,7 +122,7 @@
             <div class="modal-footer">
                 <button #closeBtn type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
                 <button type="button" class="btn btn-primary" (click)="createRoom()"
-                    [disabled]="roomForm.invalid || isLoading">
+                    [disabled]="roomForm.invalid || isLoading || (selectedCinema && currentRoomCount >= selectedCinema.totalRooms)">
                     <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-1"></span>
                     Thêm phòng
                 </button>

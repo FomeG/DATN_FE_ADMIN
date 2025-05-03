@@ -27,6 +27,8 @@ export class AddRoomComponent implements OnInit {
   cinemas: Cinema[] = [];
   roomTypes: RoomType[] = [];
   totalSeats: number = 0;
+  selectedCinema: Cinema | null = null;
+  currentRoomCount: number = 0;
 
   showSuccessMessage = false; // Biến để hiển thị thông báo thành công
 
@@ -48,6 +50,8 @@ export class AddRoomComponent implements OnInit {
 
   ngOnInit() {
     this.isFormSubmitted = false;
+    this.selectedCinema = null;
+    this.currentRoomCount = 0;
     this.loadCinemas();
     this.loadRoomTypes();
   }
@@ -105,6 +109,14 @@ export class AddRoomComponent implements OnInit {
           this.roomForm.reset();
           this.closeModal.nativeElement.click();
           this.roomAdded.emit();
+        } else if (response.responseCode === -2001) {
+          // Xử lý lỗi khi rạp đã đạt số phòng tối đa
+          Swal.fire({
+            icon: 'error',
+            title: 'Không thể thêm phòng',
+            text: response.message || 'Rạp đã đạt số phòng tối đa, không thể thêm phòng mới',
+            confirmButtonText: 'Đóng'
+          });
         } else {
           Swal.fire('Lỗi', response.message || 'Có lỗi xảy ra khi thêm phòng', 'error');
         }
@@ -122,5 +134,44 @@ export class AddRoomComponent implements OnInit {
     const cols = this.roomForm.get('totalColNumber')?.value || 0;
     const rows = this.roomForm.get('totalRowNumber')?.value || 0;
     this.totalSeats = cols * rows;
+  }
+
+  onCinemaChange() {
+    const cinemaId = this.roomForm.get('cinemaId')?.value;
+    if (!cinemaId) {
+      this.selectedCinema = null;
+      this.currentRoomCount = 0;
+      return;
+    }
+
+    // Tìm thông tin rạp được chọn
+    this.selectedCinema = this.cinemas.find(cinema => cinema.cinemasId === cinemaId) || null;
+
+    if (this.selectedCinema) {
+      // Lấy danh sách phòng của rạp để đếm số phòng hiện tại
+      this.roomService.getRoomsByCinema(cinemaId).subscribe({
+        next: (response) => {
+          if (response.responseCode === 200) {
+            this.currentRoomCount = response.data.length;
+
+            // Kiểm tra nếu đã đạt số phòng tối đa thì hiển thị cảnh báo
+            if (this.selectedCinema && this.currentRoomCount >= this.selectedCinema.totalRooms) {
+              Swal.fire({
+                icon: 'warning',
+                title: 'Cảnh báo',
+                text: 'Rạp này đã đạt số phòng tối đa, không thể thêm phòng mới!',
+                confirmButtonText: 'Đã hiểu'
+              });
+            }
+          } else {
+            this.currentRoomCount = 0;
+          }
+        },
+        error: (error) => {
+          console.error('Error loading rooms by cinema:', error);
+          this.currentRoomCount = 0;
+        }
+      });
+    }
   }
 }

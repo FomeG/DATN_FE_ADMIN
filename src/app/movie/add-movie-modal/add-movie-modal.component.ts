@@ -357,6 +357,8 @@ export class AddMovieModalComponent implements OnInit, AfterViewInit {
       formData.append('description', this.movieForm.value.description);
       formData.append('duration', this.movieForm.value.duration);
       formData.append('releaseDate', this.movieForm.value.releaseDate);
+      formData.append('importDate', this.movieForm.value.importDate);
+      formData.append('endDate', this.movieForm.value.endDate);
       formData.append('status', this.movieForm.value.status);
 
       // Add AgeRatingId if selected
@@ -421,7 +423,7 @@ export class AddMovieModalComponent implements OnInit, AfterViewInit {
               }
             });
           } else {
-            
+
             Swal.fire({
               icon: 'error',
               title: 'Lỗi!',
@@ -456,17 +458,40 @@ export class AddMovieModalComponent implements OnInit, AfterViewInit {
 
   // Cập nhật initForm để thêm listGenreID
   private initForm() {
+    // Tạo ngày mặc định cho ImportDate (hôm nay) và EndDate (1 năm sau)
+    const today = new Date();
+    const oneYearLater = new Date();
+    oneYearLater.setFullYear(today.getFullYear() + 1);
+
+    // Format dates to YYYY-MM-DD for form
+    const todayFormatted = today.toISOString().split('T')[0];
+    const oneYearLaterFormatted = oneYearLater.toISOString().split('T')[0];
+
     this.movieForm = this.fb.group({
       movieName: ['', Validators.required],
       description: ['', Validators.required],
       duration: [90, [Validators.required, Validators.min(1)]],
       releaseDate: ['', Validators.required],
+      importDate: [todayFormatted, Validators.required],
+      endDate: [oneYearLaterFormatted, Validators.required],
       status: [1],
       listActorID: [[]],
       listGenreID: [[]],
       ageRatingId: [''],
       listFormatID: [[]]
-    });
+    }, { validators: this.endDateValidator });
+  }
+
+  // Validator để kiểm tra EndDate không nhỏ hơn ImportDate
+  endDateValidator(formGroup: FormGroup) {
+    const importDate = formGroup.get('importDate')?.value;
+    const endDate = formGroup.get('endDate')?.value;
+
+    if (importDate && endDate && new Date(endDate) < new Date(importDate)) {
+      return { endDateInvalid: true };
+    }
+
+    return null;
   }
 
 

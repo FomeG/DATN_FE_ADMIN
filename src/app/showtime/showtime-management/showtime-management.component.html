@@ -234,11 +234,11 @@
 
 
   <!-- Report Issue Button -->
-  <div class="d-flex justify-content-end mb-3">
+  <!-- <div class="d-flex justify-content-end mb-3">
     <button class="btn btn-warning" (click)="openReportIssueModal()">
       <i class="fas fa-exclamation-triangle me-2"></i>Báo cáo sự cố
     </button>
-  </div>
+  </div> -->
 
 
   <!-- Thêm modal báo cáo sự cố vào cuối file -->
@@ -450,22 +450,19 @@
             </div>
           </div>
 
-          <!-- Date and Time Selection -->
+          <!-- Date Selection -->
           <div class="form-group mb-4">
             <label for="showtimeDate" class="form-label">
-              <i class="fas fa-calendar-alt me-1"></i>Ngày và giờ chiếu <span class="text-danger">*</span>
+              <i class="fas fa-calendar-alt me-1"></i>Ngày chiếu <span class="text-danger">*</span>
             </label>
-            <input type="datetime-local" class="form-control" id="showtimeDate" formControlName="showtimeDate"
+            <input type="date" class="form-control" id="showtimeDate" formControlName="showtimeDate"
               [ngClass]="{'is-invalid': showtimeForm.get('showtimeDate')?.invalid && showtimeForm.get('showtimeDate')?.touched}"
               (change)="onShowtimeDateChange()">
             <div class="invalid-feedback"
               *ngIf="showtimeForm.get('showtimeDate')?.invalid && showtimeForm.get('showtimeDate')?.touched">
-              <span *ngIf="showtimeForm.get('showtimeDate')?.errors?.['required']">Vui lòng chọn ngày và giờ
-                chiếu</span>
-              <span *ngIf="showtimeForm.get('showtimeDate')?.errors?.['dateInPast']">Ngày và giờ chiếu không được nhỏ
-                hơn thời điểm hiện tại</span>
-              <span *ngIf="showtimeForm.get('showtimeDate')?.errors?.['invalidTimeRange']">Giờ chiếu phải nằm trong
-                khoảng từ 9:00 đến 21:59</span>
+              <span *ngIf="showtimeForm.get('showtimeDate')?.errors?.['required']">Vui lòng chọn ngày chiếu</span>
+              <span *ngIf="showtimeForm.get('showtimeDate')?.errors?.['dateInPast']">Ngày chiếu không được nhỏ
+                hơn ngày hiện tại</span>
             </div>
           </div>
 
@@ -539,8 +536,7 @@
                             </select>
 
                             <!-- Room Type Badge -->
-                            <div *ngIf="room.id && getRoomById(room.id)"
-                              class="mt-2 d-flex align-items-center">
+                            <div *ngIf="room.id && getRoomById(room.id)" class="mt-2 d-flex align-items-center">
                               <div class="room-type-badge-container">
                                 <span class="room-type-badge"
                                   [ngClass]="'room-type-' + getRoomTypeName(getRoomById(room.id).roomTypeId).toLowerCase()">
@@ -560,7 +556,7 @@
                         <div class="col-md-4">
                           <div class="form-group">
                             <label class="form-label">Thời gian bắt đầu</label>
-                            <input type="datetime-local" class="form-control" [(ngModel)]="room.startTime"
+                            <input type="time" class="form-control" [(ngModel)]="room.startTime"
                               [ngModelOptions]="{standalone: true}" (change)="calculateEndTime(cinemaIndex, roomIndex)">
                           </div>
                         </div>
@@ -569,7 +565,7 @@
                         <div class="col-md-4">
                           <div class="form-group">
                             <label class="form-label">Thời gian kết thúc</label>
-                            <input type="datetime-local" class="form-control" [(ngModel)]="room.endTime"
+                            <input type="time" class="form-control" [(ngModel)]="room.endTime"
                               [ngModelOptions]="{standalone: true}" readonly>
                           </div>
                         </div>
@@ -684,7 +680,7 @@
                   <div class="col-md-6">
                     <div class="form-group">
                       <label class="form-label">Thời gian bắt đầu</label>
-                      <input type="datetime-local" class="form-control" [(ngModel)]="cinemaList[0].rooms[0].startTime"
+                      <input type="time" class="form-control" [(ngModel)]="cinemaList[0].rooms[0].startTime"
                         [ngModelOptions]="{standalone: true}" (change)="calculateEndTime(0, 0)">
                     </div>
                   </div>
@@ -692,8 +688,8 @@
                   <div class="col-md-6">
                     <div class="form-group">
                       <label class="form-label">Thời gian kết thúc</label>
-                      <input type="datetime-local" class="form-control" [(ngModel)]="cinemaList[0].rooms[0].endTime"
-                        [ngModelOptions]="{standalone: true}">
+                      <input type="time" class="form-control" [(ngModel)]="cinemaList[0].rooms[0].endTime"
+                        [ngModelOptions]="{standalone: true}" readonly>
                     </div>
                   </div>
                 </div>

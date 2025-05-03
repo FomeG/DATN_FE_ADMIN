@@ -13,6 +13,8 @@ export interface Movie {
   duration: number;
   status: number;
   releaseDate: Date;
+  importDate: Date; // ngày nhập phim vào hệ thống
+  endDate: Date; // ngày hết hạn của phim
   listdienvien: Actor[];
   genres: Genre[];
   averageRating: number;

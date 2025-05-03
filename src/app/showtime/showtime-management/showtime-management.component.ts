@@ -125,7 +125,6 @@ export class ShowtimeManagementComponent implements OnInit, OnDestroy {
     private roomService: RoomService,
     private cinemaService: CinemaService,
     private fb: FormBuilder,
-    private datePipe: DatePipe,
     private changeDetectorRef: ChangeDetectorRef
   ) {
     this.showtimeForm = this.fb.group({
@@ -211,22 +210,16 @@ export class ShowtimeManagementComponent implements OnInit, OnDestroy {
 
   //region nghia
   initForm(): void {
-    // Lấy thời gian hiện tại của Việt Nam
+    // Lấy ngày hiện tại của Việt Nam
     const now = new Date();
 
-    // Đặt giờ mặc định là 9h sáng nếu giờ hiện tại < 9h hoặc > 22h
-    const hours = now.getHours();
-    if (hours < 9 || hours >= 22) {
-      now.setHours(9, 0, 0, 0);
-    }
-
-    // Định dạng datetime-local yêu cầu chuỗi có dạng: YYYY-MM-DDThh:mm
-    const formattedDateTime = this.formatDateTimeForInput(now);
+    // Định dạng date yêu cầu chuỗi có dạng: YYYY-MM-DD
+    const formattedDate = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
 
     this.showtimeForm = this.fb.group({
       movieId: ['', Validators.required],
       showtimeDate: [
-        formattedDateTime,
+        formattedDate,
         [Validators.required, this.dateNotInPastValidator()]
       ],
       introTime: [10],
@@ -234,25 +227,24 @@ export class ShowtimeManagementComponent implements OnInit, OnDestroy {
     });
   }
 
-  // Validator để kiểm tra thời gian không được nhỏ hơn thời điểm hiện tại và nằm trong khoảng 9h-22h
+  // Validator để kiểm tra ngày không được nhỏ hơn ngày hiện tại
   dateNotInPastValidator() {
     return (control: any) => {
       if (!control.value) {
         return null;
       }
 
-      const selectedDateTime = new Date(control.value);
+      const selectedDate = new Date(control.value);
       const now = new Date();
 
-      // Kiểm tra thời gian trong quá khứ
-      if (selectedDateTime < now) {
-        return { dateInPast: true };
-      }
+      // Đặt giờ về 00:00:00 để chỉ so sánh ngày
+      selectedDate.setHours(0, 0, 0, 0);
+      const today = new Date(now);
+      today.setHours(0, 0, 0, 0);
 
-      // Kiểm tra thời gian nằm trong khoảng 9h-22h
-      const hours = selectedDateTime.getHours();
-      if (hours < 9 || hours >= 22) {
-        return { invalidTimeRange: true };
+      // Kiểm tra ngày trong quá khứ
+      if (selectedDate < today) {
+        return { dateInPast: true };
       }
 
       return null;
@@ -436,36 +428,33 @@ export class ShowtimeManagementComponent implements OnInit, OnDestroy {
       return;
     }
 
-    // Lấy ngày và giờ chiếu từ form
-    const dateTime = this.showtimeForm.get('showtimeDate')?.value;
-    if (!dateTime) {
-      room.errorMessage = 'Vui lòng chọn ngày và giờ chiếu trước.';
+    // Lấy ngày chiếu từ form
+    const showtimeDate = this.showtimeForm.get('showtimeDate')?.value;
+    if (!showtimeDate) {
+      room.errorMessage = 'Vui lòng chọn ngày chiếu trước.';
       return;
     }
 
-    console.log('Ngày và giờ chiếu được chọn:', dateTime);
-
-    // Kiểm tra thời gian bắt đầu nằm trong khoảng 9h-22h
-    if (!this.isValidTimeRange(dateTime)) {
-      room.errorMessage = 'Giờ chiếu phải nằm trong khoảng từ 9:00 đến 21:59.';
-      return;
-    }
+    console.log('Ngày chiếu được chọn:', showtimeDate);
 
     // Đặt trạng thái đang tải
     room.loading = true;
 
     try {
-      // Gọi API để lấy thời gian tự động
-      // Chuyển đổi định dạng datetime-local sang định dạng yyyy-MM-dd
-      const selectedDate = new Date(dateTime);
+      // Lấy ngày từ form và giờ hiện tại của Việt Nam
+      const selectedDate = new Date(this.showtimeForm.get('showtimeDate')?.value);
+      const now = new Date();
+
+      // Định dạng ngày theo yyyy-MM-dd để gửi đến API
       const formattedDate = `${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, '0')}-${String(selectedDate.getDate()).padStart(2, '0')}`;
 
-      console.log('Định dạng ngày gửi đến API:', formattedDate);
+      console.log('Ngày được chọn gửi đến API:', formattedDate);
+      console.log('Thời gian hiện tại:', now.toLocaleTimeString());
 
       const request: ShowtimeAutoDateRequest = {
         cinemasId: cinema.id,
         roomId: room.id,
-        date: formattedDate, // Sử dụng định dạng yyyy-MM-dd thay vì datetime-local
+        date: formattedDate, // Sử dụng ngày đã chọn từ form
         movieId: movieId
       };
 
@@ -479,16 +468,34 @@ export class ShowtimeManagementComponent implements OnInit, OnDestroy {
               room.successMessage = 'Có thể tạo suất chiếu cho phòng này.';
               let startTimeDate: Date;
 
+              // Lấy ngày từ form
+              const selectedDate = new Date(this.showtimeForm.get('showtimeDate')?.value);
+
               if (response.data) {
                 // Nếu có dữ liệu từ API, sử dụng endTime + 20 phút
                 const endTimeFromApi = new Date(response.data.endTime);
                 endTimeFromApi.setMinutes(endTimeFromApi.getMinutes() + 20);
                 startTimeDate = endTimeFromApi;
+
+                // Đặt ngày theo ngày đã chọn từ form
+                startTimeDate.setFullYear(selectedDate.getFullYear(), selectedDate.getMonth(), selectedDate.getDate());
               } else {
                 // Nếu không có dữ liệu (responseCode = 200, data = null)
-                // Sử dụng ngày và giờ từ form
-                startTimeDate = new Date(dateTime);
-                console.log('Sử dụng thời gian từ form:', startTimeDate);
+                // Sử dụng thời gian hiện tại của Việt Nam
+                startTimeDate = new Date();
+                // Đảm bảo thời gian nằm trong khoảng 9h-22h
+                const hours = startTimeDate.getHours();
+                if (hours < 9) {
+                  startTimeDate.setHours(9, 0, 0, 0);
+                } else if (hours >= 22) {
+                  // Nếu đã quá 22h, đặt thành 9h sáng ngày hôm sau
+                  startTimeDate.setHours(9, 0, 0, 0);
+                }
+
+                // Đặt ngày theo ngày đã chọn từ form
+                startTimeDate.setFullYear(selectedDate.getFullYear(), selectedDate.getMonth(), selectedDate.getDate());
+
+                console.log('Sử dụng thời gian hiện tại đã điều chỉnh theo ngày đã chọn:', startTimeDate);
               }
 
               // Định dạng thời gian
@@ -533,9 +540,22 @@ export class ShowtimeManagementComponent implements OnInit, OnDestroy {
           room.errorMessage = 'Lỗi khi kiểm tra lịch chiếu. Vui lòng thử lại.';
           console.error('Error getting auto date:', error);
 
-          // Khi có lỗi, vẫn hiển thị thời gian mặc định
-          const defaultDate = new Date(dateTime);
-          console.log('Thời gian mặc định khi có lỗi:', defaultDate);
+          // Khi có lỗi, sử dụng thời gian hiện tại của Việt Nam
+          const defaultDate = new Date();
+          // Đảm bảo thời gian nằm trong khoảng 9h-22h
+          const hours = defaultDate.getHours();
+          if (hours < 9) {
+            defaultDate.setHours(9, 0, 0, 0);
+          } else if (hours >= 22) {
+            // Nếu đã quá 22h, đặt thành 9h sáng ngày hôm sau
+            defaultDate.setHours(9, 0, 0, 0);
+          }
+
+          // Lấy ngày từ form và đặt ngày cho thời gian mặc định
+          const selectedDate = new Date(this.showtimeForm.get('showtimeDate')?.value);
+          defaultDate.setFullYear(selectedDate.getFullYear(), selectedDate.getMonth(), selectedDate.getDate());
+
+          console.log('Thời gian mặc định khi có lỗi (đã điều chỉnh theo ngày đã chọn):', defaultDate);
           room.startTime = this.formatDateTimeForInput(defaultDate);
 
           // Tính thời gian kết thúc
@@ -547,9 +567,22 @@ export class ShowtimeManagementComponent implements OnInit, OnDestroy {
       room.errorMessage = 'Lỗi khi kiểm tra lịch chiếu. Vui lòng thử lại.';
       console.error('Error in onRoomChange:', error);
 
-      // Khi có lỗi, vẫn hiển thị thời gian mặc định
-      const defaultDate = new Date(dateTime);
-      console.log('Thời gian mặc định khi có lỗi (catch):', defaultDate);
+      // Khi có lỗi, sử dụng thời gian hiện tại của Việt Nam
+      const defaultDate = new Date();
+      // Đảm bảo thời gian nằm trong khoảng 9h-22h
+      const hours = defaultDate.getHours();
+      if (hours < 9) {
+        defaultDate.setHours(9, 0, 0, 0);
+      } else if (hours >= 22) {
+        // Nếu đã quá 22h, đặt thành 9h sáng ngày hôm sau
+        defaultDate.setHours(9, 0, 0, 0);
+      }
+
+      // Lấy ngày từ form và đặt ngày cho thời gian mặc định
+      const selectedDate = new Date(this.showtimeForm.get('showtimeDate')?.value);
+      defaultDate.setFullYear(selectedDate.getFullYear(), selectedDate.getMonth(), selectedDate.getDate());
+
+      console.log('Thời gian mặc định khi có lỗi (catch, đã điều chỉnh theo ngày đã chọn):', defaultDate);
       room.startTime = this.formatDateTimeForInput(defaultDate);
 
       // Tính thời gian kết thúc
@@ -559,15 +592,12 @@ export class ShowtimeManagementComponent implements OnInit, OnDestroy {
     this.changeDetectorRef.detectChanges();
   }
 
-  // Utility function to format date for datetime-local input
+  // Utility function to format time for time input
   formatDateTimeForInput(date: Date): string {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
     const hours = String(date.getHours()).padStart(2, '0');
     const minutes = String(date.getMinutes()).padStart(2, '0');
 
-    return `${year}-${month}-${day}T${hours}:${minutes}`;
+    return `${hours}:${minutes}`;
   }
 
 
@@ -628,6 +658,30 @@ export class ShowtimeManagementComponent implements OnInit, OnDestroy {
       return;
     }
 
+    // Lấy ID phim từ form
+    const movieId = this.showtimeForm.get('movieId')?.value;
+    if (!movieId) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Lỗi!',
+        text: 'Vui lòng chọn phim trước khi tạo lịch chiếu.'
+      });
+      return;
+    }
+
+    // Kiểm tra trạng thái của phim
+    const selectedMovie = this.movies.find(m => m.id === movieId);
+    if (selectedMovie && selectedMovie.status === 2) {
+      // Phim đã kết thúc, hiển thị thông báo và không cho phép tạo lịch chiếu
+      Swal.fire({
+        icon: 'error',
+        title: 'Không thể tạo lịch chiếu!',
+        text: 'Phim này đã kết thúc, không thể tạo lịch chiếu mới.',
+        confirmButtonText: 'Đồng ý'
+      });
+      return;
+    }
+
     // Prepare an array of showtime requests
     const showtimeRequests: any[] = [];
 
@@ -648,7 +702,7 @@ export class ShowtimeManagementComponent implements OnInit, OnDestroy {
           }
 
           showtimeRequests.push({
-            movieId: this.showtimeForm.get('movieId')?.value,
+            movieId: movieId,
             roomId: room.id,
             startTime: room.startTime,
             endTime: room.endTime,
@@ -735,6 +789,30 @@ export class ShowtimeManagementComponent implements OnInit, OnDestroy {
 
     if (!this.selectedShowtime) return;
 
+    // Lấy ID phim từ form
+    const movieId = this.showtimeForm.get('movieId')?.value;
+    if (!movieId) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Lỗi!',
+        text: 'Vui lòng chọn phim trước khi cập nhật lịch chiếu.'
+      });
+      return;
+    }
+
+    // Kiểm tra trạng thái của phim
+    const selectedMovie = this.movies.find(m => m.id === movieId);
+    if (selectedMovie && selectedMovie.status === 2) {
+      // Phim đã kết thúc, hiển thị thông báo và không cho phép cập nhật lịch chiếu
+      Swal.fire({
+        icon: 'error',
+        title: 'Không thể cập nhật lịch chiếu!',
+        text: 'Phim này đã kết thúc, không thể cập nhật lịch chiếu.',
+        confirmButtonText: 'Đồng ý'
+      });
+      return;
+    }
+
     // In case of editing, we only allow updating the first room
     const cinema = this.cinemaList[0];
     if (!cinema || cinema.rooms.length === 0) return;
@@ -757,7 +835,7 @@ export class ShowtimeManagementComponent implements OnInit, OnDestroy {
 
     const updateRequest = {
       roomId: room.id,
-      movieId: this.showtimeForm.get('movieId')?.value,
+      movieId: movieId,
       startTime: room.startTime,
       endTime: room.endTime
     };
@@ -829,6 +907,22 @@ export class ShowtimeManagementComponent implements OnInit, OnDestroy {
       this.selectedMovie = this.movies.find(m => m.id === movieId);
       if (!this.selectedMovie) return;
 
+      // Kiểm tra trạng thái của phim
+      if (this.selectedMovie.status === 2) {
+        // Phim đã kết thúc, hiển thị thông báo và không cho phép thêm lịch chiếu
+        Swal.fire({
+          icon: 'error',
+          title: 'Không thể tạo lịch chiếu!',
+          text: 'Phim này đã kết thúc, không thể tạo lịch chiếu mới.',
+          confirmButtonText: 'Đồng ý'
+        });
+
+        // Xóa lựa chọn phim
+        this.showtimeForm.get('movieId')?.setValue('');
+        this.selectedMovie = null;
+        return;
+      }
+
       // Kiểm tra xem có phòng nào không phù hợp với format của phim không
       let hasIncompatibleRooms = false;
 
@@ -873,27 +967,24 @@ export class ShowtimeManagementComponent implements OnInit, OnDestroy {
   }
 
   onShowtimeDateChange(): void {
-    console.log("Ngày và giờ chiếu đã thay đổi");
+    console.log("Ngày chiếu đã thay đổi");
 
-    const showtimeDateTime = this.showtimeForm.get('showtimeDate')?.value;
-    if (!showtimeDateTime) return;
+    const showtimeDate = this.showtimeForm.get('showtimeDate')?.value;
+    if (!showtimeDate) return;
 
-    // Kiểm tra thời gian không được nhỏ hơn thời điểm hiện tại
-    const selectedDateTime = new Date(showtimeDateTime);
+    // Kiểm tra ngày không được nhỏ hơn ngày hiện tại
+    const selectedDate = new Date(showtimeDate);
     const now = new Date();
 
-    if (selectedDateTime < now) {
+    // Đặt giờ về 00:00:00 để chỉ so sánh ngày
+    selectedDate.setHours(0, 0, 0, 0);
+    const today = new Date(now);
+    today.setHours(0, 0, 0, 0);
+
+    if (selectedDate < today) {
       // Đánh dấu control là đã chạm vào để hiển thị lỗi
       this.showtimeForm.get('showtimeDate')?.markAsTouched();
       this.showtimeForm.get('showtimeDate')?.setErrors({ dateInPast: true });
-      return;
-    }
-
-    // Kiểm tra thời gian bắt đầu nằm trong khoảng 9h-22h
-    if (!this.isValidTimeRange(showtimeDateTime)) {
-      // Đánh dấu control là đã chạm vào để hiển thị lỗi
-      this.showtimeForm.get('showtimeDate')?.markAsTouched();
-      this.showtimeForm.get('showtimeDate')?.setErrors({ invalidTimeRange: true });
       return;
     }
 
@@ -903,14 +994,9 @@ export class ShowtimeManagementComponent implements OnInit, OnDestroy {
         if (cinema.rooms && cinema.rooms.length > 0) {
           cinema.rooms.forEach((room, roomIndex) => {
             if (room.id) {
-              // Sử dụng trực tiếp thời gian đã chọn từ datetime-local
-              room.startTime = this.formatDateTimeForInput(selectedDateTime);
-
-              // Tính lại thời gian kết thúc
-              this.calculateEndTime(cinemaIndex, roomIndex);
-
-              // Gọi API để kiểm tra lịch chiếu nếu cần
+              // Gọi API để kiểm tra lịch chiếu và cập nhật thời gian
               if (cinema.id && room.id) {
+                // Gọi lại onRoomChange để cập nhật thời gian bắt đầu và kết thúc
                 this.onRoomChange(cinemaIndex, roomIndex);
               }
             }
@@ -928,8 +1014,9 @@ export class ShowtimeManagementComponent implements OnInit, OnDestroy {
       .filter((_: { id: any; }, index: number) => index !== currentRoomIndex && _.id) // Exclude current room and empty selections
       .map((room: { id: any; }) => room.id);
 
-    // Return only rooms that are not selected in other dropdowns
-    return cinema.availableRooms.filter((room: { id: any; }) => !selectedRoomIds.includes(room.id));
+    // Return only rooms that are not selected in other dropdowns and not in maintenance (status != 2)
+    return cinema.availableRooms.filter((room: { id: any; status: number; }) =>
+      !selectedRoomIds.includes(room.id) && room.status !== 2);
   }
 
 
@@ -1980,8 +2067,23 @@ export class ShowtimeManagementComponent implements OnInit, OnDestroy {
 
       if (!room.startTime) return;
 
+      // Lấy ngày từ form
+      const selectedDate = new Date(this.showtimeForm.get('showtimeDate')?.value);
+
+      // Phân tích thời gian bắt đầu (định dạng HH:MM)
+      const [startHours, startMinutes] = room.startTime.split(':').map(Number);
+
+      // Tạo đối tượng Date với ngày từ form và giờ từ input
+      const startTime = new Date(
+        selectedDate.getFullYear(),
+        selectedDate.getMonth(),
+        selectedDate.getDate(),
+        startHours,
+        startMinutes,
+        0
+      );
+
       // Kiểm tra thời gian bắt đầu nằm trong khoảng 9h-22h
-      const startTime = new Date(room.startTime);
       const hours = startTime.getHours();
 
       if (hours < 9 || hours >= 22) {
@@ -2020,7 +2122,7 @@ export class ShowtimeManagementComponent implements OnInit, OnDestroy {
       const cleanupTime = this.showtimeForm.get('cleanupTime')?.value || 15;
       endTime.setMinutes(endTime.getMinutes() + cleanupTime);
 
-      // Cập nhật thời gian kết thúc
+      // Cập nhật thời gian kết thúc (chỉ lấy giờ và phút)
       room.endTime = this.formatDateTimeForInput(endTime);
 
       // Kiểm tra xem có đang ở chế độ edit không
@@ -2124,11 +2226,30 @@ export class ShowtimeManagementComponent implements OnInit, OnDestroy {
           if (response.responseCode === 200 && response.data) {
             const detailedShowtime = response.data;
 
+            // Tìm thông tin phim để kiểm tra trạng thái
+            const selectedMovie = this.movies.find(m => m.id === detailedShowtime.movieId);
+            if (selectedMovie && selectedMovie.status === 2) {
+              // Phim đã kết thúc, hiển thị thông báo và không cho phép chỉnh sửa lịch chiếu
+              Swal.fire({
+                icon: 'error',
+                title: 'Không thể chỉnh sửa lịch chiếu!',
+                text: 'Phim này đã kết thúc, không thể chỉnh sửa lịch chiếu.',
+                confirmButtonText: 'Đồng ý'
+              });
+              this.isEditing = false;
+              this.selectedShowtime = null;
+              return;
+            }
+
             // Update the form with movie and datetime details first
             const startDateTime = new Date(detailedShowtime.startTime);
+
+            // Định dạng ngày theo yyyy-MM-dd để đặt vào input type="date"
+            const formattedDate = `${startDateTime.getFullYear()}-${String(startDateTime.getMonth() + 1).padStart(2, '0')}-${String(startDateTime.getDate()).padStart(2, '0')}`;
+
             this.showtimeForm.patchValue({
               movieId: detailedShowtime.movieId,
-              showtimeDate: this.formatDateTimeForInput(startDateTime),
+              showtimeDate: formattedDate,
               introTime: 10,
               cleanupTime: 15
             });

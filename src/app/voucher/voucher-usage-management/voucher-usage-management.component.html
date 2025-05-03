@@ -75,7 +75,7 @@
 
           <!-- Table -->
           <div class="table-responsive" *ngIf="!isLoading">
-            <table class="table table-bordered table-hover" style="border-top: 1px solid #2c2e33;">
+            <table class="table table-hover" style="border-top: 1px solid #2c2e33;">
               <thead>
                 <tr>
                   <th>Mã Voucher</th>
@@ -83,7 +83,7 @@
                   <th>Mã Đơn hàng</th>
                   <th>Thời gian sử dụng</th>
                   <th>Trạng thái</th>
-                  <th>Thao tác</th>
+                  <!-- <th>Thao tác</th> -->
                 </tr>
               </thead>
               <tbody>
@@ -97,7 +97,7 @@
                       {{ getStatusLabel(usage.status) }}
                     </span>
                   </td>
-                  <td>
+                  <!-- <td>
                     <button *ngIf="usage.orderId" type="button" class="btn btn-outline-primary btn-sm me-2"
                       (click)="viewOrderDetails(usage.orderId)">
                       <i class="fas fa-receipt"></i> Xem đơn hàng
@@ -106,7 +106,7 @@
                       (click)="viewUserDetails(usage.userId)">
                       <i class="fas fa-user"></i> Xem người dùng
                     </button>
-                  </td>
+                  </td> -->
                 </tr>
                 <tr *ngIf="!isLoading && filteredUsages.length === 0">
                   <td colspan="6" class="text-center">Không tìm thấy lịch sử sử dụng voucher nào</td>

@@ -53,6 +53,27 @@
           </div>
 
           <div class="form-group">
+            <label for="importDate">Ngày nhập phim *</label>
+            <input type="date" class="form-control" id="importDate" formControlName="importDate">
+            <div *ngIf="movieForm.get('importDate')?.touched && movieForm.get('importDate')?.invalid"
+              class="text-danger">
+              <small *ngIf="movieForm.get('importDate')?.errors?.['required']">Ngày nhập phim là bắt buộc</small>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="endDate">Ngày hết hạn *</label>
+            <input type="date" class="form-control" id="endDate" formControlName="endDate">
+            <div *ngIf="movieForm.get('endDate')?.touched && movieForm.get('endDate')?.invalid"
+              class="text-danger">
+              <small *ngIf="movieForm.get('endDate')?.errors?.['required']">Ngày hết hạn là bắt buộc</small>
+            </div>
+            <div *ngIf="movieForm.errors?.['endDateInvalid']" class="text-danger">
+              <small>Ngày hết hạn không được nhỏ hơn ngày nhập phim</small>
+            </div>
+          </div>
+
+          <div class="form-group">
             <label for="ageRatingId">Xếp hạng độ tuổi</label>
             <div class="input-group">
               <select class="form-control" id="ageRatingId" formControlName="ageRatingId">

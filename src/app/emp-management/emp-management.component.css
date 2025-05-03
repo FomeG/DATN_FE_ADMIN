@@ -363,6 +363,112 @@ input:checked+.slider:before {
   vertical-align: middle;
 }
 
+/* Modal styles */
+.modal-content {
+  background-color: #191c24;
+  border: none;
+  border-radius: 12px;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+  animation: modalFadeIn 0.3s ease-out;
+}
+
+.modal-header {
+  border-bottom: 1px solid #2c2e33;
+  padding: 1.25rem 1.5rem;
+  background: linear-gradient(45deg, #0090e7, #0077b5);
+  border-radius: 12px 12px 0 0;
+}
+
+.modal-title {
+  color: #ffffff;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+}
+
+.modal-body {
+  padding: 1.5rem;
+}
+
+.modal-footer {
+  border-top: 1px solid #2c2e33;
+  padding: 1.25rem 1.5rem;
+  background-color: #191c24;
+  border-radius: 0 0 12px 12px;
+}
+
+.modal-dialog.modal-lg {
+  max-width: 800px;
+}
+
+.btn-close-white:focus {
+  box-shadow: none;
+}
+
+/* Form styling in modal */
+.modal-body .form-control,
+.modal-body .form-select {
+  background-color: #2A3038;
+  border-color: #2c2e33;
+  color: #ffffff;
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  transition: all 0.3s ease;
+}
+
+.modal-body .form-control:focus,
+.modal-body .form-select:focus {
+  border-color: #0090e7;
+  box-shadow: 0 0 0 0.2rem rgba(0, 144, 231, 0.25);
+  background-color: #2A3038;
+}
+
+.modal-body .form-label {
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+  color: #e4eaec;
+}
+
+/* Cinema selection styling */
+.cinema-selection {
+  background-color: #2A3038;
+  border: 1px solid #2c2e33;
+  border-radius: 8px;
+  padding: 1rem;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.cinema-selection .form-check {
+  margin-bottom: 0.5rem;
+}
+
+.cinema-selection .form-check-input {
+  background-color: #191c24;
+  border-color: #2c2e33;
+}
+
+.cinema-selection .form-check-input:checked {
+  background-color: #0090e7;
+  border-color: #0090e7;
+}
+
+.cinema-selection .form-check-label {
+  color: #e4eaec;
+}
+
+/* Animation for modal */
+@keyframes modalFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 /* Responsive adjustments */
 @media (max-width: 992px) {
   .table td:nth-child(2) {

@@ -2,7 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { EmployeeService, Employee } from '../services/employee.service';
+import { EmployeeService, Employee, CinemaInfo } from '../services/employee.service';
+import { CinemaService, Cinema } from '../services/cinema.service';
 import Swal from 'sweetalert2';
 import { HttpClient } from '@angular/common/http';
 
@@ -26,13 +27,20 @@ export class EmpManagementComponent implements OnInit {
   editEmployeeForm: FormGroup;
   isSubmitting = false;
   selectedEmployeeId: string = '';
+  selectedEmployee: Employee | null = null;
+
+  // Danh sách rạp chiếu phim
+  cinemas: Cinema[] = [];
+  isLoadingCinemas = false;
 
   // Modal references
   private addEmployeeModalRef: any;
   private editEmployeeModalRef: any;
+  private viewEmployeeModalRef: any;
 
   constructor(
     private employeeService: EmployeeService,
+    private cinemaService: CinemaService,
     private fb: FormBuilder,
     private http: HttpClient
   ) {
@@ -45,7 +53,8 @@ export class EmpManagementComponent implements OnInit {
       passwordHash: ['', [Validators.required, Validators.minLength(6)]],
       dob: [null],
       sex: [1], // Default to male
-      address: ['']
+      address: [''],
+      cinemaIds: [[]] // Danh sách ID rạp chiếu phim
     });
 
     // Initialize the edit form
@@ -56,17 +65,20 @@ export class EmpManagementComponent implements OnInit {
       userName: ['', Validators.required],
       dob: [null],
       sex: [1], // Default to male
-      address: ['']
+      address: [''],
+      cinemaIds: [[]] // Danh sách ID rạp chiếu phim
     });
   }
 
   ngOnInit() {
     this.loadEmployees();
+    this.loadCinemas();
 
     // Initialize modal references
     setTimeout(() => {
       const addEmployeeModalElement = document.getElementById('addEmployeeModal');
       const editEmployeeModalElement = document.getElementById('editEmployeeModal');
+      const viewEmployeeModalElement = document.getElementById('viewEmployeeModal');
 
       if (addEmployeeModalElement) {
         this.addEmployeeModalRef = new (window as any).bootstrap.Modal(addEmployeeModalElement);
@@ -75,7 +87,29 @@ export class EmpManagementComponent implements OnInit {
       if (editEmployeeModalElement) {
         this.editEmployeeModalRef = new (window as any).bootstrap.Modal(editEmployeeModalElement);
       }
+
+      if (viewEmployeeModalElement) {
+        this.viewEmployeeModalRef = new (window as any).bootstrap.Modal(viewEmployeeModalElement);
+      }
     }, 500); // Small delay to ensure DOM is ready
+  }
+
+  // Tải danh sách rạp chiếu phim
+  loadCinemas() {
+    this.isLoadingCinemas = true;
+    this.cinemaService.getCinemas(1, 100) // Lấy tối đa 100 rạp
+      .subscribe({
+        next: (response) => {
+          if (response.responseCode === 200) {
+            this.cinemas = response.data.filter(cinema => !cinema.isdeleted);
+          }
+          this.isLoadingCinemas = false;
+        },
+        error: (error) => {
+          console.error('Error loading cinemas:', error);
+          this.isLoadingCinemas = false;
+        }
+      });
   }
 
   loadEmployees() {
@@ -260,6 +294,35 @@ export class EmpManagementComponent implements OnInit {
       });
   }
 
+  // Method to handle view employee detail button click
+  onViewEmployeeDetail(id: string) {
+    this.selectedEmployeeId = id;
+    // Get employee details
+    this.employeeService.getEmployeeById(id).subscribe({
+      next: (response) => {
+        if (response.responseCode === 200) {
+          this.selectedEmployee = response.data;
+        } else {
+          Swal.fire({
+            title: 'Lỗi',
+            text: response.message || 'Không thể tải thông tin nhân viên',
+            icon: 'error',
+            confirmButtonText: 'Đóng'
+          });
+        }
+      },
+      error: (error) => {
+        console.error('Error loading employee details:', error);
+        Swal.fire({
+          title: 'Lỗi',
+          text: 'Không thể tải thông tin nhân viên',
+          icon: 'error',
+          confirmButtonText: 'Đóng'
+        });
+      }
+    });
+  }
+
   // Method to handle edit employee button click
   onEditEmployee(id: string) {
     this.selectedEmployeeId = id;
@@ -281,7 +344,8 @@ export class EmpManagementComponent implements OnInit {
             userName: employee.userName,
             dob: formattedDob,
             sex: employee.sex,
-            address: employee.address
+            address: employee.address,
+            cinemaIds: employee.cinemas ? employee.cinemas.map((c: CinemaInfo) => c.cinemasId) : []
           });
         } else {
           Swal.fire({
@@ -344,6 +408,40 @@ export class EmpManagementComponent implements OnInit {
   }
 
   // Method to handle update employee form submission
+  // Kiểm tra xem rạp chiếu phim có được chọn hay không
+  isCinemaSelected(cinemaId: string): boolean {
+    const cinemaIds = this.editEmployeeForm.get('cinemaIds')?.value || [];
+    return cinemaIds.includes(cinemaId);
+  }
+
+  // Xử lý sự kiện khi checkbox rạp chiếu phim thay đổi
+  onCinemaCheckboxChange(event: any, formType: 'add' | 'edit') {
+    const cinemaId = event.target.value;
+    const isChecked = event.target.checked;
+
+    // Lấy form tương ứng
+    const form = formType === 'add' ? this.employeeForm : this.editEmployeeForm;
+
+    // Lấy danh sách rạp chiếu phim hiện tại
+    const cinemaIds = [...(form.get('cinemaIds')?.value || [])];
+
+    if (isChecked) {
+      // Thêm rạp chiếu phim vào danh sách nếu chưa có
+      if (!cinemaIds.includes(cinemaId)) {
+        cinemaIds.push(cinemaId);
+      }
+    } else {
+      // Xóa rạp chiếu phim khỏi danh sách
+      const index = cinemaIds.indexOf(cinemaId);
+      if (index !== -1) {
+        cinemaIds.splice(index, 1);
+      }
+    }
+
+    // Cập nhật giá trị form
+    form.patchValue({ cinemaIds });
+  }
+
   onUpdateEmployee() {
     if (this.editEmployeeForm.invalid) {
       // Mark all fields as touched to trigger validation messages

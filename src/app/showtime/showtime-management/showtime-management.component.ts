@@ -495,6 +495,20 @@ export class ShowtimeManagementComponent implements OnInit, OnDestroy {
                 console.log('Đặt thời gian bắt đầu từ 9 giờ sáng cho ngày chưa có suất chiếu:', startTimeDate);
               }
 
+              // Kiểm tra nếu thời gian bắt đầu nhỏ hơn thời gian hiện tại
+              if (this.isStartTimeBeforeNow(startTimeDate)) {
+                room.errorMessage = 'Thời gian bắt đầu không thể nhỏ hơn thời gian hiện tại.';
+
+                // Vẫn định dạng thời gian để hiển thị
+                room.startTime = this.formatDateTimeForInput(startTimeDate);
+                return;
+              } else {
+                // Xóa thông báo lỗi nếu thời gian hợp lệ
+                if (room.errorMessage === 'Thời gian bắt đầu không thể nhỏ hơn thời gian hiện tại.') {
+                  room.errorMessage = '';
+                }
+              }
+
               // Định dạng thời gian
               room.startTime = this.formatDateTimeForInput(startTimeDate);
 
@@ -546,6 +560,12 @@ export class ShowtimeManagementComponent implements OnInit, OnDestroy {
           defaultDate.setFullYear(selectedDate.getFullYear(), selectedDate.getMonth(), selectedDate.getDate());
 
           console.log('Thời gian mặc định khi có lỗi (đặt 9 giờ sáng):', defaultDate);
+
+          // Kiểm tra nếu thời gian mặc định nhỏ hơn thời gian hiện tại
+          if (this.isStartTimeBeforeNow(defaultDate)) {
+            room.errorMessage = 'Thời gian bắt đầu không thể nhỏ hơn thời gian hiện tại.';
+          }
+
           room.startTime = this.formatDateTimeForInput(defaultDate);
 
           // Tính thời gian kết thúc
@@ -566,6 +586,12 @@ export class ShowtimeManagementComponent implements OnInit, OnDestroy {
       defaultDate.setFullYear(selectedDate.getFullYear(), selectedDate.getMonth(), selectedDate.getDate());
 
       console.log('Thời gian mặc định khi có lỗi (catch, đặt 9 giờ sáng):', defaultDate);
+
+      // Kiểm tra nếu thời gian mặc định nhỏ hơn thời gian hiện tại
+      if (this.isStartTimeBeforeNow(defaultDate)) {
+        room.errorMessage = 'Thời gian bắt đầu không thể nhỏ hơn thời gian hiện tại.';
+      }
+
       room.startTime = this.formatDateTimeForInput(defaultDate);
 
       // Tính thời gian kết thúc
@@ -2210,6 +2236,15 @@ export class ShowtimeManagementComponent implements OnInit, OnDestroy {
 
 
 
+  // Kiểm tra thời gian bắt đầu có nhỏ hơn thời gian hiện tại không
+  isStartTimeBeforeNow(startTimeDate: Date): boolean {
+    // Lấy thời gian hiện tại (múi giờ Việt Nam)
+    const now = new Date();
+
+    // So sánh thời gian bắt đầu với thời gian hiện tại
+    return startTimeDate < now;
+  }
+
   calculateEndTime(cinemaIndex?: number, roomIndex?: number): void {
     if (cinemaIndex !== undefined && roomIndex !== undefined) {
       const cinema = this.cinemaList[cinemaIndex];
@@ -2232,6 +2267,17 @@ export class ShowtimeManagementComponent implements OnInit, OnDestroy {
         startMinutes,
         0
       );
+
+      // Kiểm tra nếu thời gian bắt đầu nhỏ hơn thời gian hiện tại
+      if (this.isStartTimeBeforeNow(startTime)) {
+        room.errorMessage = 'Thời gian bắt đầu không thể nhỏ hơn thời gian hiện tại.';
+        return;
+      } else {
+        // Xóa thông báo lỗi nếu thời gian hợp lệ
+        if (room.errorMessage === 'Thời gian bắt đầu không thể nhỏ hơn thời gian hiện tại.') {
+          room.errorMessage = '';
+        }
+      }
 
       // Kiểm tra thời gian bắt đầu nằm trong khoảng 9h-22h
       const hours = startTime.getHours();

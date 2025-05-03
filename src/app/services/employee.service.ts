@@ -3,6 +3,13 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
 
+export interface CinemaInfo {
+  cinemasId: string;
+  name: string;
+  address: string;
+  phoneNumber: string;
+}
+
 export interface Employee {
   id: string;
   name: string;
@@ -16,6 +23,8 @@ export interface Employee {
   lockoutEnabled: boolean;
   lockoutEnd: string | null;
   roleName?: string;
+  userName: string;
+  cinemas: CinemaInfo[];
 }
 
 export interface EmployeeListResponse {

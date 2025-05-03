@@ -283,15 +283,16 @@
                   <label for="serviceTypeID" class="form-label">Loại dịch vụ</label>
                   <select class="form-select" id="serviceTypeID" formControlName="serviceTypeID">
                     <option [value]="''">-- Chọn loại dịch vụ --</option>
-                    <option *ngFor="let type of serviceTypes" [value]="type.id">{{ type.serviceTypeName }}</option>
+                    <option *ngFor="let type of serviceTypes" [value]="type.id">{{ type.name }}</option>
                   </select>
                 </div>
               </div>
 
               <div class="col-md-6">
                 <div class="mb-3">
-                  <label for="photo" class="form-label">Hình ảnh</label>
+                  <label for="photo" class="form-label">Hình ảnh <span class="text-danger" *ngIf="!isEditing">*</span></label>
                   <input type="file" class="form-control" id="photo" (change)="onFileSelected($event)" accept="image/*">
+                  <small class="text-danger" *ngIf="!isEditing">Hình ảnh là bắt buộc khi tạo mới dịch vụ</small>
                 </div>
 
                 <div class="image-preview mt-3 text-center" *ngIf="imagePreview">

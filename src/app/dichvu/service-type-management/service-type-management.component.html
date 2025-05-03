@@ -199,8 +199,9 @@
 
               <div class="col-md-6">
                 <div class="mb-3">
-                  <label for="photo" class="form-label">Hình ảnh</label>
+                  <label for="photo" class="form-label">Hình ảnh <span class="text-danger" *ngIf="!isEditing">*</span></label>
                   <input type="file" class="form-control" id="photo" (change)="onFileSelected($event)" accept="image/*">
+                  <small class="text-danger" *ngIf="!isEditing">Hình ảnh là bắt buộc khi tạo mới loại dịch vụ</small>
                 </div>
 
                 <div class="image-preview mt-3 text-center" *ngIf="imagePreview">

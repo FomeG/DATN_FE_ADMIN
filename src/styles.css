@@ -119,7 +119,7 @@ body.auth.login-bg {
   pointer-events: none !important;
 }
 
-.modal-backdrop + .modal-backdrop {
+.modal-backdrop+.modal-backdrop {
   display: none !important;
 }
 
@@ -479,6 +479,7 @@ select option {
   background-color: #2A3038 !important;
   color: #ffffff !important;
   padding: 8px !important;
+  text-shadow: none !important;
 }
 
 select option:hover,
@@ -487,6 +488,15 @@ select option:active,
 select option:checked {
   background-color: #0090e7 !important;
   color: #ffffff !important;
+  text-shadow: none !important;
+}
+
+/* Đảm bảo text hiển thị trong tất cả các trình duyệt */
+.form-select option,
+.form-control option {
+  color: #ffffff !important;
+  background-color: #2A3038 !important;
+  text-shadow: none !important;
 }
 
 /* Ensure dropdown menus are visible */
@@ -506,6 +516,7 @@ select.form-control {
 
 /* Fix for Firefox */
 @-moz-document url-prefix() {
+
   select.form-select,
   select.form-control {
     color: #ffffff !important;
@@ -516,11 +527,20 @@ select.form-control {
   select.form-control option {
     background-color: #2A3038 !important;
     color: #ffffff !important;
+    text-shadow: none !important;
+  }
+
+  /* Đảm bảo text hiển thị trong Firefox */
+  option {
+    color: #ffffff !important;
+    background-color: #2A3038 !important;
+    text-shadow: none !important;
   }
 }
 
-/* Fix for Safari */
+/* Fix for Safari and Chrome */
 @media screen and (-webkit-min-device-pixel-ratio:0) {
+
   select.form-select,
   select.form-control {
     -webkit-appearance: none !important;
@@ -533,10 +553,60 @@ select.form-control {
   select.form-control option {
     background-color: #2A3038 !important;
     color: #ffffff !important;
+    text-shadow: none !important;
+  }
+
+  /* Đảm bảo text hiển thị trong Safari và Chrome */
+  option {
+    color: #ffffff !important;
+    background-color: #2A3038 !important;
+    text-shadow: none !important;
+  }
+
+  /* Fix cho dropdown menu */
+  .dropdown-menu option {
+    color: #ffffff !important;
+    background-color: #2A3038 !important;
   }
 }
 
 
-.swal2-x-mark{
+.swal2-x-mark {
   margin-bottom: 20px !important;
+}
+
+
+/* Fix cho select option text bị ẩn */
+.option {
+  color: white !important;
+}
+
+option {
+  color: white !important;
+  background-color: #2A3038 !important;
+}
+
+select option {
+  color: white !important;
+  background-color: #2A3038 !important;
+}
+
+/* Fix cho Chrome và các trình duyệt khác */
+select.form-select option,
+select.form-control option,
+.form-select option,
+.form-control option {
+  color: white !important;
+  background-color: #2A3038 !important;
+  padding: 8px !important;
+}
+
+/* Fix cho dropdown text */
+.dropdown-item {
+  color: white !important;
+}
+
+/* Đảm bảo text trong dropdown menu hiển thị */
+.dropdown-menu {
+  color: white !important;
 }

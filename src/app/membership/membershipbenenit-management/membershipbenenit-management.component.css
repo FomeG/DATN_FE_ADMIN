@@ -187,7 +187,7 @@
   padding: 10px 15px;
   border: 1px solid #2c2e33;
   background-color: #2A3038;
-  color: #ffffff;
+  color: #ffffff !important;
   transition: all 0.3s ease;
 }
 

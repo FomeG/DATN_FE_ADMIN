@@ -181,12 +181,35 @@ export class MembershipbenenitManagementComponent implements OnInit {
       }
     }
 
+    // Kiểm tra xem có đủ thông tin cần thiết không
+    if (!benefit && (!membershipId || !benefitType)) {
+      Swal.fire({
+        title: 'Lỗi',
+        text: 'Thiếu thông tin gói thành viên hoặc loại quyền lợi',
+        icon: 'error',
+        confirmButtonText: 'OK'
+      });
+      return;
+    }
+
     this.isEditing = !!benefit;
     this.selectedBenefit = benefit || null;
     this.previewImageUrl = benefit?.logoUrl || null;
     this.selectedFile = null; // Reset selected file
 
+    // Cập nhật tiêu đề modal dựa trên loại quyền lợi
+    const modalTitle = document.querySelector('.modal-title');
+    if (modalTitle && benefitType) {
+      const benefitTypeLabel = this.getBenefitTypeLabel(benefitType);
+      if (this.isEditing) {
+        modalTitle.textContent = `Cập nhật quyền lợi ${benefitTypeLabel}`;
+      } else {
+        modalTitle.textContent = `Thêm quyền lợi ${benefitTypeLabel} mới`;
+      }
+    }
+
     if (benefit) {
+      // Đang chỉnh sửa - lấy thông tin từ benefit hiện có
       this.benefitForm.patchValue({
         membershipId: benefit.membershipId,
         benefitType: benefit.benefitType,
@@ -200,15 +223,17 @@ export class MembershipbenenitManagementComponent implements OnInit {
         usePointValue: benefit.usePointValue
       });
     } else {
+      // Đang thêm mới - reset form và thiết lập giá trị mặc định
       this.benefitForm.reset();
-      // Nếu có membershipId và benefitType được truyền vào, thiết lập giá trị mặc định
-      if (membershipId) {
-        this.benefitForm.patchValue({ membershipId: membershipId });
-      }
-      if (benefitType) {
-        this.benefitForm.patchValue({ benefitType: benefitType });
-        this.onBenefitTypeChange(); // Cập nhật validators dựa trên loại quyền lợi
-      }
+
+      // Thiết lập giá trị mặc định cho membershipId và benefitType
+      this.benefitForm.patchValue({
+        membershipId: membershipId,
+        benefitType: benefitType
+      });
+
+      // Cập nhật validators dựa trên loại quyền lợi
+      this.onBenefitTypeChange();
     }
 
     // Mở modal với các tùy chỉnh
@@ -291,6 +316,13 @@ export class MembershipbenenitManagementComponent implements OnInit {
         this.previewImageUrl = reader.result as string;
       };
       reader.readAsDataURL(file);
+    } else {
+      // Nếu người dùng hủy chọn file (cancel file dialog)
+      // Giữ nguyên preview hiện tại nếu đang chỉnh sửa
+      if (!this.isEditing) {
+        this.selectedFile = null;
+        this.previewImageUrl = null;
+      }
     }
   }
 
@@ -308,8 +340,37 @@ export class MembershipbenenitManagementComponent implements OnInit {
       return;
     }
 
+    // Kiểm tra xem có file logo khi tạo mới không
+    // Chỉ bắt buộc logo khi tạo mới, không bắt buộc khi cập nhật
+    if (!this.isEditing && !this.selectedFile && !this.previewImageUrl) {
+      Swal.fire({
+        toast: true,
+        position: 'top-end',
+        icon: 'error',
+        title: 'Vui lòng chọn logo cho quyền lợi',
+        showConfirmButton: false,
+        timer: 3000,
+        timerProgressBar: true
+      });
+      return;
+    }
+
     const formData = new FormData();
     const formValue = this.benefitForm.value;
+
+    // Đảm bảo membershipId và benefitType luôn được gửi
+    if (!formValue.membershipId || !formValue.benefitType) {
+      Swal.fire({
+        toast: true,
+        position: 'top-end',
+        icon: 'error',
+        title: 'Thiếu thông tin gói thành viên hoặc loại quyền lợi',
+        showConfirmButton: false,
+        timer: 3000,
+        timerProgressBar: true
+      });
+      return;
+    }
 
     // Thêm các trường cơ bản
     Object.keys(formValue).forEach(key => {
@@ -489,7 +550,7 @@ export class MembershipbenenitManagementComponent implements OnInit {
   getServiceName(serviceId: string | undefined): string {
     if (!serviceId) return '';
     const service = this.services.find(s => s.id === serviceId);
-    return service ? service.name : '';
+    return service ? service.serviceName : '';
   }
 
   getBenefitTypeLabel(type: string): string {

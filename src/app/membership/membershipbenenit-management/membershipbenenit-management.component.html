@@ -247,32 +247,12 @@
     <div class="modal-body">
       <form [formGroup]="benefitForm">
         <!-- Thông tin cơ bản -->
-        <div class="mb-3">
-          <label class="form-label">Gói thành viên</label>
-          <select class="form-select" formControlName="membershipId">
-            <option [ngValue]="null">-- Chọn gói thành viên --</option>
-            <option *ngFor="let membership of memberships" [value]="membership.id">{{ membership.name }}</option>
-          </select>
-          <div class="invalid-feedback"
-            *ngIf="benefitForm.get('membershipId')?.invalid && benefitForm.get('membershipId')?.touched">
-            Vui lòng chọn gói thành viên
-          </div>
-        </div>
+        <!-- Ẩn trường chọn gói thành viên và loại quyền lợi -->
+        <input type="hidden" formControlName="membershipId">
+        <input type="hidden" formControlName="benefitType">
 
         <div class="mb-3">
-          <label class="form-label">Loại quyền lợi</label>
-          <select class="form-select" formControlName="benefitType" (change)="onBenefitTypeChange()">
-            <option [ngValue]="null">-- Chọn loại quyền lợi --</option>
-            <option *ngFor="let type of benefitTypes" [value]="type.value">{{ type.label }}</option>
-          </select>
-          <div class="invalid-feedback"
-            *ngIf="benefitForm.get('benefitType')?.invalid && benefitForm.get('benefitType')?.touched">
-            Vui lòng chọn loại quyền lợi
-          </div>
-        </div>
-
-        <div class="mb-3">
-          <label class="form-label">Mô tả</label>
+          <label class="form-label">Mô tả <span class="text-danger">*</span></label>
           <input type="text" class="form-control" formControlName="description" placeholder="Nhập mô tả quyền lợi">
           <div class="invalid-feedback"
             *ngIf="benefitForm.get('description')?.invalid && benefitForm.get('description')?.touched">
@@ -281,8 +261,9 @@
         </div>
 
         <div class="mb-4">
-          <label class="form-label">Logo</label>
+          <label class="form-label">Logo <span class="text-danger" *ngIf="!isEditing">*</span></label>
           <input type="file" class="form-control" (change)="onFileSelected($event)" accept="image/*">
+          <small class="text-muted" *ngIf="isEditing">Để trống nếu không muốn thay đổi logo</small>
           <div class="mt-2" *ngIf="previewImageUrl">
             <img [src]="previewImageUrl" alt="Preview" class="img-thumbnail"
               style="max-width: 100px; max-height: 100px;">
@@ -304,7 +285,7 @@
           </div>
 
           <div class="mb-3">
-            <label class="form-label">Giá trị (%) (không bắt buộc)</label>
+            <label class="form-label">Giá trị (%)</label>
             <input type="number" class="form-control" formControlName="value" min="0" max="100"
               placeholder="Nhập giá trị từ 0-100">
             <div class="invalid-feedback"
@@ -319,7 +300,7 @@
           <h6 class="text-success mb-3"><i class="fas fa-coins me-2"></i>Cấu hình thưởng điểm</h6>
 
           <div class="mb-3">
-            <label class="form-label">Hệ số nhân (không bắt buộc)</label>
+            <label class="form-label">Hệ số nhân</label>
             <input type="number" class="form-control" formControlName="multiplier" min="0" step="0.1"
               placeholder="Ví dụ: 1.5">
             <div class="invalid-feedback"
@@ -335,10 +316,10 @@
           <h6 class="text-info mb-3"><i class="fas fa-concierge-bell me-2"></i>Cấu hình dịch vụ miễn phí</h6>
 
           <div class="mb-3">
-            <label class="form-label">Dịch vụ (không bắt buộc)</label>
+            <label class="form-label">Dịch vụ</label>
             <select class="form-select service-select" formControlName="serviceId">
               <option [ngValue]="null" class="default-option">-- Chọn dịch vụ --</option>
-              <option *ngFor="let service of services" [value]="service.id" class="service-option">{{ service.name }}
+              <option *ngFor="let service of services" [value]="service.id" class="service-option">{{ service.serviceName }}
               </option>
             </select>
           </div>

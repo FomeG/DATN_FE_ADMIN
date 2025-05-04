@@ -107,8 +107,7 @@
                         <div class="text-danger"
                             *ngIf="roomForm.get('seatPrice')?.touched && roomForm.get('seatPrice')?.invalid">
                             <small *ngIf="roomForm.get('seatPrice')?.errors?.['required']">Vui lòng nhập giá ghế</small>
-                            <small *ngIf="roomForm.get('seatPrice')?.errors?.['min']">Giá ghế phải lớn hơn hoặc bằng
-                                0</small>
+                            <small *ngIf="roomForm.get('seatPrice')?.errors?.['min']">Giá ghế phải lớn hơn 0</small>
                         </div>
                     </div>
 

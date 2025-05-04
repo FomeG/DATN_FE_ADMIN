@@ -201,4 +201,9 @@ export class OrderService {
   getOrderItems(orderId: string): Observable<OrderItemsResponse> {
     return this.http.get<OrderItemsResponse>(`${this.apiUrl}OrderManagement/GetOrderItems?orderId=${orderId}`);
   }
+
+  // Phương thức hoàn tiền theo suất chiếu
+  refundByShowtime(showtimeId: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}Order/RefundByShowtime`, { showtimeId });
+  }
 }

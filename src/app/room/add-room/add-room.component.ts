@@ -44,7 +44,7 @@ export class AddRoomComponent implements OnInit {
       name: ['', Validators.required],
       totalColNumber: [1, [Validators.required, Validators.min(1)]],
       totalRowNumber: [1, [Validators.required, Validators.min(1)]],
-      seatPrice: [0, [Validators.required, Validators.min(0)]]
+      seatPrice: [0, [Validators.required, Validators.min(1)]]
     });
   }
 

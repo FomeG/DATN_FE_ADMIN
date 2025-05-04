@@ -43,6 +43,7 @@
           <option [value]="3">Đang chiếu</option>
           <option [value]="4">Đã kết thúc</option>
           <option [value]="5">Đang bảo trì</option>
+          <option [value]="6">Đã hoàn tiền</option>
         </select>
       </div> -->
 
@@ -164,15 +165,19 @@
                       </span>
                     </td>
                     <td class="text-center">
-                      <button class="btn btn-outline-warning btn-rounded" (click)="editShowtime(showtime)"
+                      <!-- <button class="btn btn-outline-warning btn-rounded" (click)="editShowtime(showtime)"
                         [disabled]="!canEditShowtime(showtime)"
                         [title]="!canEditShowtime(showtime) ? 'Chỉ có thể sửa suất chiếu chưa bắt đầu hoặc sắp bán vé' : 'Sửa'">
                         <i class="fas fa-edit me-1"></i>
-                      </button>
+                      </button> -->
                       <button class="btn btn-outline-danger btn-rounded" (click)="deleteShowtime(showtime.id)"
                         [disabled]="!canDeleteShowtime(showtime)"
                         [title]="!canDeleteShowtime(showtime) ? 'Không thể xóa suất chiếu đang chiếu hoặc sắp chiếu' : 'Xóa'">
                         <i class="fas fa-trash me-1"></i>
+                      </button>
+                      <button type="button" class="btn btn-outline-primary btn-rounded me-2"
+                        (click)="refundByShowtime(showtime.id)" title="Hoàn tiền cho suất chiếu">
+                        <i class="fas fa-history"></i>
                       </button>
                     </td>
                   </tr>

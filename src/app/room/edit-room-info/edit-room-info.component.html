@@ -32,7 +32,12 @@
                     <div class="mb-3">
                         <label for="seatPrice" class="form-label">Giá vé</label>
                         <input type="number" class="form-control" id="seatPrice" [(ngModel)]="seatPrice"
-                            name="seatPrice" required>
+                            name="seatPrice" required min="1" #seatPriceInput="ngModel">
+                        <div *ngIf="seatPriceInput.invalid && (seatPriceInput.dirty || seatPriceInput.touched)" class="text-danger">
+                            <small *ngIf="seatPriceInput.errors?.['required']">Vui lòng nhập giá vé</small>
+                            <small *ngIf="seatPriceInput.errors?.['min']">Giá vé phải lớn hơn 0</small>
+                            <small *ngIf="seatPrice <= 0 && !seatPriceInput.errors?.['min']">Giá vé phải lớn hơn 0</small>
+                        </div>
                     </div>
 
                     <!-- Trạng thái -->
@@ -47,7 +52,7 @@
 
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
-                        <button type="submit" class="btn btn-primary">Cập nhật</button>
+                        <button type="submit" class="btn btn-primary" [disabled]="seatPriceInput.invalid || seatPrice <= 0">Cập nhật</button>
                     </div>
                 </form>
             </div>

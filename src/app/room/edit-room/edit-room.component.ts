@@ -368,6 +368,12 @@ export class EditRoomComponent implements OnInit {
   }
 
   createSeatType() {
+    // Validate giá ghế phải lớn hơn 0
+    if (this.newSeatType.multiplier <= 0) {
+      Swal.fire('Lỗi', 'Hệ số nhân giá ghế phải lớn hơn 0', 'error');
+      return;
+    }
+
     this.seatService.createSeatType(this.newSeatType).subscribe({
       next: (response) => {
         Swal.fire('Thành công', 'Thêm mới loại ghế thành công.', 'success');
@@ -409,6 +415,12 @@ export class EditRoomComponent implements OnInit {
   updateSeatTypeMultiplier() {
     if (!this.selectedSeatType.id) {
       Swal.fire('Lỗi', 'Vui lòng chọn một loại ghế trước khi cập nhật', 'error');
+      return;
+    }
+
+    // Validate giá ghế phải lớn hơn 0
+    if (this.selectedSeatType.multiplier <= 0) {
+      Swal.fire('Lỗi', 'Hệ số nhân giá ghế phải lớn hơn 0', 'error');
       return;
     }
 

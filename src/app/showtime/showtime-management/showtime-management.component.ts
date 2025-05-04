@@ -5,6 +5,7 @@ import { MovieService } from '../../services/movie.service';
 import { RoomService } from '../../services/room.service';
 import { ShowtimeService, Showtime, ShowtimeResponse, ShowtimeAutoDateRequest, ShowtimeParams } from '../../services/showtime.service';
 import { CinemaService } from '../../services/cinema.service';
+import { OrderService } from '../../services/order.service';
 import { DatePipe } from '@angular/common';
 
 import Swal from 'sweetalert2';
@@ -95,7 +96,8 @@ export class ShowtimeManagementComponent implements OnInit, OnDestroy {
     UPCOMING: 1,
     PLAYING: 2,
     ENDED: 3,
-    MAINTENANCE: 4
+    MAINTENANCE: 4,
+    REFUNDED: 6
   };
 
   readonly SHOWTIME_STATUS = {
@@ -103,7 +105,8 @@ export class ShowtimeManagementComponent implements OnInit, OnDestroy {
     UPCOMING: 2,
     PLAYING: 3,
     ENDED: 4,
-    MAINTENANCE: 5
+    MAINTENANCE: 5,
+    REFUNDED: 6
   };
 
   readonly INTRO_TIMES = [
@@ -128,6 +131,7 @@ export class ShowtimeManagementComponent implements OnInit, OnDestroy {
     private movieService: MovieService,
     private roomService: RoomService,
     private cinemaService: CinemaService,
+    private orderService: OrderService,
     private fb: FormBuilder,
     private changeDetectorRef: ChangeDetectorRef
   ) {
@@ -1183,8 +1187,10 @@ export class ShowtimeManagementComponent implements OnInit, OnDestroy {
 
     // Cập nhật trạng thái cho cả dữ liệu gốc và dữ liệu đã lọc
     const updateStatus = (showtime: Showtime) => {
-      if (showtime.status === this.SHOWTIME_STATUS.MAINTENANCE) {
-        return; // Không cập nhật trạng thái cho suất chiếu đang bảo trì
+      // Không cập nhật trạng thái cho suất chiếu đang bảo trì hoặc đã hoàn tiền
+      if (showtime.status === this.SHOWTIME_STATUS.MAINTENANCE ||
+        showtime.status === this.SHOWTIME_STATUS.REFUNDED) {
+        return;
       }
 
       try {
@@ -1266,6 +1272,10 @@ export class ShowtimeManagementComponent implements OnInit, OnDestroy {
 
     this.maintenanceShowtimes = this.filteredShowtimes.filter(s =>
       s.status === this.SHOWTIME_STATUS.MAINTENANCE);
+
+    // Có thể thêm danh sách các suất chiếu đã hoàn tiền nếu cần
+    // this.refundedShowtimes = this.filteredShowtimes.filter(s =>
+    //   s.status === this.SHOWTIME_STATUS.REFUNDED);
   }
 
   // Phương thức lọc và phân trang dữ liệu ở client
@@ -1329,6 +1339,9 @@ export class ShowtimeManagementComponent implements OnInit, OnDestroy {
           break;
         case 5: // Đang bảo trì
           filtered = filtered.filter(s => s.status === this.SHOWTIME_STATUS.MAINTENANCE);
+          break;
+        case 6: // Đã hoàn tiền
+          filtered = filtered.filter(s => s.status === this.SHOWTIME_STATUS.REFUNDED);
           break;
         default:
           // Không có trường hợp mặc định, vì đã kiểm tra selectedStatus !== -1
@@ -1709,8 +1722,28 @@ export class ShowtimeManagementComponent implements OnInit, OnDestroy {
     this.filterAndPaginate();
   }
 
-  getShowtimeStatus(startTime: Date, endTime: Date): { class: string, text: string } {
+  getShowtimeStatus(startTime: Date, endTime: Date, status?: number): { class: string, text: string } {
     try {
+      // Nếu có trạng thái cụ thể được truyền vào, ưu tiên sử dụng trạng thái đó
+      if (status !== undefined) {
+        switch (status) {
+          // case this.SHOWTIME_STATUS.UPCOMING_SALE:
+          //   return { class: 'bg-info', text: 'Sắp chiếu' };
+          // case this.SHOWTIME_STATUS.UPCOMING:
+          //   return { class: 'bg-primary', text: 'Chưa bắt đầu' };
+          // case this.SHOWTIME_STATUS.PLAYING:
+          //   return { class: 'bg-success', text: 'Đang chiếu' };
+          // case this.SHOWTIME_STATUS.ENDED:
+          //   return { class: 'bg-warning', text: 'Đã chiếu' };
+          case this.SHOWTIME_STATUS.MAINTENANCE:
+            return { class: 'bg-danger', text: 'Đang bảo trì' };
+          case this.SHOWTIME_STATUS.REFUNDED:
+            return { class: 'bg-danger', text: 'Đã hoàn tiền' };
+        }
+      }
+
+      // Nếu không có trạng thái hoặc trạng thái không nằm trong các case trên,
+      // tính toán dựa trên thời gian
       const now = new Date();
       const start = new Date(startTime);
       const end = new Date(endTime);
@@ -1723,7 +1756,7 @@ export class ShowtimeManagementComponent implements OnInit, OnDestroy {
         return { class: 'bg-success', text: 'Đang chiếu' };
       }
     } catch (error) {
-      console.error('Error calculating showtime status:', error);
+      // console.error('Error calculating showtime status:', error);
       return { class: 'bg-danger', text: 'Không xác định' };
     }
   }
@@ -1740,6 +1773,8 @@ export class ShowtimeManagementComponent implements OnInit, OnDestroy {
         return 'Đã chiếu';
       case this.SHOWTIME_STATUS.MAINTENANCE:
         return 'Đang bảo trì';
+      case this.SHOWTIME_STATUS.REFUNDED:
+        return 'Đã hoàn tiền';
       default:
         return 'Không xác định';
     }
@@ -1757,6 +1792,8 @@ export class ShowtimeManagementComponent implements OnInit, OnDestroy {
         return 'bg-warning';
       case this.SHOWTIME_STATUS.MAINTENANCE:
         return 'bg-danger';
+      case this.SHOWTIME_STATUS.REFUNDED:
+        return 'bg-danger';
       default:
         return 'bg-secondary';
     }
@@ -1771,7 +1808,7 @@ export class ShowtimeManagementComponent implements OnInit, OnDestroy {
     switch (this.selectedStatus) {
       case 1: // Sắp chiếu
         return showtime.status === this.SHOWTIME_STATUS.UPCOMING_SALE ||
-               showtime.status === this.SHOWTIME_STATUS.UPCOMING;
+          showtime.status === this.SHOWTIME_STATUS.UPCOMING;
       case 2: // Chuẩn bị chiếu
         return showtime.status === this.SHOWTIME_STATUS.UPCOMING;
       case 3: // Đang chiếu
@@ -1780,6 +1817,8 @@ export class ShowtimeManagementComponent implements OnInit, OnDestroy {
         return showtime.status === this.SHOWTIME_STATUS.ENDED;
       case 5: // Đang bảo trì
         return showtime.status === this.SHOWTIME_STATUS.MAINTENANCE;
+      case 6: // Đã hoàn tiền
+        return showtime.status === this.SHOWTIME_STATUS.REFUNDED;
       default:
         return false;
     }
@@ -1825,7 +1864,7 @@ export class ShowtimeManagementComponent implements OnInit, OnDestroy {
       let valueB: any;
 
       // Lấy giá trị cần so sánh dựa trên cột sắp xếp
-      switch(this.sortColumn) {
+      switch (this.sortColumn) {
         case 'movieName':
           valueA = a.movieName || '';
           valueB = b.movieName || '';
@@ -2524,8 +2563,50 @@ export class ShowtimeManagementComponent implements OnInit, OnDestroy {
 
 
 
-
-
-
-
+  // Phương thức hoàn tiền theo suất chiếu
+  refundByShowtime(showtimeId: string): void {
+    Swal.fire({
+      title: 'Xác nhận hoàn tiền',
+      text: 'Bạn có chắc chắn muốn hoàn tiền cho tất cả vé của suất chiếu này?',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Đồng ý',
+      cancelButtonText: 'Hủy'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.orderService.refundByShowtime(showtimeId).subscribe({
+          next: (response) => {
+            if (response.responseCode === 200) {
+              Swal.fire({
+                title: 'Thành công!',
+                text: 'Đã hoàn tiền cho tất cả vé của suất chiếu này.',
+                icon: 'success',
+                confirmButtonText: 'OK'
+              });
+              // Tải lại danh sách suất chiếu
+              this.loadAllShowtimes();
+            } else {
+              Swal.fire({
+                title: 'Lỗi!',
+                text: response.message || 'Có lỗi xảy ra khi hoàn tiền.',
+                icon: 'error',
+                confirmButtonText: 'OK'
+              });
+            }
+          },
+          error: (error) => {
+            console.error('Error refunding showtime:', error);
+            Swal.fire({
+              title: 'Lỗi!',
+              text: 'Có lỗi xảy ra khi hoàn tiền.',
+              icon: 'error',
+              confirmButtonText: 'OK'
+            });
+          }
+        });
+      }
+    });
+  }
 }

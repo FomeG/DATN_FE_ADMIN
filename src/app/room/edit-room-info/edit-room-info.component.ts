@@ -86,6 +86,12 @@ export class EditRoomInfoComponent implements OnInit {
   onSubmit() {
     if (!this.room) return;
 
+    // Validate giá vé phải lớn hơn 0
+    if (this.seatPrice <= 0) {
+      Swal.fire('Lỗi', 'Giá vé phải lớn hơn 0', 'error');
+      return;
+    }
+
     const updateData = {
       id: this.roomId,
       roomTypeId: this.selectedRoomType,
@@ -117,4 +123,4 @@ export class EditRoomInfoComponent implements OnInit {
       }
     });
   }
-} 
+}

@@ -17,15 +17,15 @@
                     <!-- Filters -->
                     <div class="row mb-3">
                         <!-- Status Filter -->
-                        <div class="col-md-3">
+                        <!-- <div class="col-md-3">
                             <select class="custom-header-select" [(ngModel)]="selectedStatus"
                                 (change)="applyStatusFilter()">
                                 <option value="-1">Tất cả trạng thái</option>
-                                <option [value]="ORDER_STATUS.COMPLETED">Đã hoàn tiền</option>
-                                <option [value]="ORDER_STATUS.PAID">Đã thanh toán</option>
+                                <option [value]="ORDER_STATUS.REFUNDED">Đã hoàn tiền</option>
+                                <option [value]="ORDER_STATUS.CONFIRMED">Đã xác nhận</option>
                                 <option [value]="ORDER_STATUS.USED">Đã sử dụng</option>
                             </select>
-                        </div>
+                        </div> -->
 
                         <!-- Search Filter -->
                         <div class="col-md-5">
@@ -56,6 +56,13 @@
                                 <i class="fas fa-times"></i>
                             </button>
                         </div>
+
+                        <!-- Clear All Filters -->
+                        <!-- <div class="col-md-2 mt-2 mt-md-0">
+                            <button class="btn btn-outline-secondary w-100" (click)="clearAllFilters()">
+                                <i class="fas fa-times me-1"></i> Xóa tất cả bộ lọc
+                            </button>
+                        </div> -->
                     </div>
                 </div>
 

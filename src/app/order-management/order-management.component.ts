@@ -17,6 +17,7 @@ export class OrderManagementComponent implements OnInit {
   // Danh sách đơn hàng
   orders: OrderManagement[] = [];
   filteredOrders: OrderManagement[] = [];
+  allOrders: OrderManagement[] = []; // Tất cả đơn hàng để lọc
 
   // Phân trang
   currentPage = 1;
@@ -46,9 +47,9 @@ export class OrderManagementComponent implements OnInit {
 
   // Hằng số trạng thái đơn hàng
   readonly ORDER_STATUS = {
-    COMPLETED: 0,    // Đã hoàn thành
-    PAID: 1,         // Đã thanh toán
-    USED: 2          // Đã sử dụng
+    REFUNDED: 0,    // Đã hoàn tiền
+    CONFIRMED: 1,   // Đã xác nhận/thanh toán
+    USED: 2         // Đã sử dụng
   };
 
   constructor(
@@ -57,6 +58,7 @@ export class OrderManagementComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadOrders();
+    this.loadAllOrders(); // Tải tất cả đơn hàng để lọc
 
     // Khởi tạo modal
     setTimeout(() => {
@@ -76,6 +78,25 @@ export class OrderManagementComponent implements OnInit {
 
     // Thêm style để sửa lỗi backdrop
     this.addBackdropFixStylesheet();
+  }
+
+  // Tải tất cả đơn hàng để sử dụng cho bộ lọc
+  loadAllOrders(): void {
+    this.isLoading = true;
+
+    // Tải với số lượng lớn để lấy tất cả đơn hàng
+    this.orderService.getOrderList(undefined, undefined, 1, 1000)
+      .subscribe({
+        next: (response) => {
+          this.allOrders = response.data;
+          console.log('Đã tải tất cả đơn hàng:', this.allOrders.length);
+          this.isLoading = false;
+        },
+        error: (error) => {
+          console.error('Lỗi khi tải tất cả đơn hàng:', error);
+          this.isLoading = false;
+        }
+      });
   }
 
   // Thêm stylesheet để sửa lỗi backdrop modal
@@ -151,30 +172,80 @@ export class OrderManagementComponent implements OnInit {
     this.loadOrders();
   }
 
+  // Xóa tất cả bộ lọc
+  clearAllFilters(): void {
+    this.searchTerm = '';
+    this.selectedStatus = -1;
+    this.fromDate = null;
+    this.toDate = null;
+    this.currentPage = 1;
+
+    // Tải lại tất cả dữ liệu
+    this.loadAllOrders();
+
+    // Đợi một chút để dữ liệu được tải xong rồi áp dụng bộ lọc
+    setTimeout(() => {
+      this.applyFilters();
+    }, 200);
+  }
+
   // Lọc đơn hàng theo từ khóa
   applySearchFilter(): void {
-    if (!this.searchTerm.trim()) {
-      this.filteredOrders = [...this.orders];
-      return;
-    }
-
-    const searchTermLower = this.searchTerm.toLowerCase().trim();
-    this.filteredOrders = this.orders.filter(order =>
-      order.orderCode.toLowerCase().includes(searchTermLower) ||
-      order.email.toLowerCase().includes(searchTermLower)
-    );
+    this.applyFilters();
   }
 
   // Lọc đơn hàng theo trạng thái
   applyStatusFilter(): void {
-    if (this.selectedStatus === -1) {
-      this.filteredOrders = [...this.orders];
+    this.applyFilters();
+  }
+
+  // Áp dụng tất cả các bộ lọc
+  applyFilters(): void {
+    // Kiểm tra xem allOrders có dữ liệu không
+    if (!this.allOrders || this.allOrders.length === 0) {
+      console.log('Không có dữ liệu để lọc');
       return;
     }
 
-    this.filteredOrders = this.orders.filter(order =>
-      order.status === this.selectedStatus
-    );
+    console.log('Bắt đầu lọc dữ liệu...');
+    console.log('Tổng số đơn hàng trước khi lọc:', this.allOrders.length);
+
+    // Bắt đầu với tất cả dữ liệu
+    let filtered = [...this.allOrders];
+
+    // Lọc theo trạng thái
+    if (this.selectedStatus !== -1) {
+      console.log('Lọc theo trạng thái:', this.selectedStatus);
+      filtered = filtered.filter(order => order.status === this.selectedStatus);
+      console.log('Sau khi lọc theo trạng thái:', filtered.length);
+    }
+
+    // Lọc theo từ khóa tìm kiếm
+    if (this.searchTerm && this.searchTerm.trim() !== '') {
+      const searchTermLower = this.searchTerm.toLowerCase().trim();
+      console.log('Lọc theo từ khóa:', searchTermLower);
+      filtered = filtered.filter(order =>
+        order.orderCode.toLowerCase().includes(searchTermLower) ||
+        order.email.toLowerCase().includes(searchTermLower)
+      );
+      console.log('Sau khi lọc theo từ khóa:', filtered.length);
+    }
+
+    // Cập nhật tổng số bản ghi và tính toán phân trang
+    this.totalRecords = filtered.length;
+    this.calculateTotalPages();
+
+    // Nếu trang hiện tại lớn hơn tổng số trang, quay lại trang 1
+    if (this.currentPage > this.totalPages && this.totalPages > 0) {
+      this.currentPage = 1;
+    }
+
+    // Phân trang kết quả
+    const startIndex = (this.currentPage - 1) * this.recordPerPage;
+    const endIndex = startIndex + this.recordPerPage;
+    this.filteredOrders = filtered.slice(startIndex, endIndex);
+
+    console.log('Kết quả cuối cùng:', this.filteredOrders.length);
   }
 
   // Xem chi tiết đơn hàng
@@ -231,10 +302,10 @@ export class OrderManagementComponent implements OnInit {
   // Lấy tên trạng thái đơn hàng
   getStatusText(status: number): string {
     switch (status) {
-      case this.ORDER_STATUS.COMPLETED:
-        return 'Đã hoàn thành';
-      case this.ORDER_STATUS.PAID:
-        return 'Đã thanh toán';
+      case this.ORDER_STATUS.REFUNDED:
+        return 'Đã hoàn tiền';
+      case this.ORDER_STATUS.CONFIRMED:
+        return 'Đã xác nhận';
       case this.ORDER_STATUS.USED:
         return 'Đã sử dụng';
       default:
@@ -245,9 +316,9 @@ export class OrderManagementComponent implements OnInit {
   // Lấy class CSS cho trạng thái
   getStatusClass(status: number): string {
     switch (status) {
-      case this.ORDER_STATUS.COMPLETED:
+      case this.ORDER_STATUS.REFUNDED:
         return 'bg-success';
-      case this.ORDER_STATUS.PAID:
+      case this.ORDER_STATUS.CONFIRMED:
         return 'bg-primary';
       case this.ORDER_STATUS.USED:
         return 'bg-info';

@@ -20,6 +20,7 @@ import { ServiceTypeManagementComponent } from './dichvu/service-type-management
 // import { STATISTICS_ROUTES } from './statistics/statistics-routing';
 import { DashboardComponent } from './statistics/dashboard/dashboard.component';
 import { MembershipbenenitManagementComponent } from './membership/membershipbenenit-management/membershipbenenit-management.component';
+import { OrderManagementComponent } from './order-management/order-management.component';
 
 export const routes: Routes = [
   // Public routes that don't require authentication
@@ -46,9 +47,7 @@ export const routes: Routes = [
       { path: 'pricing-rules', component: PricingRuleComponent },
       { path: 'service', component: ServiceManagementComponent },
       { path: 'service-type', component: ServiceTypeManagementComponent },
-
-
-
+      { path: 'orders', component: OrderManagementComponent },
       { path: 'voucher', component: VoucherManagementComponent },
       { path: 'voucher-usage', component: VoucherUsageManagementComponent },
       { path: 'voucher-ui', component: VoucherUiComponent },

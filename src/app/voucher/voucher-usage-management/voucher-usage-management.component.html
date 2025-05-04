@@ -19,11 +19,11 @@
     </button>
 
     <!-- Search Box -->
-    <input type="text" class="form-control" placeholder="Tìm kiếm..." [(ngModel)]="searchTerm" (keyup.enter)="search()"
+    <!-- <input type="text" class="form-control" placeholder="Tìm kiếm..." [(ngModel)]="searchTerm" (keyup.enter)="search()"
       style="width: 70%; height: 55px; margin-left: auto">
     <button class="btn btn-primary mb-4" type="button" (click)="search()">
       <i class="fas fa-search"></i>
-    </button>
+    </button> -->
   </div>
 
   <!-- Voucher Info if filtering by voucher ID -->
@@ -44,8 +44,8 @@
           <p><strong>Ngày bắt đầu:</strong> {{ formatDate(voucherInfo.startDate) }}</p>
           <p><strong>Ngày kết thúc:</strong> {{ formatDate(voucherInfo.endDate) }}</p>
           <p><strong>Trạng thái:</strong>
-            <span class="badge" [ngClass]="voucherInfo.status ? 'bg-success' : 'bg-danger'">
-              {{ voucherInfo.status ? 'Hoạt động' : 'Không hoạt động' }}
+            <span class="badge" [ngClass]="voucherInfo.status == 1 ? 'bg-success' : 'bg-warning'">
+              {{ voucherInfo.status == 1 ? 'Hoạt động' : 'Đã hết hạn' }}
             </span>
           </p>
         </div>

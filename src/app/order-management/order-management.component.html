@@ -1,0 +1,287 @@
+<div class="container-fluid">
+    <!-- Header -->
+    <div class="dashboard-header p-0">
+        <div class="row align-items-center">
+            <div class="col-md-6">
+                <h2 class="mb-0 text-gradient">Quản lý đơn hàng</h2>
+                <p class="text-muted">Xem thông tin chi tiết về đơn hàng</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Orders Table -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <!-- Filters -->
+                    <div class="row mb-3">
+                        <!-- Status Filter -->
+                        <div class="col-md-3">
+                            <select class="custom-header-select" [(ngModel)]="selectedStatus"
+                                (change)="applyStatusFilter()">
+                                <option value="-1">Tất cả trạng thái</option>
+                                <option [value]="ORDER_STATUS.COMPLETED">Đã hoàn tiền</option>
+                                <option [value]="ORDER_STATUS.PAID">Đã thanh toán</option>
+                                <option [value]="ORDER_STATUS.USED">Đã sử dụng</option>
+                            </select>
+                        </div>
+
+                        <!-- Search Filter -->
+                        <div class="col-md-5">
+                            <div class="custom-header-search">
+                                <input type="text" class="custom-header-input"
+                                    placeholder="Tìm kiếm theo mã đơn hàng, email..." [(ngModel)]="searchTerm"
+                                    (keyup.enter)="applySearchFilter()">
+                                <button class="custom-header-search-btn" type="button" (click)="applySearchFilter()">
+                                    <i class="fas fa-search me-1"></i> Tìm kiếm
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Date Range Filter -->
+                        <div class="col-md-4 d-flex align-items-center">
+                            <div class="input-group me-2" style="max-width: 150px;">
+                                <input type="date" class="form-control date-picker" [(ngModel)]="fromDate"
+                                    placeholder="Từ ngày">
+                            </div>
+                            <div class="input-group me-2" style="max-width: 150px;">
+                                <input type="date" class="form-control date-picker" [(ngModel)]="toDate"
+                                    placeholder="Đến ngày">
+                            </div>
+                            <button class="btn btn-primary me-1" (click)="applyDateFilter()" style="width: 80px;">
+                                <i class="fas fa-filter me-1"></i> Lọc
+                            </button>
+                            <button class="btn btn-outline-secondary" (click)="clearDateFilter()" style="width: 40px;">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-body pt-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle" style="border-top: 1px solid #2c2e33;">
+                            <thead>
+                                <tr>
+                                    <th class="text-center" style="width: 50px;">#</th>
+                                    <th style="cursor: pointer" (click)="sort('orderCode')">
+                                        Mã đơn hàng <i class="fas" [ngClass]="getSortIcon('orderCode')"></i>
+                                    </th>
+                                    <th style="cursor: pointer" (click)="sort('email')">
+                                        Email <i class="fas" [ngClass]="getSortIcon('email')"></i>
+                                    </th>
+                                    <th style="cursor: pointer" (click)="sort('totalPrice')">
+                                        Tổng tiền <i class="fas" [ngClass]="getSortIcon('totalPrice')"></i>
+                                    </th>
+                                    <th style="cursor: pointer" (click)="sort('createdDate')">
+                                        Ngày tạo <i class="fas" [ngClass]="getSortIcon('createdDate')"></i>
+                                    </th>
+                                    <th style="cursor: pointer" (click)="sort('status')">
+                                        Trạng thái <i class="fas" [ngClass]="getSortIcon('status')"></i>
+                                    </th>
+                                    <th class="text-center" style="width: 120px;">Thao tác</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Loading spinner -->
+                                <tr *ngIf="isLoading">
+                                    <td colspan="7" class="text-center">
+                                        <div class="spinner-border text-primary" role="status">
+                                            <span class="visually-hidden">Đang tải...</span>
+                                        </div>
+                                    </td>
+                                </tr>
+
+                                <!-- No data message -->
+                                <tr *ngIf="!isLoading && filteredOrders.length === 0">
+                                    <td colspan="7" class="text-center">Không có dữ liệu</td>
+                                </tr>
+
+                                <!-- Order rows -->
+                                <tr *ngFor="let order of filteredOrders; let i = index">
+                                    <td class="text-center">{{ (currentPage - 1) * recordPerPage + i + 1 }}</td>
+                                    <td>{{ order.orderCode }}</td>
+                                    <td>{{ order.email }}</td>
+                                    <td>{{ order.formattedTotalPrice }}</td>
+                                    <td>{{ order.formattedCreatedDate }}</td>
+                                    <td>
+                                        <span class="badge" [ngClass]="getStatusClass(order.status)">
+                                            {{ order.statusText }}
+                                        </span>
+                                    </td>
+                                    <td class="text-center">
+                                        <button class="btn btn-outline-primary btn-sm w-100"
+                                            (click)="viewOrderDetail(order.id)">
+                                            <i class="fas fa-eye"></i> Chi tiết
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Pagination -->
+                    <div class="d-flex justify-content-between align-items-center mt-3" *ngIf="totalPages > 0">
+                        <div>
+                            Hiển thị {{ filteredOrders.length }} / {{ totalRecords }} bản ghi
+                        </div>
+                        <nav aria-label="Page navigation">
+                            <ul class="pagination mb-0">
+                                <li class="page-item" [class.disabled]="currentPage === 1">
+                                    <a class="page-link" href="javascript:void(0)" (click)="goToPage(1)">
+                                        <i class="fas fa-angle-double-left"></i>
+                                    </a>
+                                </li>
+                                <li class="page-item" [class.disabled]="currentPage === 1">
+                                    <a class="page-link" href="javascript:void(0)" (click)="goToPage(currentPage - 1)">
+                                        <i class="fas fa-angle-left"></i>
+                                    </a>
+                                </li>
+                                <li class="page-item" *ngFor="let page of pages" [class.active]="page === currentPage">
+                                    <a class="page-link" href="javascript:void(0)" (click)="goToPage(page)">{{ page
+                                        }}</a>
+                                </li>
+                                <li class="page-item" [class.disabled]="currentPage === totalPages">
+                                    <a class="page-link" href="javascript:void(0)" (click)="goToPage(currentPage + 1)">
+                                        <i class="fas fa-angle-right"></i>
+                                    </a>
+                                </li>
+                                <li class="page-item" [class.disabled]="currentPage === totalPages">
+                                    <a class="page-link" href="javascript:void(0)" (click)="goToPage(totalPages)">
+                                        <i class="fas fa-angle-double-right"></i>
+                                    </a>
+                                </li>
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Order Detail Modal -->
+<div class="modal fade" id="orderDetailModal" tabindex="-1" aria-labelledby="orderDetailModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="orderDetailModalLabel">
+                    <i class="fas fa-info-circle me-2"></i>
+                    Chi tiết đơn hàng
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                    aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-3" *ngIf="selectedOrder">
+                <!-- Order Information -->
+                <div class="card mb-4">
+                    <div class="card-header d-flex align-items-center">
+                        <i class="fas fa-file-invoice me-2 text-primary"></i>
+                        <h6 class="mb-0">Thông tin đơn hàng</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6 mb-2">
+                                <p class="mb-2"><strong>Mã đơn hàng:</strong> <span class="text-white">{{
+                                        selectedOrder.orderCode }}</span></p>
+                                <p class="mb-2"><strong>Email:</strong> <span class="text-white">{{ selectedOrder.email
+                                        }}</span></p>
+                                <p class="mb-2"><strong>Ngày tạo:</strong> <span class="text-white">{{
+                                        selectedOrder.formattedCreatedDate }}</span></p>
+                            </div>
+                            <div class="col-md-6 mb-2">
+                                <p class="mb-2"><strong>Tổng tiền:</strong> <span class="text-white">{{
+                                        selectedOrder.formattedTotalPrice }}</span></p>
+                                <p class="mb-2">
+                                    <strong>Trạng thái:</strong>
+                                    <span class="badge ms-2" [ngClass]="getStatusClass(selectedOrder.status)">
+                                        {{ selectedOrder.statusText }}
+                                    </span>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tickets Section -->
+                <div class="card mb-4" *ngIf="selectedOrder.tickets && selectedOrder.tickets.length > 0">
+                    <div class="card-header d-flex align-items-center">
+                        <i class="fas fa-ticket-alt me-2 text-warning"></i>
+                        <h6 class="mb-0">Danh sách vé ({{ selectedOrder.tickets.length }})</h6>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>Mã vé</th>
+                                        <th>Phim</th>
+                                        <th>Rạp / Phòng</th>
+                                        <th>Ghế</th>
+                                        <th>Suất chiếu</th>
+                                        <th>Giá vé</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr *ngFor="let ticket of selectedOrder.tickets">
+                                        <td><span class="badge bg-info">{{ ticket.ticketCode }}</span></td>
+                                        <td>{{ ticket.movieName }}</td>
+                                        <td>{{ ticket.cinemaName }} / {{ ticket.roomName }}</td>
+                                        <td><span class="badge bg-primary">{{ ticket.seatName }}</span></td>
+                                        <td>{{ ticket.showTime }}</td>
+                                        <td class="text-success">{{ ticket.formattedPrice }}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Services Section -->
+                <div class="card" *ngIf="selectedOrder.services && selectedOrder.services.length > 0">
+                    <div class="card-header d-flex align-items-center">
+                        <i class="fas fa-utensils me-2 text-success"></i>
+                        <h6 class="mb-0">Danh sách dịch vụ ({{ selectedOrder.services.length }})</h6>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>Tên dịch vụ</th>
+                                        <th>Đơn giá</th>
+                                        <th>Số lượng</th>
+                                        <th>Thành tiền</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr *ngFor="let service of selectedOrder.services">
+                                        <td>{{ service.serviceName }}</td>
+                                        <td>{{ service.formattedPrice }}</td>
+                                        <td class="text-center">
+                                            <span class="badge bg-primary">{{ service.quantity }}</span>
+                                        </td>
+                                        <td class="text-success">{{ service.formattedTotalPrice }}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- No tickets or services message -->
+                <div class="alert alert-info d-flex align-items-center" *ngIf="(!selectedOrder.tickets || selectedOrder.tickets.length === 0) &&
+                               (!selectedOrder.services || selectedOrder.services.length === 0)">
+                    <i class="fas fa-info-circle me-2"></i>
+                    <span>Đơn hàng này không có vé hoặc dịch vụ nào.</span>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-1"></i>Đóng
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

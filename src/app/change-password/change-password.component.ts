@@ -142,7 +142,7 @@ export class ChangePasswordModalComponent implements OnInit {
       newPassword: this.passwordForm.get('newPassword')?.value
     };
 
-    this.http.post(`${environment.apiUrl}/Employee/ChangePassword`, changePasswordData)
+    this.http.post(`${environment.apiUrl}Employee/ChangePassword`, changePasswordData)
       .subscribe({
         next: (response: any) => {
           this.isLoading = false;

@@ -402,7 +402,8 @@ export class AddMovieModalComponent implements OnInit, AfterViewInit {
 
       this.movieService.createMovie(formData).subscribe({
         next: (response) => {
-          if (response.responseCode === 1) {
+          // Kiểm tra responseCode để xác định thành công (chấp nhận cả 1 và 200)
+          if (response.responseCode === 1 || response.responseCode === 200) {
             // Hiển thị SweetAlert2 khi thành công
             Swal.fire({
               icon: 'success',
@@ -423,7 +424,7 @@ export class AddMovieModalComponent implements OnInit, AfterViewInit {
               }
             });
           } else {
-
+            // Hiển thị thông báo lỗi khi responseCode không phải 1 hoặc 200
             Swal.fire({
               icon: 'error',
               title: 'Lỗi!',
@@ -437,10 +438,17 @@ export class AddMovieModalComponent implements OnInit, AfterViewInit {
         },
         error: (error) => {
           console.error('Error creating movie:', error);
+          let errorMessage = 'Có lỗi xảy ra khi thêm phim';
+
+          // Kiểm tra nếu có thông báo lỗi cụ thể từ API
+          if (error.error && error.error.message) {
+            errorMessage = error.error.message;
+          }
+
           Swal.fire({
             icon: 'error',
             title: 'Lỗi!',
-            text: 'Có lỗi xảy ra khi thêm phim',
+            text: errorMessage,
             confirmButtonText: 'Đóng',
             customClass: {
               confirmButton: 'btn btn-danger',

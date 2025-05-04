@@ -593,6 +593,24 @@ export class CinemaManagementComponent implements OnInit, OnDestroy {
                                 'success'
                             );
                             this.loadCinemas();
+                        } else if (response.responseCode === -202) {
+                            // Mã lỗi -202: Rạp có lịch chiếu trong tương lai
+                            Swal.fire({
+                                title: 'Không thể xóa!',
+                                text: 'Rạp này đang có lịch chiếu trong tương lai. Bạn chỉ có thể chỉnh sửa thông tin rạp.',
+                                icon: 'warning',
+                                confirmButtonText: 'Chỉnh sửa rạp',
+                                showCancelButton: true,
+                                cancelButtonText: 'Đóng'
+                            }).then((result) => {
+                                if (result.isConfirmed) {
+                                    // Tìm cinema để mở modal chỉnh sửa
+                                    const cinema = this.cinemas.find(c => c.cinemasId === id);
+                                    if (cinema) {
+                                        this.openEditModal(cinema);
+                                    }
+                                }
+                            });
                         } else {
                             Swal.fire(
                                 'Lỗi!',

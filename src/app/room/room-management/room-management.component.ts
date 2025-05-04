@@ -307,10 +307,32 @@ export class RoomManagementComponent implements OnInit {
     }).then((result) => {
       if (result.isConfirmed) {
         this.roomService.deleteRoom(id).subscribe({
-          next: (_) => { // Sử dụng _ để chỉ ra rằng tham số không được sử dụng
-            Swal.fire('Thành công', 'Xóa phòng thành công.', 'success');
-            this.loadRooms();
-            this.loadAllRooms(); // Cập nhật lại danh sách tất cả phòng
+          next: (response) => {
+            if (response.responseCode === 200) {
+              Swal.fire('Thành công', 'Xóa phòng thành công.', 'success');
+              this.loadRooms();
+              this.loadAllRooms(); // Cập nhật lại danh sách tất cả phòng
+            } else if (response.responseCode === -202) {
+              // Mã lỗi -202: Phòng có lịch chiếu trong tương lai
+              Swal.fire({
+                title: 'Không thể xóa!',
+                text: 'Phòng này đang có lịch chiếu trong tương lai. Bạn chỉ có thể chỉnh sửa thông tin phòng.',
+                icon: 'warning',
+                confirmButtonText: 'Chỉnh sửa phòng',
+                showCancelButton: true,
+                cancelButtonText: 'Đóng'
+              }).then((result) => {
+                if (result.isConfirmed) {
+                  // Mở modal chỉnh sửa phòng
+                  const room = this.rooms.find(r => r.id === id);
+                  if (room) {
+                    this.editRoomv2(id);
+                  }
+                }
+              });
+            } else {
+              Swal.fire('Lỗi', response.message || 'Có lỗi xảy ra khi xóa phòng', 'error');
+            }
           },
           error: (error) => {
             Swal.fire('Lỗi', 'Lỗi khi xóa phòng: ' + error.message, 'error');

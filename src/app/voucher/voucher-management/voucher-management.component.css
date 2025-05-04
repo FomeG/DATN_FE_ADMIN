@@ -114,6 +114,13 @@
   color: white;
 }
 
+
+.badge-all {
+  background: linear-gradient(to right, #5bc729, #072da1) !important;
+  color: white;
+}
+
+
 .btn-outline-primary,
 .btn-outline-warning,
 .btn-outline-danger {

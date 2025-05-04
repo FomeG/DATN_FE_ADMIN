@@ -65,7 +65,7 @@ export class AgeRatingDialogComponent implements OnInit {
       this.ageRatingForm.patchValue({
         code: this.data.ageRating.code,
         description: this.data.ageRating.description,
-        minimumAge: this.data.ageRating.minAge
+        minimumAge: this.data.ageRating.minimumAge
       });
     }
   }

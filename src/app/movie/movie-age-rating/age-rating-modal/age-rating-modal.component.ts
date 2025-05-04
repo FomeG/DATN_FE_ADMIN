@@ -1,7 +1,7 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { AgeRatingService, AgeRating } from '../../services/age-rating.service';
+import { AgeRatingService, AgeRating } from '../../../services/age-rating.service';
 import Swal from 'sweetalert2';
 
 @Component({

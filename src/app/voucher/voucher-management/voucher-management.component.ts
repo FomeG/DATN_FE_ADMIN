@@ -396,6 +396,8 @@ export class VoucherManagementComponent implements OnInit {
         return 'Vé';
       case 2:
         return 'Dịch vụ';
+      case 3:
+        return 'Tất cả';
       default:
         return 'Không xác định';
     }
@@ -408,6 +410,8 @@ export class VoucherManagementComponent implements OnInit {
         return 'badge-ticket'; // Sẽ định nghĩa trong CSS
       case 2:
         return 'badge-service'; // Sẽ định nghĩa trong CSS
+      case 3:
+        return 'badge-all'; // Sẽ định nghĩa trong CSS
       default:
         return 'bg-secondary';
     }

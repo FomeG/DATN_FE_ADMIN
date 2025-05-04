@@ -7,7 +7,7 @@ export interface AgeRating {
   ageRatingId: string;
   code: string;
   description: string;
-  minAge: number;
+  minimumAge: number;
   status: number;
 }
 

@@ -79,7 +79,7 @@
               <select class="form-control" id="ageRatingId" formControlName="ageRatingId">
                 <option value="">-- Chọn xếp hạng độ tuổi --</option>
                 <option *ngFor="let rating of ageRatings" [value]="rating.ageRatingId">
-                  {{rating.code}} - {{rating.description}} ({{rating.minAge}}+)
+                  {{rating.code}} - {{rating.description}} ({{rating.minimumAge}}+)
                 </option>
               </select>
               <div class="input-group-append">

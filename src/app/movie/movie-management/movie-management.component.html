@@ -130,8 +130,7 @@
                           <div class="d-flex flex-wrap gap-1 mt-1">
                             <span *ngIf="movie.ageRatingCode"
                               class="badge bg-warning text-dark">{{movie.ageRatingCode}}</span>
-                            <span *ngFor="let format of movie.formats"
-                              class="badge format-badge"
+                            <span *ngFor="let format of movie.formats" class="badge format-badge"
                               [ngClass]="'format-' + (format.formatId | slice:0:8)">
                               {{format.name}}
                             </span>
@@ -143,7 +142,8 @@
                     <td>{{movie.duration}}</td>
                     <td>{{movie.releaseDate | date:'dd/MM/yyyy'}}</td>
                     <td>
-                      <span class="badge" [ngClass]="{'bg-success': movie.status === 1, 'bg-danger': movie.status === 2}">
+                      <span class="badge"
+                        [ngClass]="{'bg-success': movie.status === 1, 'bg-danger': movie.status === 2}">
                         {{movie.status === 1 ? 'Đang phát hành' : 'Đã kết thúc'}}
                       </span>
                     </td>

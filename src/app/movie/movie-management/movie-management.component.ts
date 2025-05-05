@@ -146,6 +146,21 @@ export class MovieManagementComponent implements OnInit {
               );
               this.loadMovies();
               this.loadAllMovies(); // Refresh the all movies cache too
+            } else if (response.responseCode === -202) {
+              // Mã lỗi -202: Phim có lịch chiếu trong tương lai
+              Swal.fire({
+                title: 'Không thể xóa!',
+                text: 'Phim này đang có lịch chiếu trong tương lai. Bạn chỉ có thể chỉnh sửa thông tin phim.',
+                icon: 'warning',
+                confirmButtonText: 'Chỉnh sửa phim',
+                showCancelButton: true,
+                cancelButtonText: 'Đóng'
+              }).then((result) => {
+                if (result.isConfirmed) {
+                  // Chuyển hướng đến trang chỉnh sửa phim
+                  this.onEditMovie(movieId);
+                }
+              });
             } else {
               Swal.fire(
                 'Lỗi!',

@@ -92,8 +92,24 @@ export class ServiceManagementComponent implements OnInit {
   calculatePagination(): void {
     this.totalPages = Math.ceil(this.totalRecords / this.recordPerPage);
     this.pages = [];
-    for (let i = 1; i <= this.totalPages; i++) {
-      this.pages.push(i);
+
+    // Giới hạn hiển thị tối đa 5 trang
+    if (this.totalPages <= 5) {
+      // Nếu tổng số trang <= 5, hiển thị tất cả các trang
+      for (let i = 1; i <= this.totalPages; i++) {
+        this.pages.push(i);
+      }
+    } else {
+      // Nếu tổng số trang > 5, hiển thị 5 trang xung quanh trang hiện tại
+      const startPage = Math.max(1, this.currentPage - 2);
+      const endPage = Math.min(this.totalPages, startPage + 4);
+
+      // Điều chỉnh lại startPage nếu endPage đã đạt giới hạn
+      const adjustedStartPage = Math.max(1, endPage - 4);
+
+      for (let i = adjustedStartPage; i <= endPage; i++) {
+        this.pages.push(i);
+      }
     }
   }
 
@@ -169,12 +185,14 @@ export class ServiceManagementComponent implements OnInit {
     }
 
     const formData = this.serviceForm.value;
-    const serviceData = {
-      ...formData,
-      photo: this.selectedImage
-    };
 
     if (this.isEditing) {
+      // Khi cập nhật, chỉ gửi ảnh nếu người dùng đã chọn ảnh mới
+      const serviceData = {
+        ...formData,
+        photo: this.selectedImage // Có thể null nếu không chọn ảnh mới
+      };
+
       this.serviceManagementService.updateService(serviceData)
         .subscribe({
           next: (response: any) => {
@@ -206,6 +224,22 @@ export class ServiceManagementComponent implements OnInit {
           }
         });
     } else {
+      // Khi tạo mới, kiểm tra xem đã chọn ảnh chưa
+      if (!this.selectedImage) {
+        Swal.fire({
+          title: 'Lỗi!',
+          text: 'Vui lòng chọn ảnh cho dịch vụ mới',
+          icon: 'error',
+          confirmButtonText: 'OK'
+        });
+        return;
+      }
+
+      const serviceData = {
+        ...formData,
+        photo: this.selectedImage
+      };
+
       this.serviceManagementService.createService(serviceData)
         .subscribe({
           next: (response: any) => {
@@ -341,6 +375,6 @@ export class ServiceManagementComponent implements OnInit {
 
   getServiceTypeName(serviceTypeID: string): string {
     const serviceType = this.serviceTypes.find(t => t.id === serviceTypeID);
-    return serviceType?.serviceTypeName || 'Không xác định';
+    return serviceType?.name || 'Không xác định';
   }
 }

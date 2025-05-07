@@ -1,5 +1,5 @@
-import { Component } from '@angular/core';
-import { Router } from '@angular/router';
+import { Component, OnInit } from '@angular/core';
+import { Router, ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../auth/auth.service';
@@ -12,21 +12,37 @@ import { RouterModule } from '@angular/router';
   standalone: true,
   imports: [CommonModule, RouterModule, FormsModule],
 })
-export class LoginComponent {
+export class LoginComponent implements OnInit {
   username: string = '';
   password: string = '';
   rememberMe: boolean = false;
   errorMessage: string = '';
   isLoading: boolean = false;
+  returnUrl: string = '/statistics';
 
   constructor(
     private router: Router,
+    private route: ActivatedRoute,
     private authService: AuthService,
   ) {
     document.body.classList.add('auth', 'login-bg');
+  }
 
-    if (this.authService.isLoggedIn()) {
-      this.router.navigate(['/movies']);
+  ngOnInit(): void {
+    // Lấy thông báo lỗi từ route nếu có
+    this.route.queryParams.subscribe(params => {
+      if (params['error']) {
+        this.errorMessage = params['error'];
+      }
+
+      if (params['returnUrl']) {
+        this.returnUrl = params['returnUrl'];
+      }
+    });
+
+    // Kiểm tra nếu đã đăng nhập và có quyền Admin thì chuyển hướng
+    if (this.authService.isLoggedIn() && this.authService.hasAdminRole()) {
+      this.router.navigate([this.returnUrl]);
     }
   }
 
@@ -36,7 +52,7 @@ export class LoginComponent {
 
   onSubmit() {
     if (!this.username || !this.password) {
-      this.errorMessage = 'Please enter both username and password';
+      this.errorMessage = 'Vui lòng nhập tên đăng nhập và mật khẩu';
       return;
     }
 
@@ -46,14 +62,22 @@ export class LoginComponent {
     this.authService.login(this.username, this.password).subscribe({
       next: (response) => {
         if (response.responseCode === 200) {
-          this.router.navigate(['/movies']);
+          // Kiểm tra xem người dùng có role Admin không
+          const user = this.authService.getCurrentUser();
+          if (user && user.roles.includes('Admin')) {
+            this.router.navigate([this.returnUrl]);
+          } else {
+            // Nếu không có quyền Admin, đăng xuất và hiển thị thông báo
+            this.authService.logout();
+            this.errorMessage = 'Bạn không có quyền truy cập. Chỉ tài khoản Admin mới được phép đăng nhập.';
+          }
         } else {
-          this.errorMessage = response.message || 'Login failed';
+          this.errorMessage = response.message || 'Đăng nhập thất bại';
         }
       },
       error: (error) => {
         console.error('Login error:', error);
-        this.errorMessage = error.error?.message || 'Login failed. Please try again.';
+        this.errorMessage = error.error?.message || 'Đăng nhập thất bại. Vui lòng thử lại.';
       },
       complete: () => {
         this.isLoading = false;

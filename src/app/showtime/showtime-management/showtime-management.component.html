@@ -35,7 +35,7 @@
       </div>
 
       <!-- Bộ lọc trạng thái -->
-      <div class="col-md-2">
+      <!-- <div class="col-md-2">
         <select class="custom-header-select" [(ngModel)]="selectedStatus" (change)="onStatusChange()">
           <option [value]="-1">Tất cả trạng thái</option>
           <option [value]="1">Sắp chiếu</option>
@@ -43,8 +43,9 @@
           <option [value]="3">Đang chiếu</option>
           <option [value]="4">Đã kết thúc</option>
           <option [value]="5">Đang bảo trì</option>
+          <option [value]="6">Đã hoàn tiền</option>
         </select>
-      </div>
+      </div> -->
 
       <!-- Nút xóa bộ lọc -->
       <div class="col-2">
@@ -85,7 +86,7 @@
   <!-- Showtimes Table -->
   <div class="row">
     <div class="col-12">
-      <div class="card">
+      <div class="card mb-0">
         <div class="card-header">
           <div class="d-flex justify-content-between align-items-center m-0">
 
@@ -129,12 +130,24 @@
                 <thead>
                   <tr>
                     <th class="text-center" style="width: 50px">#</th>
-                    <th>Phim</th>
-                    <th>Thời lượng</th>
-                    <th>Phòng</th>
-                    <th>Thời gian bắt đầu</th>
-                    <th>Thời gian kết thúc</th>
-                    <th class="text-center">Trạng thái</th>
+                    <th style="cursor: pointer" (click)="sort('movieName')">
+                      Phim <i class="fas" [ngClass]="getSortIcon('movieName')"></i>
+                    </th>
+                    <th style="cursor: pointer" (click)="sort('duration')">
+                      Thời lượng <i class="fas" [ngClass]="getSortIcon('duration')"></i>
+                    </th>
+                    <th style="cursor: pointer" (click)="sort('roomName')">
+                      Phòng <i class="fas" [ngClass]="getSortIcon('roomName')"></i>
+                    </th>
+                    <th style="cursor: pointer" (click)="sort('startTime')">
+                      Thời gian bắt đầu <i class="fas" [ngClass]="getSortIcon('startTime')"></i>
+                    </th>
+                    <th style="cursor: pointer" (click)="sort('endTime')">
+                      Thời gian kết thúc <i class="fas" [ngClass]="getSortIcon('endTime')"></i>
+                    </th>
+                    <th class="text-center" style="cursor: pointer" (click)="sort('status')">
+                      Trạng thái <i class="fas" [ngClass]="getSortIcon('status')"></i>
+                    </th>
                     <th class="text-center" style="width: 250px">Thao tác</th>
                   </tr>
                 </thead>
@@ -152,20 +165,31 @@
                       </span>
                     </td>
                     <td class="text-center">
-                      <button class="btn btn-outline-warning btn-rounded" (click)="editShowtime(showtime)"
+                      <!-- <button class="btn btn-outline-warning btn-rounded" (click)="editShowtime(showtime)"
                         [disabled]="!canEditShowtime(showtime)"
                         [title]="!canEditShowtime(showtime) ? 'Chỉ có thể sửa suất chiếu chưa bắt đầu hoặc sắp bán vé' : 'Sửa'">
                         <i class="fas fa-edit me-1"></i>
-                      </button>
+                      </button> -->
                       <button class="btn btn-outline-danger btn-rounded" (click)="deleteShowtime(showtime.id)"
                         [disabled]="!canDeleteShowtime(showtime)"
                         [title]="!canDeleteShowtime(showtime) ? 'Không thể xóa suất chiếu đang chiếu hoặc sắp chiếu' : 'Xóa'">
                         <i class="fas fa-trash me-1"></i>
                       </button>
+                      <button type="button" class="btn btn-outline-primary btn-rounded me-2"
+                        (click)="refundByShowtime(showtime.id)" title="Hoàn tiền cho suất chiếu">
+                        <i class="fas fa-history"></i>
+                      </button>
                     </td>
                   </tr>
-                  <tr *ngIf="showtimes.length === 0">
-                    <td colspan="7" class="text-center">Không tìm thấy showtime nào</td>
+                  <tr *ngIf="isLoading">
+                    <td colspan="8" class="text-center">
+                      <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Đang tải...</span>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr *ngIf="!isLoading && showtimes.length === 0">
+                    <td colspan="8" class="text-center">Không tìm thấy showtime nào</td>
                   </tr>
                 </tbody>
               </table>
@@ -176,20 +200,49 @@
         </div>
 
         <!-- Pagination -->
-        <nav *ngIf="totalRecords > recordPerPage" aria-label="Page navigation"
-          class="d-flex justify-content-center mt-4">
-          <ul class="pagination">
-            <li class="page-item" [class.disabled]="currentPage === 1">
-              <a class="page-link" (click)="onPageChange(currentPage - 1)" role="button">Trước</a>
-            </li>
-            <li class="page-item">
-              <span class="page-link">Trang {{currentPage}}</span>
-            </li>
-            <li class="page-item" [class.disabled]="currentPage * recordPerPage >= totalRecords">
-              <a class="page-link" (click)="onPageChange(currentPage + 1)" role="button">Sau</a>
-            </li>
-          </ul>
-        </nav>
+        <div class="d-flex justify-content-between align-items-center mt-3 p-3 mt-0" *ngIf="totalRecords > 0">
+          <div>
+            Hiển thị {{ showtimes.length }} / {{ totalRecords }} kết quả
+          </div>
+          <nav aria-label="Page navigation">
+            <ul class="pagination mb-0">
+              <li class="page-item" [ngClass]="{disabled: currentPage === 1}">
+                <a class="page-link" href="javascript:void(0)" (click)="onPageChange(1)">
+                  <i class="fas fa-angle-double-left"></i>
+                </a>
+              </li>
+              <li class="page-item" [ngClass]="{disabled: currentPage === 1}">
+                <a class="page-link" href="javascript:void(0)" (click)="onPageChange(currentPage - 1)">
+                  <i class="fas fa-angle-left"></i>
+                </a>
+              </li>
+              <!-- Hiển thị dấu ... ở đầu nếu trang đầu tiên không phải là 1 -->
+              <li class="page-item disabled" *ngIf="pages.length > 0 && pages[0] > 1">
+                <a class="page-link" href="javascript:void(0)">...</a>
+              </li>
+
+              <!-- Hiển thị các trang -->
+              <li class="page-item" *ngFor="let page of pages" [ngClass]="{active: page === currentPage}">
+                <a class="page-link" href="javascript:void(0)" (click)="onPageChange(page)">{{ page }}</a>
+              </li>
+
+              <!-- Hiển thị dấu ... ở cuối nếu trang cuối cùng không phải là totalPages -->
+              <li class="page-item disabled" *ngIf="pages.length > 0 && pages[pages.length - 1] < totalPages">
+                <a class="page-link" href="javascript:void(0)">...</a>
+              </li>
+              <li class="page-item" [ngClass]="{disabled: currentPage === totalPages}">
+                <a class="page-link" href="javascript:void(0)" (click)="onPageChange(currentPage + 1)">
+                  <i class="fas fa-angle-right"></i>
+                </a>
+              </li>
+              <li class="page-item" [ngClass]="{disabled: currentPage === totalPages}">
+                <a class="page-link" href="javascript:void(0)" (click)="onPageChange(totalPages)">
+                  <i class="fas fa-angle-double-right"></i>
+                </a>
+              </li>
+            </ul>
+          </nav>
+        </div>
       </div>
 
     </div>
@@ -198,11 +251,11 @@
 
 
   <!-- Report Issue Button -->
-  <div class="d-flex justify-content-end mb-3">
+  <!-- <div class="d-flex justify-content-end mb-3">
     <button class="btn btn-warning" (click)="openReportIssueModal()">
       <i class="fas fa-exclamation-triangle me-2"></i>Báo cáo sự cố
     </button>
-  </div>
+  </div> -->
 
 
   <!-- Thêm modal báo cáo sự cố vào cuối file -->
@@ -388,8 +441,6 @@
               <i class="fas fa-film me-1"></i>Phim <span class="text-danger">*</span>
             </label>
 
-
-
             <!-- Cho phép chọn phim cả khi thêm mới và khi chỉnh sửa -->
             <select class="form-select custom-select" id="movieId" formControlName="movieId"
               [ngClass]="{'is-invalid': showtimeForm.get('movieId')?.invalid && showtimeForm.get('movieId')?.touched}"
@@ -400,6 +451,19 @@
             <div class="invalid-feedback"
               *ngIf="showtimeForm.get('movieId')?.invalid && showtimeForm.get('movieId')?.touched">
               Vui lòng chọn phim
+            </div>
+
+            <!-- Movie Format Badges -->
+            <div *ngIf="selectedMovie" class="mt-2">
+              <div class="d-flex flex-wrap">
+                <span *ngFor="let format of selectedMovie.formats" class="format-badge"
+                  [ngClass]="'format-' + format.name.toLowerCase()">
+                  {{format.name}}
+                </span>
+              </div>
+              <div *ngIf="selectedMovie.formats && selectedMovie.formats.length > 0" class="mt-1 small text-muted">
+                <i class="fas fa-info-circle me-1"></i> Phim này chỉ có thể chiếu trong phòng có loại tương ứng
+              </div>
             </div>
           </div>
 
@@ -413,7 +477,9 @@
               (change)="onShowtimeDateChange()">
             <div class="invalid-feedback"
               *ngIf="showtimeForm.get('showtimeDate')?.invalid && showtimeForm.get('showtimeDate')?.touched">
-              Vui lòng chọn ngày chiếu
+              <span *ngIf="showtimeForm.get('showtimeDate')?.errors?.['required']">Vui lòng chọn ngày chiếu</span>
+              <span *ngIf="showtimeForm.get('showtimeDate')?.errors?.['dateInPast']">Ngày chiếu không được nhỏ
+                hơn ngày hiện tại</span>
             </div>
           </div>
 
@@ -480,9 +546,24 @@
                             <select class="form-select" [(ngModel)]="room.id" [ngModelOptions]="{standalone: true}"
                               (change)="onRoomChange(cinemaIndex, roomIndex)" [disabled]="room.loading">
                               <option value="">Chọn phòng</option>
-                              <option *ngFor="let r of getAvailableRoomsForDropdown(cinema, roomIndex)" [value]="r.id">
-                                {{r.name}}</option>
+                              <option *ngFor="let r of getAvailableRoomsForDropdown(cinema, roomIndex)" [value]="r.id"
+                                [ngClass]="{'text-success': isRoomCompatible(r), 'text-danger': !isRoomCompatible(r)}">
+                                {{r.name}} {{!isRoomCompatible(r) ? '(Không phù hợp)' : ''}}
+                              </option>
                             </select>
+
+                            <!-- Room Type Badge -->
+                            <div *ngIf="room.id && getRoomById(room.id)" class="mt-2 d-flex align-items-center">
+                              <div class="room-type-badge-container">
+                                <span class="room-type-badge"
+                                  [ngClass]="'room-type-' + getRoomTypeName(getRoomById(room.id).roomTypeId).toLowerCase()">
+                                  {{getRoomTypeName(getRoomById(room.id).roomTypeId)}}
+                                </span>
+                              </div>
+                              <span *ngIf="!isRoomCompatible(getRoomById(room.id))" class="format-error ms-2">
+                                <i class="fas fa-exclamation-triangle me-1"></i> Không phù hợp!
+                              </span>
+                            </div>
 
 
 
@@ -492,7 +573,7 @@
                         <div class="col-md-4">
                           <div class="form-group">
                             <label class="form-label">Thời gian bắt đầu</label>
-                            <input type="datetime-local" class="form-control" [(ngModel)]="room.startTime"
+                            <input type="time" class="form-control" [(ngModel)]="room.startTime"
                               [ngModelOptions]="{standalone: true}" (change)="calculateEndTime(cinemaIndex, roomIndex)">
                           </div>
                         </div>
@@ -501,7 +582,7 @@
                         <div class="col-md-4">
                           <div class="form-group">
                             <label class="form-label">Thời gian kết thúc</label>
-                            <input type="datetime-local" class="form-control" [(ngModel)]="room.endTime"
+                            <input type="time" class="form-control" [(ngModel)]="room.endTime"
                               [ngModelOptions]="{standalone: true}" readonly>
                           </div>
                         </div>
@@ -597,6 +678,17 @@
                           {{r.name}}
                         </option>
                       </select>
+
+                      <!-- Room Type Badge -->
+                      <div *ngIf="cinemaList[0].rooms[0].id && getRoomById(cinemaList[0].rooms[0].id)"
+                        class="mt-2 d-flex align-items-center">
+                        <div class="room-type-badge-container">
+                          <span class="room-type-badge"
+                            [ngClass]="'room-type-' + getRoomTypeName(getRoomById(cinemaList[0].rooms[0].id).roomTypeId).toLowerCase()">
+                            {{getRoomTypeName(getRoomById(cinemaList[0].rooms[0].id).roomTypeId)}}
+                          </span>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -605,7 +697,7 @@
                   <div class="col-md-6">
                     <div class="form-group">
                       <label class="form-label">Thời gian bắt đầu</label>
-                      <input type="datetime-local" class="form-control" [(ngModel)]="cinemaList[0].rooms[0].startTime"
+                      <input type="time" class="form-control" [(ngModel)]="cinemaList[0].rooms[0].startTime"
                         [ngModelOptions]="{standalone: true}" (change)="calculateEndTime(0, 0)">
                     </div>
                   </div>
@@ -613,8 +705,8 @@
                   <div class="col-md-6">
                     <div class="form-group">
                       <label class="form-label">Thời gian kết thúc</label>
-                      <input type="datetime-local" class="form-control" [(ngModel)]="cinemaList[0].rooms[0].endTime"
-                        [ngModelOptions]="{standalone: true}">
+                      <input type="time" class="form-control" [(ngModel)]="cinemaList[0].rooms[0].endTime"
+                        [ngModelOptions]="{standalone: true}" readonly>
                     </div>
                   </div>
                 </div>

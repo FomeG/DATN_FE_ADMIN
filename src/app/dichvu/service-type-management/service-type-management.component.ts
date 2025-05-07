@@ -148,12 +148,14 @@ export class ServiceTypeManagementComponent implements OnInit {
     }
 
     const formData = this.serviceTypeForm.value;
-    const serviceTypeData = {
-      ...formData,
-      photo: this.selectedImage
-    };
 
     if (this.isEditing) {
+      // Khi cập nhật, chỉ gửi ảnh nếu người dùng đã chọn ảnh mới
+      const serviceTypeData = {
+        ...formData,
+        photo: this.selectedImage // Có thể null nếu không chọn ảnh mới
+      };
+
       this.serviceTypeService.updateServiceType(serviceTypeData)
         .subscribe({
           next: (response: any) => {
@@ -185,6 +187,22 @@ export class ServiceTypeManagementComponent implements OnInit {
           }
         });
     } else {
+      // Khi tạo mới, kiểm tra xem đã chọn ảnh chưa
+      if (!this.selectedImage) {
+        Swal.fire({
+          title: 'Lỗi!',
+          text: 'Vui lòng chọn ảnh cho loại dịch vụ mới',
+          icon: 'error',
+          confirmButtonText: 'OK'
+        });
+        return;
+      }
+
+      const serviceTypeData = {
+        ...formData,
+        photo: this.selectedImage
+      };
+
       this.serviceTypeService.createServiceType(serviceTypeData)
         .subscribe({
           next: (response: any) => {

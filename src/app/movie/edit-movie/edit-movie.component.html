@@ -49,11 +49,38 @@
 
         <div class="col-md-6">
           <div class="form-group">
+            <label for="importDate" class="form-label">Ngày nhập phim <span class="text-danger">*</span></label>
+            <input type="date" class="form-control" id="importDate" formControlName="importDate"
+              [class.is-invalid]="movieForm.get('importDate')?.invalid && movieForm.get('importDate')?.touched">
+            <div class="invalid-feedback"
+              *ngIf="movieForm.get('importDate')?.invalid && movieForm.get('importDate')?.touched">
+              Vui lòng chọn ngày nhập phim
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-6">
+          <div class="form-group">
+            <label for="endDate" class="form-label">Ngày hết hạn <span class="text-danger">*</span></label>
+            <input type="date" class="form-control" id="endDate" formControlName="endDate"
+              [class.is-invalid]="movieForm.get('endDate')?.invalid && movieForm.get('endDate')?.touched">
+            <div class="invalid-feedback"
+              *ngIf="movieForm.get('endDate')?.invalid && movieForm.get('endDate')?.touched">
+              Vui lòng chọn ngày hết hạn
+            </div>
+            <div class="invalid-feedback" *ngIf="movieForm.errors?.['endDateInvalid']">
+              Ngày hết hạn không được nhỏ hơn ngày nhập phim
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-6">
+          <div class="form-group">
             <label for="ageRatingId" class="form-label">Xếp hạng độ tuổi</label>
             <select class="form-control" id="ageRatingId" formControlName="ageRatingId">
               <option value="">-- Chọn xếp hạng độ tuổi --</option>
               <option *ngFor="let rating of ageRatings" [value]="rating.ageRatingId">
-                {{rating.code}} - {{rating.description}} ({{rating.minAge}}+)
+                {{rating.code}} - {{rating.description}} ({{rating.minimumAge}}+)
               </option>
             </select>
           </div>

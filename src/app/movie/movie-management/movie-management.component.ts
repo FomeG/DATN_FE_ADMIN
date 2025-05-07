@@ -23,6 +23,7 @@ export class MovieManagementComponent implements OnInit {
   totalPages = 0;
   pages: number[] = [];
   searchTerm: string = '';
+  isLoading = false;
 
   // Sorting properties
   sortColumn: string = '';
@@ -41,6 +42,7 @@ export class MovieManagementComponent implements OnInit {
   }
 
   loadMovies() {
+    this.isLoading = true;
     this.movieService.getMovieList(this.currentPage, this.recordPerPage)
       .subscribe({
         next: (response) => {
@@ -53,15 +55,18 @@ export class MovieManagementComponent implements OnInit {
           if (this.allMovies.length === 0) {
             this.loadAllMovies();
           }
+          this.isLoading = false;
         },
         error: (error) => {
           console.error('Error loading movies:', error);
+          this.isLoading = false;
         }
       });
   }
 
   // Load all movies for client-side operations
   loadAllMovies() {
+    this.isLoading = true;
     // We'll use a large enough page size to get all movies in one request
     // Adjust this based on your total movie count
     this.movieService.getMovieList(1, 1000)
@@ -69,16 +74,32 @@ export class MovieManagementComponent implements OnInit {
         next: (response) => {
           this.allMovies = response.data;
           this.applyFilters();
+          this.isLoading = false;
         },
         error: (error) => {
           console.error('Error loading all movies:', error);
+          this.isLoading = false;
         }
       });
   }
 
   calculateTotalPages() {
     this.totalPages = Math.ceil(this.totalRecords / this.recordPerPage);
-    this.pages = Array.from({ length: this.totalPages }, (_, i) => i + 1);
+
+    // Giới hạn hiển thị tối đa 5 trang
+    if (this.totalPages <= 5) {
+      // Nếu tổng số trang <= 5, hiển thị tất cả các trang
+      this.pages = Array.from({ length: this.totalPages }, (_, i) => i + 1);
+    } else {
+      // Nếu tổng số trang > 5, hiển thị 5 trang xung quanh trang hiện tại
+      const startPage = Math.max(1, this.currentPage - 2);
+      const endPage = Math.min(this.totalPages, startPage + 4);
+
+      // Điều chỉnh lại startPage nếu endPage đã đạt giới hạn
+      const adjustedStartPage = Math.max(1, endPage - 4);
+
+      this.pages = Array.from({ length: 5 }, (_, i) => adjustedStartPage + i).filter(p => p <= this.totalPages);
+    }
   }
 
   onPageChange(page: number) {
@@ -125,6 +146,21 @@ export class MovieManagementComponent implements OnInit {
               );
               this.loadMovies();
               this.loadAllMovies(); // Refresh the all movies cache too
+            } else if (response.responseCode === -202) {
+              // Mã lỗi -202: Phim có lịch chiếu trong tương lai
+              Swal.fire({
+                title: 'Không thể xóa!',
+                text: 'Phim này đang có lịch chiếu trong tương lai. Bạn chỉ có thể chỉnh sửa thông tin phim.',
+                icon: 'warning',
+                confirmButtonText: 'Chỉnh sửa phim',
+                showCancelButton: true,
+                cancelButtonText: 'Đóng'
+              }).then((result) => {
+                if (result.isConfirmed) {
+                  // Chuyển hướng đến trang chỉnh sửa phim
+                  this.onEditMovie(movieId);
+                }
+              });
             } else {
               Swal.fire(
                 'Lỗi!',
@@ -149,6 +185,10 @@ export class MovieManagementComponent implements OnInit {
     this.router.navigate([`/movies/detail/${movieId}`]);
   }
 
+  navigateToSettings() {
+    this.router.navigate(['/movies/settings']);
+  }
+
   // Sort function
   sort(column: string) {
     if (this.sortColumn === column) {
@@ -169,6 +209,7 @@ export class MovieManagementComponent implements OnInit {
   }
 
   applyFilters() {
+    this.isLoading = true;
     // 1. Filter by search term
     let result = [...this.allMovies];
 
@@ -216,6 +257,7 @@ export class MovieManagementComponent implements OnInit {
     // 4. Apply pagination
     const startIndex = (this.currentPage - 1) * this.recordPerPage;
     this.filteredMovies = result.slice(startIndex, startIndex + this.recordPerPage);
+    this.isLoading = false;
   }
 
   // Helper method to get column sort icon

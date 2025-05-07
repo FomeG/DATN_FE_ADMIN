@@ -49,27 +49,28 @@ export class ServiceTypeService {
 
   createServiceType(data: CreateServiceTypeRequest): Observable<any> {
     const formData = new FormData();
-    formData.append('name', data.name);
-    formData.append('description', data.description);
-    
+
     if (data.photo) {
       formData.append('photo', data.photo);
     }
 
-    return this.http.post<any>(`${this.apiUrl}Service/CreateServiceType`, formData);
+    // Sử dụng query parameters thay vì form data cho các trường khác
+    const url = `${this.apiUrl}Service/CreateServiceType?Name=${encodeURIComponent(data.name)}&Description=${encodeURIComponent(data.description)}`;
+
+    return this.http.post<any>(url, formData);
   }
 
   updateServiceType(data: UpdateServiceTypeRequest): Observable<any> {
     const formData = new FormData();
-    formData.append('id', data.id);
-    formData.append('name', data.name);
-    formData.append('description', data.description);
-    
+
     if (data.photo) {
       formData.append('photo', data.photo);
     }
 
-    return this.http.post<any>(`${this.apiUrl}Service/UpdateServiceType`, formData);
+    // Sử dụng query parameters thay vì form data cho các trường khác
+    const url = `${this.apiUrl}Service/UpdateServiceType?Id=${data.id}&Name=${encodeURIComponent(data.name)}&Description=${encodeURIComponent(data.description)}`;
+
+    return this.http.post<any>(url, formData);
   }
 
   deleteServiceType(id: string): Observable<any> {

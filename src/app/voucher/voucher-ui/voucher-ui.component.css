@@ -1,0 +1,209 @@
+.img-thumbnail {
+  object-fit: cover;
+}
+
+.table th,
+.table td {
+  vertical-align: middle;
+}
+
+.badge {
+  font-size: 0.85rem;
+  padding: 0.35em 0.65em;
+}
+
+.pagination {
+  margin-bottom: 0;
+}
+
+.form-control:focus,
+.form-select:focus {
+  border-color: #86b7fe;
+  box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}
+
+.text-muted {
+  font-size: 0.875rem;
+}
+
+.modal-dialog {
+  max-width: 700px;
+}
+
+
+
+.custom-header-button {
+  display: block;
+  width: 100%;
+  height: 55px;
+  border-radius: 15px;
+  background: linear-gradient(to right, #0090e7, #0077b5);
+  border: none;
+  color: #ffffff;
+  font-weight: 500;
+  padding: 0 15px;
+  text-align: center;
+  font-size: 0.95rem;
+  box-shadow: 0 4px 10px rgba(0, 144, 231, 0.3);
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.custom-header-button:hover {
+  background: linear-gradient(to right, #0077b5, #005f92);
+  box-shadow: 0 8px 15px rgba(0, 144, 231, 0.4);
+}
+
+
+/* Add button styling */
+.custom-header-button {
+  height: 42px;
+  border-radius: 8px;
+  border: none;
+  background: linear-gradient(to right, #0090e7, #0077b5);
+  color: #ffffff;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease;
+}
+
+.custom-header-button:hover {
+  background: linear-gradient(to right, #0077b5, #005f92);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
+}
+
+
+
+.header-search {
+  width: 100%;
+  height: 42px;
+}
+
+.header-search .form-control {
+  height: 42px;
+  border-radius: 8px 0 0 8px;
+  background-color: #2A3038;
+  border-color: #2c2e33;
+  color: #ffffff;
+  padding: 0 15px;
+  font-size: 0.875rem;
+  box-shadow: 0 4px 10px rgba(42, 48, 56, 0.2);
+}
+
+.header-search .btn {
+  height: 42px;
+  border-radius: 0 8px 8px 0;
+  background: linear-gradient(to right, #0090e7, #0077b5);
+  border: none;
+  box-shadow: 0 4px 10px rgba(0, 144, 231, 0.3);
+}
+
+
+
+.form-select {
+  background-color: #2A3038 !important;
+  border: 1px solid #2c2e33 !important;
+  color: #ffffff !important;
+  border-radius: 8px;
+  padding: 10px 15px;
+  transition: all 0.3s ease;
+}
+
+.form-select:focus {
+  border-color: #0090e7 !important;
+  box-shadow: 0 0 0 0.2rem rgba(0, 144, 231, 0.25) !important;
+}
+
+
+
+/* ======== TABLE STYLING ======== */
+.table {
+  width: 100%;
+  margin-bottom: 0;
+  color: #ffffff;
+  table-layout: auto;
+}
+
+.table thead th {
+  border-top: none;
+  border-bottom: 1px solid #2c2e33;
+  font-weight: 500;
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  padding: 15px 12px;
+  color: #6c7293;
+  letter-spacing: 0.5px;
+  vertical-align: middle;
+}
+
+.table tbody tr:hover {
+  background-color: rgba(146, 146, 146, 0.05);
+}
+
+.table tr:hover td {
+  color: #ffffff !important;
+}
+
+.table td {
+  vertical-align: middle;
+  padding: 15px 12px;
+  border-top: 1px solid #2c2e33;
+  white-space: normal;
+  word-wrap: break-word;
+}
+
+/* Column-specific styles */
+/* Thumbnail column */
+.table td:first-child {
+  width: 100px;
+  text-align: center;
+}
+
+.table img {
+  width: 70px;
+  height: 100px;
+  object-fit: cover;
+  border-radius: 5px;
+  transition: transform 0.3s ease;
+}
+
+.table img:hover {
+  transform: scale(1.1);
+}
+
+
+
+.card-header{
+  border-bottom: 1px solid #2c2e33 !important;
+}
+
+/* Sortable columns styling */
+th.sortable {
+  cursor: pointer;
+  position: relative;
+  user-select: none;
+}
+
+th.sortable:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+th.sortable i {
+  margin-left: 5px;
+  font-size: 0.8rem;
+}
+
+th.sortable .fa-sort {
+  color: #6c7293;
+  opacity: 0.5;
+}
+
+th.sortable .fa-sort-up,
+th.sortable .fa-sort-down {
+  color: #0090e7;
+}

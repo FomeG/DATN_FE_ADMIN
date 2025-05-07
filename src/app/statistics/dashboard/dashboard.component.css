@@ -42,6 +42,16 @@
 
 .card-body {
   padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.chart-container {
+  flex: 1;
+  min-height: 500px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
 .placeholder {

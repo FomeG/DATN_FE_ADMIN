@@ -13,6 +13,8 @@ export interface Movie {
   duration: number;
   status: number;
   releaseDate: Date;
+  importDate: Date; // ngày nhập phim vào hệ thống
+  endDate: Date; // ngày hết hạn của phim
   listdienvien: Actor[];
   genres: Genre[];
   averageRating: number;
@@ -81,7 +83,8 @@ export class MovieService {
   }
 
   updateMovie(id: string, movieData: FormData): Observable<any> {
-    return this.http.post(`${this.apiUrl}Movie/UpdateMovie?MovieID=${id}`, movieData);
+    // Không cần thêm MovieID vào URL vì đã có trong FormData
+    return this.http.post(`${this.apiUrl}Movie/UpdateMovie`, movieData);
   }
 
 

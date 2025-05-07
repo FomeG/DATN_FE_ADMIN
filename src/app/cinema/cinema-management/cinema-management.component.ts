@@ -47,6 +47,7 @@ export class CinemaManagementComponent implements OnInit, OnDestroy {
     isEditing = false;
     searchTerm = '';
     statusFilter = '-1';
+    isLoading = false;
     private modalInstance: any;
     showAddModal = false;
     showEditModal = false;
@@ -187,13 +188,16 @@ export class CinemaManagementComponent implements OnInit, OnDestroy {
 
     loadCinemas(): void {
         // Luôn tải tất cả các rạp phim, sau đó sẽ lọc ở client
+        this.isLoading = true;
         this.cinemaService.getCinemas(1, 100).subscribe({
             next: (response) => {
                 if (response.responseCode === 200) {
                     this.allCinemas = response.data;
                     // Áp dụng bộ lọc tìm kiếm và trạng thái
                     this.filterCinemas();
+                    this.isLoading = false;
                 } else {
+                    this.isLoading = false;
                     Swal.fire({
                         title: 'Lỗi!',
                         text: response.message || 'Có lỗi xảy ra khi tải danh sách rạp',
@@ -203,6 +207,7 @@ export class CinemaManagementComponent implements OnInit, OnDestroy {
                 }
             },
             error: (error) => {
+                this.isLoading = false;
                 Swal.fire({
                     title: 'Lỗi!',
                     text: 'Có lỗi xảy ra khi tải danh sách rạp',
@@ -214,37 +219,39 @@ export class CinemaManagementComponent implements OnInit, OnDestroy {
     }
 
     filterCinemas(): void {
+        this.isLoading = true;
         // Bước 1: Lọc theo chuỗi tìm kiếm (tên hoặc địa chỉ)
         let filteredData = this.allCinemas;
-        
+
         if (this.searchTerm && this.searchTerm.trim() !== '') {
             const searchTermLower = this.searchTerm.toLowerCase().trim();
-            filteredData = filteredData.filter(cinema => 
-                cinema.name.toLowerCase().includes(searchTermLower) || 
+            filteredData = filteredData.filter(cinema =>
+                cinema.name.toLowerCase().includes(searchTermLower) ||
                 cinema.address.toLowerCase().includes(searchTermLower)
             );
         }
-        
+
         // Bước 2: Lọc theo trạng thái
         if (this.statusFilter !== '-1') {
             const status = parseInt(this.statusFilter, 10);
             filteredData = filteredData.filter(cinema => cinema.status === status);
         }
-        
+
         // Cập nhật kết quả lọc
         this.cinemas = filteredData;
         this.totalRecords = this.cinemas.length;
         this.calculateTotalPages();
-        
+
         // Nếu trang hiện tại lớn hơn tổng số trang, quay lại trang 1
         if (this.currentPage > this.totalPages && this.totalPages > 0) {
             this.currentPage = 1;
         }
-        
+
         // Phân trang kết quả
         const startIndex = (this.currentPage - 1) * this.recordPerPage;
         const endIndex = startIndex + this.recordPerPage;
         this.cinemas = filteredData.slice(startIndex, endIndex);
+        this.isLoading = false;
     }
 
     onSearch(): void {
@@ -496,7 +503,21 @@ export class CinemaManagementComponent implements OnInit, OnDestroy {
 
     calculateTotalPages(): void {
         this.totalPages = Math.ceil(this.totalRecords / this.recordPerPage);
-        this.pages = Array.from({ length: this.totalPages }, (_, i) => i + 1);
+
+        // Giới hạn hiển thị tối đa 5 trang
+        if (this.totalPages <= 5) {
+            // Nếu tổng số trang <= 5, hiển thị tất cả các trang
+            this.pages = Array.from({ length: this.totalPages }, (_, i) => i + 1);
+        } else {
+            // Nếu tổng số trang > 5, hiển thị 5 trang xung quanh trang hiện tại
+            const startPage = Math.max(1, this.currentPage - 2);
+            const endPage = Math.min(this.totalPages, startPage + 4);
+
+            // Điều chỉnh lại startPage nếu endPage đã đạt giới hạn
+            const adjustedStartPage = Math.max(1, endPage - 4);
+
+            this.pages = Array.from({ length: 5 }, (_, i) => adjustedStartPage + i).filter(p => p <= this.totalPages);
+        }
     }
 
     getStatusText(status: number): string {
@@ -572,6 +593,24 @@ export class CinemaManagementComponent implements OnInit, OnDestroy {
                                 'success'
                             );
                             this.loadCinemas();
+                        } else if (response.responseCode === -202) {
+                            // Mã lỗi -202: Rạp có lịch chiếu trong tương lai
+                            Swal.fire({
+                                title: 'Không thể xóa!',
+                                text: 'Rạp này đang có lịch chiếu trong tương lai. Bạn chỉ có thể chỉnh sửa thông tin rạp.',
+                                icon: 'warning',
+                                confirmButtonText: 'Chỉnh sửa rạp',
+                                showCancelButton: true,
+                                cancelButtonText: 'Đóng'
+                            }).then((result) => {
+                                if (result.isConfirmed) {
+                                    // Tìm cinema để mở modal chỉnh sửa
+                                    const cinema = this.cinemas.find(c => c.cinemasId === id);
+                                    if (cinema) {
+                                        this.openEditModal(cinema);
+                                    }
+                                }
+                            });
                         } else {
                             Swal.fire(
                                 'Lỗi!',
@@ -663,45 +702,46 @@ export class CinemaManagementComponent implements OnInit, OnDestroy {
 
     onLocationChanged(location: { lat: number, lng: number }): void {
         console.log('Location changed from map:', location);
-        
+
         // Lấy form hiện tại (createForm hoặc updateForm)
         const form = this.isEditing ? this.updateForm : this.createForm;
-        
+
         // Lấy giá trị hiện tại
         const currentLat = form.get('latitude')?.value;
         const currentLng = form.get('longitude')?.value;
-        
+
         // So sánh để tránh cập nhật lặp lại khi giá trị không thay đổi
         if (currentLat !== location.lat || currentLng !== location.lng) {
             console.log(`Updating form: from (${currentLat}, ${currentLng}) to (${location.lat}, ${location.lng})`);
-            
+
             // Cập nhật giá trị trên form
             form.patchValue({
                 latitude: location.lat,
                 longitude: location.lng
             });
-            
+
             // Đánh dấu form đã thay đổi
             form.get('latitude')?.markAsDirty();
             form.get('longitude')?.markAsDirty();
-            
+
             // Hiển thị thông báo nhỏ
             this.showLocationUpdateToast();
-            
+
             // Thực hiện reverse geocoding để tìm địa chỉ từ tọa độ
             this.reverseGeocode(location.lat, location.lng);
         }
     }
-    
+
     // Tìm địa chỉ từ tọa độ (reverse geocoding)
     private reverseGeocode(lat: number, lng: number): void {
-        fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&addressdetails=1`)
+        // Thêm tham số accept-language=vi để ưu tiên kết quả tiếng Việt
+        fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&addressdetails=1&accept-language=vi`)
             .then(response => response.json())
             .then(data => {
                 if (data && data.display_name) {
                     const form = this.isEditing ? this.updateForm : this.createForm;
                     const currentAddress = form.get('address')?.value;
-                    
+
                     // Định dạng địa chỉ từ kết quả
                     let formattedAddress = '';
                     if (data.address) {
@@ -709,7 +749,7 @@ export class CinemaManagementComponent implements OnInit, OnDestroy {
                     } else {
                         formattedAddress = data.display_name;
                     }
-                    
+
                     // Chỉ đề xuất cập nhật nếu địa chỉ hiện tại khác với địa chỉ tìm được
                     if (formattedAddress && (!currentAddress || formattedAddress !== currentAddress)) {
                         const Toast = Swal.mixin({
@@ -722,7 +762,7 @@ export class CinemaManagementComponent implements OnInit, OnDestroy {
                             timer: 10000,
                             timerProgressBar: true
                         });
-                        
+
                         Toast.fire({
                             icon: 'question',
                             title: 'Cập nhật địa chỉ từ vị trí?',
@@ -740,7 +780,7 @@ export class CinemaManagementComponent implements OnInit, OnDestroy {
                 console.error('Error in reverse geocoding:', error);
             });
     }
-    
+
     // Lấy vị trí hiện tại của người dùng
     getCurrentLocation(): void {
         if (navigator.geolocation) {
@@ -750,17 +790,17 @@ export class CinemaManagementComponent implements OnInit, OnDestroy {
                 allowOutsideClick: false,
                 didOpen: () => {
                     Swal.showLoading();
-                    
+
                     navigator.geolocation.getCurrentPosition(
                         (position) => {
                             const lat = position.coords.latitude;
                             const lng = position.coords.longitude;
-                            
+
                             Swal.close();
-                            
+
                             // Cập nhật vị trí
                             this.onLocationChanged({ lat, lng });
-                            
+
                             Swal.fire({
                                 title: 'Thành công!',
                                 text: 'Đã cập nhật vị trí hiện tại',
@@ -771,7 +811,7 @@ export class CinemaManagementComponent implements OnInit, OnDestroy {
                         },
                         (error) => {
                             Swal.close();
-                            
+
                             let errorMessage = 'Không thể xác định vị trí';
                             switch (error.code) {
                                 case error.PERMISSION_DENIED:
@@ -784,7 +824,7 @@ export class CinemaManagementComponent implements OnInit, OnDestroy {
                                     errorMessage = 'Yêu cầu xác định vị trí đã hết thời gian';
                                     break;
                             }
-                            
+
                             Swal.fire({
                                 title: 'Lỗi!',
                                 text: errorMessage,
@@ -792,7 +832,7 @@ export class CinemaManagementComponent implements OnInit, OnDestroy {
                                 confirmButtonText: 'OK'
                             });
                         },
-                        { 
+                        {
                             enableHighAccuracy: true,
                             timeout: 10000,
                             maximumAge: 0
@@ -809,13 +849,13 @@ export class CinemaManagementComponent implements OnInit, OnDestroy {
             });
         }
     }
-    
+
     // Mở Google Maps với tọa độ đã chọn
     openGoogleMaps(): void {
         const form = this.isEditing ? this.updateForm : this.createForm;
         const lat = form.get('latitude')?.value;
         const lng = form.get('longitude')?.value;
-        
+
         if (lat && lng) {
             const url = `https://www.google.com/maps?q=${lat},${lng}`;
             window.open(url, '_blank');
@@ -828,12 +868,12 @@ export class CinemaManagementComponent implements OnInit, OnDestroy {
             });
         }
     }
-    
+
     // Tìm kiếm địa chỉ và chuyển thành tọa độ
     searchAddressToCoordinates(): void {
         const form = this.isEditing ? this.updateForm : this.createForm;
         const address = form.get('address')?.value;
-        
+
         if (!address || address.trim() === '') {
             Swal.fire({
                 title: 'Lỗi',
@@ -850,22 +890,23 @@ export class CinemaManagementComponent implements OnInit, OnDestroy {
             allowOutsideClick: false,
             didOpen: () => {
                 Swal.showLoading();
-                
+
                 // Sử dụng Nominatim API của OpenStreetMap để tìm tọa độ từ địa chỉ
                 // API này miễn phí nhưng có giới hạn tần suất sử dụng
-                fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}&addressdetails=1`)
+                // Thêm tham số accept-language=vi để ưu tiên kết quả tiếng Việt
+                fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}&addressdetails=1&accept-language=vi`)
                     .then(response => response.json())
                     .then(data => {
                         Swal.close();
-                        
+
                         if (data && data.length > 0) {
                             const result = data[0];
                             const lat = parseFloat(result.lat);
                             const lng = parseFloat(result.lon);
-                            
+
                             // Cập nhật tọa độ
                             this.onLocationChanged({ lat, lng });
-                            
+
                             // Kiểm tra xem có thông tin địa chỉ chi tiết không và đề xuất cập nhật
                             if (result.address) {
                                 let formattedAddress = this.formatAddressFromNominatim(result.address);
@@ -913,49 +954,57 @@ export class CinemaManagementComponent implements OnInit, OnDestroy {
             }
         });
     }
-    
+
     // Định dạng địa chỉ từ kết quả Nominatim
     private formatAddressFromNominatim(addressObj: any): string {
         if (!addressObj) return '';
-        
+
         // Tạo danh sách các thành phần của địa chỉ theo thứ tự từ chi tiết đến tổng quát
         const addressParts = [];
-        
+
         // Thêm số nhà và đường
         if (addressObj.house_number) addressParts.push(addressObj.house_number);
         if (addressObj.road) addressParts.push(addressObj.road);
-        
-        // Thêm phường/xã, quận/huyện
+
+        // Thêm phường/xã
         if (addressObj.suburb) addressParts.push(addressObj.suburb);
         if (addressObj.quarter) addressParts.push(addressObj.quarter);
         if (addressObj.neighbourhood) addressParts.push(addressObj.neighbourhood);
+
+        // Thêm quận/huyện
         if (addressObj.district) addressParts.push(addressObj.district);
-        
+        if (addressObj.city_district) addressParts.push(addressObj.city_district);
+
         // Thêm thành phố/tỉnh
         if (addressObj.city) addressParts.push(addressObj.city);
         else if (addressObj.town) addressParts.push(addressObj.town);
         else if (addressObj.county) addressParts.push(addressObj.county);
-        
+
         // Thêm tỉnh nếu khác với thành phố
-        if (addressObj.state && 
-            addressObj.state !== addressObj.city && 
+        if (addressObj.state &&
+            addressObj.state !== addressObj.city &&
             addressObj.state !== addressObj.town) {
             addressParts.push(addressObj.state);
         }
-        
-        // Thêm quốc gia
-        if (addressObj.country) addressParts.push(addressObj.country);
-        
+
+        // Thêm quốc gia (có thể bỏ nếu chỉ muốn địa chỉ trong nước)
+        if (addressObj.country && addressObj.country !== 'Việt Nam' && addressObj.country !== 'Vietnam') {
+            addressParts.push(addressObj.country);
+        } else {
+            // Mặc định thêm Việt Nam nếu không có quốc gia hoặc là Việt Nam
+            addressParts.push('Việt Nam');
+        }
+
         // Ghép các thành phần lại với nhau
         return addressParts.join(', ');
     }
-    
+
     // Kiểm tra xem địa chỉ có thay đổi không
     onAddressChange(): void {
         console.log('Address changed, suggest to update coordinates');
         const form = this.isEditing ? this.updateForm : this.createForm;
         const addressControl = form.get('address');
-        
+
         if (addressControl && addressControl.dirty && addressControl.valid) {
             const Toast = Swal.mixin({
                 toast: true,
@@ -967,7 +1016,7 @@ export class CinemaManagementComponent implements OnInit, OnDestroy {
                 timer: 5000,
                 timerProgressBar: true
             });
-            
+
             Toast.fire({
                 icon: 'question',
                 title: 'Cập nhật tọa độ từ địa chỉ mới?'
@@ -978,7 +1027,7 @@ export class CinemaManagementComponent implements OnInit, OnDestroy {
             });
         }
     }
-    
+
     // Hàm hiển thị thông báo khi cập nhật vị trí
     private showLocationUpdateToast(): void {
         const Toast = Swal.mixin({
@@ -992,10 +1041,10 @@ export class CinemaManagementComponent implements OnInit, OnDestroy {
                 toast.addEventListener('mouseleave', Swal.resumeTimer);
             }
         });
-        
+
         Toast.fire({
             icon: 'success',
             title: 'Vị trí đã được cập nhật'
         });
     }
-} 
+}

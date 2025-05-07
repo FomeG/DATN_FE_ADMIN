@@ -40,7 +40,7 @@ export class LogManagementComponent implements OnInit {
   error: string | null = null;
   Math = Math; // Make Math available in the template
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   ngOnInit(): void {
     this.loadLogs();
@@ -49,7 +49,7 @@ export class LogManagementComponent implements OnInit {
   loadLogs(): void {
     this.loading = true;
     this.error = null;
-    
+
     this.http.get<ApiResponse>(`https://localhost:7263/api/Log/GetLogs?currentPage=${this.currentPage}&recordPerPage=${this.recordPerPage}`)
       .subscribe({
         next: (response) => {
@@ -57,7 +57,7 @@ export class LogManagementComponent implements OnInit {
             // Try to parse JSON strings
             let parsedBefore = null;
             let parsedAfter = null;
-            
+
             try {
               if (log.beforeChange) {
                 parsedBefore = JSON.parse(log.beforeChange);
@@ -65,7 +65,7 @@ export class LogManagementComponent implements OnInit {
             } catch (e) {
               console.warn('Could not parse beforeChange JSON:', e);
             }
-            
+
             try {
               if (log.afterChange) {
                 parsedAfter = JSON.parse(log.afterChange);
@@ -73,7 +73,7 @@ export class LogManagementComponent implements OnInit {
             } catch (e) {
               console.warn('Could not parse afterChange JSON:', e);
             }
-            
+
             return {
               ...log,
               parsedBeforeChange: parsedBefore,
@@ -82,7 +82,7 @@ export class LogManagementComponent implements OnInit {
               changeDateTime: new Date(log.changeDateTime).toLocaleString()
             };
           });
-          
+
           this.totalRecords = response.totalRecord;
           this.calculatePages();
           this.loading = false;
@@ -103,16 +103,16 @@ export class LogManagementComponent implements OnInit {
   calculatePages(): void {
     const totalPages = Math.ceil(this.totalRecords / this.recordPerPage);
     this.pages = [];
-    
+
     // Calculate the range of pages to show
     let startPage = Math.max(1, this.currentPage - 2);
     let endPage = Math.min(totalPages, startPage + 4);
-    
+
     // Adjust if we're near the end
     if (endPage - startPage < 4) {
       startPage = Math.max(1, endPage - 4);
     }
-    
+
     for (let i = startPage; i <= endPage; i++) {
       this.pages.push(i);
     }
@@ -122,7 +122,7 @@ export class LogManagementComponent implements OnInit {
     if (page < 1 || page > Math.ceil(this.totalRecords / this.recordPerPage) || page === this.currentPage) {
       return;
     }
-    
+
     this.currentPage = page;
     this.loadLogs();
   }

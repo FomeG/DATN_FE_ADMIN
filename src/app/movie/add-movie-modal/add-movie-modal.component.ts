@@ -10,8 +10,8 @@ import Swal from 'sweetalert2';
 
 // Import Material Dialog
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
-import { AgeRatingDialogComponent } from '../../age-rating/age-rating-dialog/age-rating-dialog.component';
-import { MovieFormatDialogComponent } from '../../movie-format/movie-format-dialog/movie-format-dialog.component';
+import { AgeRatingDialogComponent } from '../movie-age-rating/age-rating-dialog/age-rating-dialog.component';
+import { MovieFormatDialogComponent } from '../movie-format/movie-format-dialog/movie-format-dialog.component';
 
 declare var $: any; // Để sử dụng jQuery với Dropify
 
@@ -243,10 +243,10 @@ export class AddMovieModalComponent implements OnInit, AfterViewInit {
   onClickOutside(event: Event) {
     const element = event.target as HTMLElement;
     if (!element.closest('.actor-dropdown') && !element.closest('.genre-dropdown') &&
-        !element.closest('.format-dropdown') &&
-        !element.closest('input[placeholder="Tìm kiếm diễn viên..."]') &&
-        !element.closest('input[placeholder="Tìm kiếm thể loại..."]') &&
-        !element.closest('input[placeholder="Tìm kiếm định dạng phim..."]')) {
+      !element.closest('.format-dropdown') &&
+      !element.closest('input[placeholder="Tìm kiếm diễn viên..."]') &&
+      !element.closest('input[placeholder="Tìm kiếm thể loại..."]') &&
+      !element.closest('input[placeholder="Tìm kiếm định dạng phim..."]')) {
       this.showDropdown = false;
       this.showGenreDropdown = false;
       this.showFormatDropdown = false;
@@ -357,6 +357,8 @@ export class AddMovieModalComponent implements OnInit, AfterViewInit {
       formData.append('description', this.movieForm.value.description);
       formData.append('duration', this.movieForm.value.duration);
       formData.append('releaseDate', this.movieForm.value.releaseDate);
+      formData.append('importDate', this.movieForm.value.importDate);
+      formData.append('endDate', this.movieForm.value.endDate);
       formData.append('status', this.movieForm.value.status);
 
       // Add AgeRatingId if selected
@@ -380,28 +382,21 @@ export class AddMovieModalComponent implements OnInit, AfterViewInit {
       // Add actor IDs
       if (this.selectedActors && this.selectedActors.length > 0) {
         this.selectedActors.forEach(actor => {
-          formData.append('listActorID', actor.id);
+          formData.append('ListActorID', actor.id);
         });
       }
 
       // Add genre IDs
       if (this.selectedGenres && this.selectedGenres.length > 0) {
         this.selectedGenres.forEach(genre => {
-          formData.append('listGenreID', genre.id);
+          formData.append('ListGenreID', genre.id);
         });
       }
 
-      // Add actor IDs
-      if (this.selectedActors && this.selectedActors.length > 0) {
-        this.selectedActors.forEach(actor => {
-          formData.append('listActorID', actor.id);
-        });
-      }
-
-      // Add genre IDs
-      if (this.selectedGenres && this.selectedGenres.length > 0) {
-        this.selectedGenres.forEach(genre => {
-          formData.append('listGenreID', genre.id);
+      // Add format IDs
+      if (this.selectedFormats && this.selectedFormats.length > 0) {
+        this.selectedFormats.forEach(format => {
+          formData.append('listFormatID', format.formatId);
         });
       }
 
@@ -414,7 +409,8 @@ export class AddMovieModalComponent implements OnInit, AfterViewInit {
 
       this.movieService.createMovie(formData).subscribe({
         next: (response) => {
-          if (response.responseCode === 1) {
+          // Kiểm tra responseCode để xác định thành công (chấp nhận cả 1 và 200)
+          if (response.responseCode === 1 || response.responseCode === 200) {
             // Hiển thị SweetAlert2 khi thành công
             Swal.fire({
               icon: 'success',
@@ -426,19 +422,16 @@ export class AddMovieModalComponent implements OnInit, AfterViewInit {
               }
             }).then((result) => {
               if (result.isConfirmed) {
-                // Đóng modal
                 const modalElement = document.getElementById('addMovieModal');
                 if (modalElement) {
                   modalElement.click(); // Trigger click để đóng modal
                 }
-                // Emit event để refresh danh sách
                 this.movieAdded.emit();
-                // Reset form
                 this.closeModal();
               }
             });
           } else {
-            // Hiển thị lỗi với SweetAlert2
+            // Hiển thị thông báo lỗi khi responseCode không phải 1 hoặc 200
             Swal.fire({
               icon: 'error',
               title: 'Lỗi!',
@@ -452,10 +445,17 @@ export class AddMovieModalComponent implements OnInit, AfterViewInit {
         },
         error: (error) => {
           console.error('Error creating movie:', error);
+          let errorMessage = 'Có lỗi xảy ra khi thêm phim';
+
+          // Kiểm tra nếu có thông báo lỗi cụ thể từ API
+          if (error.error && error.error.message) {
+            errorMessage = error.error.message;
+          }
+
           Swal.fire({
             icon: 'error',
             title: 'Lỗi!',
-            text: 'Có lỗi xảy ra khi thêm phim',
+            text: errorMessage,
             confirmButtonText: 'Đóng',
             customClass: {
               confirmButton: 'btn btn-danger',
@@ -473,17 +473,40 @@ export class AddMovieModalComponent implements OnInit, AfterViewInit {
 
   // Cập nhật initForm để thêm listGenreID
   private initForm() {
+    // Tạo ngày mặc định cho ImportDate (hôm nay) và EndDate (1 năm sau)
+    const today = new Date();
+    const oneYearLater = new Date();
+    oneYearLater.setFullYear(today.getFullYear() + 1);
+
+    // Format dates to YYYY-MM-DD for form
+    const todayFormatted = today.toISOString().split('T')[0];
+    const oneYearLaterFormatted = oneYearLater.toISOString().split('T')[0];
+
     this.movieForm = this.fb.group({
       movieName: ['', Validators.required],
       description: ['', Validators.required],
       duration: [90, [Validators.required, Validators.min(1)]],
       releaseDate: ['', Validators.required],
+      importDate: [todayFormatted, Validators.required],
+      endDate: [oneYearLaterFormatted, Validators.required],
       status: [1],
       listActorID: [[]],
       listGenreID: [[]],
       ageRatingId: [''],
       listFormatID: [[]]
-    });
+    }, { validators: this.endDateValidator });
+  }
+
+  // Validator để kiểm tra EndDate không nhỏ hơn ImportDate
+  endDateValidator(formGroup: FormGroup) {
+    const importDate = formGroup.get('importDate')?.value;
+    const endDate = formGroup.get('endDate')?.value;
+
+    if (importDate && endDate && new Date(endDate) < new Date(importDate)) {
+      return { endDateInvalid: true };
+    }
+
+    return null;
   }
 
 

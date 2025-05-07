@@ -15,7 +15,7 @@ export class CinemaMapComponent implements OnInit, AfterViewInit, OnChanges {
   @Input() longitude: number = 106.6297;
   @Input() editable: boolean = false;
   @Input() mapHeight: string = '500px'; // Cho phép điều chỉnh chiều cao của bản đồ
-  @Output() locationChanged = new EventEmitter<{lat: number, lng: number}>();
+  @Output() locationChanged = new EventEmitter<{ lat: number, lng: number }>();
 
   private map!: L.Map;
   private marker!: L.Marker;
@@ -33,7 +33,7 @@ export class CinemaMapComponent implements OnInit, AfterViewInit, OnChanges {
     // Đảm bảo map container đã tồn tại trong DOM
     setTimeout(() => {
       this.initializeMap();
-      
+
       // Thiết lập ResizeObserver để tự động điều chỉnh kích thước bản đồ khi container thay đổi
       if (typeof ResizeObserver !== 'undefined') {
         this.resizeObserver = new ResizeObserver(() => {
@@ -41,12 +41,12 @@ export class CinemaMapComponent implements OnInit, AfterViewInit, OnChanges {
             setTimeout(() => this.map.invalidateSize(), 200);
           }
         });
-        
+
         if (this.mapContainer && this.mapContainer.nativeElement) {
           this.resizeObserver.observe(this.mapContainer.nativeElement);
         }
       }
-      
+
       // Thêm sự kiện listener cho khi modal được hiển thị
       if (this.mapContainer && this.mapContainer.nativeElement) {
         const modalElement = this.findParentModal(this.mapContainer.nativeElement);
@@ -63,7 +63,7 @@ export class CinemaMapComponent implements OnInit, AfterViewInit, OnChanges {
       }
     }, 300); // Tăng timeout để đảm bảo DOM đã render hoàn toàn
   }
-  
+
   private findParentModal(element: HTMLElement): HTMLElement | null {
     let current = element;
     while (current && !current.classList.contains('modal')) {
@@ -78,11 +78,11 @@ export class CinemaMapComponent implements OnInit, AfterViewInit, OnChanges {
     if ((changes['latitude'] || changes['longitude']) && this.isMapInitialized) {
       const lat = typeof this.latitude === 'string' ? parseFloat(this.latitude) : this.latitude;
       const lng = typeof this.longitude === 'string' ? parseFloat(this.longitude) : this.longitude;
-      
+
       this.updateMarkerPosition(lat, lng);
       console.log('Marker position updated:', lat, lng);
     }
-    
+
     // Cập nhật chiều cao của bản đồ nếu mapHeight thay đổi
     if (changes['mapHeight'] && this.mapContainer) {
       this.mapContainer.nativeElement.style.height = this.mapHeight;
@@ -97,16 +97,16 @@ export class CinemaMapComponent implements OnInit, AfterViewInit, OnChanges {
 
     try {
       console.log('Initializing map at:', this.latitude, this.longitude);
-      
+
       // Cập nhật chiều cao cho container nếu mapHeight được chỉ định
       if (this.mapHeight) {
         this.mapContainer.nativeElement.style.height = this.mapHeight;
       }
-      
+
       // Chuyển đổi chuỗi sang số nếu cần
       const lat = typeof this.latitude === 'string' ? parseFloat(this.latitude) : this.latitude;
       const lng = typeof this.longitude === 'string' ? parseFloat(this.longitude) : this.longitude;
-      
+
       // Kiểm tra tính hợp lệ của tọa độ
       if (isNaN(lat) || isNaN(lng)) {
         console.error('Invalid coordinates:', this.latitude, this.longitude);
@@ -122,7 +122,7 @@ export class CinemaMapComponent implements OnInit, AfterViewInit, OnChanges {
         maxZoom: 19,
         minZoom: 3
       });
-      
+
       // Thêm layer bản đồ OpenStreetMap
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         maxZoom: 19,
@@ -134,7 +134,7 @@ export class CinemaMapComponent implements OnInit, AfterViewInit, OnChanges {
       try {
         // Định nghĩa đường dẫn tới các icon Leaflet
         L.Icon.Default.prototype.options.imagePath = 'assets/media/';
-        
+
         // Sử dụng icon mặc định của Leaflet
         markerIcon = new L.Icon.Default();
       } catch (err) {
@@ -156,11 +156,11 @@ export class CinemaMapComponent implements OnInit, AfterViewInit, OnChanges {
         this.marker.on('dragend', () => {
           const position = this.marker.getLatLng();
           console.log('Marker dragged to:', position);
-          
+
           // Phát sự kiện với tọa độ mới
-          this.locationChanged.emit({ 
-            lat: parseFloat(position.lat.toFixed(6)), 
-            lng: parseFloat(position.lng.toFixed(6)) 
+          this.locationChanged.emit({
+            lat: parseFloat(position.lat.toFixed(6)),
+            lng: parseFloat(position.lng.toFixed(6))
           });
         });
 
@@ -169,23 +169,23 @@ export class CinemaMapComponent implements OnInit, AfterViewInit, OnChanges {
           const latlng = event.latlng;
           this.marker.setLatLng(latlng);
           console.log('Map clicked at:', latlng);
-          
+
           // Phát sự kiện với tọa độ mới
-          this.locationChanged.emit({ 
-            lat: parseFloat(latlng.lat.toFixed(6)), 
-            lng: parseFloat(latlng.lng.toFixed(6)) 
+          this.locationChanged.emit({
+            lat: parseFloat(latlng.lat.toFixed(6)),
+            lng: parseFloat(latlng.lng.toFixed(6))
           });
         });
       }
 
       // Đánh dấu là đã khởi tạo
       this.isMapInitialized = true;
-      
+
       // Buộc cập nhật kích thước bản đồ
       setTimeout(() => {
         this.map.invalidateSize();
       }, 500);
-      
+
     } catch (error) {
       console.error('Error initializing map:', error);
     }
@@ -194,7 +194,7 @@ export class CinemaMapComponent implements OnInit, AfterViewInit, OnChanges {
   // Phương thức để cập nhật vị trí marker từ bên ngoài
   updateMarkerPosition(lat: number, lng: number): void {
     if (!this.map || !this.marker) return;
-    
+
     try {
       console.log('Updating marker to:', lat, lng);
       const newLatLng = L.latLng(lat, lng);
@@ -204,28 +204,28 @@ export class CinemaMapComponent implements OnInit, AfterViewInit, OnChanges {
       console.error('Error updating marker position:', error);
     }
   }
-  
+
   // Phương thức công khai để trigger invalidateSize
   refreshMap(): void {
     if (this.map) {
       setTimeout(() => this.map.invalidateSize(), 200);
     }
   }
-  
+
   // Phóng to bản đồ
   zoomIn(): void {
     if (this.map) {
       this.map.zoomIn();
     }
   }
-  
+
   // Thu nhỏ bản đồ
   zoomOut(): void {
     if (this.map) {
       this.map.zoomOut();
     }
   }
-  
+
   ngOnDestroy(): void {
     // Dọn dẹp ResizeObserver khi component bị hủy
     if (this.resizeObserver && this.mapContainer && this.mapContainer.nativeElement) {

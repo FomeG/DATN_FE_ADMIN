@@ -66,7 +66,7 @@ export class EditRoomInfoComponent implements OnInit {
   openModal(roomId: string, totalSeats: number) {
     this.roomId = roomId;
     this.totalSeats = totalSeats;
-    
+
     // Find room in the list
     const room = this.roomService.getRooms(1, 1000).subscribe({
       next: (response) => {
@@ -85,6 +85,12 @@ export class EditRoomInfoComponent implements OnInit {
 
   onSubmit() {
     if (!this.room) return;
+
+    // Validate giá vé phải lớn hơn 0
+    if (this.seatPrice <= 0) {
+      Swal.fire('Lỗi', 'Giá vé phải lớn hơn 0', 'error');
+      return;
+    }
 
     const updateData = {
       id: this.roomId,
@@ -117,4 +123,4 @@ export class EditRoomInfoComponent implements OnInit {
       }
     });
   }
-} 
+}

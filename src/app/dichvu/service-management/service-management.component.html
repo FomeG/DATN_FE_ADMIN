@@ -10,13 +10,11 @@
     </div>
 
 
-    
   </div>
 
 
 
 
-  
 
   <div class="d-flex">
 
@@ -68,7 +66,7 @@
               </div>
 
             </div>
-            
+
           </div>
 
 
@@ -99,7 +97,7 @@
                   <th (click)="sort('price')" style="cursor: pointer; width: 150px">
                     Giá <i class="fas" [ngClass]="getSortIcon('price')"></i>
                   </th>
-                  <th style="width: 150px">Loại dịch vụ</th>
+                  <!-- <th style="width: 150px">Loại dịch vụ</th> -->
                   <th style="width: 200px" class="text-center">Thao tác</th>
                 </tr>
               </thead>
@@ -122,7 +120,7 @@
                   </td>
                   <td>{{ service.description }}</td>
                   <td>{{ service.price | number:'1.0-0' }} VNĐ</td>
-                  <td>{{ getServiceTypeName(service.serviceTypeID) }}</td>
+                  <!-- <td>{{ getServiceTypeName(service.serviceTypeID) }}</td> -->
                   <td class="text-center">
                     <button type="button" class="btn btn-outline-warning me-2" (click)="editService(service)">
                       <i class="fas fa-edit"></i>
@@ -132,42 +130,67 @@
                     </button>
                   </td>
                 </tr>
-                <tr *ngIf="services.length === 0">
+                <tr *ngIf="isLoading">
+                  <td colspan="7" class="text-center">
+                    <div class="spinner-border text-primary" role="status">
+                      <span class="visually-hidden">Đang tải...</span>
+                    </div>
+                  </td>
+                </tr>
+                <tr *ngIf="!isLoading && services.length === 0">
                   <td colspan="7" class="text-center py-3">Không tìm thấy dịch vụ nào</td>
                 </tr>
               </tbody>
             </table>
 
 
-            <span>Hiển thị {{ (currentPage - 1) * recordPerPage + 1 }} đến
-              {{ Math.min(currentPage * recordPerPage, totalRecords) }} của {{ totalRecords }} dịch vụ</span>
+
           </div>
 
           <!-- Pagination -->
-          <nav aria-label="Service pagination" *ngIf="totalPages > 1" class="mt-4">
-            <ul class="pagination justify-content-center">
-              <!-- Previous button -->
-              <li class="page-item" [class.disabled]="currentPage === 1">
-                <a class="page-link" href="javascript:void(0)" (click)="onPageChange(currentPage - 1)">
-                  Trước
-                </a>
-              </li>
+          <div class="d-flex justify-content-between align-items-center mt-3 p-3" *ngIf="totalPages > 0">
+            <div>
+              Hiển thị {{ services.length }} / {{ totalRecords }} kết quả
+            </div>
+            <nav aria-label="Page navigation">
+              <ul class="pagination mb-0">
+                <li class="page-item" [ngClass]="{disabled: currentPage === 1}">
+                  <a class="page-link" href="javascript:void(0)" (click)="onPageChange(1)">
+                    <i class="fas fa-angle-double-left"></i>
+                  </a>
+                </li>
+                <li class="page-item" [ngClass]="{disabled: currentPage === 1}">
+                  <a class="page-link" href="javascript:void(0)" (click)="onPageChange(currentPage - 1)">
+                    <i class="fas fa-angle-left"></i>
+                  </a>
+                </li>
+                <!-- Hiển thị dấu ... ở đầu nếu trang đầu tiên không phải là 1 -->
+                <li class="page-item disabled" *ngIf="pages.length > 0 && pages[0] > 1">
+                  <a class="page-link" href="javascript:void(0)">...</a>
+                </li>
 
-              <!-- Page numbers -->
-              <li class="page-item" *ngFor="let page of pages" [class.active]="page === currentPage">
-                <a class="page-link" href="javascript:void(0)" (click)="onPageChange(page)">
-                  {{page}}
-                </a>
-              </li>
+                <!-- Hiển thị các trang -->
+                <li class="page-item" *ngFor="let page of pages" [ngClass]="{active: page === currentPage}">
+                  <a class="page-link" href="javascript:void(0)" (click)="onPageChange(page)">{{ page }}</a>
+                </li>
 
-              <!-- Next button -->
-              <li class="page-item" [class.disabled]="currentPage === totalPages">
-                <a class="page-link" href="javascript:void(0)" (click)="onPageChange(currentPage + 1)">
-                  Sau
-                </a>
-              </li>
-            </ul>
-          </nav>
+                <!-- Hiển thị dấu ... ở cuối nếu trang cuối cùng không phải là totalPages -->
+                <li class="page-item disabled" *ngIf="pages.length > 0 && pages[pages.length - 1] < totalPages">
+                  <a class="page-link" href="javascript:void(0)">...</a>
+                </li>
+                <li class="page-item" [ngClass]="{disabled: currentPage === totalPages}">
+                  <a class="page-link" href="javascript:void(0)" (click)="onPageChange(currentPage + 1)">
+                    <i class="fas fa-angle-right"></i>
+                  </a>
+                </li>
+                <li class="page-item" [ngClass]="{disabled: currentPage === totalPages}">
+                  <a class="page-link" href="javascript:void(0)" (click)="onPageChange(totalPages)">
+                    <i class="fas fa-angle-double-right"></i>
+                  </a>
+                </li>
+              </ul>
+            </nav>
+          </div>
         </div>
       </div>
     </div>
@@ -258,15 +281,16 @@
                   <label for="serviceTypeID" class="form-label">Loại dịch vụ</label>
                   <select class="form-select" id="serviceTypeID" formControlName="serviceTypeID">
                     <option [value]="''">-- Chọn loại dịch vụ --</option>
-                    <option *ngFor="let type of serviceTypes" [value]="type.id">{{ type.serviceTypeName }}</option>
+                    <option *ngFor="let type of serviceTypes" [value]="type.id">{{ type.name }}</option>
                   </select>
                 </div>
               </div>
 
               <div class="col-md-6">
                 <div class="mb-3">
-                  <label for="photo" class="form-label">Hình ảnh</label>
+                  <label for="photo" class="form-label">Hình ảnh <span class="text-danger" *ngIf="!isEditing">*</span></label>
                   <input type="file" class="form-control" id="photo" (change)="onFileSelected($event)" accept="image/*">
+                  <small class="text-danger" *ngIf="!isEditing">Hình ảnh là bắt buộc khi tạo mới dịch vụ</small>
                 </div>
 
                 <div class="image-preview mt-3 text-center" *ngIf="imagePreview">

@@ -1,0 +1,45 @@
+<div class="modal fade" id="editPricingRuleModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title fw-bold">Sửa quy tắc giá</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form [formGroup]="ruleForm" class="p-2">
+          <!-- Rule Name Display -->
+          <div class="mb-4">
+            <label class="form-label fw-semibold text-primary">Tên quy tắc</label>
+            <div class="form-control-plaintext border-bottom">{{ rule?.ruleName }}</div>
+          </div>
+
+          <!-- Multiplier Input -->
+          <div class="mb-4">
+            <label class="form-label fw-semibold text-primary">Hệ số</label>
+            <div class="input-group">
+              <input type="number" class="form-control" formControlName="multiplier"
+                [class.is-invalid]="ruleForm.get('multiplier')?.invalid && ruleForm.get('multiplier')?.touched"
+                step="0.1">
+              <span class="input-group-text">×</span>
+            </div>
+            <div class="form-text text-muted">Nhập giá trị hệ số để tính giá</div>
+            <div class="invalid-feedback" *ngIf="ruleForm.get('multiplier')?.errors?.['required']">
+              Multiplier is required
+            </div>
+            <div class="invalid-feedback" *ngIf="ruleForm.get('multiplier')?.errors?.['min']">
+              Hệ số phải BẰNG hoặc LỚN HƠN 0
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-light" data-bs-dismiss="modal">
+          Đóng
+        </button>
+        <button type="button" class="btn btn-primary" (click)="onSubmit()" [disabled]="!ruleForm.valid">
+          Lưu thay đổi
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

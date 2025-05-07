@@ -1,6 +1,6 @@
 <div class="container-fluid">
 
-  
+
   <div class="dashboard-header p-0">
     <div class="row align-items-center">
       <div class="col-md-6">
@@ -9,196 +9,391 @@
       </div>
     </div>
 
-  <!-- Voucher Modal -->
-  <div class="modal fade" id="voucherModal" tabindex="-1" aria-labelledby="voucherModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="voucherModalLabel">
-            {{ isEditing ? 'Chỉnh sửa Voucher' : 'Thêm Voucher mới' }}
-          </h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-          <form [formGroup]="voucherForm" (ngSubmit)="onSubmit()">
-            <!-- Mã voucher -->
-            <div class=" mb-3">
-              <div class="form-group">
-                <label for="code" class="form-label">Mã Voucher <span class="text-danger">*</span></label>
-                <input type="text" class="form-control" id="code" formControlName="code" [readOnly]="isEditing">
-                <div *ngIf="voucherForm.get('code')?.touched && voucherForm.get('code')?.invalid" class="text-danger">
-                  <small *ngIf="voucherForm.get('code')?.errors?.['required']">Mã voucher là bắt buộc</small>
-                  <small *ngIf="voucherForm.get('code')?.errors?.['maxlength']">Mã voucher không được vượt quá 50 ký
-                    tự</small>
+    <!-- Voucher Modal -->
+    <div class="modal fade" id="voucherModal" tabindex="-1" aria-labelledby="voucherModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="voucherModalLabel">
+              {{ isEditing ? 'Chỉnh sửa Voucher' : 'Thêm Voucher mới' }}
+            </h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <form [formGroup]="voucherForm" (ngSubmit)="onSubmit()">
+              <!-- Mã voucher -->
+              <div class="mb-3">
+                <div class="form-group">
+                  <label for="code" class="form-label">Mã Voucher <span class="text-danger">*</span></label>
+                  <input type="text" class="form-control" id="code" formControlName="code" [readOnly]="isEditing">
+                  <div *ngIf="voucherForm.get('code')?.touched && voucherForm.get('code')?.invalid" class="text-danger">
+                    <small *ngIf="voucherForm.get('code')?.errors?.['required']">Mã voucher là bắt buộc</small>
+                    <small *ngIf="voucherForm.get('code')?.errors?.['maxlength']">Mã voucher không được vượt quá 50
+                      ký
+                      tự</small>
+                  </div>
                 </div>
               </div>
-            </div>
 
-          </form>
+              <!-- Loại giảm giá -->
+              <div class="mb-3">
+                <div class="form-group">
+                  <label for="discountType" class="form-label">Loại Giảm Giá <span class="text-danger">*</span></label>
+                  <select class="form-select" id="discountType" formControlName="discountType">
+                    <option value="PERCENT">Phần trăm (%)</option>
+                    <option value="FIXED">Số tiền cố định</option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- Giá trị giảm giá -->
+              <div class="mb-3">
+                <div class="form-group">
+                  <label for="discountValue" class="form-label">Giá Trị Giảm Giá <span
+                      class="text-danger">*</span></label>
+                  <div class="input-group">
+                    <input type="number" class="form-control" id="discountValue" formControlName="discountValue">
+                    <span class="input-group-text">
+                      {{ voucherForm.get('discountType')?.value === 'PERCENT' ? '%' : 'VNĐ' }}
+                    </span>
+                  </div>
+                  <div *ngIf="voucherForm.get('discountValue')?.touched && voucherForm.get('discountValue')?.invalid"
+                    class="text-danger">
+                    <small *ngIf="voucherForm.get('discountValue')?.errors?.['required']">Giá trị giảm giá là bắt
+                      buộc</small>
+                    <small *ngIf="voucherForm.get('discountValue')?.errors?.['min']">Giá trị giảm giá phải lớn hơn
+                      0</small>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Giá trị đơn hàng tối thiểu -->
+              <div class="mb-3">
+                <div class="form-group">
+                  <label for="minOrderValue" class="form-label">Giá Trị Đơn Hàng Tối Thiểu <span
+                      class="text-danger">*</span></label>
+                  <div class="input-group">
+                    <input type="number" class="form-control" id="minOrderValue" formControlName="minOrderValue">
+                    <span class="input-group-text">VNĐ</span>
+                  </div>
+                  <div *ngIf="voucherForm.get('minOrderValue')?.touched && voucherForm.get('minOrderValue')?.invalid"
+                    class="text-danger">
+                    <small *ngIf="voucherForm.get('minOrderValue')?.errors?.['required']">Giá trị đơn hàng tối thiểu là
+                      bắt
+                      buộc</small>
+                    <small *ngIf="voucherForm.get('minOrderValue')?.errors?.['min']">Giá trị đơn hàng tối thiểu phải lớn
+                      hơn
+                      hoặc bằng 0</small>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Loại voucher -->
+              <div class="mb-3">
+                <div class="form-group">
+                  <label for="voucherType" class="form-label">Áp dụng cho <span class="text-danger">*</span></label>
+                  <select class="form-select" id="voucherType" formControlName="voucherType">
+                    <option [value]="1">Vé xem phim</option>
+                    <option [value]="2">Dịch vụ (đồ ăn, đồ uống)</option>
+                    <option [value]="3">Tất cả</option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- Ngày bắt đầu -->
+              <div class="mb-3">
+                <div class="form-group">
+                  <label for="startDate" class="form-label">Ngày Bắt Đầu <span class="text-danger">*</span></label>
+                  <input type="date" class="form-control" id="startDate" formControlName="startDate">
+                  <div class="text-danger small"
+                    *ngIf="voucherForm.get('startDate')?.touched && voucherForm.get('startDate')?.invalid">
+                    <span *ngIf="voucherForm.get('startDate')?.errors?.['required']">Ngày bắt đầu là bắt buộc</span>
+                  </div>
+                  <div class="text-danger small"
+                    *ngIf="voucherForm.touched && voucherForm.errors?.['startDateBeforeToday']">
+                    Ngày bắt đầu không được nhỏ hơn ngày hiện tại
+                  </div>
+                </div>
+              </div>
+
+              <!-- Ngày kết thúc -->
+              <div class="mb-3">
+                <div class="form-group">
+                  <label for="endDate" class="form-label">Ngày Kết Thúc <span class="text-danger">*</span></label>
+                  <input type="date" class="form-control" id="endDate" formControlName="endDate">
+                  <div class="text-danger small"
+                    *ngIf="voucherForm.get('endDate')?.touched && voucherForm.get('endDate')?.invalid">
+                    <span *ngIf="voucherForm.get('endDate')?.errors?.['required']">Ngày kết thúc là bắt buộc</span>
+                  </div>
+                  <div class="text-danger small"
+                    *ngIf="voucherForm.touched && voucherForm.errors?.['endDateBeforeToday']">
+                    Ngày kết thúc không được nhỏ hơn ngày hiện tại
+                  </div>
+                  <div class="text-danger small"
+                    *ngIf="voucherForm.touched && voucherForm.errors?.['endDateBeforeStartDate']">
+                    Ngày kết thúc phải sau ngày bắt đầu
+                  </div>
+                </div>
+              </div>
+
+              <!-- Lượt sử dụng tối đa -->
+              <div class="mb-3">
+                <div class="form-group">
+                  <label for="maxUsage" class="form-label">Lượt Sử Dụng Tối Đa <span
+                      class="text-danger">*</span></label>
+                  <input type="number" class="form-control" id="maxUsage" formControlName="maxUsage">
+                  <div *ngIf="voucherForm.get('maxUsage')?.touched && voucherForm.get('maxUsage')?.invalid"
+                    class="text-danger">
+                    <small *ngIf="voucherForm.get('maxUsage')?.errors?.['required']">Lượt sử dụng tối đa là bắt
+                      buộc</small>
+                    <small *ngIf="voucherForm.get('maxUsage')?.errors?.['min']">Lượt sử dụng tối đa phải lớn hơn
+                      0</small>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Số lượng nhận tối đa -->
+              <div class="mb-3">
+                <div class="form-group">
+                  <label for="maxClaimCount" class="form-label">Số Lượng Nhận Tối Đa <span
+                      class="text-danger">*</span></label>
+                  <input type="number" class="form-control" id="maxClaimCount" formControlName="maxClaimCount">
+                  <div *ngIf="voucherForm.get('maxClaimCount')?.touched && voucherForm.get('maxClaimCount')?.invalid"
+                    class="text-danger">
+                    <small *ngIf="voucherForm.get('maxClaimCount')?.errors?.['required']">Số lượng nhận tối đa là bắt
+                      buộc</small>
+                    <small *ngIf="voucherForm.get('maxClaimCount')?.errors?.['min']">Số lượng nhận tối đa phải lớn hơn
+                      0</small>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Có thể dùng cùng voucher khác -->
+              <div class="mb-3">
+                <div class="form-group form-check">
+                  <input type="checkbox" class="form-check-input" id="isStackable" formControlName="isStackable">
+                  <label class="form-check-label" for="isStackable">Voucher có thể cộng dồn</label>
+                </div>
+              </div>
+
+              <!-- Mô tả -->
+              <div class="mb-3">
+                <div class="form-group">
+                  <label for="description" class="form-label">Mô Tả</label>
+                  <textarea class="form-control" id="description" formControlName="description" rows="4"></textarea>
+                </div>
+              </div>
+
+              <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Đóng</button>
+                <button type="submit" class="btn btn-primary" [disabled]="voucherForm.invalid">
+                  {{ isEditing ? 'Cập nhật' : 'Thêm mới' }}
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
       </div>
     </div>
-  </div>
-
-  <div class="d-flex mb-4">
-    <button class="btn-lg btn-primary" style="border-radius: 15px" data-bs-toggle="modal" data-bs-target="#voucherModal"
-      (click)="resetForm()">
-      <i class="fas fa-plus"></i> Thêm Voucher
-    </button>
-
-    <input type="text" class="form-control" placeholder="Tìm kiếm voucher..." [(ngModel)]="searchTerm"
-      (keyup.enter)="search()" style="width: 70%; height: 55px; margin-left: auto">
-    <button class="btn btn-primary mb-4" type="button" (click)="search()">
-      <i class="fas fa-search"></i>
-    </button>
-  </div>
-
-  <div class="row">
-    <div class="col-12">
-      <div class="card">
-        <div class="card-header">
 
 
+    <div class="row">
+      <div class="col-12">
+        <div class="card">
+          <div class="card-header">
 
 
-          <div class="d-flex justify-content-between align-items-center">
-            <h4 class="card-title mb-0">Danh sách Voucher</h4>
+            <div class="d-flex justify-content-between align-items-center m-0">
 
-            <!-- Dropdown số bản ghi mỗi trang -->
-            <div>
-              <select [(ngModel)]="recordPerPage" (change)="onRecordsPerPageChange()"
-                class="form-select form-select-sm">
-                <option [value]="10">10 bản ghi</option>
-                <option [value]="20">20 bản ghi</option>
-                <option [value]="50">50 bản ghi</option>
-                <option [value]="100">100 bản ghi</option>
-              </select>
+              <div class="col-md-4 d-flex">
+                <button class="btn-lg btn-primary header-button" data-bs-toggle="modal" data-bs-target="#voucherModal"
+                  (click)="resetForm()">
+                  <i class="fas fa-plus me-2"></i> Thêm Voucher
+                </button>
+
+
+              </div>
+
+              <div class="d-flex justify-content-between align-items-center m-0" style="gap: 0.5rem;">
+                <div class="input-group header-search">
+
+                  <input type="text" class="form-control" placeholder="Tìm kiếm voucher..." [(ngModel)]="searchTerm"
+                    (keyup.enter)="search()">
+                  <button class="btn btn-primary mb-4" type="button" (click)="search()">
+                    <i class="fas fa-search"></i>
+                  </button>
+
+
+                </div>
+
+
+
+                <!-- Dropdown số bản ghi mỗi trang -->
+                <div>
+                  <select [(ngModel)]="recordPerPage" (change)="onRecordsPerPageChange()"
+                    class="form-select form-select-sm">
+                    <option [value]="10">10 bản ghi</option>
+                    <option [value]="20">20 bản ghi</option>
+                    <option [value]="50">50 bản ghi</option>
+                    <option [value]="100">100 bản ghi</option>
+                  </select>
+                </div>
+
+              </div>
             </div>
+
+
+
           </div>
 
 
 
-        </div>
 
 
-
-
-
-        <div class="card-body">
-          <!-- Loading spinner -->
-          <div *ngIf="isLoading" class="text-center py-5">
-            <div class="spinner-border text-primary" role="status">
-              <span class="visually-hidden">Loading...</span>
+          <div class="card-body pt-0">
+            <!-- Loading spinner -->
+            <div *ngIf="isLoading" class="text-center py- mb-0">
+              <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+              </div>
+              <p class="mt-2">Đang tải dữ liệu...</p>
             </div>
-            <p class="mt-2">Đang tải dữ liệu...</p>
-          </div>
 
-          <!-- Table -->
-          <div class="table-responsive" *ngIf="!isLoading">
-            <table class="table table-bordered table-hover" style="border-top: 1px solid #2c2e33;">
-              <thead>
-                <tr>
-                  <th (click)="sort('code')" style="cursor: pointer; width: 10%">
-                    Mã Voucher <i class="fas" [ngClass]="getSortIcon('code')"></i>
-                  </th>
-                  <th (click)="sort('description')" style="cursor: pointer; width: 20%">
-                    Mô Tả <i class="fas" [ngClass]="getSortIcon('description')"></i>
-                  </th>
-                  <th (click)="sort('discountType')" style="cursor: pointer; width: 10%">
-                    Loại <i class="fas" [ngClass]="getSortIcon('discountType')"></i>
-                  </th>
-                  <th (click)="sort('discountValue')" style="cursor: pointer; width: 10%">
-                    Giá Trị <i class="fas" [ngClass]="getSortIcon('discountValue')"></i>
-                  </th>
-                  <th (click)="sort('startDate')" style="cursor: pointer; width: 10%">
-                    Ngày Bắt Đầu <i class="fas" [ngClass]="getSortIcon('startDate')"></i>
-                  </th>
-                  <th (click)="sort('endDate')" style="cursor: pointer; width: 10%">
-                    Ngày Kết Thúc <i class="fas" [ngClass]="getSortIcon('endDate')"></i>
-                  </th>
-                  <th (click)="sort('usedCount')" style="cursor: pointer; width: 10%">
-                    Lượt Sử Dụng <i class="fas" [ngClass]="getSortIcon('usedCount')"></i>
-                  </th>
-                  <th (click)="sort('status')" style="cursor: pointer; width: 10%">
-                    Trạng Thái <i class="fas" [ngClass]="getSortIcon('status')"></i>
-                  </th>
-                  <th style="width: 15%">Thao Tác</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr *ngFor="let voucher of filteredVouchers">
-                  <td style="font-weight: bold;">{{ voucher.code }}</td>
-                  <td>{{ voucher.description }}</td>
-                  <td>{{ getDiscountTypeLabel(voucher.discountType) }}</td>
-                  <td>{{ formatDiscountValue(voucher) }}</td>
-                  <td>{{ formatDate(voucher.startDate) }}</td>
-                  <td>{{ formatDate(voucher.endDate) }}</td>
-                  <td>{{ voucher.usedCount }}/{{ voucher.maxUsage }}</td>
-                  <td>
-                    <span class="badge" [ngClass]="getStatusBadgeClass(voucher.status)">
-                      {{ getStatusText(voucher.status) }}
-                    </span>
-                  </td>
-                  <td>
-                    <button type="button" class="btn btn-outline-primary btn-rounded me-2"
-                      (click)="goToVoucherUsageHistory(voucher.id)">
-                      <i class="fas fa-history"></i>
-                    </button>
-                    <button type="button" class="btn btn-outline-warning btn-rounded me-2"
-                      (click)="editVoucher(voucher)" data-bs-toggle="modal" data-bs-target="#voucherModal"
-                      [disabled]="voucher.status === 2"
-                      [title]="voucher.status === 2 ? 'Không thể chỉnh sửa voucher đã hết hạn' : ''">
-                      <i class="fas fa-edit"></i>
-                    </button>
-                    <button type="button" class="btn btn-outline-danger btn-rounded"
-                      (click)="deleteVoucher(voucher.id)">
-                      <i class="fas fa-trash"></i>
-                    </button>
-
-
-
-                  </td>
-                </tr>
-                <tr *ngIf="filteredVouchers.length === 0">
-                  <td colspan="9" class="text-center">Không tìm thấy voucher nào</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-
+            <!-- Table -->
+            <div class="table-responsive pt-0" *ngIf="!isLoading">
+              <table class="table table-hover" style="border-top: 1px solid #2c2e33;">
+                <thead>
+                  <tr>
+                    <th (click)="sort('code')" style="cursor: pointer; width: 10%">
+                      Mã Voucher <i class="fas" [ngClass]="getSortIcon('code')"></i>
+                    </th>
+                    <th (click)="sort('description')" style="cursor: pointer; width: 15%">
+                      Mô Tả <i class="fas" [ngClass]="getSortIcon('description')"></i>
+                    </th>
+                    <th (click)="sort('discountType')" style="cursor: pointer; width: 8%">
+                      Loại <i class="fas" [ngClass]="getSortIcon('discountType')"></i>
+                    </th>
+                    <th (click)="sort('voucherType')" style="cursor: pointer; width: 8%">
+                      Áp dụng cho <i class="fas" [ngClass]="getSortIcon('voucherType')"></i>
+                    </th>
+                    <th (click)="sort('discountValue')" style="cursor: pointer; width: 8%">
+                      Giá Trị <i class="fas" [ngClass]="getSortIcon('discountValue')"></i>
+                    </th>
+                    <th (click)="sort('minOrderValue')" style="cursor: pointer; width: 8%">
+                      Đơn hàng tối thiểu <i class="fas" [ngClass]="getSortIcon('minOrderValue')"></i>
+                    </th>
+                    <th (click)="sort('startDate')" style="cursor: pointer; width: 10%">
+                      Ngày Bắt Đầu <i class="fas" [ngClass]="getSortIcon('startDate')"></i>
+                    </th>
+                    <th (click)="sort('endDate')" style="cursor: pointer; width: 10%">
+                      Ngày Kết Thúc <i class="fas" [ngClass]="getSortIcon('endDate')"></i>
+                    </th>
+                    <th (click)="sort('usedCount')" style="cursor: pointer; width: 8%">
+                      Lượt Sử Dụng <i class="fas" [ngClass]="getSortIcon('usedCount')"></i>
+                    </th>
+                    <th (click)="sort('status')" style="cursor: pointer; width: 8%">
+                      Trạng Thái <i class="fas" [ngClass]="getSortIcon('status')"></i>
+                    </th>
+                    <th style="width: 15%">Thao Tác</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let voucher of filteredVouchers">
+                    <td style="font-weight: bold;">{{ voucher.code }}</td>
+                    <td>{{ voucher.description }}</td>
+                    <td>{{ getDiscountTypeLabel(voucher.discountType) }}</td>
+                    <td>
+                      <span class="badge" [ngClass]="getVoucherTypeBadgeClass(voucher.voucherType)">
+                        {{ getVoucherTypeText(voucher.voucherType) }}
+                      </span>
+                    </td>
+                    <td>{{ formatDiscountValue(voucher) }}</td>
+                    <td>{{ formatMinOrderValue(voucher.minOrderValue) }}</td>
+                    <td>{{ formatDate(voucher.startDate) }}</td>
+                    <td>{{ formatDate(voucher.endDate) }}</td>
+                    <td>{{ voucher.usedCount }}/{{ voucher.maxUsage }}</td>
+                    <td>
+                      <span class="badge" [ngClass]="getStatusBadgeClass(voucher.status)">
+                        {{ getStatusText(voucher.status) }}
+                      </span>
+                    </td>
+                    <td>
+                      <button type="button" class="btn btn-outline-primary btn-rounded me-2"
+                        (click)="goToVoucherUsageHistory(voucher.id)">
+                        <i class="fas fa-history"></i>
+                      </button>
+                      <button type="button" class="btn btn-outline-warning btn-rounded me-2"
+                        (click)="editVoucher(voucher)" data-bs-toggle="modal" data-bs-target="#voucherModal"
+                        [disabled]="voucher.status === 2"
+                        [title]="voucher.status === 2 ? 'Không thể chỉnh sửa voucher đã hết hạn' : ''">
+                        <i class="fas fa-edit"></i>
+                      </button>
+                      <button type="button" class="btn btn-outline-danger btn-rounded"
+                        (click)="deleteVoucher(voucher.id)">
+                        <i class="fas fa-trash"></i>
+                      </button>
 
 
-          <!-- Pagination -->
 
-          <!-- Pagination -->
-          <nav aria-label="Voucher pagination" *ngIf="totalRecords > 0">
-            <ul class="pagination justify-content-center">
-              <!-- Previous button -->
-              <li class="page-item" [class.disabled]="currentPage === 1">
-                <a class="page-link" href="javascript:void(0)" (click)="onPageChange(currentPage - 1)">
-                  Trước
-                </a>
-              </li>
-
-              <!-- Page numbers -->
-              <li class="page-item" *ngFor="let page of pages" [class.active]="page === currentPage">
-                <a class="page-link" href="javascript:void(0)" (click)="onPageChange(page)">
-                  {{page}}
-                </a>
-              </li>
-
-              <!-- Next button -->
-              <li class="page-item" [class.disabled]="currentPage === totalPages">
-                <a class="page-link" href="javascript:void(0)" (click)="onPageChange(currentPage + 1)">
-                  Sau
-                </a>
-              </li>
-            </ul>
-          </nav>
+                    </td>
+                  </tr>
+                  <tr *ngIf="!isLoading && filteredVouchers.length === 0">
+                    <td colspan="10" class="text-center">Không tìm thấy voucher nào</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
 
 
-          <!-- Page info -->
-          <!-- <div *ngIf="totalRecords > 0" class="text-center mt-2">
+
+            <!-- Pagination -->
+            <div class="d-flex justify-content-between align-items-center mt-3 p-3" *ngIf="totalPages > 0">
+              <div>
+                Hiển thị {{ filteredVouchers.length }} / {{ totalRecords }} kết quả
+              </div>
+              <nav aria-label="Page navigation">
+                <ul class="pagination mb-0">
+                  <li class="page-item" [ngClass]="{disabled: currentPage === 1}">
+                    <a class="page-link" href="javascript:void(0)" (click)="onPageChange(1)">
+                      <i class="fas fa-angle-double-left"></i>
+                    </a>
+                  </li>
+                  <li class="page-item" [ngClass]="{disabled: currentPage === 1}">
+                    <a class="page-link" href="javascript:void(0)" (click)="onPageChange(currentPage - 1)">
+                      <i class="fas fa-angle-left"></i>
+                    </a>
+                  </li>
+                  <!-- Hiển thị dấu ... ở đầu nếu trang đầu tiên không phải là 1 -->
+                  <li class="page-item disabled" *ngIf="pages.length > 0 && pages[0] > 1">
+                    <a class="page-link" href="javascript:void(0)">...</a>
+                  </li>
+
+                  <!-- Hiển thị các trang -->
+                  <li class="page-item" *ngFor="let page of pages" [ngClass]="{active: page === currentPage}">
+                    <a class="page-link" href="javascript:void(0)" (click)="onPageChange(page)">{{ page }}</a>
+                  </li>
+
+                  <!-- Hiển thị dấu ... ở cuối nếu trang cuối cùng không phải là totalPages -->
+                  <li class="page-item disabled" *ngIf="pages.length > 0 && pages[pages.length - 1] < totalPages">
+                    <a class="page-link" href="javascript:void(0)">...</a>
+                  </li>
+                  <li class="page-item" [ngClass]="{disabled: currentPage === totalPages}">
+                    <a class="page-link" href="javascript:void(0)" (click)="onPageChange(currentPage + 1)">
+                      <i class="fas fa-angle-right"></i>
+                    </a>
+                  </li>
+                  <li class="page-item" [ngClass]="{disabled: currentPage === totalPages}">
+                    <a class="page-link" href="javascript:void(0)" (click)="onPageChange(totalPages)">
+                      <i class="fas fa-angle-double-right"></i>
+                    </a>
+                  </li>
+                </ul>
+              </nav>
+            </div>
+
+
+            <!-- Page info -->
+            <!-- <div *ngIf="totalRecords > 0" class="text-center mt-2">
             <small>Hiển thị {{ (currentPage - 1) * recordPerPage + 1 }} đến
               {{ Math.min(currentPage * recordPerPage, totalRecords) }} của {{ totalRecords }} voucher</small>
           </div> -->
@@ -206,141 +401,13 @@
 
 
 
-        </div>
+          </div>
 
 
 
-      </div>
-    </div>
-  </div>
-
-  <!-- Voucher Modal -->
-  <div class="modal fade" id="voucherModal" tabindex="-1" aria-labelledby="voucherModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="voucherModalLabel">
-            {{ isEditing ? 'Chỉnh sửa Voucher' : 'Thêm Voucher mới' }}
-          </h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-          <form [formGroup]="voucherForm" (ngSubmit)="onSubmit()">
-            <!-- Mã voucher -->
-            <div class=" mb-3">
-              <div class="form-group">
-                <label for="code" class="form-label">Mã Voucher <span class="text-danger">*</span></label>
-                <input type="text" class="form-control" id="code" formControlName="code" [readOnly]="isEditing">
-                <div *ngIf="voucherForm.get('code')?.touched && voucherForm.get('code')?.invalid" class="text-danger">
-                  <small *ngIf="voucherForm.get('code')?.errors?.['required']">Mã voucher là bắt buộc</small>
-                  <small *ngIf="voucherForm.get('code')?.errors?.['maxlength']">Mã voucher không được vượt quá 50 ký
-                    tự</small>
-                </div>
-              </div>
-            </div>
-
-            <!-- Loại giảm giá -->
-            <div class=" mb-3">
-              <div class="form-group">
-                <label for="discountType" class="form-label">Loại Giảm Giá <span class="text-danger">*</span></label>
-                <select class="form-select" id="discountType" formControlName="discountType">
-                  <option value="PERCENT">Phần trăm (%)</option>
-                  <option value="FIXED">Số tiền cố định</option>
-                </select>
-              </div>
-            </div>
-
-            <!-- Giá trị giảm giá -->
-            <div class=" mb-3">
-              <div class="form-group">
-                <label for="discountValue" class="form-label">Giá Trị Giảm Giá <span
-                    class="text-danger">*</span></label>
-                <div class="input-group">
-                  <input type="number" class="form-control" id="discountValue" formControlName="discountValue">
-                  <span class="input-group-text">
-                    {{ voucherForm.get('discountType')?.value === 'PERCENT' ? '%' : 'VNĐ' }}
-                  </span>
-                </div>
-                <div *ngIf="voucherForm.get('discountValue')?.touched && voucherForm.get('discountValue')?.invalid"
-                  class="text-danger">
-                  <small *ngIf="voucherForm.get('discountValue')?.errors?.['required']">Giá trị giảm giá là bắt
-                    buộc</small>
-                  <small *ngIf="voucherForm.get('discountValue')?.errors?.['min']">Giá trị giảm giá phải lớn hơn
-                    0</small>
-                </div>
-              </div>
-            </div>
-
-            <!-- Mô tả -->
-            <div class=" mb-3">
-              <div class="form-group">
-                <label for="description" class="form-label">Mô Tả</label>
-                <textarea class="form-control" id="description" formControlName="description" rows="1"></textarea>
-              </div>
-            </div>
-
-            <!-- Ngày bắt đầu -->
-            <div class=" mb-3">
-              <div class="form-group">
-                <label for="startDate" class="form-label">Ngày Bắt Đầu <span class="text-danger">*</span></label>
-                <input type="date" class="form-control" id="startDate" formControlName="startDate">
-                <div class="text-danger small"
-                  *ngIf="voucherForm.get('startDate')?.touched && voucherForm.get('startDate')?.invalid">
-                  <span *ngIf="voucherForm.get('startDate')?.errors?.['required']">Ngày bắt đầu là bắt buộc</span>
-                </div>
-                <div class="text-danger small"
-                  *ngIf="voucherForm.touched && voucherForm.errors?.['startDateBeforeToday']">
-                  Ngày bắt đầu không được nhỏ hơn ngày hiện tại
-                </div>
-              </div>
-            </div>
-
-            <!-- Ngày kết thúc -->
-            <div class=" mb-3">
-              <div class="form-group">
-                <label for="endDate" class="form-label">Ngày Kết Thúc <span class="text-danger">*</span></label>
-                <input type="date" class="form-control" id="endDate" formControlName="endDate">
-                <div class="text-danger small"
-                  *ngIf="voucherForm.get('endDate')?.touched && voucherForm.get('endDate')?.invalid">
-                  <span *ngIf="voucherForm.get('endDate')?.errors?.['required']">Ngày kết thúc là bắt buộc</span>
-                </div>
-                <div class="text-danger small"
-                  *ngIf="voucherForm.touched && voucherForm.errors?.['endDateBeforeToday']">
-                  Ngày kết thúc không được nhỏ hơn ngày hiện tại
-                </div>
-                <div class="text-danger small"
-                  *ngIf="voucherForm.touched && voucherForm.errors?.['endDateBeforeStartDate']">
-                  Ngày kết thúc phải sau ngày bắt đầu
-                </div>
-              </div>
-            </div>
-
-            <!-- Lượt sử dụng tối đa -->
-            <div class=" mb-3">
-              <div class="form-group">
-                <label for="maxUsage" class="form-label">Lượt Sử Dụng Tối Đa <span class="text-danger">*</span></label>
-                <input type="number" class="form-control" id="maxUsage" formControlName="maxUsage">
-                <div *ngIf="voucherForm.get('maxUsage')?.touched && voucherForm.get('maxUsage')?.invalid"
-                  class="text-danger">
-                  <small *ngIf="voucherForm.get('maxUsage')?.errors?.['required']">Lượt sử dụng tối đa là bắt
-                    buộc</small>
-                  <small *ngIf="voucherForm.get('maxUsage')?.errors?.['min']">Lượt sử dụng tối đa phải lớn hơn
-                    0</small>
-                </div>
-              </div>
-            </div>
-
-
-
-            <div class="modal-footer">
-              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
-              <button type="submit" class="btn btn-primary" [disabled]="voucherForm.invalid">
-                {{ isEditing ? 'Cập nhật' : 'Thêm mới' }}
-              </button>
-            </div>
-          </form>
         </div>
       </div>
     </div>
+
+
   </div>
-</div>

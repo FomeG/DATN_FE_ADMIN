@@ -83,7 +83,7 @@ export class ChangePasswordModalComponent implements OnInit {
   modal: Modal | null = null;
 
   constructor(
-    private fb: FormBuilder, 
+    private fb: FormBuilder,
     private http: HttpClient,
     private authService: AuthService
   ) {
@@ -114,11 +114,11 @@ export class ChangePasswordModalComponent implements OnInit {
   passwordMatchValidator(formGroup: FormGroup) {
     const newPassword = formGroup.get('newPassword')?.value;
     const confirmPassword = formGroup.get('confirmPassword')?.value;
-    
+
     if (newPassword !== confirmPassword) {
       return { passwordMismatch: true };
     }
-    
+
     return null;
   }
 
@@ -129,7 +129,7 @@ export class ChangePasswordModalComponent implements OnInit {
 
     this.isLoading = true;
     const userId = this.authService.getCurrentUser()?.userId;
-    
+
     if (!userId) {
       Swal.fire('Lỗi', 'Không thể xác định người dùng hiện tại', 'error');
       this.isLoading = false;
@@ -142,7 +142,7 @@ export class ChangePasswordModalComponent implements OnInit {
       newPassword: this.passwordForm.get('newPassword')?.value
     };
 
-    this.http.post(`${environment.apiUrl}/Employee/ChangePassword`, changePasswordData)
+    this.http.post(`${environment.apiUrl}Employee/ChangePassword`, changePasswordData)
       .subscribe({
         next: (response: any) => {
           this.isLoading = false;

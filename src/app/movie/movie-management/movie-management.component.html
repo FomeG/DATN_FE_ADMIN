@@ -14,9 +14,6 @@
   </div>
 
 
-
-
-
   <div class="d-flex">
 
     <!-- <button class="btn btn-primary mb-4" style="border-radius: 15px" data-bs-toggle="modal"
@@ -45,10 +42,14 @@
         <div class="card-header">
           <div class="d-flex justify-content-between align-items-center m-0">
 
-            <div class="col-md-4 text-end">
+            <div class="col-md-4 text-end d-flex m-0" style="gap: 30px">
               <button class="custom-header-button" style="width: 200px;" data-bs-toggle="modal"
                 data-bs-target="#addMovieModal">
                 <i class="fas fa-plus"></i> Thêm phim mới
+              </button>
+
+              <button class="custom-header-button" style="width: 200px;" (click)="navigateToSettings()">
+                <i class="fas fa-cog"></i> Cài đặt
               </button>
             </div>
 
@@ -101,11 +102,23 @@
                     <th (click)="sort('releaseDate')" style="cursor: pointer">
                       Ngày phát hành <i class="fas" [ngClass]="getSortIcon('releaseDate')"></i>
                     </th>
-                    <!-- <th>Trạng thái</th> -->
+                    <th (click)="sort('status')" style="cursor: pointer">
+                      Trạng thái <i class="fas" [ngClass]="getSortIcon('status')"></i>
+                    </th>
                     <th class="text-center">Thao tác</th>
                   </tr>
                 </thead>
                 <tbody>
+                  <tr *ngIf="isLoading">
+                    <td colspan="7" class="text-center">
+                      <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Đang tải...</span>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr *ngIf="!isLoading && filteredMovies.length === 0">
+                    <td colspan="7" class="text-center">Không có dữ liệu</td>
+                  </tr>
                   <tr *ngFor="let movie of filteredMovies">
                     <td>
                       <img *ngIf="movie.thumbnail" [src]="movie.thumbnail" alt="Movie Thumbnail" />
@@ -114,23 +127,26 @@
                       <div class="d-flex align-items-center">
                         <div class="ms-3">
                           <p class="fw-bold mb-1">{{movie.movieName}}</p>
-                          <span *ngIf="movie.ageRatingCode" class="badge bg-warning text-dark">{{movie.ageRatingCode}}</span>
-                          <span class="badge" [ngClass]="{'bg-success': movie.status === 1, 'bg-danger': movie.status !== 1}">
-                            {{movie.status === 1 ? 'Đang chiếu' : 'Ngừng chiếu'}}
-                          </span>
+                          <div class="d-flex flex-wrap gap-1 mt-1">
+                            <span *ngIf="movie.ageRatingCode"
+                              class="badge bg-warning text-dark">{{movie.ageRatingCode}}</span>
+                            <span *ngFor="let format of movie.formats" class="badge format-badge"
+                              [ngClass]="'format-' + (format.formatId | slice:0:8)">
+                              {{format.name}}
+                            </span>
+                          </div>
                         </div>
                       </div>
                     </td>
                     <td>{{movie.description}}</td>
                     <td>{{movie.duration}}</td>
                     <td>{{movie.releaseDate | date:'dd/MM/yyyy'}}</td>
-                    <!-- <td>
-                    <span class="badge" [ngClass]="{'bg-success': movie.status === 1, 'bg-danger': movie.status === 0}">
-                      {{movie.status === 1 ? 'Đang chiếu' : 'Ngừng chiếu'}}
-                    </span>
-                  </td> -->
-
-
+                    <td>
+                      <span class="badge"
+                        [ngClass]="{'bg-success': movie.status === 1, 'bg-danger': movie.status === 2}">
+                        {{movie.status === 1 ? 'Đang phát hành' : 'Đã kết thúc'}}
+                      </span>
+                    </td>
                     <td>
                       <button type="button" class="btn btn-outline-primary btn-rounded"
                         (click)="onViewMovieDetails(movie.id)"><i class="mdi mdi-information-outline"></i>
@@ -158,30 +174,50 @@
 
 
 
-        <nav aria-label="Movie pagination" *ngIf="totalPages > 1">
-          <ul class="pagination justify-content-center">
-            <!-- Previous button -->
-            <li class="page-item" [class.disabled]="currentPage === 1">
-              <a class="page-link" href="javascript:void(0)" (click)="onPageChange(currentPage - 1)">
-                Trước
-              </a>
-            </li>
+        <!-- Pagination -->
+        <div class="d-flex justify-content-between align-items-center mt-3 p-3" *ngIf="totalPages > 0">
+          <div>
+            Hiển thị {{ filteredMovies.length }} / {{ totalRecords }} kết quả
+          </div>
+          <nav aria-label="Page navigation">
+            <ul class="pagination mb-0">
+              <li class="page-item" [ngClass]="{disabled: currentPage === 1}">
+                <a class="page-link" href="javascript:void(0)" (click)="onPageChange(1)">
+                  <i class="fas fa-angle-double-left"></i>
+                </a>
+              </li>
+              <li class="page-item" [ngClass]="{disabled: currentPage === 1}">
+                <a class="page-link" href="javascript:void(0)" (click)="onPageChange(currentPage - 1)">
+                  <i class="fas fa-angle-left"></i>
+                </a>
+              </li>
+              <!-- Hiển thị dấu ... ở đầu nếu trang đầu tiên không phải là 1 -->
+              <li class="page-item disabled" *ngIf="pages.length > 0 && pages[0] > 1">
+                <a class="page-link" href="javascript:void(0)">...</a>
+              </li>
 
-            <!-- Page numbers -->
-            <li class="page-item" *ngFor="let page of pages" [class.active]="page === currentPage">
-              <a class="page-link" href="javascript:void(0)" (click)="onPageChange(page)">
-                {{page}}
-              </a>
-            </li>
+              <!-- Hiển thị các trang -->
+              <li class="page-item" *ngFor="let page of pages" [ngClass]="{active: page === currentPage}">
+                <a class="page-link" href="javascript:void(0)" (click)="onPageChange(page)">{{ page }}</a>
+              </li>
 
-            <!-- Next button -->
-            <li class="page-item" [class.disabled]="currentPage === totalPages">
-              <a class="page-link" href="javascript:void(0)" (click)="onPageChange(currentPage + 1)">
-                Sau
-              </a>
-            </li>
-          </ul>
-        </nav>
+              <!-- Hiển thị dấu ... ở cuối nếu trang cuối cùng không phải là totalPages -->
+              <li class="page-item disabled" *ngIf="pages.length > 0 && pages[pages.length - 1] < totalPages">
+                <a class="page-link" href="javascript:void(0)">...</a>
+              </li>
+              <li class="page-item" [ngClass]="{disabled: currentPage === totalPages}">
+                <a class="page-link" href="javascript:void(0)" (click)="onPageChange(currentPage + 1)">
+                  <i class="fas fa-angle-right"></i>
+                </a>
+              </li>
+              <li class="page-item" [ngClass]="{disabled: currentPage === totalPages}">
+                <a class="page-link" href="javascript:void(0)" (click)="onPageChange(totalPages)">
+                  <i class="fas fa-angle-double-right"></i>
+                </a>
+              </li>
+            </ul>
+          </nav>
+        </div>
 
 
 

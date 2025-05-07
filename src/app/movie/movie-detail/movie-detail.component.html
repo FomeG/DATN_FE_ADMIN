@@ -31,7 +31,8 @@
             <h1>{{ movie.movieName }}</h1>
             <div class="movie-stats">
               <span class="duration"><i class="mdi mdi-clock-outline"></i> {{ movie.duration }} phút</span>
-              <span class="release-date"><i class="mdi mdi-calendar"></i> {{ movie.releaseDate | date:'dd/MM/yyyy' }}</span>
+              <span class="release-date"><i class="mdi mdi-calendar"></i> {{ movie.releaseDate | date:'dd/MM/yyyy'
+                }}</span>
               <span [class]="movie.status === 1 ? 'status-active' : 'status-inactive'">
                 <i [class]="movie.status === 1 ? 'mdi mdi-check-circle' : 'mdi mdi-close-circle'"></i>
                 {{ movie.status === 1 ? 'Đang chiếu' : 'Ngừng chiếu' }}
@@ -69,7 +70,8 @@
               </div>
               <div class="info-item">
                 <div class="info-label"><i class="mdi mdi-tag-outline"></i> Trạng thái</div>
-                <div class="info-value" [class.text-success]="movie.status === 1" [class.text-danger]="movie.status !== 1">
+                <div class="info-value" [class.text-success]="movie.status === 1"
+                  [class.text-danger]="movie.status !== 1">
                   {{ movie.status === 1 ? 'Đang chiếu' : 'Ngừng chiếu' }}
                 </div>
               </div>
@@ -83,19 +85,18 @@
 
               <div class="info-item" *ngIf="movie.formats && movie.formats.length > 0">
                 <div class="info-label"><i class="mdi mdi-movie-outline"></i> Định dạng</div>
-                <div class="info-value">
-                  <span *ngFor="let format of movie.formats; let last = last" class="format-tag">
-                    {{format.name}}{{last ? '' : ', '}}
+                <div class="info-value format-container">
+                  <span *ngFor="let format of movie.formats" class="format-tag">
+                    <i class="mdi mdi-filmstrip"></i> {{format.name}}
                   </span>
                 </div>
               </div>
 
-
               <div class="info-item" *ngIf="movie.genres && movie.genres.length > 0">
                 <div class="info-label"><i class="mdi mdi-tag-multiple-outline"></i> Thể loại</div>
-                <div class="info-value">
-                  <span *ngFor="let genre of movie.genres; let last = last" class="genre-tag">
-                    {{genre.genreName}}{{last ? '' : ', '}}
+                <div class="info-value genre-container">
+                  <span *ngFor="let genre of movie.genres" class="genre-tag">
+                    <i class="mdi mdi-tag"></i> {{genre.genreName}}
                   </span>
                 </div>
               </div>

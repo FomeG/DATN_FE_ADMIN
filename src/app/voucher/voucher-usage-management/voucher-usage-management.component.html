@@ -8,7 +8,6 @@
     </div>
 
 
-    
   </div>
 
   <!-- Filter Section -->
@@ -19,11 +18,11 @@
     </button>
 
     <!-- Search Box -->
-    <input type="text" class="form-control" placeholder="Tìm kiếm..." [(ngModel)]="searchTerm" (keyup.enter)="search()"
+    <!-- <input type="text" class="form-control" placeholder="Tìm kiếm..." [(ngModel)]="searchTerm" (keyup.enter)="search()"
       style="width: 70%; height: 55px; margin-left: auto">
     <button class="btn btn-primary mb-4" type="button" (click)="search()">
       <i class="fas fa-search"></i>
-    </button>
+    </button> -->
   </div>
 
   <!-- Voucher Info if filtering by voucher ID -->
@@ -44,8 +43,8 @@
           <p><strong>Ngày bắt đầu:</strong> {{ formatDate(voucherInfo.startDate) }}</p>
           <p><strong>Ngày kết thúc:</strong> {{ formatDate(voucherInfo.endDate) }}</p>
           <p><strong>Trạng thái:</strong>
-            <span class="badge" [ngClass]="voucherInfo.status ? 'bg-success' : 'bg-danger'">
-              {{ voucherInfo.status ? 'Hoạt động' : 'Không hoạt động' }}
+            <span class="badge" [ngClass]="voucherInfo.status == 1 ? 'bg-success' : 'bg-warning'">
+              {{ voucherInfo.status == 1 ? 'Hoạt động' : 'Đã hết hạn' }}
             </span>
           </p>
         </div>
@@ -75,7 +74,7 @@
 
           <!-- Table -->
           <div class="table-responsive" *ngIf="!isLoading">
-            <table class="table table-bordered table-hover" style="border-top: 1px solid #2c2e33;">
+            <table class="table table-hover" style="border-top: 1px solid #2c2e33;">
               <thead>
                 <tr>
                   <th>Mã Voucher</th>
@@ -83,7 +82,7 @@
                   <th>Mã Đơn hàng</th>
                   <th>Thời gian sử dụng</th>
                   <th>Trạng thái</th>
-                  <th>Thao tác</th>
+                  <!-- <th>Thao tác</th> -->
                 </tr>
               </thead>
               <tbody>
@@ -97,7 +96,7 @@
                       {{ getStatusLabel(usage.status) }}
                     </span>
                   </td>
-                  <td>
+                  <!-- <td>
                     <button *ngIf="usage.orderId" type="button" class="btn btn-outline-primary btn-sm me-2"
                       (click)="viewOrderDetails(usage.orderId)">
                       <i class="fas fa-receipt"></i> Xem đơn hàng
@@ -106,9 +105,9 @@
                       (click)="viewUserDetails(usage.userId)">
                       <i class="fas fa-user"></i> Xem người dùng
                     </button>
-                  </td>
+                  </td> -->
                 </tr>
-                <tr *ngIf="filteredUsages.length === 0">
+                <tr *ngIf="!isLoading && filteredUsages.length === 0">
                   <td colspan="6" class="text-center">Không tìm thấy lịch sử sử dụng voucher nào</td>
                 </tr>
               </tbody>
@@ -116,24 +115,48 @@
           </div>
 
           <!-- Pagination -->
-          <nav *ngIf="totalPages > 1" aria-label="Page navigation" class="d-flex justify-content-center mt-4">
-            <ul class="pagination">
-              <li class="page-item" [class.disabled]="currentPage === 1">
-                <a class="page-link" (click)="onPageChange(currentPage - 1)">Trước</a>
-              </li>
-              <li class="page-item" *ngFor="let page of pages" [class.active]="page === currentPage">
-                <a class="page-link" (click)="onPageChange(page)">{{ page }}</a>
-              </li>
-              <li class="page-item" [class.disabled]="currentPage === totalPages">
-                <a class="page-link" (click)="onPageChange(currentPage + 1)">Sau</a>
-              </li>
-            </ul>
-          </nav>
+          <div class="d-flex justify-content-between align-items-center mt-3 p-3" *ngIf="totalPages > 0">
+            <div>
+              Hiển thị {{ filteredUsages.length }} / {{ totalRecords }} kết quả
+            </div>
+            <nav aria-label="Page navigation">
+              <ul class="pagination mb-0">
+                <li class="page-item" [ngClass]="{disabled: currentPage === 1}">
+                  <a class="page-link" href="javascript:void(0)" (click)="onPageChange(1)">
+                    <i class="fas fa-angle-double-left"></i>
+                  </a>
+                </li>
+                <li class="page-item" [ngClass]="{disabled: currentPage === 1}">
+                  <a class="page-link" href="javascript:void(0)" (click)="onPageChange(currentPage - 1)">
+                    <i class="fas fa-angle-left"></i>
+                  </a>
+                </li>
+                <!-- Hiển thị dấu ... ở đầu nếu trang đầu tiên không phải là 1 -->
+                <li class="page-item disabled" *ngIf="pages.length > 0 && pages[0] > 1">
+                  <a class="page-link" href="javascript:void(0)">...</a>
+                </li>
 
-          <!-- Page info -->
-          <div *ngIf="totalRecords > 0" class="text-center mt-2">
-            <small>Hiển thị {{ (currentPage - 1) * recordPerPage + 1 }} đến
-              {{ Math.min(currentPage * recordPerPage, totalRecords) }} của {{ totalRecords }} bản ghi</small>
+                <!-- Hiển thị các trang -->
+                <li class="page-item" *ngFor="let page of pages" [ngClass]="{active: page === currentPage}">
+                  <a class="page-link" href="javascript:void(0)" (click)="onPageChange(page)">{{ page }}</a>
+                </li>
+
+                <!-- Hiển thị dấu ... ở cuối nếu trang cuối cùng không phải là totalPages -->
+                <li class="page-item disabled" *ngIf="pages.length > 0 && pages[pages.length - 1] < totalPages">
+                  <a class="page-link" href="javascript:void(0)">...</a>
+                </li>
+                <li class="page-item" [ngClass]="{disabled: currentPage === totalPages}">
+                  <a class="page-link" href="javascript:void(0)" (click)="onPageChange(currentPage + 1)">
+                    <i class="fas fa-angle-right"></i>
+                  </a>
+                </li>
+                <li class="page-item" [ngClass]="{disabled: currentPage === totalPages}">
+                  <a class="page-link" href="javascript:void(0)" (click)="onPageChange(totalPages)">
+                    <i class="fas fa-angle-double-right"></i>
+                  </a>
+                </li>
+              </ul>
+            </nav>
           </div>
         </div>
       </div>

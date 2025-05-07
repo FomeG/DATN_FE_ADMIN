@@ -60,7 +60,7 @@ export class VoucherUsageManagementComponent implements OnInit {
 
   loadVoucherUsages(): void {
     this.isLoading = true;
-    
+
     let observable;
     if (this.voucherId) {
       // Load usage history for specific voucher
@@ -69,7 +69,7 @@ export class VoucherUsageManagementComponent implements OnInit {
       // Load all usage history
       observable = this.voucherService.getAllVoucherUsage(this.currentPage, this.recordPerPage);
     }
-    
+
     observable.subscribe({
       next: (response) => {
         if (response.responseCode === 200) {
@@ -93,13 +93,24 @@ export class VoucherUsageManagementComponent implements OnInit {
   calculatePagination(): void {
     this.totalPages = Math.ceil(this.totalRecords / this.recordPerPage);
     this.pages = [];
-    
-    // Hiển thị tối đa 5 trang
-    const startPage = Math.max(1, this.currentPage - 2);
-    const endPage = Math.min(this.totalPages, startPage + 4);
-    
-    for (let i = startPage; i <= endPage; i++) {
-      this.pages.push(i);
+
+    // Giới hạn hiển thị tối đa 5 trang
+    if (this.totalPages <= 5) {
+      // Nếu tổng số trang <= 5, hiển thị tất cả các trang
+      for (let i = 1; i <= this.totalPages; i++) {
+        this.pages.push(i);
+      }
+    } else {
+      // Nếu tổng số trang > 5, hiển thị 5 trang xung quanh trang hiện tại
+      const startPage = Math.max(1, this.currentPage - 2);
+      const endPage = Math.min(this.totalPages, startPage + 4);
+
+      // Điều chỉnh lại startPage nếu endPage đã đạt giới hạn
+      const adjustedStartPage = Math.max(1, endPage - 4);
+
+      for (let i = adjustedStartPage; i <= endPage; i++) {
+        this.pages.push(i);
+      }
     }
   }
 
@@ -116,10 +127,10 @@ export class VoucherUsageManagementComponent implements OnInit {
       this.filteredUsages = [...this.voucherUsages];
       return;
     }
-    
+
     const term = this.searchTerm.toLowerCase().trim();
-    this.filteredUsages = this.voucherUsages.filter(usage => 
-      (usage.voucherCode && usage.voucherCode.toLowerCase().includes(term)) || 
+    this.filteredUsages = this.voucherUsages.filter(usage =>
+      (usage.voucherCode && usage.voucherCode.toLowerCase().includes(term)) ||
       (usage.userName && usage.userName.toLowerCase().includes(term)) ||
       (usage.orderCode && usage.orderCode.toLowerCase().includes(term))
     );

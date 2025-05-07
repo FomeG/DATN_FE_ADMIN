@@ -78,6 +78,11 @@ export class AuthService {
     // return !!token && !this.isTokenExpired(token);
   }
 
+  hasAdminRole(): boolean {
+    const user = this.getCurrentUser();
+    return user?.roles?.includes('Admin') || false;
+  }
+
   getToken(): string | null {
     return localStorage.getItem(this.tokenKey);
   }

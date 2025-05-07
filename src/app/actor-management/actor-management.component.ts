@@ -25,6 +25,7 @@ export class ActorManagementComponent implements OnInit {
   pages: number[] = [];
   selectedPhoto: File | null = null;
   searchTerm: string = '';
+  isLoading = false;
 
   // Sorting properties
   sortColumn: string = '';
@@ -44,8 +45,8 @@ export class ActorManagementComponent implements OnInit {
     this.actorForm = this.fb.group({
       name: ['', Validators.required],
       dateOfBirth: ['', Validators.required],
-      biography: ['', Validators.required],
-      status: [1]
+      biography: ['', Validators.required]
+      // Status đã được loại bỏ vì mặc định là 1 ở backend
     });
   }
 
@@ -54,6 +55,7 @@ export class ActorManagementComponent implements OnInit {
   }
 
   loadActors() {
+    this.isLoading = true;
     this.actorService.getActors(this.currentPage, this.recordPerPage).subscribe({
       next: (response) => {
         this.actors = response.data;
@@ -65,37 +67,56 @@ export class ActorManagementComponent implements OnInit {
         if (this.allActors.length === 0) {
           this.loadAllActors();
         }
+        this.isLoading = false;
       },
       error: (error) => {
         console.error('Error loading actors:', error);
         Swal.fire('Lỗi!', 'Có lỗi xảy ra khi tải danh sách diễn viên.', 'error');
+        this.isLoading = false;
       }
     });
   }
 
   // Load all actors for client-side operations
   loadAllActors() {
+    this.isLoading = true;
     // We'll use a large enough page size to get all actors in one request
     this.actorService.getActors(1, 1000).subscribe({
       next: (response) => {
         this.allActors = response.data;
         this.applyFilters();
+        this.isLoading = false;
       },
       error: (error) => {
         console.error('Error loading all actors:', error);
+        this.isLoading = false;
       }
     });
   }
 
   calculateTotalPages() {
     this.totalPages = Math.ceil(this.totalRecords / this.recordPerPage);
-    this.pages = Array.from({ length: this.totalPages }, (_, i) => i + 1);
+
+    // Giới hạn hiển thị tối đa 5 trang
+    if (this.totalPages <= 5) {
+      // Nếu tổng số trang <= 5, hiển thị tất cả các trang
+      this.pages = Array.from({ length: this.totalPages }, (_, i) => i + 1);
+    } else {
+      // Nếu tổng số trang > 5, hiển thị 5 trang xung quanh trang hiện tại
+      const startPage = Math.max(1, this.currentPage - 2);
+      const endPage = Math.min(this.totalPages, startPage + 4);
+
+      // Điều chỉnh lại startPage nếu endPage đã đạt giới hạn
+      const adjustedStartPage = Math.max(1, endPage - 4);
+
+      this.pages = Array.from({ length: 5 }, (_, i) => adjustedStartPage + i).filter(p => p <= this.totalPages);
+    }
   }
 
   onPageChange(page: number) {
     if (page !== this.currentPage && page >= 1 && page <= this.totalPages) {
       this.currentPage = page;
-      
+
       if (this.searchTerm || this.sortColumn) {
         // If filtering or sorting, use client-side pagination
         this.applyFilters();
@@ -115,47 +136,48 @@ export class ActorManagementComponent implements OnInit {
       this.sortColumn = column;
       this.sortDirection = 'asc';
     }
-    
+
     this.applyFilters();
   }
-  
+
   // Search function
   search() {
     this.currentPage = 1; // Reset to first page
     this.applyFilters();
   }
-  
+
   // Combined filter, sort and paginate
   applyFilters() {
+    this.isLoading = true;
     // 1. Filter by search term
     let result = [...this.allActors];
-    
+
     if (this.searchTerm) {
       const term = this.searchTerm.toLowerCase();
-      result = result.filter(actor => 
-        actor.name.toLowerCase().includes(term) || 
+      result = result.filter(actor =>
+        actor.name.toLowerCase().includes(term) ||
         actor.biography.toLowerCase().includes(term)
       );
     }
-    
+
     // 2. Sort if needed
     if (this.sortColumn) {
       result.sort((a: any, b: any) => {
         let valueA = a[this.sortColumn];
         let valueB = b[this.sortColumn];
-        
+
         // Handle dates
         if (this.sortColumn === 'dateOfBirth') {
           valueA = new Date(valueA).getTime();
           valueB = new Date(valueB).getTime();
         }
-        
+
         // Handle string comparison
         if (typeof valueA === 'string') {
           valueA = valueA.toLowerCase();
           valueB = valueB.toLowerCase();
         }
-        
+
         // Compare values based on sort direction
         if (valueA < valueB) {
           return this.sortDirection === 'asc' ? -1 : 1;
@@ -166,16 +188,17 @@ export class ActorManagementComponent implements OnInit {
         return 0;
       });
     }
-    
+
     // 3. Update total records for pagination
     this.totalRecords = result.length;
     this.calculateTotalPages();
-    
+
     // 4. Apply pagination
     const startIndex = (this.currentPage - 1) * this.recordPerPage;
     this.filteredActors = result.slice(startIndex, startIndex + this.recordPerPage);
+    this.isLoading = false;
   }
-  
+
   // Helper method to get column sort icon
   getSortIcon(column: string): string {
     if (this.sortColumn !== column) {
@@ -187,7 +210,7 @@ export class ActorManagementComponent implements OnInit {
   // Records per page change handler
   onRecordsPerPageChange() {
     this.currentPage = 1; // Reset to first page
-    
+
     if (this.searchTerm || this.sortColumn) {
       // If filtering or sorting, update client-side pagination
       this.applyFilters();
@@ -202,9 +225,7 @@ export class ActorManagementComponent implements OnInit {
     this.isEditing = false;
     this.editActorId = '';
     this.selectedPhoto = null;
-    this.actorForm.reset({
-      status: 1
-    });
+    this.actorForm.reset();
   }
 
   editActor(actor: Actor) {
@@ -213,8 +234,8 @@ export class ActorManagementComponent implements OnInit {
     this.actorForm.patchValue({
       name: actor.name,
       dateOfBirth: this.datePipe.transform(actor.dateOfBirth, 'yyyy-MM-dd'),
-      biography: actor.biography,
-      status: actor.status
+      biography: actor.biography
+      // Status không được phép cập nhật
     });
   }
 
@@ -230,8 +251,8 @@ export class ActorManagementComponent implements OnInit {
       formData.append('name', this.actorForm.get('name')?.value);
       formData.append('dateOfBirth', this.actorForm.get('dateOfBirth')?.value);
       formData.append('biography', this.actorForm.get('biography')?.value);
-      formData.append('status', this.actorForm.get('status')?.value);
-      
+      // Status không cần thiết, mặc định là 1 ở backend
+
       if (this.selectedPhoto) {
         formData.append('photo', this.selectedPhoto);
       }

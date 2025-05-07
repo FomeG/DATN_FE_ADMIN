@@ -1,0 +1,316 @@
+.card {
+  background-color: #191c24;
+  border: none;
+  border-radius: 10px;
+  margin-bottom: 30px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+  transition: transform 0.3s ease-in-out;
+}
+
+.card-header {
+  background-color: #191c24;
+  border-bottom: 1px solid #2c2e33;
+  padding: 15px 20px;
+  border-radius: 10px 10px 0 0;
+}
+
+.card-title {
+  color: #ffffff;
+  font-weight: 500;
+  margin-bottom: 0;
+  font-size: 1.25rem;
+  display: flex;
+  align-items: center;
+  transition: color 0.3s ease;
+}
+
+.card-title::before {
+  content: "";
+  display: inline-block;
+  width: 5px;
+  height: 25px;
+  background: linear-gradient(to bottom, #0090e7, #0077b5);
+  margin-right: 15px;
+  border-radius: 3px;
+}
+
+.card-body {
+  padding: 25px;
+}
+
+/* Thêm hover effect cho button */
+.btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}
+
+/* Thêm hover effect cho table row */
+.table-hover tbody tr:hover {
+  background-color: rgba(146, 146, 146, 0.05);
+}
+
+/* Thêm gradient background cho button primary */
+.btn-primary {
+  background-image: linear-gradient(to right, #007bff, #0056b3);
+  color: #fff;
+  border: none;
+}
+
+.btn-primary:hover {
+  background-image: linear-gradient(to right, #0056b3, #004a8f);
+}
+
+.table thead th {
+  border-top: none;
+  border-bottom: 1px solid #2c2e33;
+  font-weight: 500;
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  padding: 15px 12px;
+  color: #6c7293;
+  letter-spacing: 0.5px;
+  vertical-align: middle;
+}
+
+.table td {
+  vertical-align: middle;
+}
+
+/* Badge Styles */
+.badge {
+  padding: 0.4em 0.6em;
+  font-weight: 500;
+  font-size: 0.85rem;
+}
+
+/* Room Type Badge Styles */
+.room-type-badge {
+  padding: 0.5em 1em;
+  font-weight: 500;
+  font-size: 0.8rem;
+  letter-spacing: 0.5px;
+  border-radius: 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+  transition: all 0.3s ease;
+}
+
+.room-type-badge:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+}
+
+/* Default room type badge color */
+.room-type-badge {
+  background: linear-gradient(to right, #8e44ad, #9b59b6);
+  color: white;
+}
+
+/* Room type specific colors - using first 8 chars of roomTypeId */
+.room-type-e1b1aeb3 { /* IMAX */
+  background: linear-gradient(to right, #1abc9c, #16a085);
+  color: white;
+}
+
+.room-type-b6098bb7 { /* 2D */
+  background: linear-gradient(to right, #3498db, #2980b9);
+  color: white;
+}
+
+.room-type-d4ad3dcc, .room-type-bed5181f { /* 3D */
+  background: linear-gradient(to right, #e74c3c, #c0392b);
+  color: white;
+}
+
+.room-type-cc4fba43 { /* 4D */
+  background: linear-gradient(to right, #f39c12, #d35400);
+  color: white;
+}
+
+
+/* Header Controls */
+.header-button {
+  height: 42px;
+  border-radius: 8px;
+  padding: 0 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(to right, #0090e7, #0077b5);
+  border: none;
+  font-weight: 500;
+  box-shadow: 0 4px 10px rgba(0, 144, 231, 0.3);
+  transition: all 0.3s ease;
+}
+
+.header-button:hover {
+  background: linear-gradient(to right, #0077b5, #005f92);
+  box-shadow: 0 6px 12px rgba(0, 144, 231, 0.4);
+  transform: translateY(-2px);
+}
+
+.header-select {
+  width: 100%;
+  height: 42px;
+  border-radius: 8px;
+  background-color: #2A3038;
+  border-color: #2c2e33;
+  color: #ffffff;
+  padding: 0 15px;
+  font-size: 0.9rem;
+  box-shadow: 0 4px 10px rgba(42, 48, 56, 0.2);
+  transition: all 0.3s ease;
+}
+
+.header-select:focus {
+  border-color: #0090e7;
+  box-shadow: 0 0 0 0.2rem rgba(0, 144, 231, 0.25);
+}
+
+.header-search {
+  width: 100%;
+  height: 42px;
+}
+
+.header-search .form-control {
+  height: 42px;
+  border-radius: 8px 0 0 8px;
+  background-color: #2A3038;
+  border-color: #2c2e33;
+  color: #ffffff;
+  padding: 0 15px;
+  font-size: 0.875rem;
+  box-shadow: 0 4px 10px rgba(42, 48, 56, 0.2);
+}
+
+.header-search .btn {
+  height: 42px;
+  border-radius: 0 8px 8px 0;
+  background: linear-gradient(to right, #0090e7, #0077b5);
+  border: none;
+  box-shadow: 0 4px 10px rgba(0, 144, 231, 0.3);
+}
+
+.clear-filter-btn {
+  width: 100%;
+  height: 42px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: transparent;
+  border: 1px solid #6c757d;
+  color: #6c757d;
+  transition: all 0.3s ease;
+}
+
+.clear-filter-btn:hover {
+  background-color: #6c757d;
+  color: #fff;
+  box-shadow: 0 4px 8px rgba(108, 117, 125, 0.3);
+}
+
+.records-info {
+  display: inline-block;
+  line-height: 42px;
+  color: #6c757d;
+  font-size: 0.9rem;
+}
+
+/* Card styles */
+.card {
+  background-color: #191c24;
+  border: none;
+  border-radius: 10px;
+  margin-bottom: 30px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+  transition: transform 0.3s ease-in-out;
+}
+
+.card-body {
+  padding: 25px;
+}
+
+/* Button styles */
+.btn-outline-primary,
+.btn-outline-danger {
+  border-width: 2px;
+  font-weight: 500;
+  padding: 6px 14px;
+  margin-right: 8px;
+  border-radius: 6px;
+  transition: all 0.3s ease;
+}
+
+.btn-outline-primary {
+  color: #0090e7;
+  border-color: #0090e7;
+}
+
+.btn-outline-danger {
+  color: #fc424a;
+  border-color: #fc424a;
+}
+
+.btn-outline-primary:hover {
+  background-color: #0090e7;
+  box-shadow: 0 5px 15px rgba(0, 144, 231, 0.3);
+}
+
+.btn-outline-danger:hover {
+  background-color: #fc424a;
+  box-shadow: 0 5px 15px rgba(252, 66, 74, 0.3);
+}
+
+.btn-rounded {
+  margin: 3px;
+  min-width: 85px;
+  border-radius: 20px;
+}
+
+/* Pagination Styles */
+/* Pagination styling - Matched with movie management */
+.pagination {
+  margin-top: 30px;
+  justify-content: center;
+}
+
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  .table-responsive {
+    margin-bottom: 0.8rem;
+  }
+
+  .modal-dialog {
+    margin: 0.4rem;
+  }
+}
+
+
+.table tbody tr {
+  color: white !important;
+}
+
+.form-select {
+  background-color: #2A3038 !important;
+  border: 1px solid #2c2e33 !important;
+  color: #ffffff !important;
+  border-radius: 8px;
+  padding: 10px 15px;
+  transition: all 0.3s ease;
+}
+
+.form-select:focus {
+  border-color: #0090e7 !important;
+  box-shadow: 0 0 0 0.2rem rgba(0, 144, 231, 0.25) !important;
+}
+
+
+/* Tiêu đề trang */
+.page-title {
+  font-weight: 600;
+  margin-bottom: 0;
+  font-size: 1.75rem;
+  color: #ffffff;
+  line-height: 42px;
+}

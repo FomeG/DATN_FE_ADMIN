@@ -1,21 +1,30 @@
 <div class="container-scroller">
-  <!-- Navbar -->
-  <app-navbar></app-navbar>
-
-  <!-- Container chính -->
-  <div class="container-fluid page-body-wrapper">
-    <!-- Sidebar -->
-    <app-header></app-header>
-
-    <!-- Main Panel -->
-    <div class="main-panel">
-      <div class="content-wrapper">
-        <!-- Router outlet sẽ render các component con ở đây -->
-        <router-outlet></router-outlet>
-      </div>
-
-      <!-- Footer -->
-      <app-footer></app-footer>
+  <!-- For login page, show only the router outlet with login-specific styling -->
+  <ng-container *ngIf="isLoginPage; else appContent">
+    <div class="auth-page-container">
+      <router-outlet></router-outlet>
     </div>
-  </div>
+  </ng-container>
+
+  <!-- For authenticated pages, show the full app layout -->
+  <ng-template #appContent>
+    <!-- Navbar -->
+    <app-navbar></app-navbar>
+
+    <!-- Container chính -->
+    <div class="container-fluid page-body-wrapper">
+      <!-- Sidebar -->
+      <app-header></app-header>
+
+      <!-- Main Panel -->
+      <div class="main-panel p-0">
+        <div class="content-wrapper">
+          <router-outlet></router-outlet>
+        </div>
+
+        <!-- Footer -->
+        <app-footer></app-footer>
+      </div>
+    </div>
+  </ng-template>
 </div>

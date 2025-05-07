@@ -1,0 +1,103 @@
+/* Styles cho sidebar toggle button ở phía bên phải */
+.sidebar-toggle-wrapper {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 999;
+}
+
+.sidebar-toggle-btn {
+  background-color: #191c24;
+  border: 1px solid #2c2e33;
+  border-radius: 50% 0 0 50%;
+  width: 24px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  outline: none;
+  padding: 0;
+  box-shadow: -2px 0 8px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease;
+}
+
+.sidebar-toggle-btn:hover {
+  background-color: #0090e7;
+  border-color: #0090e7;
+}
+
+.toggle-icon {
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: bold;
+  font-family: monospace;
+  margin-left: -4px;
+}
+
+/* Sửa kích thước của sidebar khi toggle */
+body.sidebar-icon-only .sidebar {
+  width: 70px;
+}
+
+body.sidebar-icon-only .sidebar .sidebar-brand-wrapper {
+  width: 70px;
+}
+
+body.sidebar-icon-only .sidebar .nav .nav-item .nav-link .menu-title,
+body.sidebar-icon-only .sidebar .nav .nav-item .nav-link .menu-arrow,
+body.sidebar-icon-only .sidebar .nav .nav-item .nav-link .menu-sub-title {
+  display: none;
+}
+
+body.sidebar-icon-only .sidebar .nav .nav-item .nav-link .menu-icon {
+  margin-right: 0;
+}
+
+body.sidebar-icon-only .main-panel {
+  width: calc(100% - 70px);
+}
+
+/* Thêm style cho Navbar để đảm bảo nút toggle nằm đúng vị trí */
+.sidebar {
+  position: relative;
+}
+
+/* Cải thiện hiển thị logo */
+.sidebar-brand-wrapper {
+  height: 70px !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #191c24;
+  border-bottom: 1px solid #2c2e33;
+}
+
+.sidebar-brand-wrapper img {
+  max-height: 40px;
+  max-width: 100%;
+  object-fit: contain;
+  transition: all 0.3s ease;
+}
+
+.sidebar-brand-wrapper .brand-logo {
+  width: 180px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.sidebar-brand-wrapper .brand-logo-mini {
+  width: 50px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Thêm CSS cho icon trong submenu */
+.sidebar .nav .nav-item .collapse .sub-menu .nav-item .nav-link i {
+    font-size: 0.875rem;
+    margin-right: 0.5rem;
+    vertical-align: middle;
+}

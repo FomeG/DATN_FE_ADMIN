@@ -1,0 +1,13 @@
+/* Style cho logo trong header */
+.logo-img {
+  object-fit: contain;
+  border-radius: 6px;
+  background-color: #191c24;
+  padding: 3px;
+  transition: all 0.3s ease;
+}
+
+.logo-img:hover {
+  transform: scale(1.1);
+  box-shadow: 0 0 10px rgba(0, 144, 231, 0.4);
+} 

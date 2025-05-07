@@ -1,0 +1,575 @@
+/* ---------- Modal Body ---------- */
+.modal-body {
+    background-color: #191c24;
+    /* Màu nền tối phù hợp với dark theme */
+    color: #ffffff;
+    /* Màu chữ trắng */
+    padding: 25px;
+    border-radius: 12px;
+}
+
+/* ---------- Seat Container & Row ---------- */
+.seat-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    padding: 25px;
+    background-color: #2A3038;
+    /* Màu nền tối phù hợp với dark theme */
+    border-radius: 15px;
+    box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.2);
+    overflow-x: auto;
+    width: 100%;
+    white-space: nowrap;
+}
+
+/* Điều chỉnh khoảng cách giữa các hàng */
+.seat-row {
+    display: flex;
+    gap: 15px;
+    flex-wrap: nowrap;
+    justify-content: center;
+    width: 100%;
+}
+
+/* ---------- Seat Card ---------- */
+.seat {
+    position: relative;
+    width: 70px;
+    height: 50px;
+    cursor: pointer;
+    transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+    background: transparent;
+    /* Nền trong suốt */
+    color: #ffffff;
+    /* Màu chữ trắng */
+    border-radius: 10px;
+    overflow: hidden;
+    border: none;
+}
+
+/* ---------- Seat Icon (SVG) ---------- */
+.seat-icon {
+    width: 100%;
+    height: 100%;
+    transition: fill 0.3s ease-in-out, stroke 0.3s ease-in-out;
+    stroke: #ffffff;
+    /* Màu viền trắng */
+    stroke-width: 2.5px;
+    /* Độ dày viền */
+    fill: linear-gradient(135deg, #8B0000, #000000);
+    /* Gradient đỏ đậm sang đen */
+}
+
+.seat:hover .seat-icon {
+    fill: linear-gradient(135deg, #FF0000, #8B0000);
+    /* Gradient đỏ tươi sang đỏ đậm khi hover */
+    stroke: #FF0000;
+    /* Màu viền đỏ tươi khi hover */
+}
+
+.seat.clicked .seat-icon {
+    fill: linear-gradient(135deg, #FF0000, #8B0000);
+    /* Gradient đỏ tươi sang đỏ đậm khi được chọn */
+    stroke: #FF0000;
+    /* Màu viền đỏ tươi khi được chọn */
+}
+
+/* ---------- Seat Name ---------- */
+.seat-name {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 14px;
+    font-weight: normal;
+    color: #ffffff;
+    /* Màu chữ trắng */
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.7);
+    /* Đổ bóng đen để chữ nổi bật */
+    white-space: nowrap;
+    pointer-events: none;
+}
+
+/* ---------- Screen ---------- */
+.screen {
+    background-color: #0090e7;
+    /* Màu xanh đặc trưng của dark theme */
+    color: #fff;
+    font-size: 26px;
+    font-weight: bold;
+    padding: 15px 25px;
+    text-align: center;
+    margin-bottom: 30px;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    position: relative;
+}
+
+.screen::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 80%;
+    height: 60%;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0));
+    border-radius: 50%;
+}
+
+/* ---------- Click Effect Animation ---------- */
+.seat:active {
+    opacity: 0.8;
+    box-shadow: 0 0 10px rgba(0, 144, 231, 0.5);
+}
+
+/* ---------- Seat Edit Panel ---------- */
+.seat-edit-panel {
+    width: 340px;
+    padding: 20px;
+    background-color: #2A3038;
+    /* Màu nền tối phù hợp với dark theme */
+    border-radius: 12px;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+}
+
+/* Input và Select */
+.seat-edit-panel input,
+.seat-edit-panel select {
+    width: 100%;
+    padding: 10px;
+    background-color: #2A3038;
+    /* Màu nền tối phù hợp với dark theme */
+    color: #ffffff;
+    /* Màu chữ trắng */
+    border: 1px solid #2c2e33;
+    /* Màu viền phù hợp với dark theme */
+    border-radius: 8px;
+    margin-bottom: 15px;
+    transition: border-color 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+}
+
+/* Khi focus vào input/select */
+.seat-edit-panel input:focus,
+.seat-edit-panel select:focus {
+    border-color: #0090e7;
+    /* Màu viền xanh khi focus */
+    outline: none;
+    box-shadow: 0px 0px 8px rgba(0, 144, 231, 0.25);
+    /* Đổ bóng xanh khi focus */
+}
+
+/* ---------- Nền của .col-4 và .col-8 ---------- */
+.col-4,
+.col-8 {
+    background-color: #2A3038;
+    /* Màu nền tối phù hợp với dark theme */
+    padding: 15px;
+    border-radius: 10px;
+    border: 1px solid #2c2e33;
+    /* Viền phù hợp với dark theme */
+}
+
+/* Tiêu đề form */
+h4.text-primary {
+    color: #ffffff !important;
+    /* Màu chữ trắng */
+}
+
+/* Label và text */
+.font-weight-bold.text-white {
+    color: #ffffff !important;
+    /* Màu chữ trắng */
+}
+
+/* Dropdown và input */
+.form-control.bg-dark.text-white {
+    background-color: #191c24 !important;
+    /* Màu nền tối phù hợp với dark theme */
+    color: #ffffff !important;
+    /* Màu chữ trắng */
+    border-color: #2c2e33 !important;
+    /* Màu viền phù hợp với dark theme */
+}
+
+.form-control.bg-dark.text-white:focus {
+    border-color: #0090e7 !important;
+    /* Màu viền xanh khi focus */
+    box-shadow: 0 0 8px rgba(0, 144, 231, 0.25);
+    /* Đổ bóng xanh khi focus */
+}
+
+/* Nút */
+.btn-primary {
+    background-color: #0090e7;
+    /* Màu xanh đặc trưng của dark theme */
+    border-color: #0090e7;
+    color: #ffffff;
+    /* Màu chữ trắng */
+    transition: background-color 0.3s ease-in-out, transform 0.2s ease-in-out;
+}
+
+.btn-primary:hover {
+    background-color: #0d99ff;
+    /* Màu xanh sáng hơn khi hover */
+    transform: translateY(-2px);
+    /* Hiệu ứng nổi lên */
+}
+
+.btn-danger {
+    background-color: #fc424a;
+    /* Màu đỏ đặc trưng của dark theme */
+    border-color: #fc424a;
+}
+
+.btn-danger:hover {
+    background-color: #fd5a61;
+    /* Màu đỏ sáng hơn khi hover */
+    border-color: #fd5a61;
+}
+
+.btn-success {
+    background-color: #006400;
+    /* Màu xanh đậm */
+    border-color: #006400;
+}
+
+.btn-success:hover {
+    background-color: #008000;
+    /* Màu xanh tươi khi hover */
+    border-color: #008000;
+}
+
+/* Khoảng cách giữa các nút */
+.mb-2 {
+    margin-bottom: 8px !important;
+}
+
+/* Thông báo số lượng ghế đang được chọn */
+.text-primary {
+    color: #ffffff !important;
+    /* Màu chữ trắng */
+}
+
+.text-muted {
+    color: #cccccc !important;
+    /* Màu xám nhạt */
+}
+
+/* CSS cho form khi không có ghế được chọn */
+.form-control-static {
+    color: #ffffff;
+    /* Màu chữ trắng */
+    font-style: italic;
+    /* In nghiêng */
+}
+
+/* ---------- Form Group ---------- */
+.form-group {
+    margin-bottom: 20px;
+    /* Khoảng cách giữa các form group */
+}
+
+/* ---------- Form Label ---------- */
+.form-label {
+    display: block;
+    font-size: 14px;
+    font-weight: bold;
+    color: #ffffff;
+    /* Màu chữ trắng */
+    margin-bottom: 8px;
+    /* Khoảng cách giữa label và input */
+}
+
+/* ---------- Form Select ---------- */
+.form-select {
+    width: 100%;
+    padding: 10px;
+    background-color: #2A3038;
+    /* Màu nền tối phù hợp với dark theme */
+    color: #ffffff;
+    /* Màu chữ trắng */
+    border: 1px solid #2c2e33;
+    /* Màu viền phù hợp với dark theme */
+    border-radius: 8px;
+    font-size: 14px;
+    transition: border-color 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+}
+
+/* Khi focus vào select */
+.form-select:focus {
+    border-color: #0090e7;
+    /* Màu viền xanh khi focus */
+    outline: none;
+    box-shadow: 0px 0px 8px rgba(0, 144, 231, 0.25);
+    /* Đổ bóng xanh khi focus */
+}
+
+/* ---------- Option trong select ---------- */
+.form-select option {
+    background-color: #2A3038;
+    /* Màu nền tối phù hợp với dark theme */
+    color: #ffffff;
+    /* Màu chữ trắng */
+}
+
+/* Hiệu ứng hover cho option */
+.form-select option:hover {
+    background-color: #3a4046;
+    /* Màu nền tối hơn khi hover */
+}
+
+/* ---------- Giá ghế ---------- */
+.form-control-plaintext {
+    color: #ffffff !important;
+    /* Màu chữ trắng */
+    font-size: 14px;
+    /* Cỡ chữ */
+    font-weight: bold;
+    /* Chữ đậm */
+}
+
+/* ---------- Biểu tượng dấu cộng và răng cưa ---------- */
+.btn-outline-light {
+    border: 1px solid #ffffff;
+    color: #ffffff;
+    transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out;
+    height: 38px;
+    /* Chiều cao mặc định */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 12px;
+    /* Padding để nút không bị quá chật */
+    margin-left: 8px;
+    /* Khoảng cách giữa các nút */
+}
+
+/* Tăng chiều cao thêm 20% */
+.btn-outline-light {
+    height: calc(30px * 1.2);
+    /* Tăng chiều cao thêm 20% */
+}
+
+/* Khoảng cách giữa các nút */
+.d-flex.align-items-center.gap-2 {
+    gap: 10px;
+    /* Tăng khoảng cách giữa các nút */
+}
+
+/* Hiệu ứng hover */
+.btn-outline-light:hover {
+    background-color: #ffffff;
+    color: #000000;
+}
+
+/* ---------- Modal thêm mới loại ghế ---------- */
+#addSeatTypeModal .modal-content {
+    /* background: linear-gradient(135deg, #8B0000, #000000); */
+    color: #ffffff;
+    border-radius: 12px;
+}
+
+#addSeatTypeModal .modal-header {
+    border-bottom: 1px solid #ffffff;
+}
+
+#addSeatTypeModal .modal-footer {
+    border-top: 1px solid #ffffff;
+}
+
+/* ---------- Modal chi tiết loại ghế ---------- */
+#seatTypeDetailModal .modal-content {
+    /* background: linear-gradient(135deg, #8B0000, #000000); */
+    color: #ffffff;
+    border-radius: 12px;
+}
+
+#seatTypeDetailModal .modal-header {
+    border-bottom: 1px solid #ffffff;
+}
+
+#seatTypeDetailModal .list-group-item {
+    background-color: #2A3038;
+    color: #ffffff;
+    margin-bottom: 8px;
+    border-radius: 8px;
+}
+
+#seatTypeDetailModal .btn-danger {
+    background-color: #8B0000;
+    border-color: #8B0000;
+}
+
+#seatTypeDetailModal .btn-danger:hover {
+    background-color: #FF0000;
+    border-color: #FF0000;
+}
+
+/* Custom Input */
+.custom-input {
+    width: 100%;
+    padding: 10px;
+    background-color: #2A3038;
+    color: #ffffff;
+    border: 1px solid #2c2e33;
+    border-radius: 8px;
+    font-size: 14px;
+    transition: border-color 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+}
+
+.custom-input:focus {
+    border-color: #0090e7;
+    outline: none;
+    box-shadow: 0px 0px 8px rgba(0, 144, 231, 0.25);
+}
+
+/* Custom Button */
+.custom-btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.3s ease-in-out, transform 0.2s ease-in-out;
+}
+
+.custom-btn-primary {
+    background-color: #0090e7;
+    color: #ffffff;
+}
+
+.custom-btn-primary:hover {
+    background-color: #0d99ff;
+    transform: translateY(-2px);
+}
+
+.custom-btn-secondary {
+    background-color: #6c757d;
+    color: #ffffff;
+}
+
+.custom-btn-secondary:hover {
+    background-color: #5a6268;
+    transform: translateY(-2px);
+}
+
+/* Form Group */
+.form-group {
+    margin-bottom: 20px;
+}
+
+/* Form Label */
+.form-label {
+    display: block;
+    font-size: 14px;
+    font-weight: bold;
+    color: #ffffff;
+    margin-bottom: 8px;
+}
+
+.star-icon {
+    width: 100%;
+    /* 10% kích thước của ghế */
+    height: 100%;
+    /* 10% kích thước của ghế */
+    fill: gold;
+    position: absolute;
+    bottom: 10%;
+    left: 50%;
+    transform: translateX(-50%);
+    pointer-events: none;
+}
+
+/* Ẩn ghế nhưng vẫn giữ không gian */
+.seat.none {
+    visibility: hidden;
+    /* Ẩn phần tử nhưng giữ nguyên không gian */
+    pointer-events: none;
+    /* Vô hiệu hóa tương tác */
+}
+
+/* Ẩn tên ghế và icon */
+.seat.none .seat-icon,
+.seat.none .seat-name {
+    display: none;
+}
+
+/* Làm mờ ghế có trạng thái None */
+.seat.disabled {
+    opacity: 0.4;
+    filter: grayscale(70%);
+    transition: all 0.3s ease;
+}
+
+.seat.disabled.clicked {
+    opacity: 0.9;
+    filter: grayscale(30%);
+}
+
+.seat-name .badge {
+    font-size: 0.5em;
+    vertical-align: super;
+    margin-left: 2px;
+}
+
+/* Dấu X cho ghế unavailable */
+.seat-unavailable-mark {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 40px;
+    height: 40px;
+    pointer-events: none;
+}
+
+.seat-unavailable-mark line {
+    stroke: #ff0000;
+    stroke-width: 4;
+    stroke-linecap: round;
+}
+
+/* Trong file CSS của component */
+.list-group-item.active {
+    background-color: #0090e7;
+    color: white;
+    border-color: #0090e7;
+    z-index: 2;
+}
+
+.list-group-item:hover {
+    background-color: #3a4046;
+    cursor: pointer;
+}
+
+.list-group-item.active:hover {
+    background-color: #0d99ff;
+}
+
+.price-info {
+    border: 1px solid #2c2e33;
+    border-radius: 8px;
+    padding: 12px;
+    background-color: #2A3038;
+}
+
+.price-breakdown {
+    font-size: 0.9rem;
+    color: #ffffff;
+}
+
+.price-breakdown hr {
+    border-color: #2c2e33;
+}
+
+.price-breakdown .fw-bold {
+    font-size: 1.05rem;
+    color: #ffffff;
+}
+
+.modal-content {
+    background-color: #191c24 !important;
+}

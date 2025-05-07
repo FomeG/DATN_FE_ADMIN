@@ -1,0 +1,157 @@
+<div class="container-fluid">
+  <div class="card movie-detail-card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+      <h3 class="card-title mb-0">Chi tiết phim</h3>
+      <button class="btn btn-outline-primary" (click)="goBack()">
+        <i class="mdi mdi-arrow-left"></i> Quay lại
+      </button>
+    </div>
+
+    <div class="card-body">
+      <!-- Loading spinner -->
+      <div *ngIf="isLoading" class="text-center py-5">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Đang tải...</span>
+        </div>
+        <p class="mt-2">Đang tải thông tin phim...</p>
+      </div>
+
+      <!-- Error message -->
+      <div *ngIf="!isLoading && errorMessage" class="alert alert-danger">
+        {{ errorMessage }}
+      </div>
+
+      <!-- Movie details content -->
+      <div *ngIf="!isLoading && !errorMessage && movie" class="movie-detail-content">
+        <!-- Banner section at the top -->
+        <div class="banner-wrapper mb-4" *ngIf="movie.banner">
+          <div class="banner-overlay"></div>
+          <img [src]="movie.banner" alt="Movie banner" class="movie-banner">
+          <div class="movie-title-banner">
+            <h1>{{ movie.movieName }}</h1>
+            <div class="movie-stats">
+              <span class="duration"><i class="mdi mdi-clock-outline"></i> {{ movie.duration }} phút</span>
+              <span class="release-date"><i class="mdi mdi-calendar"></i> {{ movie.releaseDate | date:'dd/MM/yyyy'
+                }}</span>
+              <span [class]="movie.status === 1 ? 'status-active' : 'status-inactive'">
+                <i [class]="movie.status === 1 ? 'mdi mdi-check-circle' : 'mdi mdi-close-circle'"></i>
+                {{ movie.status === 1 ? 'Đang chiếu' : 'Ngừng chiếu' }}
+              </span>
+              <span class="age-rating-badge" *ngIf="movie.ageRatingCode">
+                <i class="mdi mdi-account-alert"></i> {{ movie.ageRatingCode }}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+          <!-- Left column: Thumbnail and details -->
+          <div class="col-md-3">
+            <div class="movie-poster-container mb-4">
+              <img [src]="movie.thumbnail" alt="{{ movie.movieName }}" class="movie-poster">
+              <div class="movie-status-badge" [ngClass]="{
+                'active': movie.status === 1,
+                'inactive': movie.status !== 1,
+                'age-rating': movie.ageRatingCode
+              }">
+                {{ movie.ageRatingCode ? movie.ageRatingCode : (movie.status === 1 ? 'Đang chiếu' : 'Ngừng chiếu') }}
+              </div>
+            </div>
+
+            <div class="movie-info-card">
+              <h4 class="info-card-title"><i class="mdi mdi-information-outline"></i> Thông tin chi tiết</h4>
+              <div class="info-item">
+                <div class="info-label"><i class="mdi mdi-clock-outline"></i> Thời lượng</div>
+                <div class="info-value">{{ movie.duration }} phút</div>
+              </div>
+              <div class="info-item">
+                <div class="info-label"><i class="mdi mdi-calendar"></i> Ngày phát hành</div>
+                <div class="info-value">{{ movie.releaseDate | date:'dd/MM/yyyy' }}</div>
+              </div>
+              <div class="info-item">
+                <div class="info-label"><i class="mdi mdi-tag-outline"></i> Trạng thái</div>
+                <div class="info-value" [class.text-success]="movie.status === 1"
+                  [class.text-danger]="movie.status !== 1">
+                  {{ movie.status === 1 ? 'Đang chiếu' : 'Ngừng chiếu' }}
+                </div>
+              </div>
+
+              <div class="info-item" *ngIf="movie.ageRatingCode">
+                <div class="info-label"><i class="mdi mdi-account-alert"></i> Phân loại độ tuổi</div>
+                <div class="info-value age-rating-value">
+                  {{ movie.ageRatingCode }}
+                </div>
+              </div>
+
+              <div class="info-item" *ngIf="movie.formats && movie.formats.length > 0">
+                <div class="info-label"><i class="mdi mdi-movie-outline"></i> Định dạng</div>
+                <div class="info-value format-container">
+                  <span *ngFor="let format of movie.formats" class="format-tag">
+                    <i class="mdi mdi-filmstrip"></i> {{format.name}}
+                  </span>
+                </div>
+              </div>
+
+              <div class="info-item" *ngIf="movie.genres && movie.genres.length > 0">
+                <div class="info-label"><i class="mdi mdi-tag-multiple-outline"></i> Thể loại</div>
+                <div class="info-value genre-container">
+                  <span *ngFor="let genre of movie.genres" class="genre-tag">
+                    <i class="mdi mdi-tag"></i> {{genre.genreName}}
+                  </span>
+                </div>
+              </div>
+
+
+            </div>
+          </div>
+
+          <!-- Right column: Movie info, description, trailer, cast -->
+          <div class="col-md-9">
+            <!-- Điều chỉnh hiển thị tiêu đề nếu không có banner -->
+            <h2 class="movie-title" *ngIf="!movie.banner">{{ movie.movieName }}</h2>
+
+            <!-- Description section -->
+            <div class="content-section mb-4">
+              <h4 class="section-title"><i class="mdi mdi-text-box-outline"></i> Mô tả</h4>
+              <div class="movie-description">
+                <p>{{ movie.description }}</p>
+              </div>
+            </div>
+
+            <!-- Trailer section -->
+            <div class="content-section mb-4">
+              <h4 class="section-title"><i class="mdi mdi-play-circle-outline"></i> Trailer</h4>
+              <div *ngIf="!safeTrailerUrl" class="alert alert-warning">
+                <i class="mdi mdi-alert-circle-outline"></i> URL trailer không hợp lệ hoặc không thể xử lý
+              </div>
+              <div class="trailer-container" *ngIf="safeTrailerUrl">
+                <iframe width="100%" height="450" [src]="safeTrailerUrl" frameborder="0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowfullscreen>
+                </iframe>
+              </div>
+            </div>
+
+            <!-- Cast section -->
+            <div class="content-section" *ngIf="movie.listdienvien && movie.listdienvien.length > 0">
+              <h4 class="section-title"><i class="mdi mdi-account-group-outline"></i> Diễn viên</h4>
+              <div class="actor-grid">
+                <div class="row">
+                  <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6 mb-4" *ngFor="let actor of movie.listdienvien">
+                    <div class="actor-card">
+                      <div class="actor-image">
+                        <img [src]="actor.photo || 'assets/images/placeholder-actor.jpg'" alt="{{ actor.name }}"
+                          class="img-fluid">
+                      </div>
+                      <div class="actor-name">{{ actor.name }}</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

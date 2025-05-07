@@ -1,0 +1,185 @@
+<div class="modal fade" id="addPricingRuleModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Thêm Quy Tắc Giá Mới</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form [formGroup]="ruleForm" (ngSubmit)="onSubmit()">
+          <div class="row">
+            <!-- Rule Name -->
+            <div class="col-md-6 mb-3">
+              <label class="form-label required">Tên Quy Tắc</label>
+              <input type="text" class="form-control" formControlName="ruleName"
+                [class.is-invalid]="ruleForm.get('ruleName')?.invalid && ruleForm.get('ruleName')?.touched">
+              <div class="invalid-feedback"
+                *ngIf="ruleForm.get('ruleName')?.invalid && ruleForm.get('ruleName')?.touched">
+                Vui lòng nhập tên quy tắc
+              </div>
+            </div>
+
+            <!-- Multiplier -->
+            <div class="col-md-6 mb-3">
+              <label class="form-label required">Hệ Số</label>
+              <input type="number" class="form-control" formControlName="multiplier" step="0.01"
+                [class.is-invalid]="ruleForm.get('multiplier')?.invalid && ruleForm.get('multiplier')?.touched">
+              <div class="invalid-feedback"
+                *ngIf="ruleForm.get('multiplier')?.invalid && ruleForm.get('multiplier')?.touched">
+                <div *ngIf="ruleForm.get('multiplier')?.errors?.['required']">Vui lòng nhập hệ số</div>
+                <div *ngIf="ruleForm.get('multiplier')?.errors?.['min']">Hệ số phải lớn hơn 0</div>
+              </div>
+            </div>
+
+            <!-- Discount Type Selection -->
+            <div class="col-md-6 mb-3">
+              <label class="form-label required">Kiểu Giảm Giá</label>
+              <select class="form-select" [(ngModel)]="selectedDiscountType" [ngModelOptions]="{standalone: true}"
+                (ngModelChange)="onDiscountTypeChange()">
+                <option [ngValue]="null">Chọn kiểu giảm giá</option>
+                <option value="hourly">Theo Giờ</option>
+                <option value="specialDay">Ngày Đặc Biệt</option>
+                <option value="weekday">Ngày Trong Tuần</option>
+                <option value="dateRange">Khoảng Thời Gian</option>
+                <option value="specificDate">Ngày Cụ Thể</option>
+              </select>
+              <div class="invalid-feedback" *ngIf="!selectedDiscountType && ruleForm.errors?.['noCondition']">
+                Vui lòng chọn kiểu giảm giá
+              </div>
+            </div>
+
+            <!-- Is Discount -->
+            <div class="col-md-6 mb-3">
+              <div class="form-check mt-4">
+                <input type="checkbox" class="form-check-input" formControlName="isDiscount">
+                <label class="form-check-label required">Là Giảm Giá</label>
+              </div>
+            </div>
+
+            <!-- Dynamic Fields based on Discount Type -->
+            <ng-container *ngIf="selectedDiscountType === 'hourly'">
+              <!-- Time Range Fields -->
+              <div class="col-md-6 mb-3 time-picker-container">
+                <label class="form-label">Thời Gian Bắt Đầu</label>
+                <div class="input-group">
+                  <input type="time" class="form-control" formControlName="startTime" #startTimePicker
+                    [class.is-invalid]="ruleForm.errors?.['timeRange'] && (ruleForm.get('startTime')?.touched || ruleForm.get('endTime')?.touched)">
+                  <button class="btn btn-outline-secondary" type="button"
+                    (click)="confirmTimeSelection('startTime')">OK</button>
+                </div>
+              </div>
+
+              <div class="col-md-6 mb-3 time-picker-container">
+                <label class="form-label">Thời Gian Kết Thúc</label>
+                <div class="input-group">
+                  <input type="time" class="form-control" formControlName="endTime" #endTimePicker
+                    [class.is-invalid]="ruleForm.errors?.['timeRange'] && (ruleForm.get('startTime')?.touched || ruleForm.get('endTime')?.touched)">
+                  <button class="btn btn-outline-secondary" type="button"
+                    (click)="confirmTimeSelection('endTime')">OK</button>
+                </div>
+                <div class="invalid-feedback"
+                  *ngIf="ruleForm.errors?.['timeRange'] && (ruleForm.get('startTime')?.touched || ruleForm.get('endTime')?.touched)">
+                  Thời gian bắt đầu phải nhỏ hơn thời gian kết thúc và phải nhập đủ cả hai
+                </div>
+              </div>
+            </ng-container>
+
+            <ng-container *ngIf="selectedDiscountType === 'specialDay'">
+              <!-- Special Day/Month Fields -->
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Ngày Đặc Biệt</label>
+                <input type="number" class="form-control" formControlName="specialDay" min="1" max="31"
+                  [class.is-invalid]="(ruleForm.errors?.['specialDayMonth'] || ruleForm.errors?.['exclusiveSpecial']) && (ruleForm.get('specialDay')?.touched || ruleForm.get('specialMonth')?.touched)">
+              </div>
+
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Tháng Đặc Biệt</label>
+                <input type="number" class="form-control" formControlName="specialMonth" min="1" max="12"
+                  [class.is-invalid]="(ruleForm.errors?.['specialDayMonth'] || ruleForm.errors?.['exclusiveSpecial']) && (ruleForm.get('specialDay')?.touched || ruleForm.get('specialMonth')?.touched)">
+                <div class="invalid-feedback"
+                  *ngIf="(ruleForm.errors?.['specialDayMonth'] || ruleForm.errors?.['exclusiveSpecial']) && (ruleForm.get('specialDay')?.touched || ruleForm.get('specialMonth')?.touched)">
+                  <div *ngIf="ruleForm.errors?.['specialDayMonth']">Phải nhập đủ cả ngày và tháng đặc biệt, và ngày phải
+                    hợp lệ với tháng</div>
+                </div>
+              </div>
+            </ng-container>
+
+            <ng-container *ngIf="selectedDiscountType === 'weekday'">
+              <!-- Day of Week Field -->
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Ngày Trong Tuần</label>
+                <select class="form-select" formControlName="dayOfWeek"
+                  [class.is-invalid]="((ruleForm.get('dayOfWeek')?.errors?.['min'] || ruleForm.get('dayOfWeek')?.errors?.['max'])) && ruleForm.get('dayOfWeek')?.touched">
+                  <option [ngValue]="null">Chọn ngày</option>
+                  <option [ngValue]="1">Chủ Nhật</option>
+                  <option [ngValue]="2">Thứ Hai</option>
+                  <option [ngValue]="3">Thứ Ba</option>
+                  <option [ngValue]="4">Thứ Tư</option>
+                  <option [ngValue]="5">Thứ Năm</option>
+                  <option [ngValue]="6">Thứ Sáu</option>
+                  <option [ngValue]="7">Thứ Bảy</option>
+                </select>
+                <div class="invalid-feedback"
+                  *ngIf="((ruleForm.get('dayOfWeek')?.errors?.['min'] || ruleForm.get('dayOfWeek')?.errors?.['max'])) && ruleForm.get('dayOfWeek')?.touched">
+                  <div *ngIf="ruleForm.get('dayOfWeek')?.errors?.['min'] || ruleForm.get('dayOfWeek')?.errors?.['max']">
+                    Ngày trong tuần không hợp lệ</div>
+                </div>
+              </div>
+            </ng-container>
+
+            <ng-container *ngIf="selectedDiscountType === 'dateRange'">
+              <!-- Date Range Fields -->
+              <div class="col-md-6 mb-3 date-picker-container">
+                <label class="form-label">Ngày Bắt Đầu</label>
+                <div class="input-group">
+                  <input type="date" class="form-control" formControlName="startDate" #startDatePicker
+                    [class.is-invalid]="(ruleForm.errors?.['dateRange'] || ruleForm.errors?.['startDateFuture']) && (ruleForm.get('startDate')?.touched || ruleForm.get('endDate')?.touched)">
+                  <button class="btn btn-outline-secondary" type="button"
+                    (click)="confirmDateSelection('startDate')">OK</button>
+                </div>
+              </div>
+
+              <div class="col-md-6 mb-3 date-picker-container">
+                <label class="form-label">Ngày Kết Thúc</label>
+                <div class="input-group">
+                  <input type="date" class="form-control" formControlName="endDate" #endDatePicker
+                    [class.is-invalid]="ruleForm.errors?.['dateRange'] && (ruleForm.get('startDate')?.touched || ruleForm.get('endDate')?.touched)">
+                  <button class="btn btn-outline-secondary" type="button"
+                    (click)="confirmDateSelection('endDate')">OK</button>
+                </div>
+                <div class="invalid-feedback"
+                  *ngIf="(ruleForm.errors?.['dateRange'] || ruleForm.errors?.['startDateFuture']) && (ruleForm.get('startDate')?.touched || ruleForm.get('endDate')?.touched)">
+                  <div *ngIf="ruleForm.errors?.['dateRange']">Ngày bắt đầu phải nhỏ hơn ngày kết thúc và phải nhập đủ cả
+                    hai</div>
+                  <div *ngIf="ruleForm.errors?.['startDateFuture']">Ngày bắt đầu phải là ngày trong tương lai</div>
+                </div>
+              </div>
+            </ng-container>
+
+            <ng-container *ngIf="selectedDiscountType === 'specificDate'">
+              <!-- Specific Date Field -->
+              <div class="col-md-6 mb-3 date-picker-container">
+                <label class="form-label">Ngày Cụ Thể</label>
+                <div class="input-group">
+                  <input type="date" class="form-control" formControlName="date" #specificDatePicker
+                    [class.is-invalid]="(ruleForm.errors?.['dateFuture']) && ruleForm.get('date')?.touched">
+                  <button class="btn btn-outline-secondary" type="button"
+                    (click)="confirmDateSelection('date')">OK</button>
+                </div>
+                <div class="invalid-feedback"
+                  *ngIf="(ruleForm.errors?.['dateFuture']) && ruleForm.get('date')?.touched">
+                  <div *ngIf="ruleForm.errors?.['dateFuture']">Ngày phải là ngày trong tương lai</div>
+                </div>
+              </div>
+            </ng-container>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+            <button type="submit" class="btn btn-primary"
+              [disabled]="ruleForm.invalid || ruleForm.errors?.['noCondition'] || !selectedDiscountType">Lưu</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,165 @@
+<div class="container-fluid">
+  <div class="dashboard-header p-0">
+    <div class="row align-items-center">
+      <div class="col-md-6">
+        <h2 class="mb-0 text-gradient">Quản lý Lịch sử sử dụng voucher</h2>
+        <p class="text-muted">Thông tin chi tiết về dữ liệu sử dụng voucher của khách hàng</p>
+      </div>
+    </div>
+
+
+  </div>
+
+  <!-- Filter Section -->
+  <div class="d-flex mb-4">
+    <!-- Back button to all vouchers if filtering by voucher ID -->
+    <button *ngIf="voucherId" class="btn btn-outline-secondary me-3" (click)="clearVoucherFilter()">
+      <i class="fas fa-arrow-left"></i> Tất cả Voucher
+    </button>
+
+    <!-- Search Box -->
+    <!-- <input type="text" class="form-control" placeholder="Tìm kiếm..." [(ngModel)]="searchTerm" (keyup.enter)="search()"
+      style="width: 70%; height: 55px; margin-left: auto">
+    <button class="btn btn-primary mb-4" type="button" (click)="search()">
+      <i class="fas fa-search"></i>
+    </button> -->
+  </div>
+
+  <!-- Voucher Info if filtering by voucher ID -->
+  <div *ngIf="voucherId && voucherInfo" class="card mb-4">
+    <div class="card-header bg-primary text-white">
+      <h5 class="mb-0">Thông tin Voucher</h5>
+    </div>
+    <div class="card-body">
+      <div class="row">
+        <div class="col-md-4">
+          <p><strong>Mã voucher:</strong> {{ voucherInfo.code }}</p>
+          <p><strong>Loại giảm giá:</strong> {{ voucherInfo.discountType === 'PERCENT' ? 'Phần trăm (%)' : 'Số tiền cố
+            định' }}</p>
+          <p><strong>Giá trị:</strong> {{ voucherInfo.discountType === 'PERCENT' ? voucherInfo.discountValue + '%' :
+            voucherInfo.discountValue.toLocaleString('vi-VN') + ' VNĐ' }}</p>
+        </div>
+        <div class="col-md-4">
+          <p><strong>Ngày bắt đầu:</strong> {{ formatDate(voucherInfo.startDate) }}</p>
+          <p><strong>Ngày kết thúc:</strong> {{ formatDate(voucherInfo.endDate) }}</p>
+          <p><strong>Trạng thái:</strong>
+            <span class="badge" [ngClass]="voucherInfo.status == 1 ? 'bg-success' : 'bg-warning'">
+              {{ voucherInfo.status == 1 ? 'Hoạt động' : 'Đã hết hạn' }}
+            </span>
+          </p>
+        </div>
+        <div class="col-md-4">
+          <p><strong>Lượt sử dụng:</strong> {{ voucherInfo.usedCount }}/{{ voucherInfo.maxUsage }}</p>
+          <p><strong>Ngày tạo:</strong> {{ formatDate(voucherInfo.createdAt) }}</p>
+          <p><strong>Mô tả:</strong> {{ voucherInfo.description || 'Không có mô tả' }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-header">
+          <h4 class="card-title">Danh sách sử dụng Voucher</h4>
+        </div>
+        <div class="card-body">
+          <!-- Loading spinner -->
+          <div *ngIf="isLoading" class="text-center py-5">
+            <div class="spinner-border text-primary" role="status">
+              <span class="visually-hidden">Loading...</span>
+            </div>
+            <p class="mt-2">Đang tải dữ liệu...</p>
+          </div>
+
+          <!-- Table -->
+          <div class="table-responsive" *ngIf="!isLoading">
+            <table class="table table-hover" style="border-top: 1px solid #2c2e33;">
+              <thead>
+                <tr>
+                  <th>Mã Voucher</th>
+                  <th>Người dùng</th>
+                  <th>Mã Đơn hàng</th>
+                  <th>Thời gian sử dụng</th>
+                  <th>Trạng thái</th>
+                  <!-- <th>Thao tác</th> -->
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let usage of filteredUsages">
+                  <td>{{ usage.voucherCode }}</td>
+                  <td>{{ usage.userName || 'Không xác định' }}</td>
+                  <td>{{ usage.orderCode || 'Không xác định' }}</td>
+                  <td>{{ formatDate(usage.usedAt) }}</td>
+                  <td>
+                    <span class="badge" [ngClass]="getStatusClass(usage.status)">
+                      {{ getStatusLabel(usage.status) }}
+                    </span>
+                  </td>
+                  <!-- <td>
+                    <button *ngIf="usage.orderId" type="button" class="btn btn-outline-primary btn-sm me-2"
+                      (click)="viewOrderDetails(usage.orderId)">
+                      <i class="fas fa-receipt"></i> Xem đơn hàng
+                    </button>
+                    <button *ngIf="usage.userId" type="button" class="btn btn-outline-info btn-sm"
+                      (click)="viewUserDetails(usage.userId)">
+                      <i class="fas fa-user"></i> Xem người dùng
+                    </button>
+                  </td> -->
+                </tr>
+                <tr *ngIf="!isLoading && filteredUsages.length === 0">
+                  <td colspan="6" class="text-center">Không tìm thấy lịch sử sử dụng voucher nào</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Pagination -->
+          <div class="d-flex justify-content-between align-items-center mt-3 p-3" *ngIf="totalPages > 0">
+            <div>
+              Hiển thị {{ filteredUsages.length }} / {{ totalRecords }} kết quả
+            </div>
+            <nav aria-label="Page navigation">
+              <ul class="pagination mb-0">
+                <li class="page-item" [ngClass]="{disabled: currentPage === 1}">
+                  <a class="page-link" href="javascript:void(0)" (click)="onPageChange(1)">
+                    <i class="fas fa-angle-double-left"></i>
+                  </a>
+                </li>
+                <li class="page-item" [ngClass]="{disabled: currentPage === 1}">
+                  <a class="page-link" href="javascript:void(0)" (click)="onPageChange(currentPage - 1)">
+                    <i class="fas fa-angle-left"></i>
+                  </a>
+                </li>
+                <!-- Hiển thị dấu ... ở đầu nếu trang đầu tiên không phải là 1 -->
+                <li class="page-item disabled" *ngIf="pages.length > 0 && pages[0] > 1">
+                  <a class="page-link" href="javascript:void(0)">...</a>
+                </li>
+
+                <!-- Hiển thị các trang -->
+                <li class="page-item" *ngFor="let page of pages" [ngClass]="{active: page === currentPage}">
+                  <a class="page-link" href="javascript:void(0)" (click)="onPageChange(page)">{{ page }}</a>
+                </li>
+
+                <!-- Hiển thị dấu ... ở cuối nếu trang cuối cùng không phải là totalPages -->
+                <li class="page-item disabled" *ngIf="pages.length > 0 && pages[pages.length - 1] < totalPages">
+                  <a class="page-link" href="javascript:void(0)">...</a>
+                </li>
+                <li class="page-item" [ngClass]="{disabled: currentPage === totalPages}">
+                  <a class="page-link" href="javascript:void(0)" (click)="onPageChange(currentPage + 1)">
+                    <i class="fas fa-angle-right"></i>
+                  </a>
+                </li>
+                <li class="page-item" [ngClass]="{disabled: currentPage === totalPages}">
+                  <a class="page-link" href="javascript:void(0)" (click)="onPageChange(totalPages)">
+                    <i class="fas fa-angle-double-right"></i>
+                  </a>
+                </li>
+              </ul>
+            </nav>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

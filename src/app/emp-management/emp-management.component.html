@@ -1,54 +1,547 @@
-<div class="container mt-4">
-  <div class="d-flex justify-content-between align-items-center mb-4">
-    <h2>Employee Management</h2>
-    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addEmployeeModal">
-      Add New Employee
-    </button>
+<div class="container-fluid">
+
+
+
+  <div class="dashboard-header p-0">
+
+    <div class="row align-items-center">
+      <div class="col-md-6">
+        <h2 class="mb-0 text-gradient">Quản lý nhân viên</h2>
+        <p class="text-muted">Thông tin chi tiết về dữ liệu nhân viên</p>
+      </div>
+    </div>
+
   </div>
 
-  <div class="table-responsive">
-    <table class="table table-striped">
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Email</th>
-          <th>Phone</th>
-          <th>Role</th>
-          <th>Status</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let employee of employees">
-          <td>{{employee.name}}</td>
-          <td>{{employee.email}}</td>
-          <td>{{employee.phoneNumber}}</td>
-          <td>{{employee.roleName}}</td>
-          <td>{{employee.status === 1 ? 'Active' : 'Inactive'}}</td>
-          <td>
-            <!-- <button class="btn btn-sm btn-primary me-2" (click)="onEditEmployee(employee.id)">Edit</button> -->
-            <button class="btn btn-sm btn-danger me-2" (click)="onDeleteEmployee(employee.id)">Delete</button>
-            <button class="btn btn-sm btn-warning" (click)="onLockoutEmployee(employee.id)">
-              {{employee.lockoutEnabled ? 'Unlock' : 'Lock'}}
+
+
+
+
+
+
+
+
+  <div class="row">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-header">
+          <button class="btn btn-primary m-0" data-bs-toggle="modal" data-bs-target="#addEmployeeModal">
+            <i class="fas fa-plus"></i>Thêm nhân viên
+          </button>
+        </div>
+        <div class="card-body pt-0">
+          <div class="table-responsive">
+            <table class="table table-hover align-middle" style="border-top: 1px solid #2c2e33;">
+              <thead>
+                <tr>
+                  <th>Họ và tên</th>
+                  <th>Đại chỉ</th>
+                  <th>Số điện thoại</th>
+                  <th>Trạng thái</th>
+                  <th>Thao tác</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngIf="isLoading">
+                  <td colspan="5" class="text-center">
+                    <div class="spinner-border text-primary" role="status">
+                      <span class="visually-hidden">Đang tải...</span>
+                    </div>
+                  </td>
+                </tr>
+                <tr *ngIf="!isLoading && employees.length === 0">
+                  <td colspan="5" class="text-center">Không có dữ liệu</td>
+                </tr>
+                <tr *ngFor="let employee of employees">
+                  <td>{{employee.name}}</td>
+                  <td>{{employee.address}}</td>
+                  <td>{{employee.phoneNumber}}</td>
+                  <!-- <td>{{employee.roleName}}</td> -->
+                  <td>
+                    <span class="badge" [ngClass]="{
+                      'bg-success': employee.status === 1 && !employee.lockoutEnabled,
+                      'bg-danger': employee.status === 0 || employee.lockoutEnabled
+                    }">
+                      {{(employee.status === 1 && !employee.lockoutEnabled) ? 'Hoạt động' : "Bị khóa"}}
+                    </span>
+                    <!-- <span *ngIf="employee.lockoutEnabled" class="badge bg-warning ms-1">Locked</span> -->
+                  </td>
+                  <td class="d-flex align-items-center justify-content-center m-0">
+                    <button type="button" class="btn btn-outline-info btn-rounded me-2" data-bs-toggle="modal"
+                      data-bs-target="#viewEmployeeModal" (click)="onViewEmployeeDetail(employee.id)">
+                      <i class="fas fa-eye"></i>
+                    </button>
+
+                    <button type="button" class="btn btn-outline-danger btn-rounded m-0bat"
+                      (click)="onDeleteEmployee(employee.id)">
+                      <i class="fas fa-trash"></i>
+                    </button>
+
+                    <button type="button" class="btn btn-outline-warning btn-rounded me-2" data-bs-toggle="modal"
+                      data-bs-target="#editEmployeeModal" (click)="onEditEmployee(employee.id)">
+                      <i class="fas fa-edit"></i>
+                    </button>
+
+                    <div class="d-flex align-items-center m-0" style="margin-top: 5px !important">
+                      <label class="switch">
+                        <input type="checkbox" [checked]="!employee.lockoutEnabled"
+                          (change)="onToggleLockoutEmployee(employee.id)">
+                        <span class="slider round"></span>
+                      </label>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+
+
+        <!-- Pagination -->
+        <div class="d-flex justify-content-between align-items-center mt-3 p-3" *ngIf="totalPages > 0">
+          <div>
+            Hiển thị {{ employees.length }} / {{ totalRecords }} kết quả
+          </div>
+          <nav aria-label="Page navigation">
+            <ul class="pagination mb-0">
+              <li class="page-item" [ngClass]="{disabled: currentPage === 1}">
+                <a class="page-link" href="javascript:void(0)" (click)="onPageChange(1)">
+                  <i class="fas fa-angle-double-left"></i>
+                </a>
+              </li>
+              <li class="page-item" [ngClass]="{disabled: currentPage === 1}">
+                <a class="page-link" href="javascript:void(0)" (click)="onPageChange(currentPage - 1)">
+                  <i class="fas fa-angle-left"></i>
+                </a>
+              </li>
+              <!-- Hiển thị dấu ... ở đầu nếu trang đầu tiên không phải là 1 -->
+              <li class="page-item disabled" *ngIf="pages.length > 0 && pages[0] > 1">
+                <a class="page-link" href="javascript:void(0)">...</a>
+              </li>
+
+              <!-- Hiển thị các trang -->
+              <li class="page-item" *ngFor="let page of pages" [ngClass]="{active: page === currentPage}">
+                <a class="page-link" href="javascript:void(0)" (click)="onPageChange(page)">{{ page }}</a>
+              </li>
+
+              <!-- Hiển thị dấu ... ở cuối nếu trang cuối cùng không phải là totalPages -->
+              <li class="page-item disabled" *ngIf="pages.length > 0 && pages[pages.length - 1] < totalPages">
+                <a class="page-link" href="javascript:void(0)">...</a>
+              </li>
+              <li class="page-item" [ngClass]="{disabled: currentPage === totalPages}">
+                <a class="page-link" href="javascript:void(0)" (click)="onPageChange(currentPage + 1)">
+                  <i class="fas fa-angle-right"></i>
+                </a>
+              </li>
+              <li class="page-item" [ngClass]="{disabled: currentPage === totalPages}">
+                <a class="page-link" href="javascript:void(0)" (click)="onPageChange(totalPages)">
+                  <i class="fas fa-angle-double-right"></i>
+                </a>
+              </li>
+            </ul>
+          </nav>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+
+
+
+
+
+<!-- Add Employee Modal -->
+<div class="modal fade" id="addEmployeeModal" tabindex="-1" aria-labelledby="addEmployeeModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title" id="addEmployeeModalLabel">
+          <i class="fas fa-user-plus me-2"></i>
+          Thêm nhân viên mới
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form [formGroup]="employeeForm" (ngSubmit)="onSubmitEmployee()">
+          <div class="row">
+            <!-- Personal Information -->
+            <div class="col-md-6 mb-3">
+              <div class="form-group">
+                <label class="form-label">Họ và tên <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" formControlName="name">
+                <div *ngIf="employeeForm.get('name')?.touched && employeeForm.get('name')?.invalid" class="text-danger">
+                  <small *ngIf="employeeForm.get('name')?.errors?.['required']">Họ tên là bắt buộc</small>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-md-6 mb-3">
+              <div class="form-group">
+                <label class="form-label">Ngày sinh</label>
+                <input type="date" class="form-control" formControlName="dob">
+              </div>
+            </div>
+
+            <div class="col-md-6 mb-3">
+              <div class="form-group">
+                <label class="form-label">Giới tính</label>
+                <select class="form-select" formControlName="sex">
+                  <option [ngValue]="1">Nam</option>
+                  <option [ngValue]="2">Nữ</option>
+                  <option [ngValue]="0">Khác</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="col-md-6 mb-3">
+              <div class="form-group">
+                <label class="form-label">Địa chỉ</label>
+                <input type="text" class="form-control" formControlName="address">
+              </div>
+            </div>
+
+            <!-- Account Information -->
+            <div class="col-md-6 mb-3">
+              <div class="form-group">
+                <label class="form-label">Email <span class="text-danger">*</span></label>
+                <input type="email" class="form-control" formControlName="email">
+                <div *ngIf="employeeForm.get('email')?.touched && employeeForm.get('email')?.invalid"
+                  class="text-danger">
+                  <small *ngIf="employeeForm.get('email')?.errors?.['required']">Email là bắt buộc</small>
+                  <small *ngIf="employeeForm.get('email')?.errors?.['email']">Email không hợp lệ</small>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-md-6 mb-3">
+              <div class="form-group">
+                <label class="form-label">Số điện thoại</label>
+                <input type="tel" class="form-control" formControlName="phoneNumber">
+              </div>
+            </div>
+
+            <div class="col-md-6 mb-3">
+              <div class="form-group">
+                <label class="form-label">Tên đăng nhập <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" formControlName="userName">
+                <div *ngIf="employeeForm.get('userName')?.touched && employeeForm.get('userName')?.invalid"
+                  class="text-danger">
+                  <small *ngIf="employeeForm.get('userName')?.errors?.['required']">Tên đăng nhập là bắt buộc</small>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-md-6 mb-3">
+              <div class="form-group">
+                <label class="form-label">Mật khẩu <span class="text-danger">*</span></label>
+                <input type="password" class="form-control" formControlName="passwordHash">
+                <div *ngIf="employeeForm.get('passwordHash')?.touched && employeeForm.get('passwordHash')?.invalid"
+                  class="text-danger">
+                  <small *ngIf="employeeForm.get('passwordHash')?.errors?.['required']">Mật khẩu là bắt buộc</small>
+                  <small *ngIf="employeeForm.get('passwordHash')?.errors?.['minlength']">Mật khẩu phải có ít nhất 6 ký
+                    tự</small>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-md-12 mb-3">
+              <div class="form-group">
+                <label class="form-label">Rạp chiếu phim quản lý</label>
+                <div class="cinema-selection">
+                  <div *ngIf="isLoadingCinemas" class="text-center">
+                    <div class="spinner-border spinner-border-sm text-primary" role="status">
+                      <span class="visually-hidden">Đang tải...</span>
+                    </div>
+                  </div>
+                  <div *ngIf="!isLoadingCinemas && cinemas.length === 0" class="alert alert-info">
+                    Không có rạp chiếu phim nào.
+                  </div>
+                  <div *ngIf="!isLoadingCinemas && cinemas.length > 0" class="row">
+                    <div class="col-md-4 mb-2" *ngFor="let cinema of cinemas">
+                      <div class="form-check">
+                        <input class="form-check-input" type="checkbox" [value]="cinema.cinemasId"
+                          [id]="'cinema-' + cinema.cinemasId"
+                          (change)="onCinemaCheckboxChange($event, 'add')">
+                        <label class="form-check-label" [for]="'cinema-' + cinema.cinemasId">
+                          {{cinema.name}}
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+              <i class="fas fa-times me-1"></i>Đóng
             </button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+            <button type="submit" class="btn btn-primary" [disabled]="employeeForm.invalid || isSubmitting">
+              <i class="fas fa-save me-1"></i>
+              <span *ngIf="isSubmitting" class="spinner-border spinner-border-sm me-1"></span>
+              Thêm nhân viên
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
   </div>
+</div>
 
-  <!-- Pagination -->
-  <nav aria-label="Page navigation" *ngIf="totalPages > 1">
-    <ul class="pagination justify-content-center">
-      <li class="page-item" [class.disabled]="currentPage === 1">
-        <a class="page-link" (click)="onPageChange(currentPage - 1)" tabindex="-1">Previous</a>
-      </li>
-      <li class="page-item" *ngFor="let page of pages" [class.active]="page === currentPage">
-        <a class="page-link" (click)="onPageChange(page)">{{page}}</a>
-      </li>
-      <li class="page-item" [class.disabled]="currentPage === totalPages">
-        <a class="page-link" (click)="onPageChange(currentPage + 1)">Next</a>
-      </li>
-    </ul>
-  </nav>
+<!-- Edit Employee Modal -->
+<div class="modal fade" id="editEmployeeModal" tabindex="-1" aria-labelledby="editEmployeeModalLabel"
+  aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title" id="editEmployeeModalLabel">
+          <i class="fas fa-user-edit me-2"></i>
+          Cập nhật thông tin nhân viên
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form [formGroup]="editEmployeeForm" (ngSubmit)="onUpdateEmployee()">
+          <div class="row">
+            <!-- Personal Information -->
+            <div class="col-md-6 mb-3">
+              <div class="form-group">
+                <label class="form-label">Họ và tên <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" formControlName="name">
+                <div *ngIf="editEmployeeForm.get('name')?.touched && editEmployeeForm.get('name')?.invalid"
+                  class="text-danger">
+                  <small *ngIf="editEmployeeForm.get('name')?.errors?.['required']">Họ tên là bắt buộc</small>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-md-6 mb-3">
+              <div class="form-group">
+                <label class="form-label">Ngày sinh</label>
+                <input type="date" class="form-control" formControlName="dob">
+              </div>
+            </div>
+
+            <div class="col-md-6 mb-3">
+              <div class="form-group">
+                <label class="form-label">Giới tính</label>
+                <select class="form-select" formControlName="sex">
+                  <option [ngValue]="1">Nam</option>
+                  <option [ngValue]="2">Nữ</option>
+                  <option [ngValue]="0">Khác</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="col-md-6 mb-3">
+              <div class="form-group">
+                <label class="form-label">Địa chỉ</label>
+                <input type="text" class="form-control" formControlName="address">
+              </div>
+            </div>
+
+            <!-- Account Information -->
+            <div class="col-md-6 mb-3">
+              <div class="form-group">
+                <label class="form-label">Email <span class="text-danger">*</span></label>
+                <input type="email" class="form-control" formControlName="email">
+                <div *ngIf="editEmployeeForm.get('email')?.touched && editEmployeeForm.get('email')?.invalid"
+                  class="text-danger">
+                  <small *ngIf="editEmployeeForm.get('email')?.errors?.['required']">Email là bắt buộc</small>
+                  <small *ngIf="editEmployeeForm.get('email')?.errors?.['email']">Email không hợp lệ</small>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-md-6 mb-3">
+              <div class="form-group">
+                <label class="form-label">Số điện thoại</label>
+                <input type="tel" class="form-control" formControlName="phoneNumber">
+              </div>
+            </div>
+
+            <div class="col-md-6 mb-3">
+              <div class="form-group">
+                <label class="form-label">Tên đăng nhập <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" formControlName="userName">
+                <div *ngIf="editEmployeeForm.get('userName')?.touched && editEmployeeForm.get('userName')?.invalid"
+                  class="text-danger">
+                  <small *ngIf="editEmployeeForm.get('userName')?.errors?.['required']">Tên đăng nhập không được để
+                    trống
+                    buộc</small>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-md-12 mb-3">
+              <div class="form-group">
+                <label class="form-label">Rạp chiếu phim quản lý</label>
+                <div class="cinema-selection">
+                  <div *ngIf="isLoadingCinemas" class="text-center">
+                    <div class="spinner-border spinner-border-sm text-primary" role="status">
+                      <span class="visually-hidden">Đang tải...</span>
+                    </div>
+                  </div>
+                  <div *ngIf="!isLoadingCinemas && cinemas.length === 0" class="alert alert-info">
+                    Không có rạp chiếu phim nào.
+                  </div>
+                  <div *ngIf="!isLoadingCinemas && cinemas.length > 0" class="row">
+                    <div class="col-md-4 mb-2" *ngFor="let cinema of cinemas">
+                      <div class="form-check">
+                        <input class="form-check-input" type="checkbox" [value]="cinema.cinemasId"
+                          [id]="'edit-cinema-' + cinema.cinemasId"
+                          [checked]="isCinemaSelected(cinema.cinemasId)"
+                          (change)="onCinemaCheckboxChange($event, 'edit')">
+                        <label class="form-check-label" [for]="'edit-cinema-' + cinema.cinemasId">
+                          {{cinema.name}}
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+              <i class="fas fa-times me-1"></i>Đóng
+            </button>
+            <button type="submit" class="btn btn-primary" [disabled]="editEmployeeForm.invalid || isSubmitting">
+              <i class="fas fa-save me-1"></i>
+              <span *ngIf="isSubmitting" class="spinner-border spinner-border-sm me-1"></span>
+              Cập nhật
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- View Employee Detail Modal -->
+<div class="modal fade" id="viewEmployeeModal" tabindex="-1" aria-labelledby="viewEmployeeModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title" id="viewEmployeeModalLabel">
+          <i class="fas fa-user-circle me-2"></i>
+          Chi tiết nhân viên
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body" *ngIf="selectedEmployee">
+        <div class="row mb-4">
+          <div class="col-md-12">
+            <h6 class="text-primary mb-3">Thông tin cá nhân</h6>
+            <div class="row">
+              <div class="col-md-6 mb-2">
+                <p><strong>Họ và tên:</strong> {{selectedEmployee.name}}</p>
+              </div>
+              <div class="col-md-6 mb-2">
+                <p><strong>Ngày sinh:</strong> {{selectedEmployee.dob | date:'dd/MM/yyyy'}}</p>
+              </div>
+              <div class="col-md-6 mb-2">
+                <p><strong>Giới tính:</strong>
+                  <span *ngIf="selectedEmployee.sex === 1">Nam</span>
+                  <span *ngIf="selectedEmployee.sex === 2">Nữ</span>
+                  <span *ngIf="selectedEmployee.sex === 0">Khác</span>
+                </p>
+              </div>
+              <div class="col-md-6 mb-2">
+                <p><strong>Địa chỉ:</strong> {{selectedEmployee.address}}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row mb-4">
+          <div class="col-md-12">
+            <h6 class="text-primary mb-3">Thông tin tài khoản</h6>
+            <div class="row">
+              <div class="col-md-6 mb-2">
+                <p><strong>Email:</strong> {{selectedEmployee.email}}</p>
+              </div>
+              <div class="col-md-6 mb-2">
+                <p><strong>Tên đăng nhập:</strong> {{selectedEmployee.userName}}</p>
+              </div>
+              <div class="col-md-6 mb-2">
+                <p><strong>Số điện thoại:</strong> {{selectedEmployee.phoneNumber}}</p>
+              </div>
+              <div class="col-md-6 mb-2">
+                <p><strong>Trạng thái:</strong>
+                  <span class="badge" [ngClass]="{
+                    'bg-success': selectedEmployee.status === 1 && !selectedEmployee.lockoutEnabled,
+                    'bg-danger': selectedEmployee.status === 0 || selectedEmployee.lockoutEnabled
+                  }">
+                    {{(selectedEmployee.status === 1 && !selectedEmployee.lockoutEnabled) ? 'Hoạt động' : "Bị khóa"}}
+                  </span>
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-md-12">
+            <h6 class="text-primary mb-3">Rạp chiếu phim đang quản lý</h6>
+            <div *ngIf="selectedEmployee.cinemas && selectedEmployee.cinemas.length > 0">
+              <div class="table-responsive">
+                <table class="table table-hover" style="border-top: 1px solid #2c2e33;">
+                  <thead>
+                    <tr>
+                      <th>Tên rạp</th>
+                      <th>Địa chỉ</th>
+                      <th>Số điện thoại</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let cinema of selectedEmployee.cinemas">
+                      <td>{{cinema.name}}</td>
+                      <td>{{cinema.address}}</td>
+                      <td>{{cinema.phoneNumber}}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            <div *ngIf="!selectedEmployee.cinemas || selectedEmployee.cinemas.length === 0" class="alert alert-info">
+              Nhân viên này chưa được phân công quản lý rạp chiếu phim nào.
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+          <i class="fas fa-times me-1"></i>Đóng
+        </button>
+      </div>
+    </div>
+  </div>
 </div>

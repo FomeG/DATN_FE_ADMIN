@@ -3,6 +3,13 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
 
+export interface CinemaInfo {
+  cinemasId: string;
+  name: string;
+  address: string;
+  phoneNumber: string;
+}
+
 export interface Employee {
   id: string;
   name: string;
@@ -13,8 +20,11 @@ export interface Employee {
   sex: number;
   status: number;
   createdDate: Date;
-  lockoutEnabled: number;
-  roleName: string;
+  lockoutEnabled: boolean;
+  lockoutEnd: string | null;
+  roleName?: string;
+  userName: string;
+  cinemas: CinemaInfo[];
 }
 
 export interface EmployeeListResponse {
@@ -37,7 +47,7 @@ export class EmployeeService {
   }
 
   createEmployee(employeeData: any): Observable<any> {
-    return this.http.post(`${this.apiUrl}Employee/CreateEmployee`, employeeData);
+    return this.http.post<any>(`${this.apiUrl}Employee/AddEmployee`, employeeData);
   }
 
   deleteEmployee(id: string): Observable<any> {
@@ -52,7 +62,7 @@ export class EmployeeService {
     return this.http.post(`${this.apiUrl}Employee/UpdateEmployee?id=${id}`, employeeData);
   }
 
-  lockoutEmployee(id: string): Observable<any> {
-    return this.http.post(`${this.apiUrl}Employee/LockoutEmployee?id=${id}`, {});
+  toggleLockoutEmployee(id: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}Employee/ToggleLockout?id=${id}`, {});
   }
 }

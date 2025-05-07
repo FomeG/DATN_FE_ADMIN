@@ -1,0 +1,55 @@
+<div class="movie-format-dialog">
+  <div class="dialog-header">
+    <h2 mat-dialog-title>{{ isEditing ? 'Cập nhật định dạng phim' : 'Thêm định dạng phim mới' }}</h2>
+    <button mat-icon-button (click)="onCancel()" aria-label="Đóng">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <mat-dialog-content>
+    <div class="form-container">
+      <form [formGroup]="formatForm" (ngSubmit)="onSubmit()">
+        <div class="row mb-3">
+          <div class="col-12">
+            <div class="form-group">
+              <label for="name" class="form-label">Tên định dạng <span class="text-danger">*</span></label>
+              <input type="text" class="form-control" id="name" name="name" formControlName="name"
+                placeholder="Ví dụ: 2D, 3D, 4D, IMAX" autocomplete="off">
+              <div
+                *ngIf="formatForm.get('name')?.invalid && (formatForm.get('name')?.dirty || formatForm.get('name')?.touched)"
+                class="text-danger mt-1">
+                <small *ngIf="formatForm.get('name')?.hasError('required')">Tên định dạng là bắt buộc</small>
+                <small *ngIf="formatForm.get('name')?.hasError('maxlength')">Tên định dạng không được vượt quá 50 ký
+                  tự</small>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="row mb-3">
+          <div class="col-12">
+            <div class="form-group">
+              <label for="description" class="form-label">Mô tả <span class="text-danger">*</span></label>
+              <textarea class="form-control" id="description" name="description" formControlName="description" rows="4"
+                placeholder="Mô tả về định dạng phim" autocomplete="off"></textarea>
+              <div
+                *ngIf="formatForm.get('description')?.invalid && (formatForm.get('description')?.dirty || formatForm.get('description')?.touched)"
+                class="text-danger mt-1">
+                <small *ngIf="formatForm.get('description')?.hasError('required')">Mô tả là bắt buộc</small>
+                <small *ngIf="formatForm.get('description')?.hasError('maxlength')">Mô tả không được vượt quá 200 ký
+                  tự</small>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="action-buttons">
+          <button type="button" class="btn btn-secondary" (click)="onCancel()">Hủy</button>
+          <button type="submit" class="btn btn-primary" [disabled]="isLoading">
+            <span class="spinner-border spinner-border-sm me-2" *ngIf="isLoading" role="status"
+              aria-hidden="true"></span>
+            {{ isEditing ? 'Cập nhật' : 'Thêm mới' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </mat-dialog-content>
+</div>

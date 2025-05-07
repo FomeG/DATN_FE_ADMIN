@@ -1,0 +1,64 @@
+<!-- Modal -->
+<div class="modal fade" id="editRoomInfoModal" tabindex="-1" aria-labelledby="editRoomInfoModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editRoomInfoModalLabel">Chỉnh sửa thông tin phòng</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form (ngSubmit)="onSubmit()">
+                    <!-- Loại phòng -->
+                    <div class="mb-3">
+                        <label for="roomType" class="form-label">Loại phòng</label>
+                        <select class="form-select" id="roomType" [(ngModel)]="selectedRoomType" name="roomType"
+                            required>
+                            <option value="">Chọn loại phòng</option>
+                            <option *ngFor="let type of roomTypes" [value]="type.roomTypeId">
+                                {{ type.name }}
+                            </option>
+                        </select>
+                    </div>
+
+                    <!-- Tên phòng -->
+                    <div class="mb-3">
+                        <label for="roomName" class="form-label">Tên phòng</label>
+                        <input type="text" class="form-control" id="roomName" [(ngModel)]="roomName" name="roomName"
+                            required>
+                    </div>
+
+                    <!-- Giá vé -->
+                    <div class="mb-3">
+                        <label for="seatPrice" class="form-label">Giá vé</label>
+                        <input type="number" class="form-control" id="seatPrice" [(ngModel)]="seatPrice"
+                            name="seatPrice" required min="1" #seatPriceInput="ngModel">
+                        <div *ngIf="seatPriceInput.invalid && (seatPriceInput.dirty || seatPriceInput.touched)"
+                            class="text-danger">
+                            <small *ngIf="seatPriceInput.errors?.['required']">Vui lòng nhập giá vé</small>
+                            <small *ngIf="seatPriceInput.errors?.['min']">Giá vé phải lớn hơn 0</small>
+                            <small *ngIf="seatPrice <= 0 && !seatPriceInput.errors?.['min']">Giá vé phải lớn hơn
+                                0</small>
+                        </div>
+                    </div>
+
+                    <!-- Trạng thái -->
+                    <div class="mb-3">
+                        <label for="status" class="form-label">Trạng thái</label>
+                        <select class="form-select" id="status" [(ngModel)]="status" name="status" required>
+                            <option value="1">Có sẵn</option>
+                            <option value="2">Đang bảo trì</option>
+                            <option value="3">Đang dọn dẹp</option>
+                        </select>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                        <button type="submit" class="btn btn-primary"
+                            [disabled]="seatPriceInput.invalid || seatPrice <= 0">Cập nhật</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

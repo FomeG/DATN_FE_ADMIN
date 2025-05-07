@@ -1,0 +1,267 @@
+.map-container {
+    position: relative;
+    width: 100%;
+    height: 500px;
+    /* Mặc định, có thể ghi đè qua Input */
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+    margin-bottom: 20px;
+    border: 2px solid #2c2e33;
+    transition: all 0.3s ease;
+}
+
+/* Đảm bảo bản đồ hiển thị đúng trong modal */
+.modal .map-container {
+    max-height: 80vh;
+    /* Giới hạn chiều cao trong modal */
+    width: 100% !important;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+}
+
+/* Hiệu ứng khi hover vào bản đồ */
+.map-container:hover {
+    border-color: #0090e7;
+    box-shadow: 0 8px 24px rgba(0, 144, 231, 0.2);
+}
+
+/* Hiệu ứng khi load bản đồ */
+.map-container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(25, 28, 36, 0.8);
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: fadeOut 1s forwards;
+}
+
+@keyframes fadeOut {
+    0% {
+        opacity: 1;
+    }
+
+    90% {
+        opacity: 1;
+    }
+
+    100% {
+        opacity: 0;
+        visibility: hidden;
+    }
+}
+
+/* Điều chỉnh kích thước trong mobile view */
+@media (max-width: 768px) {
+    .map-container {
+        height: 400px !important;
+        border-radius: 8px;
+    }
+}
+
+#map {
+    width: 100%;
+    height: 100%;
+    background-color: #1e1e1e;
+    z-index: 1;
+}
+
+.map-instructions {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background-color: rgba(9, 10, 12, 0.85);
+    color: white;
+    padding: 15px;
+    font-size: 0.95rem;
+    text-align: center;
+    z-index: 1000;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.map-instructions p {
+    margin: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.map-instructions p i {
+    margin-right: 8px;
+    color: #0090e7;
+}
+
+/* Tạo một cursor tùy chỉnh khi hover trên bản đồ để chỉ ra rằng nó có thể click */
+::ng-deep .leaflet-container.leaflet-interactive {
+    cursor: pointer !important;
+}
+
+/* Hiệu ứng khi di chuột qua marker */
+::ng-deep .leaflet-marker-icon {
+    transition: transform 0.3s ease, filter 0.3s ease;
+}
+
+::ng-deep .leaflet-marker-icon:hover {
+    transform: scale(1.1) translateY(-5px);
+    filter: drop-shadow(0 5px 5px rgba(0, 0, 0, 0.5));
+}
+
+/* Style cho hiệu ứng ripple khi click */
+::ng-deep .leaflet-marker-pane .marker-pulse {
+    border-radius: 50%;
+    height: 14px;
+    width: 14px;
+    position: absolute;
+    background: rgba(0, 144, 231, 0.4);
+    opacity: 0;
+    animation: ripple 1.5s ease-out infinite;
+}
+
+@keyframes ripple {
+    0% {
+        opacity: 1;
+        transform: scale(0);
+    }
+
+    100% {
+        opacity: 0;
+        transform: scale(3);
+    }
+}
+
+/* Tùy chỉnh popup */
+::ng-deep .leaflet-popup-content-wrapper {
+    background-color: #191c24;
+    color: #ffffff;
+    border-radius: 8px;
+    border: 1px solid #2c2e33;
+    box-shadow: 0 3px 14px rgba(0, 0, 0, 0.6);
+}
+
+::ng-deep .leaflet-popup-tip {
+    background-color: #191c24;
+    box-shadow: 0 3px 14px rgba(0, 0, 0, 0.6);
+}
+
+::ng-deep .leaflet-popup-content {
+    margin: 12px 16px;
+    font-family: inherit;
+    font-weight: 500;
+}
+
+/* Cải thiện khả năng hiển thị của các control */
+::ng-deep .leaflet-control-zoom a {
+    background-color: #191c24 !important;
+    color: #ffffff !important;
+    border-color: #2c2e33 !important;
+}
+
+::ng-deep .leaflet-control-zoom a:hover {
+    background-color: #2A3038 !important;
+}
+
+/* Hiệu ứng đánh dấu khi click vào bản đồ */
+.map-click-effect {
+    position: absolute;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    z-index: 1000;
+    animation: clickEffect 0.8s ease-out;
+}
+
+@keyframes clickEffect {
+    0% {
+        width: 0px;
+        height: 0px;
+        opacity: 0.8;
+        background-color: rgba(0, 144, 231, 0.8);
+    }
+
+    100% {
+        width: 70px;
+        height: 70px;
+        opacity: 0;
+        background-color: rgba(0, 144, 231, 0);
+    }
+}
+
+/* Style cho phần hướng dẫn chi tiết */
+.map-help-text {
+    background-color: #191c24;
+    border: 1px solid #2c2e33;
+    border-radius: 8px;
+    padding: 15px;
+    font-size: 0.9rem;
+}
+
+.map-help-text p {
+    margin-bottom: 8px;
+}
+
+.map-help-text p:last-child {
+    margin-bottom: 0;
+}
+
+.map-help-text i {
+    color: #0090e7;
+    margin-right: 8px;
+    width: 16px;
+    text-align: center;
+}
+
+.map-help-text strong {
+    color: #ffffff;
+    font-weight: 500;
+}
+
+.map-help-text .badge {
+    font-size: 0.75rem;
+    padding: 0.2em 0.5em;
+}
+
+/* Nút điều khiển bổ sung */
+.map-custom-controls {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.map-control-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: #191c24;
+    color: #ffffff;
+    border: 1px solid #2c2e33;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.map-control-btn:hover {
+    background-color: #2A3038;
+    transform: scale(1.1);
+}
+
+.map-control-btn:active {
+    transform: scale(0.95);
+    background-color: #0090e7;
+}
+
+.map-control-btn i {
+    font-size: 16px;
+}

@@ -1,0 +1,275 @@
+<div class="container-fluid py-4">
+  <div class="card">
+    <div class="card-header">
+      <h5 class="mb-0">Chỉnh sửa phim</h5>
+    </div>
+    <div class="card-body">
+      <form [formGroup]="movieForm" (ngSubmit)="onSubmit()" class="row g-3">
+        <div class="col-md-6">
+          <div class="form-group">
+            <label for="movieName" class="form-label">Tên phim <span class="text-danger">*</span></label>
+            <input type="text" class="form-control" id="movieName" formControlName="movieName"
+              [class.is-invalid]="movieForm.get('movieName')?.invalid && movieForm.get('movieName')?.touched">
+            <div class="invalid-feedback"
+              *ngIf="movieForm.get('movieName')?.invalid && movieForm.get('movieName')?.touched">
+              Vui lòng nhập tên phim
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-6">
+          <div class="form-group">
+            <label for="duration" class="form-label">Thời lượng (phút) <span class="text-danger">*</span></label>
+            <input type="number" class="form-control" id="duration" formControlName="duration"
+              [class.is-invalid]="movieForm.get('duration')?.invalid && movieForm.get('duration')?.touched">
+            <div class="invalid-feedback"
+              *ngIf="movieForm.get('duration')?.invalid && movieForm.get('duration')?.touched">
+              Thời lượng phải lớn hơn 0
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-6">
+          <div class="form-group">
+            <label for="releaseDate" class="form-label">Ngày phát hành <span class="text-danger">*</span></label>
+            <input type="date" class="form-control" id="releaseDate" formControlName="releaseDate"
+              [class.is-invalid]="movieForm.get('releaseDate')?.invalid && movieForm.get('releaseDate')?.touched">
+          </div>
+        </div>
+
+        <div class="col-md-6">
+          <div class="form-group">
+            <label for="status" class="form-label">Trạng thái</label>
+            <select class="form-control" id="status" formControlName="status">
+              <option [value]="1">Hoạt động</option>
+              <option [value]="0">Không hoạt động</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="col-md-6">
+          <div class="form-group">
+            <label for="importDate" class="form-label">Ngày nhập phim <span class="text-danger">*</span></label>
+            <input type="date" class="form-control" id="importDate" formControlName="importDate"
+              [class.is-invalid]="movieForm.get('importDate')?.invalid && movieForm.get('importDate')?.touched">
+            <div class="invalid-feedback"
+              *ngIf="movieForm.get('importDate')?.invalid && movieForm.get('importDate')?.touched">
+              Vui lòng chọn ngày nhập phim
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-6">
+          <div class="form-group">
+            <label for="endDate" class="form-label">Ngày hết hạn <span class="text-danger">*</span></label>
+            <input type="date" class="form-control" id="endDate" formControlName="endDate"
+              [class.is-invalid]="movieForm.get('endDate')?.invalid && movieForm.get('endDate')?.touched">
+            <div class="invalid-feedback"
+              *ngIf="movieForm.get('endDate')?.invalid && movieForm.get('endDate')?.touched">
+              Vui lòng chọn ngày hết hạn
+            </div>
+            <div class="invalid-feedback" *ngIf="movieForm.errors?.['endDateInvalid']">
+              Ngày hết hạn không được nhỏ hơn ngày nhập phim
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-6">
+          <div class="form-group">
+            <label for="ageRatingId" class="form-label">Xếp hạng độ tuổi</label>
+            <select class="form-control" id="ageRatingId" formControlName="ageRatingId">
+              <option value="">-- Chọn xếp hạng độ tuổi --</option>
+              <option *ngFor="let rating of ageRatings" [value]="rating.ageRatingId">
+                {{rating.code}} - {{rating.description}} ({{rating.minimumAge}}+)
+              </option>
+            </select>
+          </div>
+        </div>
+
+        <div class="col-12">
+          <div class="form-group">
+            <label for="description" class="form-label">Mô tả <span class="text-danger">*</span></label>
+            <textarea class="form-control" id="description" formControlName="description" rows="3"
+              [class.is-invalid]="movieForm.get('description')?.invalid && movieForm.get('description')?.touched"></textarea>
+          </div>
+        </div>
+
+        <div class="col-md-6">
+          <div class="form-group">
+            <label for="banner" class="form-label">Ảnh Banner</label>
+            <input type="file" class="form-control" id="banner" (change)="onFileSelect($event, 'banner')"
+              accept="image/*">
+            <!-- Xem trước banner -->
+            <div *ngIf="movie?.banner || bannerPreviewUrl" class="mt-2">
+              <img [src]="bannerPreviewUrl || movie?.banner" alt="Banner Preview" class="img-fluid img-thumbnail"
+                style="max-height: 200px">
+            </div>
+
+          </div>
+        </div>
+
+
+        <div class="col-md-6">
+          <div class="form-group">
+            <label for="thumbnail" class="form-label">Ảnh thumbnail</label>
+            <input type="file" class="form-control" id="thumbnail" (change)="onFileSelect($event, 'thumbnail')"
+              accept="image/*">
+            <!-- Xem trước thumbnail -->
+            <div *ngIf="movie?.thumbnail || thumbnailPreviewUrl" class="mt-2">
+              <img [src]="thumbnailPreviewUrl || movie?.thumbnail" alt="Thumbnail Preview"
+                class="img-fluid img-thumbnail" style="max-height: 200px">
+            </div>
+          </div>
+        </div>
+
+
+        <div class="col-md-12">
+          <div class="form-group">
+            <label for="trailer" class="form-label">Trailer</label>
+            <input type="file" class="form-control" id="trailer" (change)="onFileSelect($event, 'trailer')"
+              accept="video/*">
+            <!-- Xem trước trailer từ file -->
+            <div *ngIf="trailerPreviewUrl" class="mt-3">
+              <label>Xem trước trailer mới:</label>
+              <video width="100%" controls class="mt-2">
+                <source [src]="trailerPreviewUrl" type="video/mp4">
+                Trình duyệt của bạn không hỗ trợ xem trước video.
+              </video>
+            </div>
+            <!-- Hiển thị trailer hiện tại từ YouTube hoặc URL khác -->
+            <div *ngIf="movie?.trailer && !trailerPreviewUrl" class="mt-3">
+              <label>Trailer hiện tại:</label>
+              <div class="ratio ratio-16x9 mt-2">
+                <iframe *ngIf="safeTrailerUrl" [src]="safeTrailerUrl" allowfullscreen></iframe>
+                <div *ngIf="!safeTrailerUrl" class="alert alert-info">
+                  Trailer đã được lưu nhưng không thể hiển thị trước.
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+
+
+
+
+        <!-- <div class="col-12">
+          <div class="form-group">
+            <label class="form-label">Diễn viên</label>
+            <select multiple class="form-select" formControlName="listActorID">
+              <option *ngFor="let actor of actors" [value]="actor.id">
+                {{actor.name}}
+              </option>
+            </select>
+          </div>
+        </div> -->
+
+
+        <!-- Phần diễn viên trong form -->
+        <div class="mb-3 col-12">
+          <label class="form-label">Diễn viên</label>
+          <div class="selected-actors mb-2">
+            <span *ngFor="let actor of selectedActors" class="badge bg-primary me-2 mb-2">
+              {{actor.name}}
+              <button type="button" class="btn-close btn-close-white ms-2" (click)="removeActor(actor)"
+                style="font-size: 0.5rem;">
+              </button>
+            </span>
+          </div>
+          <div class="actor-search-container position-relative">
+            <input type="text" class="form-control" [(ngModel)]="searchTerm" [ngModelOptions]="{standalone: true}"
+              (input)="filterActors()" (focus)="showDropdown = true" placeholder="Tìm kiếm diễn viên...">
+
+            <!-- Dropdown list -->
+            <div class="actor-dropdown shadow" *ngIf="showDropdown && filteredActors.length > 0">
+              <div class="list-group">
+                <button type="button" *ngFor="let actor of filteredActors"
+                  class="list-group-item list-group-item-action" (click)="selectActor(actor)">
+                  {{actor.name}}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+
+
+
+
+        <!-- Phần Thể loại trong form -->
+        <div class="mb-3 col-12">
+          <label class="form-label">Thể loại</label>
+          <div class="selected-genres mb-2">
+            <span *ngFor="let genre of selectedGenres" class="badge bg-success me-2 mb-2">
+              {{genre.genreName}}
+              <button type="button" class="btn-close btn-close-white ms-2" (click)="removeGenre(genre)"
+                style="font-size: 0.5rem;">
+              </button>
+            </span>
+          </div>
+          <div class="genre-search-container position-relative">
+            <input type="text" class="form-control" [(ngModel)]="genreSearchTerm" [ngModelOptions]="{standalone: true}"
+              (input)="filterGenres()" (focus)="showGenreDropdown = true" placeholder="Tìm kiếm thể loại...">
+
+            <!-- Dropdown list -->
+            <div class="actor-dropdown shadow" *ngIf="showGenreDropdown && filteredGenres.length > 0">
+              <div class="list-group">
+                <button type="button" *ngFor="let genre of filteredGenres"
+                  class="list-group-item list-group-item-action" (click)="selectGenre(genre)">
+                  {{genre.genreName}}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Phần Định dạng phim trong form -->
+        <div class="mb-3 col-12">
+          <label class="form-label">Định dạng phim</label>
+          <div class="selected-formats mb-2">
+            <span *ngFor="let format of selectedFormats" class="badge bg-info me-2 mb-2">
+              {{format.name}}
+              <button type="button" class="btn-close btn-close-white ms-2" (click)="removeFormat(format)"
+                style="font-size: 0.5rem;">
+              </button>
+            </span>
+          </div>
+          <div class="format-search-container position-relative">
+            <input type="text" class="form-control" [(ngModel)]="formatSearchTerm" [ngModelOptions]="{standalone: true}"
+              (input)="filterFormats()" (focus)="showFormatDropdown = true" placeholder="Tìm kiếm định dạng phim...">
+
+            <!-- Dropdown list -->
+            <div class="format-dropdown shadow" *ngIf="showFormatDropdown && filteredFormats.length > 0">
+              <div class="list-group">
+                <button type="button" *ngFor="let format of filteredFormats"
+                  class="list-group-item list-group-item-action" (click)="selectFormat(format)">
+                  {{format.name}} - {{format.description}}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+
+
+
+
+
+
+
+
+
+        <div class="col-12">
+          <div class="d-flex gap-2">
+            <button type="submit" class="btn-lg btn btn-primary me-3" [disabled]="!movieForm.valid || isLoading">
+              <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-1"></span>
+              {{isLoading ? 'Đang cập nhật...' : 'Cập nhật'}}
+            </button>
+            <button type="button" class="btn-lg btn btn-outline-danger" routerLink="/movies"
+              style="margin-left: 10px;">Hủy</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

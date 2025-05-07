@@ -1,0 +1,393 @@
+/* Cải thiện tabs - giống dashboard */
+.nav-tabs {
+  border-bottom: 1px solid #4a5568;
+}
+
+.nav-tabs .nav-link {
+  margin-bottom: -1px;
+  border: 1px solid transparent;
+  border-top-left-radius: 0.35rem;
+  border-top-right-radius: 0.35rem;
+  color: #a0aec0;
+  font-weight: 500;
+  padding: 0.75rem 1.25rem;
+  transition: all 0.2s ease;
+  margin-right: 0.25rem;
+}
+
+.nav-tabs .nav-link i {
+  margin-right: 0.5rem;
+}
+
+.nav-tabs .nav-link:hover:not(.active) {
+  border-color: #fefeff;
+  background-color: #2d3748;
+}
+
+.nav-tabs .nav-link.active {
+  color: #63b3ed;
+  font-weight: 600;
+  border-color: #4a5568 #4a5568 #2d3748;
+  background-color: #2d3748;
+}
+
+.nav-tabs .nav-link .text-muted {
+  font-size: 0.85rem;
+  display: block;
+  margin-top: 5px;
+  color: #6c7293;
+}
+
+/* Cải thiện card */
+.card {
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  margin-bottom: 20px;
+  background-color: #191c24;
+  border: 1px solid #2c2e33;
+}
+
+.card:hover {
+  box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* Hiệu ứng hover cho card */
+.hover-card {
+  transition: all 0.3s ease;
+}
+
+.hover-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+}
+
+.card-header {
+  border-radius: 10px 10px 0 0 !important;
+  padding: 15px 20px;
+  background-color: #191c24;
+  border-bottom: 1px solid #2c2e33;
+}
+
+.card-body {
+  padding: 20px;
+}
+
+/* Cải thiện benefit items */
+.benefit-item {
+  transition: all 0.3s ease;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.benefit-item:hover {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+}
+
+/* Cải thiện buttons */
+.btn {
+  border-radius: 5px;
+  padding: 8px 15px;
+  transition: all 0.3s ease;
+}
+
+.btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.btn-group .btn {
+  padding: 5px 10px;
+}
+
+/* Cải thiện modal */
+.modal-content {
+  border-radius: 15px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  border: 1px solid #2c2e33;
+  overflow: hidden;
+  background-color: #191c24;
+  color: #ffffff;
+  z-index: 1056;
+  /* Đảm bảo modal hiển thị trên backdrop */
+}
+
+.modal-header {
+  padding: 15px 20px;
+  background-color: #191c24;
+  border-bottom: 1px solid #2c2e33;
+}
+
+.modal-body {
+  padding: 20px;
+  max-height: 70vh;
+  overflow-y: auto;
+  background-color: #191c24;
+}
+
+.modal-footer {
+  border-top: 1px solid #2c2e33;
+  padding: 15px 20px;
+  background-color: #191c24;
+}
+
+/* Đảm bảo các phần tử trong modal có thể tương tác */
+.modal-dialog {
+  pointer-events: auto !important;
+  z-index: 1056;
+  /* Đảm bảo dialog hiển thị trên backdrop */
+}
+
+.modal-content * {
+  pointer-events: auto !important;
+}
+
+/* Tùy chỉnh cho benefit-modal */
+.benefit-modal .modal-dialog {
+  max-width: 500px;
+}
+
+.benefit-modal .modal-content {
+  animation: none;
+}
+
+/* Modal styling */
+.benefit-modal .modal-dialog {
+  max-width: 600px;
+}
+
+/* Cấu hình quyền lợi */
+.benefit-config-section {
+  background-color: #2A3038;
+  border-radius: 10px;
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+  border: 1px solid #2c2e33;
+}
+
+.benefit-config-section:hover {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.benefit-config-section h6 {
+  font-weight: 600;
+  margin-bottom: 15px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #2c2e33;
+  color: #ffffff;
+}
+
+/* Cải thiện form controls */
+.form-control,
+.form-select {
+  border-radius: 5px;
+  padding: 10px 15px;
+  border: 1px solid #2c2e33;
+  background-color: #2A3038;
+  color: #ffffff !important;
+  transition: all 0.3s ease;
+}
+
+.form-control:focus,
+.form-select:focus {
+  box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.15);
+  border-color: #86b7fe;
+}
+
+/* Cải thiện select options */
+select.form-select option {
+  background-color: #2A3038;
+  color: #ffffff;
+  padding: 10px;
+}
+
+select.form-select option:hover,
+select.form-select option:focus,
+select.form-select option:active,
+select.form-select option:checked {
+  background-color: #0090e7;
+  color: #ffffff;
+}
+
+/* Điều chỉnh dropdown menu của select */
+.form-select {
+  appearance: auto;
+  /* Sử dụng giao diện mặc định của trình duyệt */
+  -webkit-appearance: auto;
+  -moz-appearance: auto;
+}
+
+/* Đảm bảo dropdown menu hiển thị đúng */
+.form-select::-ms-expand {
+  display: block;
+}
+
+/* Đặc biệt cho select dịch vụ */
+.benefit-config-section select.form-select {
+  background-color: #2A3038;
+  color: #ffffff;
+  border: 1px solid #4a5568;
+}
+
+.benefit-config-section select.form-select option {
+  background-color: #2A3038;
+  color: #ffffff;
+  padding: 12px;
+  border-bottom: 1px solid #4a5568;
+}
+
+.benefit-config-section select.form-select option:hover,
+.benefit-config-section select.form-select option:focus,
+.benefit-config-section select.form-select option:active,
+.benefit-config-section select.form-select option:checked {
+  background-color: #0090e7;
+  color: #ffffff;
+}
+
+/* Style cho service select */
+.service-select {
+  background-color: #2A3038 !important;
+  color: #ffffff !important;
+  border: 1px solid #4a5568 !important;
+  font-weight: 500 !important;
+}
+
+.service-select option {
+  background-color: #2A3038 !important;
+  color: #ffffff !important;
+  padding: 12px !important;
+  font-weight: normal !important;
+}
+
+.service-select option.default-option {
+  font-style: italic !important;
+  color: #a0aec0 !important;
+}
+
+.service-select option.service-option {
+  border-bottom: 1px solid #4a5568 !important;
+  margin-bottom: 2px !important;
+}
+
+.service-select option.service-option:hover,
+.service-select option.service-option:focus,
+.service-select option.service-option:active,
+.service-select option.service-option:checked {
+  background-color: #0090e7 !important;
+  color: #ffffff !important;
+}
+
+.form-label {
+  font-weight: 500;
+  margin-bottom: 8px;
+  color: #ffffff;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .nav-tabs .nav-link {
+    padding: 8px 10px;
+    font-size: 0.9rem;
+  }
+
+  .card-header {
+    padding: 12px 15px;
+  }
+
+  .card-body {
+    padding: 15px;
+  }
+}
+
+
+
+
+
+/* Global Select Option Customization */
+select option {
+  background-color: #2A3038 !important;
+  color: #ffffff !important;
+  padding: 8px !important;
+}
+
+select option:hover,
+select option:focus,
+select option:active,
+select option:checked {
+  background-color: #0090e7 !important;
+  color: #ffffff !important;
+}
+
+/* Ensure dropdown menus are visible */
+select {
+  background-color: #2A3038 !important;
+  color: #ffffff !important;
+}
+
+/* Fix for dark dropdowns in Chrome and other browsers */
+select.form-select,
+select.form-control {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23ffffff' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e") !important;
+  background-repeat: no-repeat !important;
+  background-position: right 0.75rem center !important;
+  background-size: 16px 12px !important;
+}
+
+
+/* Tạo backdrop tùy chỉnh */
+.custom-modal-class::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 1040;
+  pointer-events: none;
+}
+
+/* Tăng z-index của modal lên cao hơn */
+.custom-modal-class .modal-dialog {
+  z-index: 1060 !important;
+  position: relative;
+}
+
+.custom-modal-class .modal-content {
+  background-color: #191c24 !important;
+  color: #ffffff !important;
+  border-radius: 15px !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5) !important;
+  border: 1px solid #2c2e33 !important;
+}
+
+/* Đảm bảo tất cả các phần tử trong modal có thể tương tác */
+.custom-modal-class .modal-content * {
+  pointer-events: auto !important;
+}
+
+/* Tăng độ nổi bật của modal */
+.custom-modal-class .modal-header {
+  border-bottom: 1px solid #2c2e33 !important;
+  background-color: #191c24 !important;
+}
+
+/* Đảm bảo modal hiển thị đúng */
+.modal-open .modal {
+  display: block !important;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+.modal-header {
+  border-bottom: 1px solid #2c2e33 !important;
+  background-color: #191c24 !important;
+}
+
+.modal-footer {
+  border-top: 1px solid #2c2e33 !important;
+  background-color: #191c24 !important;
+}

@@ -1,10 +1,612 @@
 /* Import các file CSS của template Corona */
-@import '../assets/vendors/mdi/css/materialdesignicons.min.css';
-@import '../assets/vendors/css/vendor.bundle.base.css';
-@import '../assets/css/style.css';
+@import './assets/vendors/mdi/css/materialdesignicons.min.css';
+@import './assets/vendors/css/vendor.bundle.base.css';
+@import './assets/css/style.css';
+
+/* Import Angular Material theme */
+@import '@angular/material/prebuilt-themes/purple-green.css';
 
 /* Import các thư viện bổ sung */
-@import '../assets/vendors/select2/select2.min.css';
-@import '../assets/vendors/select2-bootstrap-theme/select2-bootstrap.min.css';
-@import '../assets/vendors/owl-carousel-2/owl.carousel.min.css';
-@import '../assets/vendors/owl-carousel-2/owl.theme.default.min.css';
+@import './assets/vendors/select2/select2.min.css';
+@import './assets/vendors/select2-bootstrap-theme/select2-bootstrap.min.css';
+@import './assets/vendors/owl-carousel-2/owl.carousel.min.css';
+@import './assets/vendors/owl-carousel-2/owl.theme.default.min.css';
+/* Sử dụng CDN cho dropify thay vì node_modules */
+@import 'https://cdnjs.cloudflare.com/ajax/libs/Dropify/0.2.2/css/dropify.min.css';
+
+/* Thêm import CSS của Leaflet */
+@import 'leaflet/dist/leaflet.css';
+
+/* Ghi đè thuộc tính speak cũ của dropify */
+.dropify-font:before,
+.dropify-wrapper .dropify-message span.file-icon:before,
+.dropify-wrapper .dropify-preview .dropify-infos .dropify-infos-inner p.dropify-filename span.file-icon:before,
+[class*=" dropify-font-"]:before,
+[class^=dropify-font-]:before {
+  speak-as: none;
+}
+
+/* Custom styles cho login page */
+body.auth.login-bg {
+  height: 100vh;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+.container-scroller {
+  height: 100vh;
+}
+
+.auth .login-bg {
+  background: url("./assets/images/auth/Login_bg.jpg") no-repeat center center;
+  background-size: cover;
+}
+
+.auth .auth-form-transparent {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.form-control {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.form-control:focus {
+  background-color: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.3);
+  color: #ffffff;
+}
+
+.auth label {
+  color: #ffffff;
+}
+
+.auth .btn-primary {
+  width: 100%;
+  height: 50px;
+}
+
+.auth .forgot-pass {
+  color: #ffffff;
+  text-decoration: none;
+}
+
+.auth .forgot-pass:hover {
+  color: #007bff;
+}
+
+.auth .sign-up {
+  color: #ffffff;
+  margin-top: 30px;
+  text-align: center;
+}
+
+.auth .sign-up a {
+  color: #007bff;
+  text-decoration: none;
+}
+
+.auth .sign-up a:hover {
+  text-decoration: underline;
+}
+
+/* SweetAlert2 - hiển thị ở cấp độ cao nhất */
+.swal2-container {
+  z-index: 999999 !important;
+  /* Z-index cực cao để hiển thị trên tất cả các phần tử */
+}
+
+/* Ng-Bootstrap Modal Customization - Global */
+.modal {
+  z-index: 1050 !important;
+}
+
+.modal-dialog {
+  z-index: 1055 !important;
+  pointer-events: auto !important;
+}
+
+.modal-backdrop {
+  z-index: 1040 !important;
+  opacity: 0.5 !important;
+  pointer-events: none !important;
+}
+
+.modal-backdrop.show {
+  opacity: 0.5 !important;
+  pointer-events: none !important;
+}
+
+.modal-backdrop+.modal-backdrop {
+  display: none !important;
+}
+
+.modal-content {
+  pointer-events: auto !important;
+}
+
+.modal-content * {
+  pointer-events: auto !important;
+}
+
+/* Sửa lỗi logo SweetAlert2 bị lệch */
+.swal2-icon {
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  margin: 1.35em auto 1.875em !important;
+}
+
+.swal2-icon.swal2-success .swal2-success-ring {
+  position: absolute !important;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+.swal2-icon.swal2-error [class^=swal2-x-mark-line] {
+  display: block !important;
+  position: absolute !important;
+}
+
+/* Đặt màu đen cho title của SweetAlert */
+.swal2-title {
+  color: #151515 !important;
+}
+
+.swal2-html-container {
+  color: #262626 !important;
+}
+
+/* Cải thiện độ tương phản của ApexCharts Menu - chỉ khi hiển thị */
+.apexcharts-menu {
+  background-color: #1a202c !important;
+  border: 2px solid #4299e1 !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6) !important;
+  border-radius: 8px !important;
+  padding: 8px 4px !important;
+  z-index: 999999 !important;
+}
+
+.apexcharts-menu-item {
+  color: #ffffff !important;
+  background-color: transparent !important;
+  font-weight: 500 !important;
+  padding: 12px 16px !important;
+  border-radius: 4px !important;
+  margin: 4px 0 !important;
+  transition: all 0.2s ease !important;
+  font-size: 14px !important;
+  font-family: Arial, sans-serif !important;
+}
+
+.apexcharts-menu-item:hover {
+  background-color: #4299e1 !important;
+  color: white !important;
+  transform: translateX(4px) !important;
+}
+
+/* SVG text elements in menu */
+.apexcharts-menu svg text,
+.apexcharts-menu-item svg text {
+  fill: white !important;
+  stroke: none !important;
+}
+
+/* Menu icon */
+.apexcharts-menu-icon {
+  color: #ffffff !important;
+  background-color: rgba(0, 0, 0, 0.5) !important;
+  border-radius: 50% !important;
+  padding: 4px !important;
+}
+
+/* Ensure text is visible */
+.apexcharts-menu-item span,
+.apexcharts-menu-item text {
+  color: white !important;
+  fill: white !important;
+}
+
+
+
+.page-item.active .page-link {
+  background: linear-gradient(to right, #0090e7, #0077b5) !important;
+  border-color: #0090e7 !important;
+}
+
+.page-link {
+  background-color: #2A3038 !important;
+  border-color: #2c2e33 !important;
+  color: #ffffff !important;
+  margin: 0 5px !important;
+  border-radius: 5px !important;
+  transition: color 0.3s ease, background-color 0.3s ease, transform 0.3s ease !important;
+}
+
+.page-link:hover {
+  background-color: #0090e7 !important;
+  border-color: #0077b5 !important;
+  color: #ffffff !important;
+  transform: translateY(-2px) !important;
+}
+
+.page-item:first-child .page-link,
+.page-item:last-child .page-link {
+  border-radius: 5px !important;
+}
+
+
+
+.page-item {
+  margin: 0 3px !important;
+}
+
+.page-item.active .page-link {
+  background: linear-gradient(to right, #0090e7, #0077b5) !important;
+  border-color: #0090e7 !important;
+  box-shadow: 0 2px 5px rgba(0, 144, 231, 0.3) !important;
+}
+
+.page-link {
+  background-color: #2A3038 !important;
+  border-color: #2c2e33 !important;
+  color: #ffffff !important;
+  padding: 0.5rem 0.75rem !important;
+  border-radius: 6px !important;
+  transition: all 0.3s ease !important;
+  min-width: 38px !important;
+  text-align: center !important;
+}
+
+.page-link:hover {
+  background-color: #0090e7 !important;
+  border-color: #0077b5 !important;
+  color: #ffffff !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 5px 10px rgba(0, 144, 231, 0.2) !important;
+}
+
+.page-item.disabled .page-link {
+  background-color: #1e2227 !important;
+  border-color: #2c2e33 !important;
+  color: #6c7293 !important;
+  cursor: not-allowed !important;
+}
+
+
+/* Pagination styling */
+.pagination {
+  margin-top: 30px !important;
+  justify-content: center !important;
+}
+
+
+
+
+.table tbody tr:hover {
+  background-color: rgba(146, 146, 146, 0.05) !important;
+}
+
+.table tr:hover td {
+  color: #ffffff !important;
+}
+
+
+
+.text-gradient {
+  background: linear-gradient(90deg, #4e73df 0%, #36b9cc 100%) !important;
+  background-clip: text !important;
+  -webkit-background-clip: text;
+  color: transparent !important;
+}
+
+
+
+
+.dashboard-header {
+  margin-bottom: 2rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid rgba(60, 60, 60, 0.866) !important;
+  /* border: 10px solid white !important; */
+}
+
+/* Angular Material Dialog Customization */
+.mat-mdc-dialog-container {
+  --mdc-dialog-container-color: #191c24 !important;
+  --mdc-dialog-with-divider-divider-color: rgba(255, 255, 255, 0.12) !important;
+  --mdc-dialog-subhead-color: #ffffff !important;
+  --mdc-dialog-supporting-text-color: #d0d0d0 !important;
+  color: #ffffff !important;
+}
+
+.mat-mdc-dialog-container .mdc-dialog__surface {
+  background-color: #191c24 !important;
+  color: #ffffff !important;
+  border-radius: 10px !important;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5) !important;
+}
+
+.mat-mdc-dialog-title {
+  color: #ffffff !important;
+  font-size: 1.5rem !important;
+  font-weight: 500 !important;
+}
+
+.mat-mdc-dialog-content {
+  color: #d0d0d0 !important;
+}
+
+.mat-mdc-dialog-actions {
+  padding: 16px 24px !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.12) !important;
+}
+
+/* Ensure dialog appears on top of everything */
+.cdk-overlay-container {
+  z-index: 9999 !important;
+}
+
+.cdk-overlay-backdrop.cdk-overlay-backdrop-showing {
+  opacity: 0.85 !important;
+}
+
+/* Material Form Field Customization */
+.mat-mdc-form-field {
+  width: 100% !important;
+}
+
+.mat-mdc-text-field-wrapper {
+  background-color: #2A3038 !important;
+  border-radius: 5px !important;
+}
+
+.mat-mdc-form-field-focus-overlay {
+  background-color: rgba(255, 255, 255, 0.05) !important;
+}
+
+.mat-mdc-text-field-wrapper.mdc-text-field--focused {
+  background-color: #2d3748 !important;
+}
+
+.mat-mdc-form-field-label {
+  color: #bbb !important;
+}
+
+.mat-mdc-input-element {
+  color: #ffffff !important;
+}
+
+/* Material Button Customization */
+.mat-mdc-raised-button.mat-primary {
+  background: linear-gradient(to right, #0090e7, #0077b5) !important;
+}
+
+.mat-mdc-raised-button.mat-accent {
+  background-color: #00d25b !important;
+}
+
+.mat-mdc-raised-button.mat-warn {
+  background-color: #fc424a !important;
+}
+
+/* Material Table Customization */
+.mat-mdc-table {
+  background-color: #191c24 !important;
+  color: #ffffff !important;
+}
+
+.mat-mdc-header-row {
+  background-color: #2A3038 !important;
+}
+
+.mat-mdc-header-cell {
+  color: #ffffff !important;
+  font-weight: 500 !important;
+}
+
+.mat-mdc-row:hover {
+  background-color: rgba(255, 255, 255, 0.05) !important;
+}
+
+.mat-mdc-cell {
+  color: #d0d0d0 !important;
+  border-bottom-color: rgba(255, 255, 255, 0.12) !important;
+}
+
+/* Material Tabs Customization */
+.mat-mdc-tab-header {
+  background-color: #2A3038 !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12) !important;
+}
+
+.mat-mdc-tab {
+  color: #bbb !important;
+}
+
+.mat-mdc-tab.mdc-tab--active {
+  color: #0090e7 !important;
+}
+
+.mat-mdc-tab-body-content {
+  color: #ffffff !important;
+}
+
+/* Material Paginator Customization */
+.mat-mdc-paginator {
+  background-color: #191c24 !important;
+  color: #ffffff !important;
+}
+
+.mat-mdc-paginator-page-size-select {
+  background-color: #2A3038 !important;
+  color: #ffffff !important;
+}
+
+.mat-mdc-paginator-range-label {
+  color: #bbb !important;
+}
+
+.mat-mdc-paginator-navigation-previous,
+.mat-mdc-paginator-navigation-next {
+  color: #ffffff !important;
+}
+
+/* Material Select Customization */
+.mat-mdc-select-panel {
+  background-color: #2A3038 !important;
+  color: #ffffff !important;
+  border-radius: 5px !important;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3) !important;
+}
+
+.mat-mdc-option {
+  color: #d0d0d0 !important;
+}
+
+.mat-mdc-option:hover:not(.mdc-list-item--disabled) {
+  background-color: rgba(255, 255, 255, 0.05) !important;
+}
+
+.mat-mdc-option.mdc-list-item--selected:not(.mdc-list-item--disabled) {
+  background-color: rgba(0, 144, 231, 0.2) !important;
+  color: #ffffff !important;
+}
+
+/* Global Select Option Customization */
+select option {
+  background-color: #2A3038 !important;
+  color: #ffffff !important;
+  padding: 8px !important;
+  text-shadow: none !important;
+}
+
+select option:hover,
+select option:focus,
+select option:active,
+select option:checked {
+  background-color: #0090e7 !important;
+  color: #ffffff !important;
+  text-shadow: none !important;
+}
+
+/* Đảm bảo text hiển thị trong tất cả các trình duyệt */
+.form-select option,
+.form-control option {
+  color: #ffffff !important;
+  background-color: #2A3038 !important;
+  text-shadow: none !important;
+}
+
+/* Ensure dropdown menus are visible */
+select {
+  background-color: #2A3038 !important;
+  color: #ffffff !important;
+}
+
+/* Fix for dark dropdowns in Chrome and other browsers */
+select.form-select,
+select.form-control {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23ffffff' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e") !important;
+  background-repeat: no-repeat !important;
+  background-position: right 0.75rem center !important;
+  background-size: 16px 12px !important;
+}
+
+/* Fix for Firefox */
+@-moz-document url-prefix() {
+
+  select.form-select,
+  select.form-control {
+    color: #ffffff !important;
+    background-color: #2A3038 !important;
+  }
+
+  select.form-select option,
+  select.form-control option {
+    background-color: #2A3038 !important;
+    color: #ffffff !important;
+    text-shadow: none !important;
+  }
+
+  /* Đảm bảo text hiển thị trong Firefox */
+  option {
+    color: #ffffff !important;
+    background-color: #2A3038 !important;
+    text-shadow: none !important;
+  }
+}
+
+/* Fix for Safari and Chrome */
+@media screen and (-webkit-min-device-pixel-ratio:0) {
+
+  select.form-select,
+  select.form-control {
+    -webkit-appearance: none !important;
+    background-color: #2A3038 !important;
+    color: #ffffff !important;
+    padding-right: 25px !important;
+  }
+
+  select.form-select option,
+  select.form-control option {
+    background-color: #2A3038 !important;
+    color: #ffffff !important;
+    text-shadow: none !important;
+  }
+
+  /* Đảm bảo text hiển thị trong Safari và Chrome */
+  option {
+    color: #ffffff !important;
+    background-color: #2A3038 !important;
+    text-shadow: none !important;
+  }
+
+  /* Fix cho dropdown menu */
+  .dropdown-menu option {
+    color: #ffffff !important;
+    background-color: #2A3038 !important;
+  }
+}
+
+
+.swal2-x-mark {
+  margin-bottom: 20px !important;
+}
+
+
+/* Fix cho select option text bị ẩn */
+.option {
+  color: white !important;
+}
+
+option {
+  color: white !important;
+  background-color: #2A3038 !important;
+}
+
+select option {
+  color: white !important;
+  background-color: #2A3038 !important;
+}
+
+/* Fix cho Chrome và các trình duyệt khác */
+select.form-select option,
+select.form-control option,
+.form-select option,
+.form-control option {
+  color: white !important;
+  background-color: #2A3038 !important;
+  padding: 8px !important;
+}
+
+/* Fix cho dropdown text */
+.dropdown-item {
+  color: white !important;
+}
+
+/* Đảm bảo text trong dropdown menu hiển thị */
+.dropdown-menu {
+  color: white !important;
+}

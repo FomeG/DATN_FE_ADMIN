@@ -2,9 +2,9 @@ name: Simple CI Pipeline
 
 on:
   push:
-    branches: [ main ]
+    branches: [ Nghia/Merged ]
   pull_request:
-    branches: [ main ]
+    branches: [ Nghia/Merged ]
 
 jobs:
   build-and-test:

@@ -400,6 +400,13 @@ export class AddMovieModalComponent implements OnInit, AfterViewInit {
         });
       }
 
+      // Add format IDs
+      if (this.selectedFormats && this.selectedFormats.length > 0) {
+        this.selectedFormats.forEach(format => {
+          formData.append('listFormatID', format.formatId);
+        });
+      }
+
       this.movieService.createMovie(formData).subscribe({
         next: (response) => {
           // Kiểm tra responseCode để xác định thành công (chấp nhận cả 1 và 200)

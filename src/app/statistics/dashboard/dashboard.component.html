@@ -209,134 +209,132 @@
           </div>
         </div>
       </div>
+    </div>
+  </div>
 
 
 
 
-      <!-- PHIM -->
-      <div class="d-flex p-0 mb-1" style="gap: 20px">
-        <div class="card p-0" style="width: 40%; display: flex; flex-direction: column;">
-          <div class="card-header" style="border-bottom: 1px solid #2c2e33;">
-            <h6 class="card-title">Thống kê doanh thu phim</h6>
-          </div>
-          <div class="card-body" style="flex: 1; display: flex; flex-direction: column;">
-            <!-- Biểu đồ tròn cho phim -->
-            <div class="chart-container" style="flex: 1; min-height: 350px; width: 100%;">
-              <apx-chart [series]="movieChartOptions.series" [chart]="movieChartOptions.chart"
-                [labels]="movieChartOptions.labels" [responsive]="movieChartOptions.responsive"
-                [dataLabels]="movieChartOptions.dataLabels" [legend]="movieChartOptions.legend"
-                [colors]="movieChartOptions.colors" [tooltip]="movieChartOptions.tooltip"
-                style="width: 100%; height: 100%;">
-              </apx-chart>
-            </div>
-          </div>
-        </div>
-
-        <div class="card" style="width: 60%;">
-          <div class="card-body">
-            <!-- Danh sách phim với hình ảnh -->
-            <div class="movie-list">
-              <div *ngFor="let movie of movieData.slice(0, 5); let i = index"
-                class="d-flex align-items-center mb-3 p-2 border-bottom">
-                <span style="color: white !important; margin-right: 15px !important; font-weight: bold">{{ i + 1
-                  }}</span>
-                <img [src]="movie.banner" alt="Movie banner" class="me-3"
-                  style="width: 80px; height: 50px; object-fit: cover; border-radius: 4px;">
-
-                <div class="flex-grow-1" style="margin-left: 15px !important">
-                  <h6 class="mb-0" style="color: white !important">{{ movie.movieName }}</h6>
-                  <div class="d-flex justify-content-between">
-                    <small style="color: #00E396 !important">{{ formatCurrency(movie.totalRevenue) }}</small>
-                    <small style="color: #FEB019 !important">{{ movie.totalTickets }} vé</small>
-                  </div>
-                </div>
-              </div>
-              <div *ngIf="movieData.length === 0" class="text-center p-3">
-                Không có dữ liệu
-              </div>
-            </div>
-          </div>
+  <!-- PHIM -->
+  <div class="d-flex p-0 mb-1" style="gap: 20px">
+    <div class="card p-0" style="width: 40%; display: flex; flex-direction: column;">
+      <div class="card-header" style="border-bottom: 1px solid #2c2e33;">
+        <h6 class="card-title">Thống kê doanh thu phim</h6>
+      </div>
+      <div class="card-body" style="flex: 1; display: flex; flex-direction: column;">
+        <!-- Biểu đồ tròn cho phim -->
+        <div class="chart-container" style="flex: 1; min-height: 350px; width: 100%;">
+          <apx-chart [series]="movieChartOptions.series" [chart]="movieChartOptions.chart"
+            [labels]="movieChartOptions.labels" [responsive]="movieChartOptions.responsive"
+            [dataLabels]="movieChartOptions.dataLabels" [legend]="movieChartOptions.legend"
+            [colors]="movieChartOptions.colors" [tooltip]="movieChartOptions.tooltip"
+            style="width: 100%; height: 100%;">
+          </apx-chart>
         </div>
       </div>
+    </div>
 
-      <!-- DỊCH VỤ -->
-      <div class="d-flex p-0 mb-4" style="gap: 20px">
-        <div class="card p-0" style="width: 40%; display: flex; flex-direction: column;">
-          <div class="card-header" style="border-bottom: 1px solid #2c2e33;">
-            <h6 class="card-title">Thống kê doanh thu dịch vụ</h6>
-          </div>
-          <div class="card-body" style="flex: 1; display: flex; flex-direction: column;">
-            <!-- Biểu đồ tròn cho dịch vụ -->
-            <div class="chart-container" style="flex: 1; min-height: 350px; width: 100%;">
-              <apx-chart [series]="serviceChartOptions.series" [chart]="serviceChartOptions.chart"
-                [labels]="serviceChartOptions.labels" [responsive]="serviceChartOptions.responsive"
-                [dataLabels]="serviceChartOptions.dataLabels" [legend]="serviceChartOptions.legend"
-                [colors]="serviceChartOptions.colors" [tooltip]="serviceChartOptions.tooltip"
-                style="width: 100%; height: 100%;">
-              </apx-chart>
-            </div>
-          </div>
-        </div>
+    <div class="card" style="width: 60%;">
+      <div class="card-body">
+        <!-- Danh sách phim với hình ảnh -->
+        <div class="movie-list">
+          <div *ngFor="let movie of movieData.slice(0, 5); let i = index"
+            class="d-flex align-items-center mb-3 p-2 border-bottom">
+            <span style="color: white !important; margin-right: 15px !important; font-weight: bold">{{ i + 1
+              }}</span>
+            <img [src]="movie.banner" alt="Movie banner" class="me-3"
+              style="width: 80px; height: 50px; object-fit: cover; border-radius: 4px;">
 
-        <div class="card" style="width: 60%;">
-          <div class="card-body">
-            <!-- Danh sách dịch vụ với hình ảnh -->
-            <div class="service-list">
-              <div *ngFor="let service of serviceData.slice(0, 5); let i = index"
-                class="d-flex align-items-center mb-3 p-2 border-bottom">
-                <span style="color: white !important; margin-right: 15px !important; font-weight: bold">{{ i + 1
-                  }}</span>
-                <img [src]="service.imageUrl" alt="Service image" class="me-3"
-                  style="width: 80px; height: 50px; object-fit: cover; border-radius: 4px;">
-
-                <div class="flex-grow-1" style="margin-left: 15px !important">
-                  <h6 class="mb-0" style="color: white !important">{{ service.serviceName }}</h6>
-                  <div class="d-flex justify-content-between">
-                    <small style="color: #00E396 !important">{{ formatCurrency(service.totalRevenue) }}</small>
-                    <small style="color: #FEB019 !important">{{ service.totalSold }} đã bán</small>
-                  </div>
-                </div>
-              </div>
-              <div *ngIf="serviceData.length === 0" class="text-center p-3">
-                Không có dữ liệu
+            <div class="flex-grow-1" style="margin-left: 15px !important">
+              <h6 class="mb-0" style="color: white !important">{{ movie.movieName }}</h6>
+              <div class="d-flex justify-content-between">
+                <small style="color: #00E396 !important">{{ formatCurrency(movie.totalRevenue) }}</small>
+                <small style="color: #FEB019 !important">{{ movie.totalTickets }} vé</small>
               </div>
             </div>
+          </div>
+          <div *ngIf="movieData.length === 0" class="text-center p-3">
+            Không có dữ liệu
           </div>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Test Tab (Thống kê vé) -->
-  <div *ngIf="activeTab === 'content'" class="tab-pane fade show active">
-    <div class="container-fluid p-0">
-      <app-ticket-statistics-chart></app-ticket-statistics-chart>
+  <!-- DỊCH VỤ -->
+  <div class="d-flex p-0 mb-4" style="gap: 20px">
+    <div class="card p-0" style="width: 40%; display: flex; flex-direction: column;">
+      <div class="card-header" style="border-bottom: 1px solid #2c2e33;">
+        <h6 class="card-title">Thống kê doanh thu dịch vụ</h6>
+      </div>
+      <div class="card-body" style="flex: 1; display: flex; flex-direction: column;">
+        <!-- Biểu đồ tròn cho dịch vụ -->
+        <div class="chart-container" style="flex: 1; min-height: 350px; width: 100%;">
+          <apx-chart [series]="serviceChartOptions.series" [chart]="serviceChartOptions.chart"
+            [labels]="serviceChartOptions.labels" [responsive]="serviceChartOptions.responsive"
+            [dataLabels]="serviceChartOptions.dataLabels" [legend]="serviceChartOptions.legend"
+            [colors]="serviceChartOptions.colors" [tooltip]="serviceChartOptions.tooltip"
+            style="width: 100%; height: 100%;">
+          </apx-chart>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" style="width: 60%;">
+      <div class="card-body">
+        <!-- Danh sách dịch vụ với hình ảnh -->
+        <div class="service-list">
+          <div *ngFor="let service of serviceData.slice(0, 5); let i = index"
+            class="d-flex align-items-center mb-3 p-2 border-bottom">
+            <span style="color: white !important; margin-right: 15px !important; font-weight: bold">{{ i + 1
+              }}</span>
+            <img [src]="service.imageUrl" alt="Service image" class="me-3"
+              style="width: 80px; height: 50px; object-fit: cover; border-radius: 4px;">
+
+            <div class="flex-grow-1" style="margin-left: 15px !important">
+              <h6 class="mb-0" style="color: white !important">{{ service.serviceName }}</h6>
+              <div class="d-flex justify-content-between">
+                <small style="color: #00E396 !important">{{ formatCurrency(service.totalRevenue) }}</small>
+                <small style="color: #FEB019 !important">{{ service.totalSold }} đã bán</small>
+              </div>
+            </div>
+          </div>
+          <div *ngIf="serviceData.length === 0" class="text-center p-3">
+            Không có dữ liệu
+          </div>
+        </div>
+      </div>
     </div>
   </div>
+</div>
 
-
-  <!-- Test Tab 2 - Biểu đồ đồng bộ -->
-  <div *ngIf="activeTab === 'content2'" class="tab-pane fade show active">
-    <div class="container-fluid p-0">
-      <app-sync-charts></app-sync-charts>
-    </div>
+<!-- Test Tab (Thống kê vé) -->
+<div *ngIf="activeTab === 'content'" class="tab-pane fade show active">
+  <div class="container-fluid p-0">
+    <app-ticket-statistics-chart></app-ticket-statistics-chart>
   </div>
+</div>
 
 
-  <!-- Test Tab 3 - Biểu đồ Heatmap -->
-  <div *ngIf="activeTab === 'content3'" class="tab-pane fade show active">
-    <div class="container-fluid p-0">
-      <app-seat-occupancy-heatmap></app-seat-occupancy-heatmap>
-    </div>
+<!-- Test Tab 2 - Biểu đồ đồng bộ -->
+<div *ngIf="activeTab === 'content2'" class="tab-pane fade show active">
+  <div class="container-fluid p-0">
+    <app-sync-charts></app-sync-charts>
   </div>
+</div>
 
 
-  <!-- Loading Overlay -->
-  <div *ngIf="isLoading" class="loading-overlay">
-    <div class="spinner-border text-primary" role="status">
-      <span class="visually-hidden">Đang tải...</span>
-    </div>
+<!-- Test Tab 3 - Biểu đồ Heatmap -->
+<div *ngIf="activeTab === 'content3'" class="tab-pane fade show active">
+  <div class="container-fluid p-0">
+    <app-seat-occupancy-heatmap></app-seat-occupancy-heatmap>
   </div>
+</div>
 
 
+<!-- Loading Overlay -->
+<div *ngIf="isLoading" class="loading-overlay">
+  <div class="spinner-border text-primary" role="status">
+    <span class="visually-hidden">Đang tải...</span>
+  </div>
 </div>
